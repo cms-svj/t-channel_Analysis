@@ -1,6 +1,6 @@
 # EMJAnalysis
 
-This repository houses the analysis code used to look for emerging jets.
+This folder houses the analysis code used to look for emerging jets.
 
 ## Setup Coffea Environment
 
