@@ -19,8 +19,8 @@ Remember to replace `<username>` by your username. The `-L` option is needed if 
 To begin the initial setup, run the following commands:
 ```bash
 cd <working_directory>
-git clone ssh://git@gitlab.cern.ch:7999/cms-emj/EMJAnalysis.git
-cd EMJAnalysis
+git clone git@github.com:cms-svj/t-channel_Analysis.git
+cd t-channel_Analysis/coffea/EMJAnalysis
 ./setup.sh
 ```
 Remember to replace `<working_directory>` with the directory where you want your files/folders to appear. You can change the name of the virtual environment by using the `-n` option and you can use the development version of coffea by using the `-d` option. These commands only need to be run during the initial setup. When doing your day-to-day tasks, you can skip these.
