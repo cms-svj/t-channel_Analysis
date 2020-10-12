@@ -34,17 +34,11 @@ class FancyDimuonProcessor(processor.ProcessorABC):
 
         twofjets = (fjets.counts >= 2)
         output['cutflow']['two fjets'] += twofjets.sum()
-
-        #difjets = fjets[twofjets].distincts()
-        #
-        #twodifjets = (difjets.counts >= 2)
-        #output['cutflow']['>= two difjets'] += twodifjets.sum()
-        #difjets = difjets[twodifjets]
-        #
-        #ptcut = (difjets.i0['pt'] > 200 and difjets.i1['pt'] > 200)
-        #
-        #twodifjets
-        #output['jtpt'].fill(dataset=dataset, pt=difjets.pt.flatten())
+        
+        difjets = fjets[twofjets]        
+        ptcut = (difjets.pt[:,0] > 200) & (difjets.pt[:,1] > 200)
+        difjets_pt200 = difjets[ptcut]
+        output['jtpt'].fill(dataset=dataset, pt=difjets_pt200.pt.flatten())
 
         return output
 
@@ -74,7 +68,6 @@ fileset = {
 #     'Run2012C': [
 #         'root://eospublic.cern.ch//eos/root-eos/cms_opendata_2012_nanoaod/Run2012C_DoubleMuParked.root'   
 #     ],
-
     
 }
 
@@ -84,16 +77,16 @@ output = processor.run_uproot_job(
     processor_instance=FancyDimuonProcessor(),
     executor=processor.futures_executor,
     executor_args={'workers': 6, 'flatten': True},
-    chunksize=50000,
+    chunksize=10000,
 )
 
 elapsed = time.time() - tstart
 print(output)
 
-#import matplotlib
-#ax = hist.plot1d(output['mass'], overlay='dataset')
-#ax.set_xlim(70,150)
-#ax.set_ylim(0.01, 5000)
-#ax.set_yscale("log")
+import matplotlib
+ax = hist.plot1d(output['jtpt'], overlay='dataset')
+ax.set_xlim(70,150)
+ax.set_ylim(0.01, 5000)
+ax.set_yscale("log")
 
 
