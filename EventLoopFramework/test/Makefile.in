@@ -1,0 +1,100 @@
+# Variables set by configure 
+TENSORFLOW_DIR = @TENSORFLOWDIR@
+TENSORFLOWLIBS = @TENSORFLOWLIBS@
+FASTJET_DIR = @FASTJETDIR@
+FASTJETLIBS = @FASTJETLIBS@
+CXX      = @CXX@
+LD       = @CXX@
+CXXFLAGS = @CXXFLAGS@
+LDFLAGS  = @LDFLAGS@
+
+# Path to source directories
+WDIR    = .
+ODIR    = obj
+IFWDIR  = $(CMSSW_BASE)/src/t-channel_Analysis/EventLoopFramework/interface
+SFWDIR  = $(CMSSW_BASE)/src/t-channel_Analysis/EventLoopFramework/src
+ITTDir  = $(CMSSW_BASE)/CfgParser/interface
+STTDir  = $(CMSSW_BASE)/CfgParser/src
+TDIR    = $(CMSSW_BASE)/src
+TTDIR   = $(CMSSW_BASE)/src/TopTagger/
+TTTDIR  = $(TTDIR)/TopTagger/test
+
+# Enable the maximun warning
+CXXFLAGS += -Wall -Wextra -Wpedantic
+
+# Flags for generating auto dependancies
+CXXDEPFLAGS = -MMD -MP
+
+##########################################################
+#Necessary includes and libraries, the order matters here!
+##########################################################
+
+# Top tagger libraries
+LIBSTOPTAGGER += -L$(TTTDIR) -lTopTagger
+
+# Include ROOT
+INCLUDESDIRS  += $(shell root-config --cflags)
+
+# ROOT libraries
+LIBS          += $(shell root-config --glibs)
+
+# Tensorflow includes and libraries
+ifdef TENSORFLOW_DIR
+	INCLUDESDIRS += -I$(TENSORFLOW_DIR)/include
+	CXXFLAGS     += -DDOTENSORFLOW
+	LIBS         += -L$(TENSORFLOW_DIR)/lib $(TENSORFLOWLIBS)
+endif
+
+# Fastjet includes and libraries
+ifdef FASTJET_DIR
+	INCLUDESDIRS += -I$(FASTJET_DIR)/include
+	LIBS         += -L$(FASTJET_DIR)/lib $(FASTJETLIBS)
+endif
+
+# Include our code
+INCLUDESDIRS += -I$(TDIR) -I$(IFWDIR) -I$(SFWDIR) -I$(ITTDir) -I$(STTDir)
+
+PROGRAMS = MyAnalysis
+
+ANALYZERS = $(ODIR)/AnalyzeTest.o $(ODIR)/MakeNNVariables.o $(ODIR)/BTagCalibrationStandalone.o
+HELPERS = $(ODIR)/NTupleReader.o $(ODIR)/Utility.o $(ODIR)/samples.o $(ODIR)/SetUpTopTagger.o $(ODIR)/SATException.o $(ODIR)/MiniTupleMaker.o
+
+all: mkobj sampPyWrap $(PROGRAMS)
+
+mkobj:
+	@mkdir -p $(ODIR)
+
+# Code to compile shared library to link samples to python
+sampPyWrap: $(ODIR)/samplesModule.so
+
+$(ODIR)/samplesModule.so: $(ODIR)/samplesPyWrap.o $(ODIR)/samplesModulePyWrap.o
+	$(CXX) -shared -o $@ $^
+
+$(ODIR)/samplesPyWrap.o: $(SFWDIR)/samples.cc $(IFWDIR)/samples.h 
+	$(CXX) --std=c++11 -c -fPIC -o $@ $<
+
+$(ODIR)/samplesModulePyWrap.o: $(SFWDIR)/samplesModule.cc
+	$(CXX) --std=c++11 -c -fPIC -o $@ $<
+
+SRC_EXT = cpp c cc C
+SRC_DIR = $(SFWDIR) $(STTDir) $(WDIR) 
+define compile_rule
+$$(ODIR)/%.o : $1/%.$2
+	$$(CXX) $$(CXXFLAGS) $$(CXXDEPFLAGS)  $$(INCLUDESDIRS) -o $$@ -c $$<
+endef    
+$(foreach DIR,$(SRC_DIR),$(foreach EXT,$(SRC_EXT),$(eval $(call compile_rule,$(DIR),$(EXT)))))
+
+# Make executables
+MyAnalysis: $(ODIR)/MyAnalysis.o $(HELPERS) $(ANALYZERS)
+	$(LD) $^ $(LIBSTOPTAGGER) $(LIBS) -o $@
+
+# Setup soft link to the SusyAnaTools repo for python API
+#link: 
+#	@makeSoftLink.sh $(CMSSW_BASE)/src/t-channel_Analysis/EventLoopFramework/test/ $(ODIR) $(CMSSW_BASE)/src/SusyAnaTools/Tools/
+
+# Unlink SusyAnaTools soft link and remove obj directory 
+clean:
+#	@rm -rf $(ODIR)/*.o $(ODIR)/*.so $(ODIR)/*.d $(PROGRAMS) core $(ODIR) && rmSoftLink.sh ${CMSSW_BASE}/src/SusyAnaTools/Tools/$(ODIR)
+	@rm -rf $(ODIR)/*.o $(ODIR)/*.so $(ODIR)/*.d $(PROGRAMS) core $(ODIR)
+
+-include $(ODIR)/*.d
