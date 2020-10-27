@@ -6,8 +6,6 @@
 class PrepNTupleVars
 {
 private:
-    std::map<std::string, std::pair<double,double>> pTMass_;
-
     class JetCollection
     {
     public:
@@ -83,35 +81,8 @@ private:
         }
     }
 
-    void derivePtMassScaledJetCollection(NTupleReader& tr, const JetCollection& jc, const std::string& name, double scalePt, double scaleMass)
-    {
-        tr.registerDerivedVar("JetID"+name, jc.JetID);        
-
-        auto& newJets = tr.createDerivedVec<TLorentzVector>("Jets"+name, jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobb", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVprobbb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVprobbb", jc.Jets.size());
-        auto& newJets_bJetTagDeepCSVtotb = tr.createDerivedVec<double>("Jets"+name+"_bJetTagDeepCSVtotb", jc.Jets.size());
-        auto& newJets_ID = tr.createDerivedVec<bool>("Jets"+name+"_ID", jc.Jets.size());
-        auto& newJets_partonFlavor = tr.createDerivedVec<int>("Jets"+name+"_partonFlavor", jc.Jets.size());
-
-        for(unsigned j = 0; j < jc.Jets.size(); ++j)
-        {
-            newJets[j].SetPtEtaPhiM( scalePt*jc.Jets[j].Pt(), jc.Jets[j].Eta(), jc.Jets[j].Phi(), scaleMass*jc.Jets[j].M() );
-            newJets_bJetTagDeepCSVprobb.at(j) = jc.Jets_bJetTagDeepCSVprobb.at(j);
-            newJets_bJetTagDeepCSVprobbb.at(j) = jc.Jets_bJetTagDeepCSVprobbb.at(j);
-            newJets_bJetTagDeepCSVtotb.at(j) = ( jc.Jets_bJetTagDeepCSVprobb.at(j) + jc.Jets_bJetTagDeepCSVprobbb.at(j) );
-            newJets_ID.at(j) = jc.Jets_ID.at(j);
-            newJets_partonFlavor.at(j) = jc.Jets_partonFlavor.at(j);
-        }
-    }
-
     void prepNTupleVars(NTupleReader& tr)
     {
-        // Creating the jet pT and mass scaled collection
-        JetCollection jc(tr);
-        const auto& runYear = tr.getVar<std::string>("runYear");
-        derivePtMassScaledJetCollection(tr, jc, "mpTScaled", pTMass_[runYear].first, pTMass_[runYear].second);
-
         // Create DeepCSV b-jet discriminator vector
         const auto& Jets_bJetTagDeepCSVprobb  = tr.getVec<double>("Jets_bJetTagDeepCSVprobb");
         const auto& Jets_bJetTagDeepCSVprobbb = tr.getVec<double>("Jets_bJetTagDeepCSVprobbb");
@@ -133,6 +104,7 @@ private:
             }
 
             Factor f(tr);
+            JetCollection jc(tr);
             deriveJetCollection(tr, jc, f, newIndex, "JECup");
             deriveJetCollection(tr, jc, f, newIndex, "JECdown");
             deriveJetCollection(tr, jc, f, newIndex, "JERup");
@@ -149,7 +121,7 @@ private:
         tr.registerDerivedVar<int>("eventCounter",w);        
     }
 public:
-    PrepNTupleVars() : pTMass_({{"2016",{0.95,0.95}},{"2017",{0.95,1.01}},{"2018pre",{0.95,0.98}},{"2018post",{0.95,0.98}}})
+    PrepNTupleVars()
     {
     }
 

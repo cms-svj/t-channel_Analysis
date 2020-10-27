@@ -67,7 +67,7 @@ public:
         //Get and make needed info
         const auto& filetag = tr.getVar<std::string>("filetag");
         const auto& analyzer = tr.getVar<std::string>("analyzer");
-        const bool isSignal = (filetag.find("_stop") != std::string::npos || filetag.find("_mStop") != std::string::npos || filetag.find("VLQ_2t4b") != std::string::npos) ? true : false;
+        const bool isSignal = (filetag.find("_stop") != std::string::npos || filetag.find("_mStop") != std::string::npos || filetag.find("VLQ_2t4b") != std::string::npos || filetag.find("mMed") != std::string::npos || filetag.find("mZprime") != std::string::npos) ? true : false;
 
         std::string runYear, puFileName, leptonFileName, bjetFileName, bjetCSVFileName, meanFileName, TopTaggerCfg;
         
@@ -104,25 +104,10 @@ public:
             blind = false;
             TopTaggerCfg = "TopTaggerCfg_2017.cfg";
         }
-        else if(filetag.find("2018pre") != std::string::npos) 
+        else if(filetag.find("2018") != std::string::npos) 
         {
-            runYear = "2018pre";
-            Lumi = 21071.0;
-            deepCSV_WP_loose  = 0.1241;
-            deepCSV_WP_medium = 0.4184;       
-            deepCSV_WP_tight  = 0.7527;
-            puFileName = "PileupHistograms_2018_69mb_pm5.root";
-            leptonFileName = "allInOne_leptonSF_2018.root";
-            bjetFileName = "allInOne_BTagEff.root";
-            bjetCSVFileName = "DeepCSV_102XSF_WP_V1.csv";
-            meanFileName = "allInOne_SFMean.root";
-            blind = false;
-            TopTaggerCfg = "TopTaggerCfg_2018.cfg";
-        }
-        else if(filetag.find("2018post") != std::string::npos) 
-        {
-            runYear = "2018post";
-            Lumi = 38654.0;
+            runYear = "2018";
+            Lumi = 21071.0+38654.0;
             deepCSV_WP_loose  = 0.1241;
             deepCSV_WP_medium = 0.4184;       
             deepCSV_WP_tight  = 0.7527;
@@ -218,11 +203,11 @@ public:
                 "BJet",
                 "CommonVariables",
                 "FatJetCombine",
-                "MakeMVAVariables",
+                //"MakeMVAVariables",
                 "Baseline",
-                "DeepEventShape",
-                "BTagCorrector",
-                "ScaleFactors",
+                //"DeepEventShape",
+                //"BTagCorrector",
+                //"ScaleFactors",
                 "RunTopTagger",
             };
             registerModules(tr, std::move(modulesList));

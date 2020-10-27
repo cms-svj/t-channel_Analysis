@@ -8,7 +8,7 @@ from os import environ
 
 class SampleCollection:
     def __init__(self, ssfile, scfile):
-        self.lib = cdll.LoadLibrary(environ["CMSSW_BASE"] + "../obj/samplesModule.so")
+        self.lib = cdll.LoadLibrary("../obj/samplesModule.so")
         self.ss = self.lib.SS_new(ssfile)
         self.obj = self.lib.SC_new(self.ss, scfile)
         self.lib.SC_samples.restype = POINTER(c_char_p)

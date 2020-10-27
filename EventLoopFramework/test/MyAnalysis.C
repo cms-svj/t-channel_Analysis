@@ -4,6 +4,7 @@
 #include "t-channel_Analysis/EventLoopFramework/interface/NTupleReader.h"
 #include "t-channel_Analysis/EventLoopFramework/interface/MiniTupleMaker.h"
 #include "t-channel_Analysis/EventLoopFramework/interface/Utility.h"
+#include "t-channel_Analysis/EventLoopFramework/interface/Analyze.h"
 #include "t-channel_Analysis/EventLoopFramework/interface/AnalyzeTest.h"
 #include "t-channel_Analysis/EventLoopFramework/interface/AnalyzeTemplate.h"
 #include "t-channel_Analysis/EventLoopFramework/interface/MakeNNVariables.h"
@@ -146,6 +147,7 @@ int main(int argc, char *argv[])
     TFile* outfile = TFile::Open(histFile.c_str(), "RECREATE");
 
     std::vector<std::pair<std::string, std::function<void(const std::set<AnaSamples::FileSummary>&,const int,const int,const int,TFile* const,const bool,const std::string&)>>> AnalyzerPairVec = {
+        {"Analyze",                 run<Analyze>},
         {"AnalyzeTest",             run<AnalyzeTest>},
         {"AnalyzeTemplate",         run<AnalyzeTemplate>},
         {"MakeNNVariables",         run<MakeNNVariables>},
