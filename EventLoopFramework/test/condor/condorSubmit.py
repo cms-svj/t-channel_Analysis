@@ -30,7 +30,7 @@ def getTopTaggerTrainingFile(topTaggerFile):
     return name
 
 def main():
-    repo = "Analyzer/Analyzer"    
+    repo = "t-channel_Analysis/EventLoopFramework"    
     # Parse command line arguments
     parser = optparse.OptionParser("usage: %prog [options]\n")    
     parser.add_option ('-n',        dest='numfile',  type='int',                         default = 10,            help="number of files per job")

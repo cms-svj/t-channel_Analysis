@@ -76,13 +76,11 @@ private:
         const auto& GoodMuons = tr.getVec<bool>("GoodMuons"+myVarSuffix_);
         const auto& NGoodMuons = tr.getVar<int>("NGoodMuons"+myVarSuffix_);
         const auto& GoodMuons_pt20 = tr.getVec<bool>("GoodMuons_pt20"+myVarSuffix_);
-//        const auto& NGoodMuons_pt20 = tr.getVar<int>("NGoodMuons_pt20"+myVarSuffix_);
         const auto& Electrons = tr.getVec<TLorentzVector>("Electrons");
         const auto& ElectronsCharge = tr.getVec<int>("Electrons_charge");
         const auto& GoodElectrons = tr.getVec<bool>("GoodElectrons"+myVarSuffix_);
         const auto& NGoodElectrons = tr.getVar<int>("NGoodElectrons"+myVarSuffix_);
         const auto& GoodElectrons_pt20 = tr.getVec<bool>("GoodElectrons_pt20"+myVarSuffix_);
-//        const auto& NGoodElectrons_pt20 = tr.getVar<int>("NGoodElectrons_pt20"+myVarSuffix_);
         const auto& etaCut = tr.getVar<double>("etaCut");
         const auto& NGoodBJets_pt30 = tr.getVar<int>("NGoodBJets_pt30"+myVarSuffix_);
         const auto& NGoodBJets_pt45 = tr.getVar<int>("NGoodBJets_pt45"+myVarSuffix_);

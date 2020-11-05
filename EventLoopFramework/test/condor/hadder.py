@@ -98,12 +98,14 @@ def main():
             print "-----------------------------------------------------------"
             
             # hadd signal root files
-            sampleSetsToHadd = ["2016_AllSignal", "2017_AllSignal", "2017_AllSignal_CP5", "2018pre_AllSignal", "2018post_AllSignal"]
+            sampleSetsToHadd = ["2016_AllSignal", "2017_AllSignal", "2017_AllSignal_CP5", "2018pre_AllSignal", 
+                                "2018post_AllSignal", "2018_t-channel_AllSignal", "2018_s-channel_AllSignal"]
             if sampleCollection in sampleSetsToHadd:
                 for sample in sl:
                     files = " " + " ".join(glob("%s/%s/MyAnalysis_%s_*.root" % (inPath, directory, sample[1])))
                     outfile = "%s/%s.root" % (outDir,sample[1])
                     command = "hadd %s/%s.root %s" % (outDir, sample[1], files)
+                    print command
                     if not options.noHadd: system(command)
                     log = checkNumEvents(nEvents=float(sample[2]), rootFile=outfile, sampleCollection=sample[1], log=log)
     

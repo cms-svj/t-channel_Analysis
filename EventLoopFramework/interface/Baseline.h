@@ -40,6 +40,8 @@ private:
         const auto& Mbl                      = tr.getVar<double>("Mbl"+myVarSuffix_);
         const auto& passHEMVeto              = tr.getVar<bool>("passHEMVeto"+myVarSuffix_);
  
+        //for(auto n : TriggerNames){std::cout<<n<<std::endl;}
+
         // ------------------------------
         // -- Data dependent stuff
         // ------------------------------
