@@ -39,6 +39,7 @@ private:
             double pt = JetsAK8.at(j).Pt();
             double eta = JetsAK8.at(j).Eta();
             bool cut = abs(eta) > etaCut || pt < 200;
+            //bool cut = abs(eta) > 5.0 || pt < 170;
             if(cut)
             {
                 GoodJetsAK8.at(j) = false;

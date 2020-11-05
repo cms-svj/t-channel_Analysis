@@ -61,6 +61,7 @@ void Analyze::Loop(NTupleReader& tr, double, int maxevents, bool)
 
         const auto& MET                       = tr.getVar<double>("MET");
         const auto& METPhi                    = tr.getVar<double>("METPhi");
+        const auto& passMETFilters            = tr.getVar<bool>("passMETFilters");
         const auto& ntops                     = tr.getVar<int>("ntops");
 
         const auto& Jets                      = tr.getVec<TLorentzVector>("Jets");
@@ -72,6 +73,10 @@ void Analyze::Loop(NTupleReader& tr, double, int maxevents, bool)
         const auto& METrHT_pt30               = tr.getVar<double>("METrHT_pt30");
         const auto& METrST_pt30               = tr.getVar<double>("METrST_pt30");
         const auto& JetID                     = tr.getVar<bool>("JetID");
+
+        const auto& NGoodMuons                = tr.getVar<int>("NGoodMuons");
+        const auto& NGoodElectrons            = tr.getVar<int>("NGoodElectrons");
+        const auto& NGoodLeptons              = tr.getVar<int>("NGoodLeptons");
 
         const auto& JetsAK8                   = tr.getVec<TLorentzVector>("JetsAK8");
         const auto& GoodJetsAK8_pt200         = tr.getVec<bool>("GoodJetsAK8_pt200");
@@ -109,6 +114,7 @@ void Analyze::Loop(NTupleReader& tr, double, int maxevents, bool)
         // -- Define cuts
         // -------------------------------
         bool pass_general = true;
+        bool pass_baseline = pass_general && NGoodJetsAK8_pt200 >= 2 && METrST_pt30 < 0.6 && abs(dEtaJ12) < 1.5 && passMETFilters && NGoodBJets_pt30 >= 1 && NGoodLeptons == 0;
         
         // -------------------
         // --- Fill Histos ---
@@ -119,10 +125,12 @@ void Analyze::Loop(NTupleReader& tr, double, int maxevents, bool)
             { "_1AK8j",              pass_general && NGoodJetsAK8_pt200 == 1                                                            },
             { "_2AK8j",              pass_general && NGoodJetsAK8_pt200 == 2                                                            },
             { "_3AK8j",              pass_general && NGoodJetsAK8_pt200 == 3                                                            },
-            { "_ge2AK8j_l2METrHT",   pass_general && NGoodJetsAK8_pt200 >= 2 && METrHT_pt30 < 2.0                                       },
+            { "_ge2AK8j",            pass_general && NGoodJetsAK8_pt200 >= 2                                                            },
             { "_ge2AK8j_lp6METrST",  pass_general && NGoodJetsAK8_pt200 >= 2 && METrST_pt30 < 0.6                                       },
-            { "_ge2AK8j_l1p5dEta12", pass_general && NGoodJetsAK8_pt200 >= 2 && dEtaJ12 < 1.5                                           },
-            { "_baseline",           pass_general && NGoodJetsAK8_pt200 >= 2 && METrHT_pt30 < 2.0 && METrST_pt30 < 0.6 && dEtaJ12 < 1.5 },
+            { "_ge2AK8j_l1p5dEta12", pass_general && NGoodJetsAK8_pt200 >= 2 && abs(dEtaJ12) < 1.5                                      },
+            { "_ge2AK8j_ge1b",       pass_general && NGoodJetsAK8_pt200 >= 2 && NGoodBJets_pt30 >= 1                                    },
+            { "_ge2AK8j_0l",         pass_general && NGoodJetsAK8_pt200 >= 2 && NGoodLeptons == 0                                       },
+            { "_baseline",           pass_baseline                                                                                      },
             { "_1j",                 pass_general && NGoodJets_pt30 == 1                                                                },
             { "_2j",                 pass_general && NGoodJets_pt30 == 2                                                                },
             { "_3j",                 pass_general && NGoodJets_pt30 == 3                                                                },
@@ -130,36 +138,41 @@ void Analyze::Loop(NTupleReader& tr, double, int maxevents, bool)
         };
 
         std::vector<TH1DInfo> histInfos = {
-            {    "h_njets",             20,   0.0,   20.0},
-            {    "h_njetsAK8",          20,   0.0,   20.0},
-            {    "h_ntops",             10,   0.0,   10.0},
-            {    "h_nb",                10,   0.0,   10.0},
-            {    "h_ht",               500,   0.0, 5000.0},
-            {    "h_st",               500,   0.0, 5000.0},
-            {    "h_met",              500,   0.0, 5000.0},
-            {    "h_jPt",              200,   0.0, 2000.0},
-            {    "h_jEta",             200,  -6.0,    6.0},
-            {    "h_jPhi",             200,  -4.0,    4.0},
-            {    "h_jPtAK8",           200,   0.0, 2000.0},
-            {    "h_jEtaAK8",          200,  -6.0,    6.0},
-            {    "h_jPhiAK8",          200,  -4.0,    4.0},
-            {    "h_weight",           200,  -5.0,    5.0},
-            {    "h_dEtaJ12",          200,   0.0,   10.0},
-            {    "h_dRJ12",            100,   0.0,   10.0},
-            {    "h_dPhiJ1MET",        100,   0.0,    4.0},
-            {    "h_dPhiJ2MET",        100,   0.0,    4.0},
-            {    "h_dPhiMinJMET",      100,   0.0,    4.0},
-            {    "h_mjjM",             500,   0.0, 5000.0}, 
-            {    "h_mjjPt",            200,   0.0, 2000.0},
-            {    "h_mjjEta",           200,  -6.0,    6.0},
-            {    "h_mT",               500,   0.0, 5000.0}, 
-            {    "h_METrHT_pt30",      100,   0.0,   20.0},
-            {    "h_METrST_pt30",      100,   0.0,    1.0},
+            {    "h_njets",                20,   0.0,   20.0},
+            {    "h_njetsAK8",             20,   0.0,   20.0},
+            {    "h_ntops",                10,   0.0,   10.0},
+            {    "h_nb",                   10,   0.0,   10.0},
+            {    "h_ht",                  500,   0.0, 5000.0},
+            {    "h_st",                  500,   0.0, 5000.0},
+            {    "h_met",                 500,   0.0, 5000.0},
+            {    "h_jPt",                 200,   0.0, 2000.0},
+            {    "h_jEta",                200,  -6.0,    6.0},
+            {    "h_jPhi",                200,  -4.0,    4.0},
+            {    "h_jPtAK8",              200,   0.0, 2000.0},
+            {    "h_jEtaAK8",             200,  -6.0,    6.0},
+            {    "h_jPhiAK8",             200,  -4.0,    4.0},
+            {    "h_weight",              200,  -5.0,    5.0},
+            {    "h_dEtaJ12",             200,   0.0,   10.0},
+            {    "h_dRJ12",               100,   0.0,   10.0},
+            {    "h_dPhiJ1MET",           100,   0.0,    4.0},
+            {    "h_dPhiJ2MET",           100,   0.0,    4.0},
+            {    "h_dPhiMinJMET",         100,   0.0,    4.0},
+            {    "h_dPhiJ1METrdPhiJ2MET", 100,   0.0,  100.0},
+            {    "h_mjjM",                500,   0.0, 5000.0}, 
+            {    "h_mjjPt",               200,   0.0, 2000.0},
+            {    "h_mjjEta",              200,  -6.0,    6.0},
+            {    "h_mT",                  500,   0.0, 5000.0}, 
+            {    "h_METrHT_pt30",         100,   0.0,   20.0},
+            {    "h_METrST_pt30",         100,   0.0,    1.0},
+            {    "h_nm",                   10,   0.0,   10.0},
+            {    "h_ne",                   10,   0.0,   10.0},
+            {    "h_nl",                   10,   0.0,   10.0},
         };
 
         std::vector<TH2DInfo> hist2DInfos = {
             {    "h_jEta_jPhi",     100, -6.0,  6.0, 100,  -3.2,   3.2},
             {    "h_jEtaAK8_jPhiAK8",100, -6.0,  6.0, 100,  -3.2,   3.2},
+            {    "h_dPhiJ1MET_dPhiJ2MET", 100,0.0,4.0, 100,0.0,4.0},
             {    "h_njets_njetsAK8", 20, 0.0,  20.0, 20,  0.0,   20.0},
         };
 
@@ -193,13 +206,18 @@ void Analyze::Loop(NTupleReader& tr, double, int maxevents, bool)
                 my_histos["h_dPhiJ1MET"           +kv.first]->Fill(abs(dPhiJ1MET), w);    
                 my_histos["h_dPhiJ2MET"           +kv.first]->Fill(abs(dPhiJ2MET), w);    
                 my_histos["h_dPhiMinJMET"         +kv.first]->Fill(abs(dPhiMinJMET), w);    
+                my_histos["h_dPhiJ1METrdPhiJ2MET" +kv.first]->Fill(abs(dPhiJ2MET/dPhiJ1MET), w);    
                 my_histos["h_mjjM"                +kv.first]->Fill(mjjTLV.M(), w);         
                 my_histos["h_mjjPt"               +kv.first]->Fill(mjjTLV.Pt(), w);         
                 my_histos["h_mjjEta"              +kv.first]->Fill(mjjTLV.Eta(), w);         
                 my_histos["h_mT"                  +kv.first]->Fill(mT, w);           
                 my_histos["h_METrHT_pt30"         +kv.first]->Fill(METrHT_pt30, w); 
                 my_histos["h_METrST_pt30"         +kv.first]->Fill(METrST_pt30, w); 
+                my_histos["h_nm"                  +kv.first]->Fill(NGoodMuons, w); 
+                my_histos["h_ne"                  +kv.first]->Fill(NGoodElectrons, w); 
+                my_histos["h_nl"                  +kv.first]->Fill(NGoodLeptons, w); 
                 my_2d_histos["h_njets_njetsAK8"   +kv.first]->Fill(NGoodJets_pt30, NGoodJetsAK8_pt200, w);
+                my_2d_histos["h_dPhiJ1MET_dPhiJ2MET"+kv.first]->Fill(abs(dPhiJ1MET), abs(dPhiJ2MET), w);
                 for(unsigned int j = 0; j < Jets.size(); j++)
                 {
                     if(!GoodJets_pt30[j]) continue;
