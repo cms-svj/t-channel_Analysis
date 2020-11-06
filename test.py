@@ -6,10 +6,9 @@ import awkward as ak
 import sys
 from matplotlib import pyplot as plt
 import json
-
+import glob
 # e.g. sample collection = "QCD"
-# sample = sys.argv[1]
-# sample = "QCD17_Pt_600to800" # for testing interactively
+sample = sys.argv[1]
 
 class FancyDimuonProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -93,19 +92,19 @@ class FancyDimuonProcessor(processor.ProcessorABC):
 
         output['cutflow']['all events'] += fjets.size
 
-        # Good AK8 Jets Cut
-        ptAK8cut = (JetsAK8.pt > 200 and abs(JetsAK8.eta) < 2.4 )
-        JetsAK8 = JetsAK8[ptAK8cut]
-
-        # Good AK4 Jets Cut
-        ptAK4cut = (JetsAK4.pt > 30 and abs(JetsAK4.eta) < 2.4 )
-        Jets = Jets[ptAK4cut]
+        # # Good AK8 Jets Cut
+        # ptAK8cut = (fjets.pt > 200 and abs(fjets.eta) < 2.4 )
+        # fjets = fjets[ptAK8cut]
+        #
+        # # Good AK4 Jets Cut
+        # ptAK4cut = (jets.pt > 30 and abs(jets.eta) < 2.4 )
+        # jets = jets[ptAK4cut]
 
         twofjets = (fjets.counts >= 2)
         output['cutflow']['two fjets'] += twofjets.sum()
 
-        difjets = fjets[twofjets]
-        difjets_pt200 = difjets[ptcut]
+        # difjets = fjets[twofjets]
+        # difjets_pt200 = difjets[ptcut]
         # output['jtpt'].fill(dataset=dataset, pt=fjets.pt.flatten())
         # output['jteta'].fill(dataset=dataset, eta=fjets.eta.flatten())
 
@@ -137,9 +136,29 @@ import time
 
 tstart = time.time()
 
-iD = "root://cmseos.fnal.gov//store/user/keanet/CondorOutput/tchannel/BkgNtuples/MCRoot/"
+# getting dictionary of files
+f_ = sample.find("_")
+year = sample[:f_]
 
-fileset = json.load(open('input/M200.json','r'))
+detailKey = sample[f_:]
+if "mMed" in detailKey:
+    kind = "signals"
+else:
+    kind = "backgrounds"
+
+if "Incl" in detailKey:
+    ii = detailKey.find("Incl")
+    detailKey = detailKey[:ii] + "Tune"
+
+JSONDir = 'input/sampleJSONs/' + kind + "/" + year + "/"
+allfiles = glob.glob(JSONDir+"*.json")
+print (detailKey)
+for file in allfiles:
+    print (file)
+    if detailKey in file:
+        inputSample = file
+
+fileset = json.load(open(inputSample ,'r'))
 
 output = processor.run_uproot_job(
     fileset,

@@ -21,7 +21,7 @@ def grabInput(sample):
     if "mMed" in detailKey:
         readFrom = "tchannel_Files.txt"
         loc = sigloc
-        yrkey = "" # the year doesn't matter for the signal for now
+        yrkey = ""
     else:
         readFrom = "Run2ProductionV17_Files.txt"
         loc = baseloc
@@ -59,16 +59,16 @@ for sample in sampleLists:
     fi = firstSample.find(detailKey)
 
     if "Tune" in detailKey:
-        sampleLab = sample[:-1] + firstSample[fi+len(detailKey):si]
+        sampleLab = year + "_" + detailKey + firstSample[fi+len(detailKey):si]
     else:
-        sampleLab = sample[:-1] + "_" + firstSample[fi+len(detailKey)+1:si]
+        sampleLab = year + "_" + detailKey + "_" + firstSample[fi+len(detailKey)+1:si]
 
     if "_ext" in sampleLab:
         sampleLab = sampleLab[:sampleLab.find("_ext")]
 
     print (sampleLab)
     if "mMed" in detailKey:
-        saveFile = "sampleJSONs/signals/" + sampleLab + ".json"
+        saveFile = "sampleJSONs/signals/" + year + "/" + sampleLab + ".json"
     else:
         saveFile = "sampleJSONs/backgrounds/" + year + "/" + sampleLab + ".json"
 
