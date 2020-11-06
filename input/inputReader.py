@@ -1,111 +1,76 @@
-def grabInput(bkgLab):
-    # bkgLab = sys.argv[1] # background label, e.g. QCD16_Pt_80to120
-    years = ["16","17","18"]
-    yrV17s = ["Summer16v3","Fall17","Autumn18"]
-    bkgs = ["QCD","TTJets","WJets","ZJets"]
+import json
 
+
+def grabInput(sample):
     baseloc = "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/"
     sigloc = "root://cmseos.fnal.gov//store/user/keanet/tchannel/SVJP_08272020/NTuples/"
-    dict_ = {}
 
-    fui = bkgLab.find("_") # index of the first underscore
-    comKey = [] # complete key string for identifying the correct files
+    f_ = sample.find("_")
+    year = sample[:f_]
 
-    if fui != -1: # background label identification; signal labels do not contain underscore, so .find would have returned -1.
-        # inFile = "Run2ProductionV17_Files.txt" # use this for test in the input directory
-        inFile = "input/Run2ProductionV17_Files.txt" # use this for running test.py
-        yr_key = 0
-        bkg_key = ""
 
-        # first identify the year from the label
-        for iy in range(len(years)):
-            year = years[iy]
-            if year in bkgLab[:fui]:
-                yr_key = yrV17s[iy]
+    if year == "2016":
+        yrkey = "Summer16v3"
+    elif year == "2017":
+        yrkey = "Fall17"
+    elif year == "2018":
+        yrkey = "Autumn18"
 
-        # identify the background
-        for bkg in bkgs:
-            if bkg in bkgLab[:fui]:
-                if bkg == "WJets":
-                    bkg_key = "WJetsToLNu"
-                elif bkg == "ZJets":
-                    bkg_key = "ZJetsToNuNu"
-                else:
-                    bkg_key = bkg
+    detailKey = sample[f_+1:]
 
-        # identify the kind of background
-        bkinds = ["Pt","HT","SingleLeptFromT_genMET-150",
-        "SingleLeptFromTbar_genMET-150","DiLept_genMET-150",
-        "SingleLeptFromTbar","SingleLeptFromT","DiLept"]
+    if "mMed" in detailKey:
+        readFrom = "tchannel_Files.txt"
+        loc = sigloc
+        yrkey = "" # the year doesn't matter for the signal for now
+    else:
+        readFrom = "Run2ProductionV17_Files.txt"
+        loc = baseloc
 
-        bkind = ""
+    if "Incl" in detailKey:
+        ii = detailKey.find("Incl")
+        detailKey = detailKey[:ii] + "Tune"
 
-        for bk in bkinds:
-            if bk in bkgLab[fui+1:]:
-                bkind = bk
-                # the following condition is to avoid _genMET version of the background gets included
-                if bk == "SingleLeptFromTbar" or bk == "SingleLeptFromT" or bk == "DiLept":
-                    bkind = bk + "_Tune"
-                break
-            else:
-                bkind = "Tune"
-
-        ran = ""
-        if bkind == "Pt" or bkind == "HT":
-            sui = bkgLab[fui+1:].find("_") + fui
-            ran = bkgLab[sui+2:]
-
-        lastSep = "_"
-        if bkind == "HT":
-            lastSep = "-"
-        elif "Tune" in bkind:
-            lastSep = ""
-
-        # the complete key for identifying the ntuple files
-        comKey.append(yr_key + "." + bkg_key + "_" + bkind + lastSep + ran)
-
-    else: # signal label identification
-        # inFile = "tchannel_Files.txt" # use this for test in the input directory
-        inFile = "input/tchannel_Files.txt" # use this for running test.py
-        pAlias = ["M","d","r","a"]
-        pCom = ["mMed","mDark","rinv","alpha"]
-
-        pvar = ""
-
-        # figure out parameter that is different from baseline
-        if bkgLab == "base":
-            comKey.append("PrivateSamples.SVJ_2018_t-channel_mMed-3000_mDark-20_rinv-0p3_alpha-peak")
-        else:
-            for pi in range(len(pAlias)):
-                pA = pAlias[pi]
-                if pA in bkgLab:
-                    pvar = pCom[pi]
-
-        yi = bkgLab.find("y") # "y" is a key character for yukawa
-        if yi != -1:
-            pval = bkgLab[1:yi]
-            comKey.append("yukawa-" + bkgLab[yi+1:] + "_")
-        else:
-            pval = bkgLab[1:] # if we don't specify it in the label, just assume yukawa-1
-            comKey.append("yukawa-1_")
-
-        if len(comKey) < 2:
-            comKey.append(pvar + "-" + pval + "_")
+    fileReadFrom = open(readFrom,'r')
+    Lines = fileReadFrom.readlines()
 
     fileList = []
 
-    file1 = open(inFile, 'r')
-    Lines = file1.readlines()
-
     for line in Lines:
-        cMet = 1
-        for ck in comKey:
-            if ck not in line:
-                cMet = 0
-        if cMet == 1:
-            if fui != -1:
-                fileList.append(baseloc+line[:-1])
-            else:
-                fileList.append(sigloc+line[:-1])
-
+        if yrkey in line and detailKey in line:
+            fileList.append(loc+line[:-1])
     return fileList
+
+sampleLabels = open('sampleLabels.txt','r')
+sampleLists = sampleLabels.readlines()
+
+for sample in sampleLists:
+    f_ = sample.find("_")
+    year = sample[:f_]
+    detailKey = sample[f_+1:-1]
+
+    if "Incl" in detailKey:
+        ii = detailKey.find("Incl")
+        detailKey = detailKey[:ii] + "Tune"
+
+    slist = {sample[:-1]:grabInput(sample[:-1])}
+
+    firstSample = slist[sample[:-1]][0]
+    si = firstSample.find("_0_")
+    fi = firstSample.find(detailKey)
+
+    if "Tune" in detailKey:
+        sampleLab = sample[:-1] + firstSample[fi+len(detailKey):si]
+    else:
+        sampleLab = sample[:-1] + "_" + firstSample[fi+len(detailKey)+1:si]
+
+    if "_ext" in sampleLab:
+        sampleLab = sampleLab[:sampleLab.find("_ext")]
+
+    print (sampleLab)
+    if "mMed" in detailKey:
+        saveFile = "sampleJSONs/signals/" + sampleLab + ".json"
+    else:
+        saveFile = "sampleJSONs/backgrounds/" + year + "/" + sampleLab + ".json"
+
+    with open(saveFile,"w") as fp:
+        json.dump(slist, fp, indent=4)
