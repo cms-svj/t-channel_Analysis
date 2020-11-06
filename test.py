@@ -5,8 +5,11 @@ import numpy as np
 import awkward as ak
 import sys
 from matplotlib import pyplot as plt
-sys.path.append("input/")
-from inputReader import grabInput
+import json
+
+# e.g. sample collection = "QCD"
+# sample = sys.argv[1]
+# sample = "QCD17_Pt_600to800" # for testing interactively
 
 class FancyDimuonProcessor(processor.ProcessorABC):
     def __init__(self):
@@ -90,11 +93,18 @@ class FancyDimuonProcessor(processor.ProcessorABC):
 
         output['cutflow']['all events'] += fjets.size
 
+        # Good AK8 Jets Cut
+        ptAK8cut = (JetsAK8.pt > 200 and abs(JetsAK8.eta) < 2.4 )
+        JetsAK8 = JetsAK8[ptAK8cut]
+
+        # Good AK4 Jets Cut
+        ptAK4cut = (JetsAK4.pt > 30 and abs(JetsAK4.eta) < 2.4 )
+        Jets = Jets[ptAK4cut]
+
         twofjets = (fjets.counts >= 2)
         output['cutflow']['two fjets'] += twofjets.sum()
 
         difjets = fjets[twofjets]
-        ptcut = (difjets.pt[:,0] > 200) & (difjets.pt[:,1] > 200)
         difjets_pt200 = difjets[ptcut]
         # output['jtpt'].fill(dataset=dataset, pt=fjets.pt.flatten())
         # output['jteta'].fill(dataset=dataset, eta=fjets.eta.flatten())
@@ -129,10 +139,7 @@ tstart = time.time()
 
 iD = "root://cmseos.fnal.gov//store/user/keanet/CondorOutput/tchannel/BkgNtuples/MCRoot/"
 
-fileset = {
-    # 'base': grabInput("base")
-    'QCD16_Pt_600to800': ["sample.root"]
-}
+fileset = json.load(open('input/M200.json','r'))
 
 output = processor.run_uproot_job(
     fileset,
