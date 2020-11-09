@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from coffea import hist, processor
-from coffea.analysis_objects import JaggedCandidateArray
 from processors.mainProcessor import MainProcessor  
 import uproot
 import sys
@@ -31,8 +30,10 @@ def getFileset(sample):
     return fileset
 
 def main():
+    # start run time clock
     tstart = time.time()
 
+    # get options from command line
     parser = OptionParser()
     parser.add_option('-d', '--dataset',   help='dataset', dest='dataset')
     parser.add_option('-w', '--workers',   help='Number of workers to use for multi-worker executors (e.g. futures or condor)', dest='workers', type=int, default=8)
@@ -61,9 +62,9 @@ def main():
         fout[h] = hist.export1d(output[h])
     fout.close()
 
+    # print run time in seconds
     dt = time.time() - tstart
-    nworkers = options.workers
-    print("%.2f us*cpu overall" % (1e6*dt*nworkers, ))
+    print("run time: %.2f [sec]" % (dt))
 
 if __name__ == "__main__":
     main()

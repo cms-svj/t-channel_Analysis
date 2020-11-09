@@ -1,12 +1,5 @@
 from coffea import hist, processor
 from coffea.analysis_objects import JaggedCandidateArray
-#import uproot
-#import numpy as np
-#import awkward as ak
-#import sys
-#from matplotlib import pyplot as plt
-#import json
-#import glob
 
 class MainProcessor(processor.ProcessorABC):
     def __init__(self):
