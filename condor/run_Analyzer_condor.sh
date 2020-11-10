@@ -1,37 +1,43 @@
 #!/bin/bash
 
-dataset=$1
+dataset_longname=$1
 nfiles=$2
 startfile=$3
 base_dir=`pwd`
 
-printf "\n\n ls output\n"
+echo "ls output"
 ls -l
 
-printf "\n\n unpacking CMSSW tar file.\n\n"
+echo "unpacking tar file"
+mkdir tchannel
+mv tchannel.tar.gz tchannel/.
+cd tchannel
 tar -xzf tchannel.tar.gz
 source init.sh
 
-printf "\n\n ls output\n"
+echo "ls output"
 ls -l
 
-printf "\n\n output of uname -s : "
+echo "output of uname -s : "
 uname -s
-printf "\n\n"
 
-cp ${base_dir}/exestuff.tar.gz .
-tar xzf exestuff.tar.gz
-cd exestuff/
+#printf "\n\n"
+#cp ${base_dir}/exestuff.tar.gz .
+#tar xzf exestuff.tar.gz
 
-printf "\n\n Attempting to run MyAnalysis executable.\n\n"
-python analyze.py --condor -d ${dataset} -N ${nfiles} -M ${startfile}
+echo "\n\n Attempting to run MyAnalysis executable.\n\n"
+echo ${dataset_longname}
+echo ${nfiles}
+echo ${startfile}
+python analyze.py --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile}
 
-printf "\n\n ls output\n"
+echo "\n\n ls output\n"
 ls -l
 
 mv MyAnalysis*.root ${base_dir}
 cd ${base_dir}
+rm docker_stderror
 
-printf "\n\n ls output\n"
+echo "\n\n ls output\n"
 ls -l
 

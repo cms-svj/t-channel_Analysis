@@ -17,6 +17,8 @@ class Samples:
 
         JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
         allfiles = glob.glob(JSONDir+"*.json")
+        if len(allfiles) == 0:
+            print("Error: no json file found with name:", JSONDir)
         inputSamples = list(f for f in allfiles if detailKey in f)
 
         # open all json files and dump them into a dictionary

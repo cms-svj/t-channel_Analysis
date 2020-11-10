@@ -21,10 +21,10 @@ def main():
     options, args = parser.parse_args()
 
     # set output root file
-    outfile = "MyAnalysis_%s_%d.root" % (options.dataset, options.startFile) if options.condor else "test.root"
+    sample = options.dataset
+    outfile = "MyAnalysis_%s_%d.root" % (sample, options.startFile) if options.condor else "test.root"
     
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    sample = options.dataset
     fileset = s().getFileset(sample, True, options.startFile, options.nFiles)
 
     # run processor

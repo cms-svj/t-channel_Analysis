@@ -103,7 +103,7 @@ def main():
     # submit the jobs to condor
     if not options.noSubmit: 
         system('mkdir -p %s/log-files' % options.outPath)
-        system("echo 'condor_submit condor_submit.txt'")
+        system("echo 'condor_submit condor_submit.jdl'")
         system('condor_submit condor_submit.jdl')
 
 if __name__ == "__main__":

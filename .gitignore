@@ -18,6 +18,7 @@
 **.log
 **.stderr
 **.stdout
+**.jdl
 
 #Root
 **.root
