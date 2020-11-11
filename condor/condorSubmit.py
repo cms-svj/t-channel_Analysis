@@ -58,8 +58,8 @@ def main():
             os.makedirs("%s/output-files/%s" % (options.outPath, sc))
 
         # loop over all samples in the sample collection
-        sample = s().getFileset(sc, False)
-        for n, rFiles in sample.items():
+        samples = s().getFileset(sc, False)
+        for n, rFiles in samples.items():
             count = len(rFiles)
             print("    %-40s %d" % (n, count))
 
