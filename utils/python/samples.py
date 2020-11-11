@@ -44,8 +44,10 @@ class Samples:
         return fileset
 
     def getAllFilesets(self):
-        fBG = self.getFileset("*_", False)
+        fBG = self.getFileset("*_*", False)
         fSG1 = self.getFileset("*_mMed", False)
         fSG2 = self.getFileset("*_mZprime", False)
         fBG.update(fSG1)
-        return fBG.update(fSG2)
+        fBG.update(fSG2)
+        return fBG
+
