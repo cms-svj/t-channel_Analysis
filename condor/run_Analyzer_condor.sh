@@ -3,6 +3,7 @@
 dataset_longname=$1
 nfiles=$2
 startfile=$3
+workers=$4
 base_dir=`pwd`
 
 echo "ls output"
@@ -29,7 +30,8 @@ echo "\n\n Attempting to run MyAnalysis executable.\n\n"
 echo ${dataset_longname}
 echo ${nfiles}
 echo ${startfile}
-python analyze.py --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile}
+echo ${workers}
+python analyze.py --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile} -w ${workers}
 
 echo "\n\n ls output\n"
 ls -l
@@ -40,4 +42,3 @@ rm docker_stderror
 
 echo "\n\n ls output\n"
 ls -l
-
