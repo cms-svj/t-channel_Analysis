@@ -1,6 +1,6 @@
 # t-channel_Analysis
 
-This folder houses the analysis code used to look for emerging jets.
+This folder houses the analysis code used to look for semi-visible jets in t-channel.
 
 ## Setup Coffea Environment
 
@@ -13,7 +13,10 @@ Begin by logging into `cmslpc`:
 ssh -L localhost:8NNN:localhost:8NNN  <username>@cmslpc-sl7.fnal.gov
 ```
 Remember to replace `<username>` by your username. The `-L` option is needed if you'd like to work with Jupyter. Replace the `NNN` in `8NNN` with a unique number.
-
+If you are not going to work with Jupyter, you can just do:
+```bash
+ssh -L localhost:8NNN:localhost:8NNN  <username>@cmslpc-sl7.fnal.gov
+```
 ### Python Virtual Environment
 
 To begin the initial setup, run the following commands:
@@ -82,3 +85,37 @@ It's a good idea to get/renew a voms ticket if you're going to be working with X
 ```bash
 voms-proxy-init -voms cms --valid 192:00
 ```
+### Running the Analysis
+To make histograms locally using the signal and background ntuples, make sure you are in `t-channel_Analysis`
+```bash
+python analyze.py -d <sample label> -N <number of files>
+```
+This is usually done for debugging and testing purposes. The list of sample labels can be found in `input/sampleLabels.txt`.
+* `-d`: sample labels for list of input files to run over, which can be found in `input/sampleLabels.txt`.
+* `-N`: number of files from the sample to run over. Default is -1.
+* `-M`: index of the first file to run over.
+
+To make histograms on condor, cd into the `condor` directory and run
+```bash
+python condorSubmit.py -d 2018_QCD,2018_TTJets,2018_WJets,2018_ZJets,2018_mMed -n 10 -w 1 --output testDir
+```
+This will run over all the backgrounds (QCD, TTJets, WJets, ZJets) and the t-channel signals (the s-channel signals are labeled as 2016_mZprime,2017_mZprime). -n 10 means each job will use 10 root files as input, while -w 1 means we are using 1 CPU per job. An higher number of CPU used will use too much memory causing the job to be held, while a higher number of input files can make the job run longer and may also cause memory issue. After the jobs have finished running, the output histogram root files should be in `condor/testDir` (set by the --output flag).
+* `-d`: sample labels for list of input files to run over. Can use the labels found in `input/sampleLabels.txt` or more general labels such as 2018_QCD.
+* `-n`: number of files from the sample to run over. Default is -1.
+* `-c`: do not submit jobs to condor, but can still see the number of jobs that would have been submitted.
+* `-w`: number of workers.
+* `--output`: output directory.
+
+To hadd all the output files produced from the previous step, make sure you are in the `condor` directory and run
+```bash
+python hadder.py -H testHadd2 -p testDir/output-files -o
+```
+* `-H`: output directory.
+* `-p`: input directory.
+* `-o`: overwrite existing files with the same names.
+
+To plot the histograms, cd back into `t-channel_Analysis` and run
+```bash
+python plotStack.py
+```
+The plots are stored in `plots`.

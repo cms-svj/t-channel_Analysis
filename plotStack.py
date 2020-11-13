@@ -1,7 +1,7 @@
 import ROOT
 ROOT.gROOT.SetBatch(True)
 import math
-import DataSetInfo as info
+import utils.python.DataSetInfo as info
 import optparse
 import copy
 import math
@@ -20,32 +20,32 @@ def simpleSig(hSig, hBg):
             sig = math.sqrt(sig**2 + s**2)
     return sig
 
-def getData(path, scale=1.0, year = "2016"):
+def getData(path, scale=1.0, year = "2018"):
     Data = [
         #info.DataSetInfo(basedir=path, fileName=year+"_Data.root",        sys= -1.0, label="Data",        scale=scale),
     ]
-    
+
     bgData = [
         #info.DataSetInfo(basedir=path, fileName=year+"_Triboson.root",        label="VVV",                     scale=scale, color=(ROOT.kGray)),
         #info.DataSetInfo(basedir=path, fileName=year+"_Diboson.root",         label="VV",                      scale=scale, color=(ROOT.kMagenta + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_ZJetsToNuNu.root",     label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),        
+        info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",           label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
-        info.DataSetInfo(basedir=path, fileName=year+"_DYJetsToLL_M-50.root", label="Z#gamma*+jets",           scale=scale, color=(ROOT.kOrange + 2)),        
+        # info.DataSetInfo(basedir=path, fileName=year+"_DYJetsToLL_M-50.root", label="Z#gamma*+jets",           scale=scale, color=(ROOT.kOrange + 2)),
         #info.DataSetInfo(basedir=path, fileName=year+"_TTX.root",             label="ttX",                     scale=scale, color=(ROOT.kCyan + 1)),
         #info.DataSetInfo(basedir=path, fileName=year+"_ST.root",              label="Single top",              scale=scale, color=(ROOT.kRed + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_QCD_Mu.root",          label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
+        info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
     ]
 
     sgData = [
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-200_mDark-20_rinv-0p3_alpha-peak.root",     label="t-ch 200",  scale=scale, color=ROOT.kOrange + 2),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak.root",     label="t-ch 400",  scale=scale, color=ROOT.kMagenta + 1),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak.root",     label="t-ch 600",  scale=scale, color=ROOT.kBlack),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak.root",     label="t-ch 800",  scale=scale, color=ROOT.kGreen),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak.root",    label="t-ch 2000", scale=scale, color=ROOT.kBlue),
-        info.DataSetInfo(basedir=path, fileName=year+"_mZprime-2100_mDark-20_rinv-0p3_alpha-peak.root", label="s-ch 2100", scale=scale, color=ROOT.kRed),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak.root",    label="t-ch 3000", scale=scale, color=ROOT.kGreen+2),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-200_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 200",  scale=scale, color=ROOT.kOrange + 2),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 400",  scale=scale, color=ROOT.kMagenta + 1),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 600",  scale=scale, color=ROOT.kBlack),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 800",  scale=scale, color=ROOT.kGreen),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 2000", scale=scale, color=ROOT.kBlue),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mZprime-2100_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 3000", scale=scale, color=ROOT.kGreen+2),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
     ]
     return Data, sgData, bgData
 
@@ -85,9 +85,9 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
     if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
 
 #def smartMax():
-    
 
-def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=None, xmax=None):
+
+def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
 
@@ -120,27 +120,27 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     firstPass = True
     for d in data[1]:
         h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=True)
-        hs.Add(copy.deepcopy(h))        
+        hs.Add(copy.deepcopy(h))
         leg.AddEntry(h, d.legEntry(), "F")
         if(firstPass):
             hMC = copy.deepcopy(h)
             firstPass = False
         else:
             hMC.Add(copy.deepcopy(h))
-    normHisto(hMC, True)
+    # normHisto(hMC, False)
 
     #create a dummy histogram to act as the axes
-    #ymax=10**11
-    ymax=10**1
-    #ymin=10**-4
-    ymin=10**-12
-    #lmax=10**12
-    lmax=10**1
+    ymax=10**11
+    # ymax=10**1
+    ymin=10**-4
+    # ymin=10**-12
+    lmax=10**12
+    # lmax=10**1
     dummy = ROOT.TH1D("dummy", "dummy", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX()))
     setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax)
     dummy.Draw("hist")
-    hMC.Draw("hist same")
-    #hs.Draw("hist F same")
+    # hMC.Draw("hist same")
+    hs.Draw("hist F same")
     leg.Draw("same")
 
     #Setup signal histos
@@ -157,7 +157,7 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
             h.SetLineStyle(ROOT.kDashed)
             h.SetLineWidth(3)
             leg.AddEntry(h, d.legEntry()+", {}".format(sig), "L")
-            normHisto(h, True)
+            # normHisto(h, False)
             h.Draw("hist same")
             history.append(h)
 
@@ -169,12 +169,12 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     significance.SetTextSize(0.030)
     #significance.DrawLatex(0.45, 0.72, ("Significance = #frac{N_{s}}{#sqrt{N_{b}+#left(0.3N_{b}#right)^{2}}} = "+str(sig)))
     #significance.DrawLatex(0.45, 0.72, ("Significance = #frac{N_{s}}{#sqrt{N_{b}+#left(0.3N_{b}#right)^{2}}}"))
-    
+
     dummy.Draw("AXIS same")
 
     c1.SaveAs(outputPath+"/"+histoName+".pdf")
     c1.Close()
-    del c1                
+    del c1
     del leg
     del hMC
 
@@ -185,40 +185,43 @@ def main():
 
     #year = options.year
     year = "2018"
-    cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
+    # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
-    Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"_AK8_170_5/", 1.0, year)
+    cuts = [""]
+    Data, sgData, bgData = getData("condor/testHadd2/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
-    
+
+    plotOutDir = "plots"
+
     for cut in cuts:
-        plotStack((Data, bgData, sgData), "h_njets"+cut,       "./", "N_{j}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=20)
-        plotStack((Data, bgData, sgData), "h_njetsAK8"+cut,    "./", "N_{J}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=12)
-        plotStack((Data, bgData, sgData), "h_ntops"+cut,       "./", "N_{t}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=6)
-        plotStack((Data, bgData, sgData), "h_nb"+cut,          "./", "N_{b}",                           "A.U.", isLogY=True, rebinx=-1)
+        plotStack((Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "N_{j}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=20)
+        plotStack((Data, bgData, sgData), "h_njetsAK8"+cut,             plotOutDir, "N_{J}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=12)
+        # plotStack((Data, bgData, sgData), "h_ntops"+cut,       "./", "N_{t}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=6)
+        # plotStack((Data, bgData, sgData), "h_nb"+cut,          "./", "N_{b}",                           "A.U.", isLogY=True, rebinx=-1)
         #plotStack((Data, bgData, sgData), "h_nl"+cut,          "./", "N_{lep}",                         "A.U.", isLogY=True, rebinx=-1)
         #plotStack((Data, bgData, sgData), "h_ne"+cut,          "./", "N_{el}",                          "A.U.", isLogY=True, rebinx=-1)
         #plotStack((Data, bgData, sgData), "h_nm"+cut,          "./", "N_{mu}",                          "A.U.", isLogY=True, rebinx=-1)
-        plotStack((Data, bgData, sgData), "h_ht"+cut,          "./", "H_{T}",                           "A.U.", isLogY=True, rebinx=20)
-        plotStack((Data, bgData, sgData), "h_st"+cut,          "./", "S_{T}",                           "A.U.", isLogY=True, rebinx=20)
-        plotStack((Data, bgData, sgData), "h_met"+cut,         "./", "MET",                             "A.U.", isLogY=True, rebinx=10, xmin=0, xmax=2000)
-        plotStack((Data, bgData, sgData), "h_jPt"+cut,         "./", "pT_{j}",                          "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jEta"+cut,        "./", "#eta_{j}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jPhi"+cut,        "./", "#phi_{j}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jPtAK8"+cut,      "./", "pT_{J}",                          "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jEtaAK8"+cut,     "./", "#eta_{J}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jPhiAK8"+cut,     "./", "#phi_{J}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_dEtaJ12"+cut,     "./", "#Delta#eta(J_{1},J_{2})",         "A.U.", isLogY=True, rebinx=5, xmin=0, xmax=6)
-        plotStack((Data, bgData, sgData), "h_dRJ12"+cut,       "./", "#DeltaR(J_{1},J_{2})",            "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=6)
-        plotStack((Data, bgData, sgData), "h_dPhiJ1MET"+cut,   "./", "#Delta#phi(J_{1},MET)",           "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
-        plotStack((Data, bgData, sgData), "h_dPhiJ2MET"+cut,   "./", "#Delta#phi(J_{2},MET)",           "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
-        plotStack((Data, bgData, sgData), "h_dPhiMinJMET"+cut, "./", "#Delta#phi_{min}(J_{1,2},MET)",   "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
-        plotStack((Data, bgData, sgData), "h_dPhiJ1METrdPhiJ2MET"+cut, "./", "#Delta#phi Ratio",        "A.U.", isLogY=True, rebinx=2)
-        plotStack((Data, bgData, sgData), "h_mjjM"+cut,        "./", "m_{JJ}",                          "A.U.", isLogY=True, rebinx=10) 
-        plotStack((Data, bgData, sgData), "h_mjjPt"+cut,       "./", "pT_{JJ}",                         "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_mjjEta"+cut,      "./", "#eta_{JJ}",                       "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_mT"+cut,          "./", "mT",                              "A.U.", isLogY=True, rebinx=20) 
-        plotStack((Data, bgData, sgData), "h_METrHT_pt30"+cut, "./", "MET/HT",                          "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=10)
-        plotStack((Data, bgData, sgData), "h_METrST_pt30"+cut, "./", "MET/ST",                          "A.U.", isLogY=True, rebinx=5)
+        plotStack((Data, bgData, sgData), "h_ht"+cut,                   plotOutDir, "H_{T}",                           "A.U.", isLogY=True, rebinx=20)
+        plotStack((Data, bgData, sgData), "h_st"+cut,                   plotOutDir, "S_{T}",                           "A.U.", isLogY=True, rebinx=20)
+        plotStack((Data, bgData, sgData), "h_met"+cut,                  plotOutDir, "MET",                             "A.U.", isLogY=True, rebinx=20, xmin=0, xmax=2000)
+        plotStack((Data, bgData, sgData), "h_jPt"+cut,                  plotOutDir, "pT_{j}",                          "A.U.", isLogY=True, rebinx=10)
+        plotStack((Data, bgData, sgData), "h_jEta"+cut,                 plotOutDir, "#eta_{j}",                        "A.U.", isLogY=True, rebinx=10)
+        plotStack((Data, bgData, sgData), "h_jPhi"+cut,                 plotOutDir, "#phi_{j}",                        "A.U.", isLogY=True, rebinx=10)
+        plotStack((Data, bgData, sgData), "h_jPtAK8"+cut,               plotOutDir, "pT_{J}",                          "A.U.", isLogY=True, rebinx=10)
+        plotStack((Data, bgData, sgData), "h_jEtaAK8"+cut,              plotOutDir, "#eta_{J}",                        "A.U.", isLogY=True, rebinx=10)
+        plotStack((Data, bgData, sgData), "h_jPhiAK8"+cut,              plotOutDir, "#phi_{J}",                        "A.U.", isLogY=True, rebinx=10)
+        plotStack((Data, bgData, sgData), "h_dEtaJ12"+cut,              plotOutDir, "#Delta#eta(J_{1},J_{2})",         "A.U.", isLogY=True, rebinx=5, xmin=0, xmax=6)
+        plotStack((Data, bgData, sgData), "h_dRJ12"+cut,                plotOutDir, "#DeltaR(J_{1},J_{2})",            "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=6)
+        plotStack((Data, bgData, sgData), "h_dPhiJ1MET"+cut,            plotOutDir, "#Delta#phi(J_{1},MET)",           "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
+        plotStack((Data, bgData, sgData), "h_dPhiJ2MET"+cut,            plotOutDir, "#Delta#phi(J_{2},MET)",           "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
+        plotStack((Data, bgData, sgData), "h_dPhiMinJMET"+cut,          plotOutDir, "#Delta#phi_{min}(J_{1,2},MET)",   "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
+        plotStack((Data, bgData, sgData), "h_dPhiJ1METrdPhiJ2MET"+cut,  plotOutDir, "#Delta#phi Ratio",        "A.U.", isLogY=True, rebinx=2)
+        # plotStack((Data, bgData, sgData), "h_mjjM"+cut,        "./", "m_{JJ}",                          "A.U.", isLogY=True, rebinx=10)
+        # plotStack((Data, bgData, sgData), "h_mjjPt"+cut,       "./", "pT_{JJ}",                         "A.U.", isLogY=True, rebinx=10)
+        # plotStack((Data, bgData, sgData), "h_mjjEta"+cut,      "./", "#eta_{JJ}",                       "A.U.", isLogY=True, rebinx=10)
+        # plotStack((Data, bgData, sgData), "h_mT"+cut,          "./", "mT",                              "A.U.", isLogY=True, rebinx=20)
+        plotStack((Data, bgData, sgData), "h_METrHT_pt30"+cut,          plotOutDir, "MET/HT",                          "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=10)
+        plotStack((Data, bgData, sgData), "h_METrST_pt30"+cut,          plotOutDir, "MET/ST",                          "A.U.", isLogY=True, rebinx=5)
 
 if __name__ == '__main__':
     main()

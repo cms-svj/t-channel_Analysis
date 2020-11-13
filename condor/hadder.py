@@ -59,7 +59,7 @@ def main():
 
     # Get input directory path
     inPath = options.inPath
-        
+
     # Checks if user specified a dataset(s)
     datasets = []
     if options.datasets:
@@ -71,47 +71,47 @@ def main():
     outDir = options.outDir
     overwrite = options.o
     if os.path.exists(outDir):
-        if overwrite: 
+        if overwrite:
             print(red("Warning: Overwriting output directory"))
             shutil.rmtree(outDir)
             os.makedirs(outDir)
         else:
             print(red("Error: Output directory %s already exits" % ('"'+outDir+'"')))
-            exit(0)    
+            exit(0)
     else:
-        os.makedirs(outDir) 
-    
+        os.makedirs(outDir)
+
     # Loop over all sample options to find files to hadd
     log = []
     scl = s().getAllFilesets()
     for sampleCollection in datasets:
-        sl = s().getFileset(sampleCollection, False)  
+        sl = s().getFileset(sampleCollection, False)
         directory = sampleCollection
         files = ""
         print("-----------------------------------------------------------")
         print(sampleCollection)
         print("-----------------------------------------------------------")
-        
+
         # hadd signal root files
         sampleSetsToHadd = ["2016_mMed", "2017_mMed", "2018_mMed"]
         if sampleCollection in sampleSetsToHadd:
             for sample in sl.keys():
                 files = " " + " ".join(glob("%s/%s/MyAnalysis_%s_*.root" % (inPath, directory, sample)))
-                outfile = "%s/%s.root" % (outDir,sample[1])
-                command = "hadd %s/%s.root %s" % (outDir, sample[1], files)
+                outfile = "%s/%s.root" % (outDir,sample)
+                command = "hadd %s/%s.root %s" % (outDir, sample, files)
                 if not options.noHadd: system(command)
-                #log = checkNumEvents(nEvents=float(sample[2]), rootFile=outfile, sampleCollection=sample[1], log=log)    
+                #log = checkNumEvents(nEvents=float(sample[2]), rootFile=outfile, sampleCollection=sample[1], log=log)
         # hadd other condor jobs
         else:
             nEvents=0.0
             for sample in sl.keys():
                 files += " " + " ".join(glob("%s/%s/MyAnalysis_%s_*.root" % (inPath, directory, sample)))
                 #nEvents+=float(sample[2])
-        
+
             outfile = "%s/%s.root" % (outDir,sampleCollection)
             command = "hadd %s %s" % (outfile, files)
             try:
-                if not options.noHadd: 
+                if not options.noHadd:
                     process = subprocess.Popen(command, shell=True)
                     process.wait()
             except:
@@ -119,9 +119,9 @@ def main():
                 command = "hadd %s/%s.root %s/%s/*" % (outDir, sampleCollection, inPath, sampleCollection)
                 if not options.noHadd: system(command)
                 pass
-        
+
             #log = checkNumEvents(nEvents=nEvents, rootFile=outfile, sampleCollection=sampleCollection, log=log)
-    
+
     #Print log of hadd at the end
     if len(log) > 0:
          print(red("------------------------------------------------------------------------------------------------"))
@@ -129,7 +129,7 @@ def main():
          for l in log:
               print(red(l))
          print(red("------------------------------------------------------------------------------------------------"))
-    
+
 
 if __name__ == "__main__":
     main()
