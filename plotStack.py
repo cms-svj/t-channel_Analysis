@@ -5,6 +5,7 @@ import utils.python.DataSetInfo as info
 import optparse
 import copy
 import math
+import os
 
 def normHisto(hist, doNorm=False):
     if doNorm:
@@ -192,6 +193,9 @@ def main():
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
 
     plotOutDir = "plots"
+
+    if not os.path.exists(plotOutDir):
+        os.makedirs(plotOutDir)
 
     for cut in cuts:
         plotStack((Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "N_{j}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=20)
