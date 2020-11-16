@@ -1,7 +1,7 @@
 import sys, os
 from os import system, environ
 sys.path = [environ["TCHANNEL_BASE"],] + sys.path
-from utils.python.samples import Samples as s
+from utils import samples as s
 import optparse
 from glob import glob
 import datetime
@@ -83,9 +83,9 @@ def main():
 
     # Loop over all sample options to find files to hadd
     log = []
-    scl = s().getAllFilesets()
+    scl = s.getAllFilesets()
     for sampleCollection in datasets:
-        sl = s().getFileset(sampleCollection, False)
+        sl = s.getFileset(sampleCollection, False)
         directory = sampleCollection
         files = ""
         print("-----------------------------------------------------------")

@@ -1,7 +1,7 @@
 import ROOT
 ROOT.gROOT.SetBatch(True)
 import math
-import utils.python.DataSetInfo as info
+import utils.DataSetInfo as info
 import optparse
 import copy
 import math
@@ -189,7 +189,7 @@ def main():
     # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
     cuts = [""]
-    Data, sgData, bgData = getData("condor/testHadd2/", 1.0, year)
+    Data, sgData, bgData = getData("condor/testHadd/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
 
     plotOutDir = "plots"

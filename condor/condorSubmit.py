@@ -1,7 +1,7 @@
 import sys, os
 from os import system, environ
 sys.path = [environ["TCHANNEL_BASE"],] + sys.path
-from utils.python.samples import Samples as s
+from utils import samples as s
 import optparse
 
 def removeCopies(x):
@@ -58,7 +58,7 @@ def main():
             os.makedirs("%s/output-files/%s" % (options.outPath, sc))
 
         # loop over all samples in the sample collection
-        samples = s().getFileset(sc, False)
+        samples = s.getFileset(sc, False)
         for n, rFiles in samples.items():
             count = len(rFiles)
             print("    %-40s %d" % (n, count))
@@ -99,6 +99,8 @@ def main():
     # only runs when you submit
     if not options.noSubmit:
         # tar up working area to send with each job
+        print("-"*50)
+        print("Making the tar ball")
         makeExeAndFriendsTarball(filestoTransfer, "exestuff", options.outPath)
         #system("tar --exclude-caches-all --exclude-vcs -zcf %s/tchannel.tar.gz -C ${TCHANNEL_BASE}/.. tchannel --exclude=src --exclude=tmp" % options.outPath)
         system("tar czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} . --exclude=EventLoopFramework --exclude=condor --exclude=notebooks --exclude=root --exclude=.git --exclude=coffeaenv.tar.gz" % options.outPath)

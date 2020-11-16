@@ -3,7 +3,7 @@ from coffea import hist, processor
 from processors.mainProcessor import MainProcessor
 import uproot
 import sys
-from utils.python.samples import Samples as s
+from utils import samples as s
 import time
 from optparse import OptionParser
 
@@ -26,7 +26,7 @@ def main():
     outfile = "MyAnalysis_%s_%d.root" % (sample, options.startFile) if options.condor else "test.root"
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s().getFileset(sample, True, options.startFile, options.nFiles)
+    fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
 
     # run processor
     output = processor.run_uproot_job(
