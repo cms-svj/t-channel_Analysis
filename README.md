@@ -94,6 +94,9 @@ This is usually done for debugging and testing purposes. The list of sample labe
 * `-d`: sample labels for list of input files to run over, which can be found in `input/sampleLabels.txt`.
 * `-N`: number of files from the sample to run over. Default is -1.
 * `-M`: index of the first file to run over.
+* `-w`: number of workers.
+* `-s`: chunksize; an input for the coffea processor. It determines how many events to process at the same time.
+Sometimes it is helpful to use `-w 1 -s 2` for debugging.
 
 To make histograms on condor, cd into the `condor` directory and run
 ```bash
