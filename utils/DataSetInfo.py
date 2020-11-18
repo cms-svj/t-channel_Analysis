@@ -41,6 +41,9 @@ class DataSetInfo:
 
     def legEntry(self):
         return self.label
+        
+    def getColor(self):
+        return self.color
 
     def __del__(self):
         self.file.Close()
