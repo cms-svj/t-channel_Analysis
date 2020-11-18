@@ -2,7 +2,7 @@ from coffea.analysis_objects import JaggedCandidateArray
 
 class Objects:
     def __init__(self, df):
-        self.df = df
+        #self.df = df
         self.electrons = JaggedCandidateArray.candidatesfromcounts(
             df['Electrons'].counts,
             px=df['Electrons'].fP.fX.flatten(),
@@ -55,17 +55,17 @@ class Objects:
         # # Good Electrons
         electronQualityCut = (self.electrons.pt > 37) & (abs(self.electrons.eta) < self.etaCut)
         return self.electrons[electronQualityCut]
-
+    
     def goodMuons(self):
         # # Good Muons
-        muonQualityCut = (self.muons.pt > 37) & (abs(self.muons.eta) < self.etaCut)
+        muonQualityCut = (self.muons.pt > 30) & (abs(self.muons.eta) < self.etaCut)
         return self.muons[muonQualityCut]
-
+    
     def goodJets(self):
         # # Good AK4 Jets Cut
         ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < self.etaCut)
         return self.jets[ak4QualityCut]
-
+    
     def goodFatJets(self):
         # # Good AK8 Jets Cut
         ak8QualityCut = (self.fjets.pt > 200) & (abs(self.fjets.eta) < self.etaCut)
