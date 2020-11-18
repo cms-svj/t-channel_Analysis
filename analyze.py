@@ -3,7 +3,7 @@ from coffea import hist, processor
 from processors.mainProcessor import MainProcessor
 import uproot
 import sys
-from utils.python.samples import Samples as s
+from utils import samples as s
 import time
 from optparse import OptionParser
 
@@ -18,7 +18,7 @@ def main():
     parser.add_option('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
     parser.add_option('-w', '--workers',   help='Number of workers to use for multi-worker executors (e.g. futures or condor)', dest='workers', type=int, default=8)
-    parser.add_option('-s', '--chunksize', help='Chunk size',        dest='chunksize', type=int, default=100000)
+    parser.add_option('-s', '--chunksize', help='Chunk size',        dest='chunksize', type=int, default=10000)
     options, args = parser.parse_args()
 
     # set output root file
@@ -26,7 +26,7 @@ def main():
     outfile = "MyAnalysis_%s_%d.root" % (sample, options.startFile) if options.condor else "test.root"
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s().getFileset(sample, True, options.startFile, options.nFiles)
+    fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
 
     # run processor
     output = processor.run_uproot_job(

@@ -1,11 +1,12 @@
 import ROOT
 ROOT.gROOT.SetBatch(True)
 import math
-import utils.python.DataSetInfo as info
+import utils.DataSetInfo as info
 import optparse
 import copy
 import math
 import os
+from array import array
 
 def normHisto(hist, doNorm=False):
     if doNorm:
@@ -20,6 +21,23 @@ def simpleSig(hSig, hBg):
             s = nSig / math.sqrt( totBG + (0.3*totBG)**2 )
             sig = math.sqrt(sig**2 + s**2)
     return sig
+
+def getBGHistos(data, histoName, rebinx, xmin, xmax):
+    hs = ROOT.THStack()
+    hMC = None
+    hList = []
+    firstPass = True
+    for d in data[1]:
+        h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=True)
+        hist = copy.deepcopy(h)
+        hs.Add(hist)
+        hList.append((hist, d.legEntry()))
+        if(firstPass):
+            hMC = hist
+            firstPass = False
+        else:
+            hMC.Add(hist)
+    return hs, hMC, hList
 
 def getData(path, scale=1.0, year = "2018"):
     Data = [
@@ -39,13 +57,13 @@ def getData(path, scale=1.0, year = "2018"):
     ]
 
     sgData = [
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 3000", scale=scale, color=ROOT.kGreen+2),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-200_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 200",  scale=scale, color=ROOT.kOrange + 2),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 400",  scale=scale, color=ROOT.kMagenta + 1),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 600",  scale=scale, color=ROOT.kBlack),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 800",  scale=scale, color=ROOT.kGreen),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 2000", scale=scale, color=ROOT.kBlue),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mZprime-2100_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 3000", scale=scale, color=ROOT.kGreen+2),
+        #info.DataSetInfo(basedir=path, fileName=year+"_mZprime-2100_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
     ]
     return Data, sgData, bgData
@@ -85,8 +103,102 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
     #set x-axis range
     if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
 
-#def smartMax():
+def makeRocVec(h):
+    h.Scale( 1.0 / h.Integral() );
+    v, cuts = [], []
+    for i in range(0, h.GetNbinsX()):    
+        val = h.Integral(i, h.GetNbinsX())
+        v.append(val)
+        cuts.append(h.GetBinLowEdge(i)+h.GetBinWidth(i))
+    return v, cuts 
 
+def drawRocCurve(fType, rocBgVec, rocSigVec, leg):
+    index = 0
+    h = []
+    for mBg, cutBg, lBg, cBg in rocBgVec:
+        index+=1
+        for mSig, cutSig, lSig, cSig in rocSigVec:
+            n = len(mBg)
+            g = ROOT.TGraph(n, array("d", mBg), array("d", mSig))
+            for i in range(0,n):
+                latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(cutSig[i]))
+                latex.SetTextSize(0.02) 
+                latex.SetTextColor(ROOT.kRed)
+                g.GetListOfFunctions().Add(latex)
+            g.SetLineWidth(2)
+            #g.SetLineStyle()
+            g.SetLineColor(cBg)
+            g.SetMarkerSize(0.7)
+            g.SetMarkerStyle(ROOT.kFullSquare)
+            g.SetMarkerColor(cBg)
+            g.Draw("same LP text")                
+            leg.AddEntry(g, fType + " " + lBg + " vs " + lSig, "LP")
+            h.append(g)
+            #Hardcode only do the first signal for now
+            break
+    return h
+
+def plotROC(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
+    #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
+    ROOT.TH1.AddDirectory(False)
+
+    #create the canvas for the plot
+    c1 = ROOT.TCanvas( "c", "c", 800, 800)
+    c1.cd()
+    ROOT.gPad.Clear()
+    ROOT.gStyle.SetOptStat("")
+    ROOT.gPad.SetLeftMargin(0.15)
+    ROOT.gPad.SetRightMargin(0.05)
+    ROOT.gPad.SetTopMargin(0.08)
+    ROOT.gPad.SetBottomMargin(0.12)
+    ROOT.gPad.SetTicks(1,1)
+    ROOT.gPad.SetLogy(isLogY)
+
+    #Create TLegend
+    leg = ROOT.TLegend(0.17, 0.72, 0.95, 0.88)
+    #nColumns = 3 if(len(data[1]) >= 3) else 1
+    nColumns = 2
+    leg.SetFillStyle(0)
+    leg.SetBorderSize(0)
+    leg.SetLineWidth(1)
+    leg.SetNColumns(nColumns)
+    leg.SetTextFont(42)
+    ROOT.gStyle.SetLegendTextSize(0.024)
+
+    rocBgVec = []
+    for d in data[1]:
+        h = d.getHisto(histoName, rebinx=-1.0, xmin=999.9, xmax=-999.9, fill=True, showEvents=False)
+        rocBgVec.append(makeRocVec(h) + ( d.legEntry(), d.getColor()))
+
+    rocSigVec = []
+    for d in data[2]:
+        h = d.getHisto(histoName, rebinx=-1.0, xmin=999.9, xmax=-999.9, fill=True, showEvents=False)
+        rocSigVec.append(makeRocVec(h) + (d.legEntry(), d.getColor()))
+
+    #create a dummy histogram to act as the axes
+    ymax=1.0
+    ymin=10**-4
+    lmax=1.0
+    dummy = ROOT.TH1D("dummy", "dummy", 1000, 0.0, 1.0)
+    setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax)
+    dummy.Draw("hist")
+    leg.Draw("same")
+    history = drawRocCurve("", rocBgVec, rocSigVec, leg)
+
+    line1 = ROOT.TF1( "line1","1",0,1)
+    line1.SetLineColor(ROOT.kBlack)
+    line1.Draw("same")
+    line2 = ROOT.TF1( "line2","x",0,1)
+    line2.SetLineColor(ROOT.kBlack)
+    line2.SetLineStyle(ROOT.kDotted)
+    line2.Draw("same")
+
+    dummy.Draw("AXIS same")
+
+    c1.SaveAs(outputPath+"/"+histoName+"_ROC.pdf")
+    c1.Close()
+    del c1
+    del leg
 
 def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
@@ -116,19 +228,12 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     ROOT.gStyle.SetLegendTextSize(0.024)
 
     #Setup background histos
-    hs = ROOT.THStack()
-    hMC = None
-    firstPass = True
-    for d in data[1]:
-        h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=True)
-        hs.Add(copy.deepcopy(h))
-        leg.AddEntry(h, d.legEntry(), "F")
-        if(firstPass):
-            hMC = copy.deepcopy(h)
-            firstPass = False
-        else:
-            hMC.Add(copy.deepcopy(h))
+    hs, hMC, hList = getBGHistos(data, histoName, rebinx, xmin, xmax)
     # normHisto(hMC, False)
+
+    #Fill background legend
+    for h in hList: 
+        leg.AddEntry(h[0], h[1], "F")
 
     #create a dummy histogram to act as the axes
     ymax=10**11
@@ -189,7 +294,7 @@ def main():
     # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
     cuts = [""]
-    Data, sgData, bgData = getData("condor/testHadd2/", 1.0, year)
+    Data, sgData, bgData = getData("condor/testHadd/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
 
     plotOutDir = "plots"
@@ -198,6 +303,7 @@ def main():
         os.makedirs(plotOutDir)
 
     for cut in cuts:
+        plotROC(  (Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "#epsilon_{ bg}",                  "#epsilon_{ sg}", isLogY=False, rebinx=-1, xmin=0, xmax=20)
         plotStack((Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "N_{j}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=20)
         plotStack((Data, bgData, sgData), "h_njetsAK8"+cut,             plotOutDir, "N_{J}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=12)
         # plotStack((Data, bgData, sgData), "h_ntops"+cut,       "./", "N_{t}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=6)
