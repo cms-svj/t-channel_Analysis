@@ -31,7 +31,9 @@ class Objects:
             energy=df['Jets'].fE.flatten(),
             axismajor=df['Jets_axismajor'].flatten(),
             axisminor=df['Jets_axisminor'].flatten(),
-            ptD=df['Jets_ptD'].flatten()
+            ptD=df['Jets_ptD'].flatten(),
+            bDeepCSVprobb=df['Jets_bJetTagDeepCSVprobb'].flatten(),
+            bDeepCSVprobbb=df['Jets_bJetTagDeepCSVprobbb'].flatten()
         )
         self.fjets = JaggedCandidateArray.candidatesfromcounts(
             df['JetsAK8'].counts,
@@ -55,19 +57,30 @@ class Objects:
         # # Good Electrons
         electronQualityCut = (self.electrons.pt > 37) & (abs(self.electrons.eta) < self.etaCut)
         return self.electrons[electronQualityCut]
-    
+
     def goodMuons(self):
         # # Good Muons
         muonQualityCut = (self.muons.pt > 30) & (abs(self.muons.eta) < self.etaCut)
         return self.muons[muonQualityCut]
-    
+
     def goodJets(self):
         # # Good AK4 Jets Cut
         ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < self.etaCut)
         return self.jets[ak4QualityCut]
-    
+
     def goodFatJets(self):
         # # Good AK8 Jets Cut
         ak8QualityCut = (self.fjets.pt > 200) & (abs(self.fjets.eta) < self.etaCut)
         return self.fjets[ak8QualityCut]
 
+    def goodBJets(self):
+        jets = goodJets()
+        deepCSV = jets.bDeepCSVprobb + jets.bDeepCSVprobbb
+        dataset = df['dataset']
+        # use medium working point
+        if "2016" in dataset:
+            return jets[deepCSV >= 0.6321]
+        elif "2017" in dataset:
+            return jets[deepCSV >= 0.4941]
+        elif "2018" in dataset:
+            return jets[deepCSV >= 0.4184]
