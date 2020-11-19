@@ -106,13 +106,13 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
 def makeRocVec(h):
     h.Scale( 1.0 / h.Integral() );
     v, cuts = [], []
-    for i in range(0, h.GetNbinsX()):    
+    for i in range(0, h.GetNbinsX()):
         val = h.Integral(i, h.GetNbinsX())
         v.append(val)
         cuts.append(h.GetBinLowEdge(i)+h.GetBinWidth(i))
-    return v, cuts 
+    return v, cuts
 
-def drawRocCurve(fType, rocBgVec, rocSigVec, leg):
+def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx):
     index = 0
     h = []
     for mBg, cutBg, lBg, cBg in rocBgVec:
@@ -121,17 +121,18 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg):
             n = len(mBg)
             g = ROOT.TGraph(n, array("d", mBg), array("d", mSig))
             for i in range(0,n):
-                latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(cutSig[i]))
-                latex.SetTextSize(0.02) 
-                latex.SetTextColor(ROOT.kRed)
-                g.GetListOfFunctions().Add(latex)
+                if ((i % rebinx == 0) and (rebinx != -1)) or (rebinx == -1):
+                    latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(cutSig[i]))
+                    latex.SetTextSize(0.02)
+                    latex.SetTextColor(ROOT.kRed)
+                    g.GetListOfFunctions().Add(latex)
             g.SetLineWidth(2)
             #g.SetLineStyle()
             g.SetLineColor(cBg)
             g.SetMarkerSize(0.7)
             g.SetMarkerStyle(ROOT.kFullSquare)
             g.SetMarkerColor(cBg)
-            g.Draw("same LP text")                
+            g.Draw("same LP text")
             leg.AddEntry(g, fType + " " + lBg + " vs " + lSig, "LP")
             h.append(g)
             #Hardcode only do the first signal for now
@@ -167,12 +168,12 @@ def plotROC(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False
 
     rocBgVec = []
     for d in data[1]:
-        h = d.getHisto(histoName, rebinx=-1.0, xmin=999.9, xmax=-999.9, fill=True, showEvents=False)
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
         rocBgVec.append(makeRocVec(h) + ( d.legEntry(), d.getColor()))
 
     rocSigVec = []
     for d in data[2]:
-        h = d.getHisto(histoName, rebinx=-1.0, xmin=999.9, xmax=-999.9, fill=True, showEvents=False)
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
         rocSigVec.append(makeRocVec(h) + (d.legEntry(), d.getColor()))
 
     #create a dummy histogram to act as the axes
@@ -183,7 +184,7 @@ def plotROC(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False
     setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax)
     dummy.Draw("hist")
     leg.Draw("same")
-    history = drawRocCurve("", rocBgVec, rocSigVec, leg)
+    history = drawRocCurve("", rocBgVec, rocSigVec, leg, rebinx)
 
     line1 = ROOT.TF1( "line1","1",0,1)
     line1.SetLineColor(ROOT.kBlack)
@@ -232,7 +233,7 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     # normHisto(hMC, False)
 
     #Fill background legend
-    for h in hList: 
+    for h in hList:
         leg.AddEntry(h[0], h[1], "F")
 
     #create a dummy histogram to act as the axes
@@ -303,7 +304,8 @@ def main():
         os.makedirs(plotOutDir)
 
     for cut in cuts:
-        plotROC(  (Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "#epsilon_{ bg}",                  "#epsilon_{ sg}", isLogY=False, rebinx=-1, xmin=0, xmax=20)
+        plotROC(  (Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "#epsilon_{ bg}",                  "#epsilon_{ sg}", isLogY=False, rebinx=2)
+        plotROC(  (Data, bgData, sgData), "h_ht"+cut,                   plotOutDir, "#epsilon_{ bg}",                  "#epsilon_{ sg}", isLogY=False, rebinx=20)
         plotStack((Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "N_{j}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=20)
         plotStack((Data, bgData, sgData), "h_njetsAK8"+cut,             plotOutDir, "N_{J}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=12)
         # plotStack((Data, bgData, sgData), "h_ntops"+cut,       "./", "N_{t}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=6)
@@ -311,7 +313,7 @@ def main():
         #plotStack((Data, bgData, sgData), "h_nl"+cut,          "./", "N_{lep}",                         "A.U.", isLogY=True, rebinx=-1)
         #plotStack((Data, bgData, sgData), "h_ne"+cut,          "./", "N_{el}",                          "A.U.", isLogY=True, rebinx=-1)
         #plotStack((Data, bgData, sgData), "h_nm"+cut,          "./", "N_{mu}",                          "A.U.", isLogY=True, rebinx=-1)
-        plotStack((Data, bgData, sgData), "h_ht"+cut,                   plotOutDir, "H_{T}",                           "A.U.", isLogY=True, rebinx=20)
+        plotStack((Data, bgData, sgData), "h_ht"+cut,                   plotOutDir, "H_{T}",                           "A.U.", isLogY=True, rebinx=100)
         plotStack((Data, bgData, sgData), "h_st"+cut,                   plotOutDir, "S_{T}",                           "A.U.", isLogY=True, rebinx=20)
         plotStack((Data, bgData, sgData), "h_met"+cut,                  plotOutDir, "MET",                             "A.U.", isLogY=True, rebinx=20, xmin=0, xmax=2000)
         plotStack((Data, bgData, sgData), "h_jPt"+cut,                  plotOutDir, "pT_{j}",                          "A.U.", isLogY=True, rebinx=10)
