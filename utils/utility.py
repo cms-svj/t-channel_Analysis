@@ -3,7 +3,10 @@ import awkward1 as ak
 import awkward
 
 def awkwardReshape(akArray,npArray):
-    return ak.broadcast_arrays(akArray.pt,1.0)[1] * npArray
+    if len(akArray) == 0:
+        return ak.Array([])
+    else:
+        return ak.broadcast_arrays(akArray.pt,1.0)[1] * npArray
 
 # convert phi values into spherical coordinate?
 def phi_(x,y):
@@ -33,11 +36,10 @@ def deltaPhi(jetphiL,metPhiL):
 
     elif type(dphi) == np.ndarray:
         dphi_edited = np.where(dphi < -np.pi, dphi + 2*np.pi, dphi)
-        dphi_edited = np.where(dphi_edited > np.pi, dphi_edited - 2*np.pi, dphi_edited)    
+        dphi_edited = np.where(dphi_edited > np.pi, dphi_edited - 2*np.pi, dphi_edited)
         return abs(dphi_edited)
 
 def delta_R(jet1_phi,jet2_phi,jet1_eta,jet2_eta):
     dp = deltaPhi(jet1_phi,jet2_phi)
     deltaR2 = (jet1_eta - jet2_eta) * (jet1_eta - jet2_eta) + dp * dp
     return np.sqrt(deltaR2)
-
