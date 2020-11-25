@@ -4,6 +4,7 @@ dataset_longname=$1
 nfiles=$2
 startfile=$3
 workers=$4
+chunksize=$5
 base_dir=`pwd`
 
 echo "ls output"
@@ -31,7 +32,7 @@ echo ${dataset_longname}
 echo ${nfiles}
 echo ${startfile}
 echo ${workers}
-python analyze.py --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile} -w ${workers}
+python analyze.py --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile} -w ${workers} -s ${chunksize}
 
 echo "\n\n ls output\n"
 ls -l

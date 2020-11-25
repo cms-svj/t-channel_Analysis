@@ -1,5 +1,5 @@
+# create json files that store dictionary of input files of different samples
 import json
-
 
 def grabInput(sample):
     baseloc = "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV17/"
@@ -7,7 +7,6 @@ def grabInput(sample):
 
     f_ = sample.find("_")
     year = sample[:f_]
-
 
     if year == "2016":
         yrkey = "Summer16v3"
@@ -22,6 +21,10 @@ def grabInput(sample):
         readFrom = "tchannel_Files.txt"
         loc = sigloc
         yrkey = ""
+    elif "mZprime" in detailKey:
+        readFrom = "Run2ProductionV17_Files.txt"
+        loc = baseloc
+        yrkey = year
     else:
         readFrom = "Run2ProductionV17_Files.txt"
         loc = baseloc
@@ -29,6 +32,9 @@ def grabInput(sample):
     if "Incl" in detailKey:
         ii = detailKey.find("Incl")
         detailKey = detailKey[:ii] + "Tune"
+
+    if "TTJets_SingleLeptFromT" in sample or "TTJets_DiLept" in sample:
+        detailKey += "_Tune"
 
     fileReadFrom = open(readFrom,'r')
     Lines = fileReadFrom.readlines()
@@ -47,7 +53,7 @@ for sample in sampleLists:
     f_ = sample.find("_")
     year = sample[:f_]
     detailKey = sample[f_+1:-1]
-
+    print (detailKey)
     if "Incl" in detailKey:
         ii = detailKey.find("Incl")
         detailKey = detailKey[:ii] + "Tune"
@@ -67,7 +73,7 @@ for sample in sampleLists:
         sampleLab = sampleLab[:sampleLab.find("_ext")]
 
     print (sampleLab)
-    if "mMed" in detailKey:
+    if "mMed" in detailKey or "mZprime" in detailKey:
         saveFile = "sampleJSONs/signals/" + year + "/" + sampleLab + ".json"
     else:
         saveFile = "sampleJSONs/backgrounds/" + year + "/" + sampleLab + ".json"
