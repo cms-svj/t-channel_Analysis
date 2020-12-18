@@ -22,7 +22,7 @@ def use_dask(njobs,port):
     hostname = socket.gethostname()
 
     cluster = HTCondorCluster(
-        scheduler_options = {'host': f'{hostname}:10000'},
+        scheduler_options = {'host': f'{hostname}:10000', 'dashboard_address': ':{}'.format(port)},
         cores=1,
         memory="2GB",
         disk="2GB",
@@ -30,7 +30,6 @@ def use_dask(njobs,port):
         nanny=False,
         extra=extra,
         job_extra=job_extra,
-        diagnostics_port=port,
     )
 
     cluster.scale(jobs=njobs)
@@ -61,6 +60,7 @@ def main():
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
     parser.add_option(      '--dask',      help='running on condor w/ dask', dest='dask',              default=False, action='store_true')
     parser.add_option(      '--port',      help='port for dask status dashboard (localhost:port)', dest='port', type=int, default=8787)
+    parser.add_option(      '--mincores',  help='dask waits for min # cores', dest='mincores', type=int, default=4)
     parser.add_option(      '--quiet',     help='suppress status printouts', dest='quiet',              default=False, action='store_true')
     parser.add_option('-w', '--workers',   help='Number of workers to use for multi-worker executors (e.g. futures or condor)', dest='workers', type=int, default=8)
     parser.add_option('-s', '--chunksize', help='Chunk size',        dest='chunksize', type=int, default=10000)
@@ -81,7 +81,7 @@ def main():
         if options.quiet: exe_args['status'] = False
 
         client = exe_args['client']
-        while len(client.ncores()) < 4:
+        while len(client.ncores()) < options.mincores:
             print('Waiting for more cores to spin up, currently there are {0} available...'.format(len(client.ncores())))
             print('Dask client info ->', client)
             time.sleep(10)
