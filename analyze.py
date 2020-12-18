@@ -8,7 +8,7 @@ import time
 from optparse import OptionParser
 from glob import glob
 
-def use_dask(njobs,port):
+def use_dask(condor,njobs,port):
     from dask.distributed import Client
     from lpc_dask.lpc_dask import HTCondorCluster
     import socket
@@ -21,22 +21,25 @@ def use_dask(njobs,port):
 
     hostname = socket.gethostname()
 
-    cluster = HTCondorCluster(
-        scheduler_options = {'host': f'{hostname}:10000', 'dashboard_address': ':{}'.format(port)},
-        cores=1,
-        memory="2GB",
-        disk="2GB",
-        python='python',
-        nanny=False,
-        extra=extra,
-        job_extra=job_extra,
-    )
+    if condor:
+        cluster = HTCondorCluster(
+            scheduler_options = {'host': f'{hostname}:10000', 'dashboard_address': ':{}'.format(port)},
+            cores=1,
+            memory="2GB",
+            disk="2GB",
+            python='python',
+            nanny=False,
+            extra=extra,
+            job_extra=job_extra,
+        )
 
-    cluster.scale(jobs=njobs)
+        cluster.scale(jobs=njobs)
 
-    client = Client(cluster,
-        timeout=100
-    )
+        client = Client(cluster,
+            timeout=100
+        )
+    else:
+        client = Client()
 
     exe_args = {
         'client': client,
@@ -77,7 +80,7 @@ def main():
     # get processor args
     exe_args = {'workers': options.workers, 'flatten': False}
     if options.dask:
-        exe_args = use_dask(options.workers,options.port)
+        exe_args = use_dask(options.condor,options.workers,options.port)
         if options.quiet: exe_args['status'] = False
 
         client = exe_args['client']
