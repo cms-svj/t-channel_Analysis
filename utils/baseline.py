@@ -2,9 +2,8 @@ import numpy as np
 
 def getBaselineMask(df):
     dataset = df['dataset']
-    # # TT Stiching mask
-    ttStitchMask = np.ones(len(df['MET']),dtype=bool)
 
+    # # TT Stiching mask
     madHT = df['madHT']
     nEle = df['GenElectrons'].counts
     nMu = df['GenMuons'].counts
@@ -12,6 +11,7 @@ def getBaselineMask(df):
     genMET = df['GenMET']
 
     # put the stitching in utility
+    ttStitchMask = None
     if "TTJets_Inc" in dataset:
         ttStitchMask = (madHT < 600) & (nEle==0) & (nMu==0) & (nTau==0)
     elif "TTJets_HT" in dataset:
@@ -20,5 +20,7 @@ def getBaselineMask(df):
         ttStitchMask = (madHT < 600) & (genMET < 150)
     elif ("TTJets_DiLept" in dataset and "genMET" in dataset) or ("TTJets_SingleLeptFromT" in dataset and "genMET" in dataset):
         ttStitchMask = (madHT < 600) & (genMET >= 150)
+    else:
+        ttStitchMask = np.ones(len(df['MET']),dtype=bool)
 
     return ttStitchMask

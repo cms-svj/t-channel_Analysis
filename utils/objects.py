@@ -1,4 +1,5 @@
 from coffea.analysis_objects import JaggedCandidateArray
+import numpy as np
 
 class Objects:
     def __init__(self, df):
@@ -73,8 +74,8 @@ class Objects:
         ak8QualityCut = (self.fjets.pt > 200) & (abs(self.fjets.eta) < self.etaCut)
         return self.fjets[ak8QualityCut]
 
-    def goodBJets(self):
-        jets = goodJets()
+    def goodBJets(self,df,jets):
+        jets = jets[~np.isnan(jets.bDeepCSVprobb)]
         deepCSV = jets.bDeepCSVprobb + jets.bDeepCSVprobbb
         dataset = df['dataset']
         # use medium working point

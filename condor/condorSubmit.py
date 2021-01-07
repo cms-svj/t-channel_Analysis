@@ -26,11 +26,12 @@ def getDatasets(datasets):
 def main():
     # parse command line arguments
     parser = optparse.OptionParser("usage: %prog [options]\n")
-    parser.add_option ('-n',             dest='numfile',  type='int',                         default = 10,            help="number of files per job")
-    parser.add_option ('-d',             dest='datasets', type='string',                      default = '',            help="List of datasets, comma separated")
-    parser.add_option ('-c',             dest='noSubmit',                action='store_true', default = False,         help="Do not submit jobs.  Only create condor_submit.txt.")
-    parser.add_option ('-w','--workers', dest='workers',  type='int',                         default = 2,             help='Number of workers to use for multi-worker executors (e.g. futures or condor)')
-    parser.add_option ('--output',       dest='outPath',  type='string',                      default = '.',           help="Name of directory where output of each condor job goes")
+    parser.add_option ('-n',              dest='numfile',  type='int',                         default = 10,            help="number of files per job")
+    parser.add_option ('-d',              dest='datasets', type='string',                      default = '',            help="List of datasets, comma separated")
+    parser.add_option ('-c',              dest='noSubmit',                action='store_true', default = False,         help="Do not submit jobs.  Only create condor_submit.txt.")
+    parser.add_option ('-w','--workers',  dest='workers',  type='int',                         default = 2,             help='Number of workers to use for multi-worker executors (e.g. futures or condor)')
+    parser.add_option ('--output',        dest='outPath',  type='string',                      default = '.',           help="Name of directory where output of each condor job goes")
+    parser.add_option('-s', '--chunksize',dest='chunksize',type='int',                           default=10000,           help='Chunk size',)
     options, args = parser.parse_args()
 
     # prepare the list of hardcoded files to transfer
@@ -81,7 +82,7 @@ def main():
 
                 # add each job to the jdl file
                 fileParts.append(transfer)
-                fileParts.append("Arguments = %s %i %i %i\n"%(n, nFilesPerJob, startFileNum, options.workers))
+                fileParts.append("Arguments = %s %i %i %i %i\n"%(n, nFilesPerJob, startFileNum, options.workers, options.chunksize))
                 fileParts.append("Output = %s/log-files/MyAnalysis_%s_%i.stdout\n"%(options.outPath, n, startFileNum))
                 fileParts.append("Error = %s/log-files/MyAnalysis_%s_%i.stderr\n"%(options.outPath, n, startFileNum))
                 fileParts.append("Log = %s/log-files/MyAnalysis_%s_%i.log\n"%(options.outPath, n, startFileNum))

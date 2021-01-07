@@ -7,6 +7,7 @@ import copy
 import math
 import os
 from array import array
+import numpy as np
 
 def normHisto(hist, doNorm=False):
     if doNorm:
@@ -44,28 +45,56 @@ def getData(path, scale=1.0, year = "2018"):
         #info.DataSetInfo(basedir=path, fileName=year+"_Data.root",        sys= -1.0, label="Data",        scale=scale),
     ]
 
+    # Normal
     bgData = [
-        #info.DataSetInfo(basedir=path, fileName=year+"_Triboson.root",        label="VVV",                     scale=scale, color=(ROOT.kGray)),
-        #info.DataSetInfo(basedir=path, fileName=year+"_Diboson.root",         label="VV",                      scale=scale, color=(ROOT.kMagenta + 1)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_Triboson.root",        label="VVV",                     scale=scale, color=(ROOT.kGray)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_Diboson.root",         label="VV",                      scale=scale, color=(ROOT.kMagenta + 1)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_DYJetsToLL_M-50.root", label="Z#gamma*+jets",           scale=scale, color=(ROOT.kOrange + 2)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_TTX.root",             label="ttX",                     scale=scale, color=(ROOT.kCyan + 1)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_ST.root",              label="Single top",              scale=scale, color=(ROOT.kRed + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",           label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
-        # info.DataSetInfo(basedir=path, fileName=year+"_DYJetsToLL_M-50.root", label="Z#gamma*+jets",           scale=scale, color=(ROOT.kOrange + 2)),
-        #info.DataSetInfo(basedir=path, fileName=year+"_TTX.root",             label="ttX",                     scale=scale, color=(ROOT.kCyan + 1)),
-        #info.DataSetInfo(basedir=path, fileName=year+"_ST.root",              label="Single top",              scale=scale, color=(ROOT.kRed + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
     ]
 
     sgData = [
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 3000", scale=scale, color=ROOT.kGreen+2),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-200_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 200",  scale=scale, color=ROOT.kOrange + 2),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 400",  scale=scale, color=ROOT.kMagenta + 1),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 600",  scale=scale, color=ROOT.kBlack),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 800",  scale=scale, color=ROOT.kGreen),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 2000", scale=scale, color=ROOT.kBlue),
-        #info.DataSetInfo(basedir=path, fileName=year+"_mZprime-2100_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
+        info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",           label="s-ch baseline", scale=scale, color=ROOT.kRed),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
     ]
+
+    # ROC plot of one background, many signals
+    # bgData = [
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 400",  scale=scale, color=ROOT.kMagenta + 1),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 2000", scale=scale, color=ROOT.kBlue),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mZprime-2100_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="M-3000_r-0p1",scale=scale, color=ROOT.kBlue),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_r-0p3",scale=scale, color=ROOT.kGreen+2),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
+    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-3000_r-0p7",scale=scale, color=ROOT.kCyan),
+    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-1",scale=scale, color=ROOT.kBlue),
+    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
+    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-50_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-50",scale=scale, color=ROOT.kRed),
+    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-100_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-100",scale=scale, color=ROOT.kCyan),
+    #
+    # ]
+    #
+    # sgData = [
+    #     info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
+    # ]
+
+
     return Data, sgData, bgData
 
 def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel):
@@ -79,21 +108,26 @@ def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel):
     dummy.GetYaxis().SetLabelSize(yLabel)
     if(dummy.GetXaxis().GetNdivisions() % 100 > 5): dummy.GetXaxis().SetNdivisions(6, 5, 0)
 
-def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax, ymin, ymax, lmax):
+def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax, ymin, ymax, lmax, norm):
     setupAxes(dummy, 1.2, 1.6, 0.045, 0.045, 0.045, 0.045)
     dummy.GetYaxis().SetTitle(yAxisLabel)
     dummy.GetXaxis().SetTitle(xAxisLabel)
     dummy.SetTitle(histName)
     #Set the y-range of the histogram
     if(isLogY):
-        #default = 0.02
-        default = 0.000001
+        if norm:
+            default = 0.001
+        else:
+            default = 0.02
         locMin = min(default, max(default, 0.05 * ymin))
         legSpan = (math.log10(3*ymax) - math.log10(locMin)) * (leg.GetY1() - ROOT.gPad.GetBottomMargin()) / ((1 - ROOT.gPad.GetTopMargin()) - ROOT.gPad.GetBottomMargin())
         legMin = legSpan + math.log10(locMin)
         if(math.log10(lmax) > legMin):
             scale = (math.log10(lmax) - math.log10(locMin)) / (legMin - math.log10(locMin))
-            ymax = pow(ymax/locMin, scale)*locMin
+            if norm:
+                ymax = 2.
+            else:
+                ymax = pow(ymax/locMin, scale)*locMin
         dummy.GetYaxis().SetRangeUser(locMin, 10*ymax)
     else:
         locMin = 0.0
@@ -106,8 +140,13 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
 def makeRocVec(h):
     h.Scale( 1.0 / h.Integral() );
     v, cuts = [], []
-    for i in range(0, h.GetNbinsX()):
+    for i in range(0, h.GetNbinsX()+1):
         val = h.Integral(i, h.GetNbinsX())
+        # if round(val,2) > 1.0:
+        #     print (i)
+        #     print (h.GetNbinsX())
+        #     print (h.Integral())
+        #     print (h.Integral(i, h.GetNbinsX()))
         v.append(val)
         cuts.append(h.GetBinLowEdge(i)+h.GetBinWidth(i))
     return v, cuts
@@ -115,17 +154,40 @@ def makeRocVec(h):
 def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx):
     index = 0
     h = []
+
+    flip = False
+    for mBg, cutBg, lBg, cBg in rocBgVec:
+        for mSig, cutSig, lSig, cSig in rocSigVec:
+            n = len(mBg)
+            # calculate area under TGraph
+            # if "QCD" in lBg:
+            if "M-3000_mD-20" in lBg:
+                mBgAr = [1] + mBg + [0]
+                mSigAr = [0] + mSig + [0]
+                gAr = ROOT.TGraph(n, array("d", mBgAr), array("d", mSigAr))
+                gArea = gAr.Integral()
+                print (gArea)
+                if gArea < 0.5:
+                    flip = True
+                    break
+            break # only do it for the first signal for now
+
     for mBg, cutBg, lBg, cBg in rocBgVec:
         index+=1
         for mSig, cutSig, lSig, cSig in rocSigVec:
             n = len(mBg)
+            rv = ">cut"
+            if flip:
+                mBg = 1 - np.array(mBg)
+                mSig = 1 - np.array(mSig)
+                rv = "<cut"
             g = ROOT.TGraph(n, array("d", mBg), array("d", mSig))
             for i in range(0,n):
-                if ((i % rebinx == 0) and (rebinx != -1)) or (rebinx == -1):
-                    latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(cutSig[i]))
+                if ((i % rebinx == 0) and (rebinx != -1)):
+                    latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(round(cutSig[i],2)))
                     latex.SetTextSize(0.02)
                     latex.SetTextColor(ROOT.kRed)
-                    g.GetListOfFunctions().Add(latex)
+                    g.GetListOfFunctions().Add(latex) # add cut values
             g.SetLineWidth(2)
             #g.SetLineStyle()
             g.SetLineColor(cBg)
@@ -133,13 +195,13 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx):
             g.SetMarkerStyle(ROOT.kFullSquare)
             g.SetMarkerColor(cBg)
             g.Draw("same LP text")
-            leg.AddEntry(g, fType + " " + lBg + " vs " + lSig, "LP")
+            leg.AddEntry(g, fType + " " + lBg + " vs " + lSig + "_" + rv, "LP")
             h.append(g)
             #Hardcode only do the first signal for now
             break
     return h
 
-def plotROC(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
+def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
 
@@ -181,7 +243,7 @@ def plotROC(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False
     ymin=10**-4
     lmax=1.0
     dummy = ROOT.TH1D("dummy", "dummy", 1000, 0.0, 1.0)
-    setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax)
+    setupDummy(dummy, leg, histoName, "#epsilon_{ bg}", "#epsilon_{ sg}", isLogY, xmin, xmax, ymin, ymax, lmax, norm)
     dummy.Draw("hist")
     leg.Draw("same")
     history = drawRocCurve("", rocBgVec, rocSigVec, leg, rebinx)
@@ -196,12 +258,12 @@ def plotROC(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False
 
     dummy.Draw("AXIS same")
 
-    c1.SaveAs(outputPath+"/"+histoName+"_ROC.pdf")
+    c1.SaveAs(outputPath+"/roc/"+histoName+"_ROC.png")
     c1.Close()
     del c1
     del leg
 
-def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
+def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
 
@@ -229,25 +291,44 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     ROOT.gStyle.SetLegendTextSize(0.024)
 
     #Setup background histos
-    hs, hMC, hList = getBGHistos(data, histoName, rebinx, xmin, xmax)
-    # normHisto(hMC, False)
+    hs = ROOT.THStack()
+    hMC = None
+    firstPass = True
+    for d in data[1]:
+        h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=True)
+        hs.Add(copy.deepcopy(h))
+        leg.AddEntry(h, d.legEntry(), "F")
+        if(firstPass):
+            hMC = copy.deepcopy(h)
+            firstPass = False
+        else:
+            hMC.Add(copy.deepcopy(h))
+    # there is a bug with getBGHistos. Once fixed, can delete lines 294-305, and uncomment
+    # the line below and lines 313-314
+    # hs, hMC, hList = getBGHistos(data, histoName, rebinx, xmin, xmax)
+    if norm:
+        normHisto(hMC, True)
 
     #Fill background legend
-    for h in hList:
-        leg.AddEntry(h[0], h[1], "F")
+    # for h in hList:
+    #     leg.AddEntry(h[0], h[1], "F")
 
     #create a dummy histogram to act as the axes
-    ymax=10**11
-    # ymax=10**1
-    ymin=10**-4
-    # ymin=10**-12
-    lmax=10**12
-    # lmax=10**1
+    if norm:
+        ymax=10**1
+        ymin=10**-12
+        lmax=10**1
+    else:
+        ymax=10**11
+        ymin=10**-4
+        lmax=10**12
     dummy = ROOT.TH1D("dummy", "dummy", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX()))
-    setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax)
+    setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm)
     dummy.Draw("hist")
-    # hMC.Draw("hist same")
-    hs.Draw("hist F same")
+    if norm:
+        hMC.Draw("hist same")
+    else:
+        hs.Draw("hist F same")
     leg.Draw("same")
 
     #Setup signal histos
@@ -264,7 +345,8 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
             h.SetLineStyle(ROOT.kDashed)
             h.SetLineWidth(3)
             leg.AddEntry(h, d.legEntry()+", {}".format(sig), "L")
-            # normHisto(h, False)
+            if norm:
+                normHisto(h, True)
             h.Draw("hist same")
             history.append(h)
 
@@ -279,7 +361,11 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
 
     dummy.Draw("AXIS same")
 
-    c1.SaveAs(outputPath+"/"+histoName+".pdf")
+    if norm:
+        c1.SaveAs(outputPath+"/"+histoName+"_norm.png")
+    else:
+        c1.SaveAs(outputPath+"/"+histoName+".png")
+
     c1.Close()
     del c1
     del leg
@@ -287,15 +373,16 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
 
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
-    parser.add_option('-y', dest='year', type='string', default='2016', help="Can pass in the run year")
+    parser.add_option('-y',                 dest='year',    type='string',  default='2018',                 help="Can pass in the run year")
+    parser.add_option('-d', '--dataset',    dest='dataset',                 default='testHadd_11242020',    help='dataset')
+    parser.add_option('-n',                 dest='isNorm',  action="store_true",                            help="Normalize stack plots")
     options, args = parser.parse_args()
 
-    #year = options.year
-    year = "2018"
+    year = options.year
     # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
     cuts = [""]
-    Data, sgData, bgData = getData("condor/testHadd/", 1.0, year)
+    Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
 
     plotOutDir = "plots"
@@ -303,37 +390,94 @@ def main():
     if not os.path.exists(plotOutDir):
         os.makedirs(plotOutDir)
 
-    for cut in cuts:
-        plotROC(  (Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "#epsilon_{ bg}",                  "#epsilon_{ sg}", isLogY=False, rebinx=2)
-        plotROC(  (Data, bgData, sgData), "h_ht"+cut,                   plotOutDir, "#epsilon_{ bg}",                  "#epsilon_{ sg}", isLogY=False, rebinx=20)
-        plotStack((Data, bgData, sgData), "h_njets"+cut,                plotOutDir, "N_{j}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=20)
-        plotStack((Data, bgData, sgData), "h_njetsAK8"+cut,             plotOutDir, "N_{J}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=12)
-        # plotStack((Data, bgData, sgData), "h_ntops"+cut,       "./", "N_{t}",                           "A.U.", isLogY=True, rebinx=-1, xmin=0, xmax=6)
-        # plotStack((Data, bgData, sgData), "h_nb"+cut,          "./", "N_{b}",                           "A.U.", isLogY=True, rebinx=-1)
-        #plotStack((Data, bgData, sgData), "h_nl"+cut,          "./", "N_{lep}",                         "A.U.", isLogY=True, rebinx=-1)
-        #plotStack((Data, bgData, sgData), "h_ne"+cut,          "./", "N_{el}",                          "A.U.", isLogY=True, rebinx=-1)
-        #plotStack((Data, bgData, sgData), "h_nm"+cut,          "./", "N_{mu}",                          "A.U.", isLogY=True, rebinx=-1)
-        plotStack((Data, bgData, sgData), "h_ht"+cut,                   plotOutDir, "H_{T}",                           "A.U.", isLogY=True, rebinx=100)
-        plotStack((Data, bgData, sgData), "h_st"+cut,                   plotOutDir, "S_{T}",                           "A.U.", isLogY=True, rebinx=20)
-        plotStack((Data, bgData, sgData), "h_met"+cut,                  plotOutDir, "MET",                             "A.U.", isLogY=True, rebinx=20, xmin=0, xmax=2000)
-        plotStack((Data, bgData, sgData), "h_jPt"+cut,                  plotOutDir, "pT_{j}",                          "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jEta"+cut,                 plotOutDir, "#eta_{j}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jPhi"+cut,                 plotOutDir, "#phi_{j}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jPtAK8"+cut,               plotOutDir, "pT_{J}",                          "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jEtaAK8"+cut,              plotOutDir, "#eta_{J}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_jPhiAK8"+cut,              plotOutDir, "#phi_{J}",                        "A.U.", isLogY=True, rebinx=10)
-        plotStack((Data, bgData, sgData), "h_dEtaJ12"+cut,              plotOutDir, "#Delta#eta(J_{1},J_{2})",         "A.U.", isLogY=True, rebinx=5, xmin=0, xmax=6)
-        plotStack((Data, bgData, sgData), "h_dRJ12"+cut,                plotOutDir, "#DeltaR(J_{1},J_{2})",            "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=6)
-        plotStack((Data, bgData, sgData), "h_dPhiJ1MET"+cut,            plotOutDir, "#Delta#phi(J_{1},MET)",           "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
-        plotStack((Data, bgData, sgData), "h_dPhiJ2MET"+cut,            plotOutDir, "#Delta#phi(J_{2},MET)",           "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
-        plotStack((Data, bgData, sgData), "h_dPhiMinJMET"+cut,          plotOutDir, "#Delta#phi_{min}(J_{1,2},MET)",   "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=3.15)
-        plotStack((Data, bgData, sgData), "h_dPhiJ1METrdPhiJ2MET"+cut,  plotOutDir, "#Delta#phi Ratio",        "A.U.", isLogY=True, rebinx=2)
-        # plotStack((Data, bgData, sgData), "h_mjjM"+cut,        "./", "m_{JJ}",                          "A.U.", isLogY=True, rebinx=10)
-        # plotStack((Data, bgData, sgData), "h_mjjPt"+cut,       "./", "pT_{JJ}",                         "A.U.", isLogY=True, rebinx=10)
-        # plotStack((Data, bgData, sgData), "h_mjjEta"+cut,      "./", "#eta_{JJ}",                       "A.U.", isLogY=True, rebinx=10)
-        # plotStack((Data, bgData, sgData), "h_mT"+cut,          "./", "mT",                              "A.U.", isLogY=True, rebinx=20)
-        plotStack((Data, bgData, sgData), "h_METrHT_pt30"+cut,          plotOutDir, "MET/HT",                          "A.U.", isLogY=True, rebinx=2, xmin=0, xmax=10)
-        plotStack((Data, bgData, sgData), "h_METrST_pt30"+cut,          plotOutDir, "MET/ST",                          "A.U.", isLogY=True, rebinx=5)
+    plotDict = {
+    # "plotname":               [xlabel,                                            ylabel,     xmin,   xmax,   rebinx_stack,   rebinx_roc, cuts]
+    "h_njets":                  ["Number of AK4 Jets",                              "Events",   0,      20,     -1,             1,          ["","_ge2AK8j","_ge2AK4j"]],
+    "h_njetsAK8":               ["Number of AK8 Jets",                              "Events",   0,      12,     -1,             1,          ["","_ge2AK8j","_ge2AK4j"]],
+    "h_nb":                     ["Number of B Jets",                                "Events",   0,      20,     -1,             1,          [""]],
+    "h_nl":                     ["Number of Leptons",                               "Events",   0,      10,     -1,             1,          [""]],
+    "h_ht":                     ["H_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         ["","_ge2AK8j","_ge2AK4j"]],
+    "h_st":                     ["S_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         ["","_ge2AK8j","_ge2AK4j"]],
+    "h_met":                    ["MET [GeV]",                                       "Events",   0,      2000,   20,             10,          ["","_ge2AK8j","_ge2AK4j"]],
+    "h_jPt":                    ["p_{T}(j) [GeV]",                                  "Events",   0,      2000,   10,             5,          [""]],
+    "h_jEta":                   ["#eta(j)",                                         "Events",   -6,     6,      10,             10,         [""]],
+    "h_jPhi":                   ["#phi(j)",                                         "Events",   -4,     4,      10,             10,         [""]],
+    "h_jAxismajor":             ["#sigma_{major}(j)",                               "Events",   0,      0.5,    -1,             5,          [""]],
+    "h_jAxisminor":             ["#sigma_{minor}(j)",                               "Events",   0,      0.3,    -1,             5,          [""]],
+    "h_jPtD":                   ["ptD(j)",                                          "Events",   0,      1.2,    -1,             2,          [""]],
+    "h_jPtAK8":                 ["p_{T}(J) [GeV]",                                  "Events",   0,      2000,   10,             5,          [""]],
+    "h_jEtaAK8":                ["#eta(J)",                                         "Events",   -6,     6,      10,             10,         [""]],
+    "h_jPhiAK8":                ["#phi(J)",                                         "Events",   -4,     4,      10,             10,         [""]],
+    "h_jAxismajorAK8":          ["#sigma_{major}(J)",                               "Events",   0,      0.5,    -1,             5,          [""]],
+    "h_jAxisminorAK8":          ["#sigma_{minor}(J)",                               "Events",   0,      0.3,    -1,             5,          [""]],
+    "h_jGirthAK8":              ["girth(J)",                                        "Events",   0,      0.5,    -1,             5,          [""]],
+    "h_jPtDAK8":                ["ptD(J)",                                          "Events",   0,      1.2,    -1,             2,          [""]],
+    "h_jTau1AK8":               ["#tau_{1}(J)",                                     "Events",   0,      0.8,    -1,             3,          [""]],
+    "h_jTau2AK8":               ["#tau_{2}(J)",                                     "Events",   0,      0.65,   -1,             3,          [""]],
+    "h_jTau3AK8":               ["#tau_{3}(J)",                                     "Events",   0,      0.35,   -1,             3,          [""]],
+    "h_jTau21AK8":              ["#tau_{2}/#tau_{1}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
+    "h_jTau32AK8":              ["#tau_{3}/#tau_{2}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
+    "h_jSoftDropMassAK8":       ["m_{SD}(J)",                                       "Events",   0,      200,    -1,             3,          [""]],
+    "h_mT":                     ["m_{T}",                                           "Events",   0,      5000,   20,             20,         ["","_ge2AK8j","_ge2AK4j"]],
+    "h_METrHT_pt30":            ["MET/H_{T}",                                       "Events",   0,      10,     2,              2,          ["","_ge2AK8j","_ge2AK4j"]],
+    "h_METrST_pt30":            ["MET/S_{T}",                                       "Events",   0,      1,      5,              5,          ["","_ge2AK8j","_ge2AK4j"]],
+    "h_dEtaJ12":                ["#Delta#eta(J_{1},J_{2})",                         "Events",   0,      6,      5,              5,          ["_ge2AK8j"]],
+    "h_dRJ12":                  ["#Delta R(J_{1},J_{2})",                           "Events",   0,      6,      2,              3,          ["_ge2AK8j"]],
+    "h_dPhiJ1MET":              ["#Delta#phi(J_{1},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK8j"]],
+    "h_dPhiJ2MET":              ["#Delta#phi(J_{2},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK8j"]],
+    "h_dPhiJ1METrdPhiJ2MET":    ["#Delta#phi(J_{1},MET)/#Delta#phi(J_{2},MET)",     "Events",   0,      100,    2,              2,          ["_ge2AK8j"]],
+    "h_dPhiMinJMET":            ["#Delta#phi_{min}(J,MET)",                         "Events",   0,      3.15,   2,              4,          ["_ge2AK8j"]],
+    "h_j1PtAK8":                ["p_{T}(J_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK8j"]],
+    "h_j1EtaAK8":               ["#eta(J_{1})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK8j"]],
+    "h_j1PhiAK8":               ["#phi(J_{1})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK8j"]],
+    "h_j1AxismajorAK8":         ["#sigma_{major}(J_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
+    "h_j1AxisminorAK8":         ["#sigma_{minor}(J_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK8j"]],
+    "h_j1GirthAK8":             ["girth (J_{1})",                                   "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
+    "h_j1PtDAK8":               ["ptD (J_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK8j"]],
+    "h_j1Tau1AK8":              ["#tau_{1}(J_{1})",                                 "Events",   0,      0.8,    -1,             3,          ["_ge2AK8j"]],
+    "h_j1Tau2AK8":              ["#tau_{2}(J_{1})",                                 "Events",   0,      0.65,   -1,             3,          ["_ge2AK8j"]],
+    "h_j1Tau3AK8":              ["#tau_{3}(J_{1})",                                 "Events",   0,      0.35,   -1,             3,          ["_ge2AK8j"]],
+    "h_j1Tau21AK8":             ["#tau_{21}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
+    "h_j1Tau32AK8":             ["#tau_{32}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
+    "h_j1SoftDropMassAK8":      ["m_{SD}(J_{1})",                                   "Events",   0,      200,    -1,             3,          ["_ge2AK8j"]],
+    "h_j2PtAK8":                ["p_{T}(J_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK8j"]],
+    "h_j2EtaAK8":               ["#eta(J_{2})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK8j"]],
+    "h_j2PhiAK8":               ["#phi(J_{2})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK8j"]],
+    "h_j2AxismajorAK8":         ["#sigma_{major}(J_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
+    "h_j2AxisminorAK8":         ["#sigma_{minor}(J_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK8j"]],
+    "h_j2GirthAK8":             ["girth (J_{2})",                                   "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
+    "h_j2PtDAK8":               ["ptD (J_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK8j"]],
+    "h_j2Tau1AK8":              ["#tau_{1}(J_{2})",                                 "Events",   0,      0.8,    -1,             3,          ["_ge2AK8j"]],
+    "h_j2Tau2AK8":              ["#tau_{2}(J_{2})",                                 "Events",   0,      0.65,   -1,             3,          ["_ge2AK8j"]],
+    "h_j2Tau3AK8":              ["#tau_{3}(J_{2})",                                 "Events",   0,      0.35,   -1,             3,          ["_ge2AK8j"]],
+    "h_j2Tau21AK8":             ["#tau_{21}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
+    "h_j2Tau32AK8":             ["#tau_{32}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
+    "h_j2SoftDropMassAK8":      ["m_{SD}(J_{2})",                                   "Events",   0,      200,    -1,             3,          ["_ge2AK8j"]],
+    "h_dEtaj12":                ["#Delta#eta(j_{1},j_{2})",                         "Events",   0,      6,      5,              5,          ["_ge2AK4j"]],
+    "h_dRj12":                  ["#Delta R(j_{1},j_{2})",                           "Events",   0,      6,      2,              3,          ["_ge2AK4j"]],
+    "h_dPhij1MET":              ["#Delta#phi(j_{1},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK4j"]],
+    "h_dPhij2MET":              ["#Delta#phi(j_{2},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK4j"]],
+    "h_dPhij1METrdPhij2MET":    ["#Delta#phi(j_{1},MET)/#Delta#phi(j_{2},MET)",     "Events",   0,      100,    2,              2,          ["_ge2AK4j"]],
+    "h_dPhiMinjMET":            ["#Delta#phi_{min}(j,MET)",                         "Events",   0,      3.15,   2,              4,          ["_ge2AK4j"]],
+    "h_j1Pt":                   ["p_{T}(j_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK4j"]],
+    "h_j1Eta":                  ["#eta(j_{1})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK4j"]],
+    "h_j1Phi":                  ["#phi(j_{1})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK4j"]],
+    "h_j1Axismajor":            ["#sigma_{major}(j_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK4j"]],
+    "h_j1Axisminor":            ["#sigma_{minor}(j_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK4j"]],
+    "h_j1PtD":                  ["ptD (j_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK4j"]],
+    "h_j2Pt":                   ["p_{T}(j_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK4j"]],
+    "h_j2Eta":                  ["#eta(j_{2})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK4j"]],
+    "h_j2Phi":                  ["#phi(j_{2})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK4j"]],
+    "h_j2Axismajor":            ["#sigma_{major}(j_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK4j"]],
+    "h_j2Axisminor":            ["#sigma_{minor}(j_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK4j"]],
+    "h_j2PtD":                  ["ptD (j_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK4j"]],
+    }
+
+    for histName,details in plotDict.items():
+        isNorm = options.isNorm
+        for cut in details[6]:
+            plotROC(  (Data, bgData, sgData), histName+cut, plotOutDir,                         isLogY=False,   rebinx=details[5])
+            plotStack((Data, bgData, sgData), histName+cut, plotOutDir, details[0], details[1], isLogY=True,    rebinx=details[4], norm=isNorm, xmin=details[2], xmax=details[3])
 
 if __name__ == '__main__':
     main()

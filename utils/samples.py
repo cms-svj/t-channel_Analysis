@@ -11,6 +11,8 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1):
     if "Incl" in detailKey:
         ii = detailKey.find("Incl")
         detailKey = detailKey[:ii] + "Tune"
+    elif "TTJets_SingleLeptFromT" in sample or "TTJets_DiLept" in detailKey:
+        detailKey += "_Tune"
 
     JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
     inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
@@ -25,11 +27,14 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1):
     # process a subset of a sample
     fileset = {}
     for n, rFiles in fileset_all.items():
+        nf = nFiles
         fileset[n] = []
-        if nFiles < 0:
-            nFiles = len(rFiles)
+
+        if nf < 0:
+            nf = len(rFiles)
         fn = startFile
-        while fn < startFile+nFiles and fn < len(rFiles):
+
+        while fn < startFile+nf and fn < len(rFiles):
             # print("Name of sample: %-40s" % (n), "start file number: " + str(fn), "Number of total files: " + str(len(rFiles)))
             fileset[n].append(rFiles[fn])
             fn+=1
@@ -48,4 +53,3 @@ def getAllFilesets():
     fBG.update(fSG1)
     fBG.update(fSG2)
     return fBG
-
