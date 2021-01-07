@@ -8,6 +8,7 @@ import math
 import os
 from array import array
 import numpy as np
+import utils.CMS_lumi as CMS_lumi
 
 def normHisto(hist, doNorm=False):
     if doNorm:
@@ -57,42 +58,37 @@ def getData(path, scale=1.0, year = "2018"):
         info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
     ]
-
+    #
     sgData = [
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 3000", scale=scale, color=ROOT.kGreen+2),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 600",  scale=scale, color=ROOT.kBlack),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 800",  scale=scale, color=ROOT.kGreen),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 2000", scale=scale, color=ROOT.kBlue),
-        info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",           label="s-ch baseline", scale=scale, color=ROOT.kRed),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 3000", scale=scale, color=ROOT.kMagenta+1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 600",  scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="t-ch 800",  scale=scale, color=ROOT.kGreen),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 2000", scale=scale, color=ROOT.kBlue),
+        # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",           label="s-ch baseline", scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
+        ## varying mMed
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 400",  scale=scale, color=ROOT.kMagenta + 1),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 2000", scale=scale, color=ROOT.kBlue),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
+        info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
+        ## varying mDark
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-1",scale=scale, color=ROOT.kBlue),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-50_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-50",scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-100_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-100",scale=scale, color=ROOT.kCyan),
+        ## varying rinv
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="M-3000_r-0p1",scale=scale, color=ROOT.kBlue),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_r-0p3",scale=scale, color=ROOT.kGreen+2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-3000_r-0p7",scale=scale, color=ROOT.kCyan),
+        ## varying rinv at mMed 800
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
     ]
-
-    # ROC plot of one background, many signals
-    # bgData = [
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 400",  scale=scale, color=ROOT.kMagenta + 1),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 2000", scale=scale, color=ROOT.kBlue),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mZprime-2100_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="M-3000_r-0p1",scale=scale, color=ROOT.kBlue),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_r-0p3",scale=scale, color=ROOT.kGreen+2),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
-    #     # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-3000_r-0p7",scale=scale, color=ROOT.kCyan),
-    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-1",scale=scale, color=ROOT.kBlue),
-    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
-    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-50_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-50",scale=scale, color=ROOT.kRed),
-    #     info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-100_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-100",scale=scale, color=ROOT.kCyan),
-    #
-    # ]
-    #
-    # sgData = [
-    #     info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
-    # ]
 
 
     return Data, sgData, bgData
@@ -108,7 +104,7 @@ def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel):
     dummy.GetYaxis().SetLabelSize(yLabel)
     if(dummy.GetXaxis().GetNdivisions() % 100 > 5): dummy.GetXaxis().SetNdivisions(6, 5, 0)
 
-def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax, ymin, ymax, lmax, norm):
+def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax, ymin, ymax, lmax, norm=False, normBkg=False):
     setupAxes(dummy, 1.2, 1.6, 0.045, 0.045, 0.045, 0.045)
     dummy.GetYaxis().SetTitle(yAxisLabel)
     dummy.GetXaxis().SetTitle(xAxisLabel)
@@ -116,7 +112,7 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
     #Set the y-range of the histogram
     if(isLogY):
         if norm:
-            default = 0.001
+            default = 0.00001
         else:
             default = 0.02
         locMin = min(default, max(default, 0.05 * ymin))
@@ -151,17 +147,16 @@ def makeRocVec(h):
         cuts.append(h.GetBinLowEdge(i)+h.GetBinWidth(i))
     return v, cuts
 
-def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx):
-    index = 0
+def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
     h = []
 
+    # deciding whether to flip the ROC curves based on the baseline vs. QCD curve
     flip = False
+    baselineNames = ["t-ch 3000","mMed 3000","M-800_r-0p3","M-3000_mD-20"]
     for mBg, cutBg, lBg, cBg in rocBgVec:
         for mSig, cutSig, lSig, cSig in rocSigVec:
             n = len(mBg)
-            # calculate area under TGraph
-            # if "QCD" in lBg:
-            if "M-3000_mD-20" in lBg:
+            if ("QCD" in lBg) and (lSig in baselineNames):
                 mBgAr = [1] + mBg + [0]
                 mSigAr = [0] + mSig + [0]
                 gAr = ROOT.TGraph(n, array("d", mBgAr), array("d", mSigAr))
@@ -170,18 +165,34 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx):
                 if gArea < 0.5:
                     flip = True
                     break
-            break # only do it for the first signal for now
+
+    if manySigs:
+        for rbv in rocBgVec:
+            if rbv[2] == "QCD":
+                QCDVec = rbv
+        rocBgVec = [QCDVec]
+    else:
+        for rsv in rocSigVec:
+            if rsv[2] in baselineNames:
+                baseVec = rsv
+        rocSigVec = [baseVec]
 
     for mBg, cutBg, lBg, cBg in rocBgVec:
-        index+=1
         for mSig, cutSig, lSig, cSig in rocSigVec:
+            flip = True
             n = len(mBg)
             rv = ">cut"
             if flip:
-                mBg = 1 - np.array(mBg)
-                mSig = 1 - np.array(mSig)
+                mBg_f = 1 - np.array(mBg)
+                mSig_f = 1 - np.array(mSig)
                 rv = "<cut"
-            g = ROOT.TGraph(n, array("d", mBg), array("d", mSig))
+
+            if manySigs:
+                col = cSig
+            else:
+                col = cBg
+
+            g = ROOT.TGraph(n, array("d", mBg_f), array("d", mSig_f))
             for i in range(0,n):
                 if ((i % rebinx == 0) and (rebinx != -1)):
                     latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(round(cutSig[i],2)))
@@ -189,19 +200,16 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx):
                     latex.SetTextColor(ROOT.kRed)
                     g.GetListOfFunctions().Add(latex) # add cut values
             g.SetLineWidth(2)
-            #g.SetLineStyle()
-            g.SetLineColor(cBg)
+            g.SetLineColor(col)
             g.SetMarkerSize(0.7)
             g.SetMarkerStyle(ROOT.kFullSquare)
-            g.SetMarkerColor(cBg)
+            g.SetMarkerColor(col)
             g.Draw("same LP text")
             leg.AddEntry(g, fType + " " + lBg + " vs " + lSig + "_" + rv, "LP")
             h.append(g)
-            #Hardcode only do the first signal for now
-            break
     return h
 
-def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False):
+def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False, manySigs=False):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
 
@@ -243,10 +251,10 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=99
     ymin=10**-4
     lmax=1.0
     dummy = ROOT.TH1D("dummy", "dummy", 1000, 0.0, 1.0)
-    setupDummy(dummy, leg, histoName, "#epsilon_{ bg}", "#epsilon_{ sg}", isLogY, xmin, xmax, ymin, ymax, lmax, norm)
+    setupDummy(dummy, leg, "", "#epsilon_{ bg}", "#epsilon_{ sg}", isLogY, xmin, xmax, ymin, ymax, lmax)
     dummy.Draw("hist")
     leg.Draw("same")
-    history = drawRocCurve("", rocBgVec, rocSigVec, leg, rebinx)
+    history = drawRocCurve("", rocBgVec, rocSigVec, leg, rebinx, manySigs)
 
     line1 = ROOT.TF1( "line1","1",0,1)
     line1.SetLineColor(ROOT.kBlack)
@@ -258,12 +266,26 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=99
 
     dummy.Draw("AXIS same")
 
+    # CMS label
+    CMS_lumi.writeExtraText = 1
+    lumi = "59.7"
+
+    CMS_lumi.lumi_sqrtS = lumi + " fb^{-1} (13 TeV)"
+
+    iPeriod = 0
+    iPos = 0
+
+    CMS_lumi.CMS_lumi(c1, iPeriod, iPos)
+    c1.cd()
+    c1.Update();
+    c1.RedrawAxis()
+
     c1.SaveAs(outputPath+"/roc/"+histoName+"_ROC.png")
     c1.Close()
     del c1
     del leg
 
-def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False):
+def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False, normBkg=False, onlySig=False):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
 
@@ -296,6 +318,10 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     firstPass = True
     for d in data[1]:
         h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=True)
+        if normBkg:
+            normHisto(h, True)
+            h.SetLineWidth(3)
+            h.SetFillStyle(3955)
         hs.Add(copy.deepcopy(h))
         leg.AddEntry(h, d.legEntry(), "F")
         if(firstPass):
@@ -308,7 +334,6 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     # hs, hMC, hList = getBGHistos(data, histoName, rebinx, xmin, xmax)
     if norm:
         normHisto(hMC, True)
-
     #Fill background legend
     # for h in hList:
     #     leg.AddEntry(h[0], h[1], "F")
@@ -323,10 +348,22 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
         ymin=10**-4
         lmax=10**12
     dummy = ROOT.TH1D("dummy", "dummy", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX()))
-    setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm)
+    setupDummy(dummy, leg, "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg)
+    # setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg)
+    if normBkg:
+        dummy.SetMaximum(100)
+        dummy.SetMinimum(0.00001)
     dummy.Draw("hist")
     if norm:
         hMC.Draw("hist same")
+        leg.Clear()
+        leg.AddEntry(hMC, "Total Background", "L")
+    elif normBkg:
+        hs.Draw("nostackHIST same")
+        hs.SetMaximum(100)
+        hs.SetMinimum(0.00001)
+    elif onlySig:
+        leg.Clear()
     else:
         hs.Draw("hist F same")
     leg.Draw("same")
@@ -345,7 +382,7 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
             h.SetLineStyle(ROOT.kDashed)
             h.SetLineWidth(3)
             leg.AddEntry(h, d.legEntry()+", {}".format(sig), "L")
-            if norm:
+            if norm or normBkg:
                 normHisto(h, True)
             h.Draw("hist same")
             history.append(h)
@@ -359,10 +396,28 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     #significance.DrawLatex(0.45, 0.72, ("Significance = #frac{N_{s}}{#sqrt{N_{b}+#left(0.3N_{b}#right)^{2}}} = "+str(sig)))
     #significance.DrawLatex(0.45, 0.72, ("Significance = #frac{N_{s}}{#sqrt{N_{b}+#left(0.3N_{b}#right)^{2}}}"))
 
+    if onlySig:
+        dummy.SetMaximum(10**8)
     dummy.Draw("AXIS same")
+
+    # CMS label
+    CMS_lumi.writeExtraText = 1
+    lumi = "59.7"
+
+    CMS_lumi.lumi_sqrtS = lumi + " fb^{-1} (13 TeV)"
+
+    iPeriod = 0
+    iPos = 0
+
+    CMS_lumi.CMS_lumi(c1, iPeriod, iPos)
+    c1.cd()
+    c1.Update();
+    c1.RedrawAxis()
 
     if norm:
         c1.SaveAs(outputPath+"/"+histoName+"_norm.png")
+    elif normBkg:
+        c1.SaveAs(outputPath+"/"+histoName+"_normBkg.png")
     else:
         c1.SaveAs(outputPath+"/"+histoName+".png")
 
@@ -373,9 +428,12 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
 
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
-    parser.add_option('-y',                 dest='year',    type='string',  default='2018',                 help="Can pass in the run year")
-    parser.add_option('-d', '--dataset',    dest='dataset',                 default='testHadd_11242020',    help='dataset')
-    parser.add_option('-n',                 dest='isNorm',  action="store_true",                            help="Normalize stack plots")
+    parser.add_option('-y',                 dest='year',       type='string',  default='2018',                 help="Can pass in the run year")
+    parser.add_option('-d', '--dataset',    dest='dataset',                    default='testHadd_11242020',    help='dataset')
+    parser.add_option('-n',                 dest='isNorm',     action="store_true",                            help="Normalize stack plots")
+    parser.add_option('-b',                 dest='isNormBkg',  action="store_true",                            help="Normalized Bakground and Signal plots")
+    parser.add_option('-s',                 dest='onlySig',    action="store_true",                            help="Plot only signals")
+    parser.add_option('-m',                 dest='manySigs',   action="store_true",                            help="Plot ROC curves with many signals vs. QCD")
     options, args = parser.parse_args()
 
     year = options.year
@@ -415,8 +473,8 @@ def main():
     "h_jTau1AK8":               ["#tau_{1}(J)",                                     "Events",   0,      0.8,    -1,             3,          [""]],
     "h_jTau2AK8":               ["#tau_{2}(J)",                                     "Events",   0,      0.65,   -1,             3,          [""]],
     "h_jTau3AK8":               ["#tau_{3}(J)",                                     "Events",   0,      0.35,   -1,             3,          [""]],
-    "h_jTau21AK8":              ["#tau_{2}/#tau_{1}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
-    "h_jTau32AK8":              ["#tau_{3}/#tau_{2}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
+    # "h_jTau21AK8":              ["#tau_{2}/#tau_{1}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
+    # "h_jTau32AK8":              ["#tau_{3}/#tau_{2}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
     "h_jSoftDropMassAK8":       ["m_{SD}(J)",                                       "Events",   0,      200,    -1,             3,          [""]],
     "h_mT":                     ["m_{T}",                                           "Events",   0,      5000,   20,             20,         ["","_ge2AK8j","_ge2AK4j"]],
     "h_METrHT_pt30":            ["MET/H_{T}",                                       "Events",   0,      10,     2,              2,          ["","_ge2AK8j","_ge2AK4j"]],
@@ -475,9 +533,13 @@ def main():
 
     for histName,details in plotDict.items():
         isNorm = options.isNorm
+        isNormBkg = options.isNormBkg
+        onlySig = options.onlySig
+        manySigs = options.manySigs
+
         for cut in details[6]:
-            plotROC(  (Data, bgData, sgData), histName+cut, plotOutDir,                         isLogY=False,   rebinx=details[5])
-            plotStack((Data, bgData, sgData), histName+cut, plotOutDir, details[0], details[1], isLogY=True,    rebinx=details[4], norm=isNorm, xmin=details[2], xmax=details[3])
+            plotROC(  (Data, bgData, sgData), histName+cut, plotOutDir,                         isLogY=False,   rebinx=details[5], manySigs=manySigs)
+            # plotStack((Data, bgData, sgData), histName+cut, plotOutDir, details[0], details[1], isLogY=True,    rebinx=details[4], norm=isNorm, xmin=details[2], xmax=details[3], normBkg=isNormBkg, onlySig=onlySig)
 
 if __name__ == '__main__':
     main()
