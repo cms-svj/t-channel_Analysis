@@ -4,11 +4,22 @@ import math
 import utils.DataSetInfo as info
 import optparse
 import copy
-import math
 import os
 from array import array
 import numpy as np
 import utils.CMS_lumi as CMS_lumi
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+
+
+mpl.rc("font", family="serif", size=15)
+
+# signal vs. background figure of merit
+def fom(S,B):
+    return np.sqrt(2 * ( (S+B) * np.log(1+S/B) - S) )
+
+def signif(S,B):
+    return S/(np.sqrt( B + (0.3*B)**2 ))
 
 def normHisto(hist, doNorm=False):
     if doNorm:
@@ -67,12 +78,12 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",           label="s-ch baseline", scale=scale, color=ROOT.kRed),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
         ## varying mMed
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 400",  scale=scale, color=ROOT.kMagenta + 1),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 2000", scale=scale, color=ROOT.kBlue),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
-        info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 2100", scale=scale, color=ROOT.kRed),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 400",  scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 2000", scale=scale, color=ROOT.kBlue),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
+        # # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
         ## varying mDark
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-1",scale=scale, color=ROOT.kBlue),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
@@ -84,13 +95,11 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-3000_r-0p7",scale=scale, color=ROOT.kCyan),
         ## varying rinv at mMed 800
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
     ]
-
-
     return Data, sgData, bgData
 
 def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel):
@@ -133,38 +142,29 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
     #set x-axis range
     if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
 
-def makeRocVec(h):
+def makeRocVec(h,reverse=False):
     h.Scale( 1.0 / h.Integral() );
     v, cuts = [], []
     for i in range(0, h.GetNbinsX()+1):
-        val = h.Integral(i, h.GetNbinsX())
-        # if round(val,2) > 1.0:
-        #     print (i)
-        #     print (h.GetNbinsX())
-        #     print (h.Integral())
-        #     print (h.Integral(i, h.GetNbinsX()))
+        if reverse:
+            val = h.Integral(0, i)
+        else:
+            val = h.Integral(i, h.GetNbinsX())
         v.append(val)
         cuts.append(h.GetBinLowEdge(i)+h.GetBinWidth(i))
     return v, cuts
 
+def ROCArea(n,mBg,mSig):
+    mBgAr = [1] + mBg + [0]
+    mSigAr = [0] + mSig + [0]
+    gAr = ROOT.TGraph(n, array("d", mBgAr), array("d", mSigAr))
+    gArea = round(gAr.Integral(),2)
+    return gArea
+
 def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
     h = []
 
-    # deciding whether to flip the ROC curves based on the baseline vs. QCD curve
-    flip = False
     baselineNames = ["t-ch 3000","mMed 3000","M-800_r-0p3","M-3000_mD-20"]
-    for mBg, cutBg, lBg, cBg in rocBgVec:
-        for mSig, cutSig, lSig, cSig in rocSigVec:
-            n = len(mBg)
-            if ("QCD" in lBg) and (lSig in baselineNames):
-                mBgAr = [1] + mBg + [0]
-                mSigAr = [0] + mSig + [0]
-                gAr = ROOT.TGraph(n, array("d", mBgAr), array("d", mSigAr))
-                gArea = gAr.Integral()
-                print (gArea)
-                if gArea < 0.5:
-                    flip = True
-                    break
 
     if manySigs:
         for rbv in rocBgVec:
@@ -179,13 +179,17 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
 
     for mBg, cutBg, lBg, cBg in rocBgVec:
         for mSig, cutSig, lSig, cSig in rocSigVec:
-            flip = True
             n = len(mBg)
+            gArea = ROCArea(n,mBg,mSig)
             rv = ">cut"
-            if flip:
+            if gArea < 0.5:
                 mBg_f = 1 - np.array(mBg)
                 mSig_f = 1 - np.array(mSig)
                 rv = "<cut"
+                gArea = 1 - gArea
+            else:
+                mBg_f = mBg
+                mSig_f = mSig
 
             if manySigs:
                 col = cSig
@@ -205,9 +209,108 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
             g.SetMarkerStyle(ROOT.kFullSquare)
             g.SetMarkerColor(col)
             g.Draw("same LP text")
-            leg.AddEntry(g, fType + " " + lBg + " vs " + lSig + "_" + rv, "LP")
+            leg.AddEntry(g, "#splitline{" + fType + " " + lBg + " vs " + lSig + "_" + rv + "}{("+"{:.2f}".format(gArea)+")}", "LP")
             h.append(g)
     return h
+
+def plotSignificance(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
+    rocBgVec = []
+
+    reverseCut = False
+    rebinValue = 5 # how many bins to merge into 1 bin
+
+    # background
+    for d in data[1]:
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
+        h.Rebin(rebinValue)
+        hIn = h.Integral()
+        effList = np.array(makeRocVec(h,reverseCut)[0]) * hIn
+        rocBgVec.append([effList])
+
+    signalEffList = []
+    sigLabelList = []
+    # signal
+    rocSigVec = []
+    for d in data[2]:
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
+        h.Rebin(rebinValue)
+        hIn = h.Integral()
+        eff = np.array(makeRocVec(h,reverseCut)[0])
+        effList = eff * hIn
+        signalEffList.append(eff)
+        rocSigVec.append([effList,d.legEntry()])
+        sigLabelList.append(d.legEntry())
+        cutValues = np.array(makeRocVec(h)[1])
+
+    B = np.zeros(len(cutValues))
+    for rbv in rocBgVec:
+        B += rbv[0]
+
+    fomList = []
+    cutList = []
+    sEffList = []
+
+    # comparing the locations of maximum FOM for different signals
+    plt.figure(figsize=(12,8))
+    for i in range(len(rocSigVec)):
+        rsv = rocSigVec[i]
+        fo = fom(rsv[0],B)
+        foReal = fo[~np.isnan(fo)]
+        fomList.append(foReal)
+        sEffList.append(signalEffList[i][~np.isnan(fo)])
+        cutList = cutValues[~np.isnan(fo)]
+        plt.step(cutValues[~np.isnan(fo)],foReal/np.sum(foReal),label=rsv[1])
+    plt.legend()
+    plt.xticks(np.arange(0,2100,50))
+    plt.ylabel("Normalized FOM ( sqrt(2((S+B)*log(1+S/B)-S)) )")
+    plt.xlabel("MET Cut (GeV)")
+    plt.xlim(100,800)
+    plt.grid("MET Cut (GeV)")
+    plt.savefig("plots/FOM/FOM_" + histoName+".png")
+
+    # comparing signal efficiency for different signals
+    plt.figure(figsize=(12,8))
+    for i in range(len(sEffList)):
+        seff = sEffList[i]
+        siglab = sigLabelList[i]
+        plt.step(cutList,seff,label=siglab)
+    plt.legend()
+    plt.xticks(np.arange(0,800,50))
+    plt.ylabel("Signal Efficiency")
+    plt.xlabel("MET Cut (GeV)")
+    plt.xlim(0,800)
+    plt.grid()
+    plt.savefig("plots/FOM/sigEff_" + histoName+".png")
+
+    # comparing FOM and signal efficiency for each signal
+    for i in range(len(sigLabelList)):
+        slabel = sigLabelList[i]
+        foms = fomList[i]
+        seffs = sEffList[i]
+
+        fig, ax1 = plt.subplots()
+
+        color = 'tab:red'
+        ax1.set_xlabel("MET Cut (GeV)")
+        ax1.set_ylabel("FOM: sqrt(2((S+B)*log(1+S/B)-S))")
+        ax1.step(cutList,foms,color=color)
+        ax1.tick_params(axis='y',labelcolor=color)
+
+        ax2 = ax1.twinx()
+
+        color = 'tab:blue'
+        ax2.set_ylabel('Signal Efficiency', color=color)
+        ax2.step(cutList,seffs,color=color)
+        ax2.tick_params(axis='y',labelcolor=color)
+
+        fig.tight_layout()
+        plt.xlim(0,800)
+        # for some reason, the x grid line is just not showing right, that's why we have the following code
+        for cut in np.arange(min(cutList),max(cutList),50):
+            plt.vlines(cut,0,1,color="silver",linewidth=0.5)
+        plt.grid()
+        plt.xticks(np.arange(0,800,100))
+        plt.savefig("plots/FOM/FOMSEff_" + histoName + "_" +  slabel + ".png")
 
 def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False, manySigs=False):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
@@ -540,6 +643,7 @@ def main():
         for cut in details[6]:
             plotROC(  (Data, bgData, sgData), histName+cut, plotOutDir,                         isLogY=False,   rebinx=details[5], manySigs=manySigs)
             # plotStack((Data, bgData, sgData), histName+cut, plotOutDir, details[0], details[1], isLogY=True,    rebinx=details[4], norm=isNorm, xmin=details[2], xmax=details[3], normBkg=isNormBkg, onlySig=onlySig)
-
+            # if histName == "h_met":
+            #     plotSignificance((Data, bgData, sgData), histName+cut, plotOutDir,                  isLogY=False,   rebinx=details[5])
 if __name__ == '__main__':
     main()

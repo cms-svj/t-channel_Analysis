@@ -11,8 +11,9 @@ class Objects:
             pz=df['Electrons'].fP.fZ.flatten(),
             energy=df['Electrons'].fE.flatten(),
             passIso=df['Electrons_passIso'].flatten(),
+            Electrons_MiniIso = df['Electrons_MiniIso'].flatten(),
             charge=df['Electrons_charge'].flatten(),
-            iD=df['Electrons_tightID'].flatten()
+            iD=df['Electrons_mediumID'].flatten()
         )
         self.muons = JaggedCandidateArray.candidatesfromcounts(
             df['Muons'].counts,
@@ -21,6 +22,7 @@ class Objects:
             pz=df['Muons'].fP.fZ.flatten(),
             energy=df['Muons'].fE.flatten(),
             passIso=df['Muons_passIso'].flatten(),
+            Muons_MiniIso = df['Muons_MiniIso'].flatten(),
             charge=df['Muons_charge'].flatten(),
             iD=df['Muons_mediumID'].flatten()
         )
@@ -53,15 +55,16 @@ class Objects:
         )
         # Quality cut
         self.etaCut = 2.4
+        self.leptonPt = 10
 
     def goodElectrons(self):
         # # Good Electrons
-        electronQualityCut = (self.electrons.pt > 37) & (abs(self.electrons.eta) < self.etaCut)
+        electronQualityCut = (self.electrons.pt > self.leptonPt) & (abs(self.electrons.eta) < self.etaCut) & (self.electrons.Electrons_MiniIso < 0.1)
         return self.electrons[electronQualityCut]
 
     def goodMuons(self):
         # # Good Muons
-        muonQualityCut = (self.muons.pt > 30) & (abs(self.muons.eta) < self.etaCut)
+        muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.Muons_MiniIso < 0.4)
         return self.muons[muonQualityCut]
 
     def goodJets(self):
