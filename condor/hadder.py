@@ -94,8 +94,31 @@ def main():
 
         # hadd signal root files
         sampleSetsToHadd = ["2016_mMed", "2017_mMed", "2018_mMed"]
+        # sampleSetsToHadd = ["2018_TTJets"] # uncomment if want TTJets samples in separate collections
         if sampleCollection in sampleSetsToHadd:
             for sample in sl.keys():
+                ### Keane's Code for handling TTJets ###
+                # flist = glob("%s/%s/MyAnalysis_%s_*.root" % (inPath, directory, sample))
+                # files = " "
+                # nonSample = [s for s in sl.keys() if s != sample]
+                # for f in flist:
+                #     if sample == "2018_TTJets_DiLept":
+                #         if sample in f and "_genMET-80" not in f:
+                #             files += f + " "
+                #     elif sample == "2018_TTJets_SingleLeptFromT":
+                #         if sample in f and "_genMET-80" not in f and "bar" not in f:
+                #             files += f + " "
+                #     elif sample == "2018_TTJets_SingleLeptFromTbar":
+                #         if sample in f and "_genMET-80" not in f:
+                #             files += f + " "
+                #     else:
+                #         files += f + " "
+                # outfile = "%s/%s.root" % (outDir,sample)
+                # command = "hadd %s/%s.root %s" % (outDir, sample, files)
+                # if not options.noHadd: system(command)
+
+                ################################
+                ## below is the original code
                 files = " " + " ".join(glob("%s/%s/MyAnalysis_%s_*.root" % (inPath, directory, sample)))
                 outfile = "%s/%s.root" % (outDir,sample)
                 command = "hadd %s/%s.root %s" % (outDir, sample, files)
