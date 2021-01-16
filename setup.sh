@@ -48,7 +48,8 @@ $ECHO "\nMaking and activiating the virtual environment ... "
 python -m venv --copies $NAME
 source $NAME/bin/activate
 $ECHO "\nInstalling 'pip' packages ... "
-python -m pip install --no-cache-dir setuptools pip --upgrade
+python -m pip install --no-cache-dir setuptools pip 'matplotlib<3.0.0' --upgrade 
+#python -m pip install --upgrade --no-cache-dir 'tensorflow==2.2.0' tensorflow-gpu scikit-learn protobuf
 python -m pip install --no-cache-dir xxhash
 python -m pip install --no-cache-dir uproot4
 if [[ "$DEV" == "1" ]]; then
@@ -56,11 +57,11 @@ if [[ "$DEV" == "1" ]]; then
 	python -m pip install --no-cache-dir flake8 pytest coverage
 	git clone https://github.com/CoffeaTeam/coffea
 	cd coffea
-	python -m pip install --no-cache-dir --editable .[dask,spark,parsl]
+	python -m pip install --no-cache-dir --editable .[dask,spark,parsl,awkward]
 	cd ..
 else
 	$ECHO "Installing the 'production' version of Coffea ... "
-	python -m pip install --no-cache-dir coffea[dask,spark,parsl]
+	python -m pip install --no-cache-dir coffea[dask,spark,parsl] 'uproot-methods<0.9.0,>=0.7.0'
 fi
 
 # Clone TreeMaker for its lists of samples and files
