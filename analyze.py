@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 from coffea import hist, processor
 from processors.mainProcessor import MainProcessor
 import uproot
@@ -15,6 +16,7 @@ def use_dask(condor,njobs,port):
 
     # make list of local package directories (absolute paths) that should be sent to jobs
     initpylist = [os.path.abspath(os.path.dirname(x)) for x in glob('*/__init__.py')]
+    initpylist.append("patch.sh")
     job_extra = {'transfer_input_files': ','.join(initpylist)}
 
     extra = ['--worker-port 10002:10100']
@@ -61,7 +63,7 @@ def main():
     parser.add_option('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, default=-1)
     parser.add_option('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
-    parser.add_option(      '--dask',      help='running on condor w/ dask', dest='dask',              default=False, action='store_true')
+    parser.add_option(      '--dask',      help='run w/ dask', dest='dask',              default=False, action='store_true')
     parser.add_option(      '--port',      help='port for dask status dashboard (localhost:port)', dest='port', type=int, default=8787)
     parser.add_option(      '--mincores',  help='dask waits for min # cores', dest='mincores', type=int, default=4)
     parser.add_option(      '--quiet',     help='suppress status printouts', dest='quiet',              default=False, action='store_true')

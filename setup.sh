@@ -56,7 +56,7 @@ export PYTHONPATH=""
 ln -sf ${lcgprefix}/pyxrootd ${NAME}/${pypackages}/pyxrootd
 ln -sf ${lcgprefix}/XRootD ${NAME}/${pypackages}/XRootD
 git clone git@github.com:cms-svj/lpc_dask
-python -m pip install --no-cache-dir dask[dataframe] distributed dask-jobqueue
+python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
 
 $ECHO "\nInstalling 'pip' packages ... "
 python -m pip install --no-cache-dir setuptools pip wheel --upgrade
@@ -73,6 +73,9 @@ else
 	$ECHO "Installing the 'production' version of Coffea ... "
 	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.6.47
 fi
+
+# apply patches
+./patch.sh $NAME
 
 # Clone TreeMaker for its lists of samples and files
 $ECHO "\nCloning the TreeMaker repository ..."
