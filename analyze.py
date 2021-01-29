@@ -105,6 +105,7 @@ def main():
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
     fout = uproot.recreate(outfile)
+    if isinstance(output,tuple): output = output[0]
     for key,H in output.items():
         if type(H) is hist.Hist and H._sumw2 is not None:
             fout[key] = hist.export1d(H)
