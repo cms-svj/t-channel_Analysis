@@ -95,8 +95,16 @@ This is usually done for debugging and testing purposes. The list of sample labe
 * `-N`: number of files from the sample to run over. Default is -1.
 * `-M`: index of the first file to run over.
 * `-w`: number of workers.
-* `-s`: chunksize; an input for the coffea processor. It determines how many events to process at the same time.
+* `-s`: chunksize; an input for the coffea processor. It determines how many events to process at the same time.  
 Sometimes it is helpful to use `-w 1 -s 2` for debugging.
+
+Dask can be used to run `analyze.py` in parallel, either locally or on Condor. The relevant options are:
+* `--dask`: run w/ dask
+* `--port`: port for dask status dashboard
+* `--mincores`: dask waits for min # cores
+* `--quiet`: suppress status printouts  
+To view the status dashboard, specify `--port 8NNN` (using the forwarded port from the earlier ssh command)
+and navigate to `localhost:8NNN` in a web browser.
 
 To make histograms on condor, cd into the `condor` directory and run
 ```bash
