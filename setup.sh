@@ -44,11 +44,22 @@ source $LCG/setup.sh
 
 # Install most of the needed software in a virtual environment
 # following https://aarongorka.com/blog/portable-virtualenv/, an alternative is https://github.com/pantsbuild/pex
-$ECHO "\nMaking and activiating the virtual environment ... "
+$ECHO "\nMaking and activating the virtual environment ... "
 python -m venv --copies $NAME
 source $NAME/bin/activate
+
+$ECHO "\nSetup for Dask on LPC ... "
+pypackages=lib/python3.6/site-packages/
+lcgprefix=${LCG}/${pypackages}
+# need to remove python path from LCG to avoid dask conflicts
+export PYTHONPATH=""
+ln -sf ${lcgprefix}/pyxrootd ${NAME}/${pypackages}/pyxrootd
+ln -sf ${lcgprefix}/XRootD ${NAME}/${pypackages}/XRootD
+git clone git@github.com:cms-svj/lpc_dask
+python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
+
 $ECHO "\nInstalling 'pip' packages ... "
-python -m pip install --no-cache-dir setuptools pip --upgrade
+python -m pip install --no-cache-dir setuptools pip wheel --upgrade
 python -m pip install --no-cache-dir xxhash
 python -m pip install --no-cache-dir uproot4
 if [[ "$DEV" == "1" ]]; then
@@ -60,19 +71,22 @@ if [[ "$DEV" == "1" ]]; then
 	cd ..
 else
 	$ECHO "Installing the 'production' version of Coffea ... "
-	python -m pip install --no-cache-dir coffea[dask,spark,parsl]
+	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.6.47
 fi
+
+# apply patches
+./patch.sh $NAME
 
 # Clone TreeMaker for its lists of samples and files
 $ECHO "\nCloning the TreeMaker repository ..."
-git clone git@github.com:TreeMaker/TreeMaker.git ${NAME}/lib/python3.6/site-packages/TreeMaker/
+git clone git@github.com:TreeMaker/TreeMaker.git ${NAME}/${pypackages}/TreeMaker/
 
 # Setup the activation script for the virtual environment
 $ECHO "\nSetting up the activation script for the virtual environment ... "
 sed -i '40s/.*/VIRTUAL_ENV="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}" )")" \&\& pwd)"/' $NAME/bin/activate
 find coffeaenv/bin/ -type f -print0 | xargs -0 -P 4 sed -i '1s/#!.*python$/#!\/usr\/bin\/env python/'
-sed -i "2a source ${LCG}/setup.sh" $NAME/bin/activate
-sed -i "4a source ${LCG}/setup.csh" $NAME/bin/activate.csh
+sed -i "2a source ${LCG}/setup.sh"'\nexport PYTHONPATH=""' $NAME/bin/activate
+sed -i "4a source ${LCG}/setup.csh"'\nsetenv PYTHONPATH ""' $NAME/bin/activate.csh
 
 $ECHO "\nSetting up the ipython/jupyter kernel ... "
 storage_dir=$(readlink -f $PWD)
