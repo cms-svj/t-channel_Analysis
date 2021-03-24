@@ -100,6 +100,7 @@ class MainProcessor(processor.ProcessorABC):
                     histograms['h_j2SoftDropMassAK8'+name]  = hist.Hist('h_j2SoftDropMassAK8'+name, hist.Bin("softDropMass",          r"$m_{SD}(j)$",                                     40,     0.0,    200))
                     histograms['h_dPhij2METAK8'+name]       = hist.Hist('h_dPhij2METAK8'+name,      hist.Bin("dPhiJMET",              r"$\Delta\phi(J_{1},MET)$",                         100,    0.0,    4.0))
                     histograms['h_dPhij1rdPhij2AK8'+name]   = hist.Hist('h_dPhij1rdPhij2AK8'+name,  hist.Bin("dPhiJ1METrdPhiJ2MET",   r"$\Delta\phi(J_{1},MET)/\Delta\phi(J_{2},MET)$",   100,    0.0,    100.0))
+                    histograms['h_madHT'+name]              = hist.Hist("h_madHT"+name,             hist.Bin("ht",                    r"$H_{T}$ (GeV)",                                   500,    0.0,    5000.0))
                 self._accumulator = processor.dict_accumulator(histograms)
                 self.setupHistos = True
 
@@ -110,25 +111,78 @@ class MainProcessor(processor.ProcessorABC):
                 eCounter = np.where(eventWeight >= 0, 1, -1)
 
                 # cut loop
+                ## objects used for cuts
                 obj = Objects(df)
                 electrons_noCut = obj.goodElectrons()
                 muons_noCut = obj.goodMuons()
                 jets_noCut = obj.goodJets()
+                bjets_noCut = obj.goodBJets(df,jets_noCut)
+                if len(bjets_noCut) > 0:
+                    nBJets_noCut = bjets_noCut.counts
+                else:
+                    nBJets_noCut = np.zeros(len(eventWeight))
                 fjets_noCut = obj.goodFatJets()
+                ## variables used for cuts
+                metPhi_noCut = df['METPhi']
+                ht_noCut = ak.sum(jets_noCut.pt,axis=1)
+                dPhiMinj_noCut = utl.deltaPhi(jets_noCut.phi,metPhi_noCut).min()
+                dPhiMinjAK8_noCut = utl.deltaPhi(fjets_noCut.phi,metPhi_noCut).min()
+                ## defining cuts
                 ttStitch = bl.ttStitch(df)
                 metFilters = bl.METFilters(df)
                 triggerCut = bl.passTrigger(df['TriggerPass'])
                 psFilter = bl.phiSpikeFilter(df,jets_noCut)
                 qualityCuts = ttStitch & metFilters & psFilter & triggerCut
                 preselection = bl.preselection(qualityCuts,electrons_noCut,muons_noCut,df['MET'])
+                ht_Cut = ht_noCut > 400
+                dPhiMinj_Cut = dPhiMinj_noCut < 0.65
+                dPhiMinjAK8_Cut = dPhiMinjAK8_noCut < 0.65
+                # Cuts from theory paper
+                # cuts = {
+                #         ""                          : np.ones(len(df["Weight"]),dtype=bool),
+                #         "_trigPresAK4"              : (utl.jetVar_vec(jets_noCut.pt,0) > 250) & (df['MET'] > 200),
+                #         "_trigPresAK4_MET"          : (utl.jetVar_vec(jets_noCut.pt,0) > 250) & (df['MET'] > 200) & (df['MET'] > 800),
+                #         "_trigPresAK4_MET_dPhiG"    : (utl.jetVar_vec(jets_noCut.pt,0) > 250) & (df['MET'] > 200) & (df['MET'] > 800) & (dPhiMinj_noCut > 0.4),
+                #         "_trigPresAK4_MET_dPhiL"    : (utl.jetVar_vec(jets_noCut.pt,0) > 250) & (df['MET'] > 200) & (df['MET'] > 800) & (dPhiMinj_noCut < 0.4),
+                #         "_trigPresAK4_dPhiL"        : (utl.jetVar_vec(jets_noCut.pt,0) > 250) & (df['MET'] > 200) & (dPhiMinj_noCut < 0.4),
+                #         "_trigPresAK8"              : (utl.jetVar_vec(fjets_noCut.pt,0) > 250) & (df['MET'] > 200),
+                #         "_trigPresAK8_MET"          : (utl.jetVar_vec(fjets_noCut.pt,0) > 250) & (df['MET'] > 200) & (df['MET'] > 800),
+                #         "_trigPresAK8_MET_dPhiG"    : (utl.jetVar_vec(fjets_noCut.pt,0) > 250) & (df['MET'] > 200) & (df['MET'] > 800) & (dPhiMinjAK8_noCut > 0.4),
+                #         "_trigPresAK8_MET_dPhiL"    : (utl.jetVar_vec(fjets_noCut.pt,0) > 250) & (df['MET'] > 200) & (df['MET'] > 800) & (dPhiMinjAK8_noCut < 0.4),
+                #         "_trigPresAK8_dPhiL"        : (utl.jetVar_vec(fjets_noCut.pt,0) > 250) & (df['MET'] > 200) & (dPhiMinjAK8_noCut < 0.4),
+                # }
+                # Our preselection
                 cuts = {
-                        "": np.ones(len(df["Weight"]),dtype=bool),
-                        "_qc": ttStitch & metFilters & psFilter,
-                        "_qc_trg": ttStitch & metFilters & psFilter & triggerCut,
-                        "_qc_trg_0l": ttStitch & metFilters & psFilter & triggerCut & (electrons_noCut.counts == 0) & (muons_noCut.counts == 0),
-                        "_pre": preselection,
-                        "_pre_ge2AK4j": preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True),
-                        "_pre_ge2AK8j": preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True)
+                        ""                          : np.ones(len(df["Weight"]),dtype=bool),
+                        "_qc"                       : ttStitch & metFilters & psFilter,
+                        "_qc_trg"                   : ttStitch & metFilters & psFilter & triggerCut,
+                        "_qc_trg_MET300"            : ttStitch & metFilters & psFilter & triggerCut & (df["MET"] > 300), # trigger turn on at MET > 250
+                        "_qc_trg_ht1300"            : ttStitch & metFilters & psFilter & triggerCut & (ht_noCut > 1300), # trigger turn on at hT > 1300
+                        "_qc_trg_ht1300_MET300"     : ttStitch & metFilters & psFilter & triggerCut & (df["MET"] > 300) & (ht_noCut > 1300), # trigger turn on at hT > 1300
+                        "_qc_trg_0l"                : ttStitch & metFilters & psFilter & triggerCut & (electrons_noCut.counts == 0) & (muons_noCut.counts == 0),
+                        "_pre"                      : preselection,
+                        "_pre_ge2AK4j"              : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True),
+                        "_pre_ge2AK4j_MET220"       : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & (df["MET"] > 220), # 50% relative signal efficiency
+                        "_pre_ge2AK4j_MET800"       : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & (df["MET"] > 800), # theory paper MET cut
+                        "_pre_ge2AK4j_ht400"        : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & ht_Cut,
+                        "_pre_ge2AK4j_ht750"        : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & (ht_noCut > 750), # 50% relative signal efficiency
+                        "_pre_ge2AK4j_ht1300"       : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & (ht_noCut > 1300), # trigger turn on at hT > 1300
+                        "_pre_ge2AK4j_nb2"          : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & (nBJets_noCut >= 2),
+                        "_pre_ge2AK4j_nb3"          : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & (nBJets_noCut >= 3),
+                        "_pre_ge2AK4j_nb4"          : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & (nBJets_noCut >= 4),
+                        "_pre_ge2AK4j_dpjp65"       : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & dPhiMinj_Cut,
+                        "_pre_ge2AK4j_ht400_dpjp65" : preselection & (jets_noCut.counts >= 2) & (df["JetID"] == True) & ht_Cut & dPhiMinj_Cut,
+                        "_pre_ge2AK8j"              : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True),
+                        "_pre_ge2AK8j_MET220"       : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & (df["MET"] > 220), # 50% relative signal efficiency
+                        "_pre_ge2AK8j_MET800"       : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & (df["MET"] > 800), # theory paper MET cut
+                        "_pre_ge2AK8j_ht400"        : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & ht_Cut,
+                        "_pre_ge2AK8j_ht750"        : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & (ht_noCut > 750), # 50% relative signal efficiency
+                        "_pre_ge2AK8j_ht1300"       : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & (ht_noCut > 1300), # trigger turn on at hT > 1300
+                        "_pre_ge2AK8j_nb2"          : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & (nBJets_noCut >= 2),
+                        "_pre_ge2AK8j_nb3"          : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & (nBJets_noCut >= 3),
+                        "_pre_ge2AK8j_nb4"          : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & (nBJets_noCut >= 4),
+                        "_pre_ge2AK8j_dpJp65"       : preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & dPhiMinjAK8_Cut,
+                        "_pre_ge2AK8j_ht400__dpJp65": preselection & (fjets_noCut.counts >= 2) & (df["JetIDAK8"] == True) & ht_Cut & dPhiMinjAK8_Cut
                 }
 # add cutflow (see coffea cutflow)
 # go through the paper to get cutflows, get the cuts for t-channel from the paper
@@ -152,17 +206,17 @@ class MainProcessor(processor.ProcessorABC):
                     jets = jets_noCut[cut]
                     fjets = fjets_noCut[cut]
                     bjets = obj.goodBJets(df,jets)
-
-                    madHT_cut = df['madHT'][cut]
+                    madHT = df['madHT'][cut]
                     genMET = df['GenMET'][cut]
                     met = df['MET'][cut]
-                    metPhi = df['METPhi'][cut]
+                    metPhi = metPhi_noCut[cut]
                     mtAK8 = df['MT_AK8'][cut]
                     triggerPass = df['TriggerPass'][cut]
                     evtw = eventWeight[cut]
-                    JetID = df["JetID"][cut]
-                    JetIDAK8 = df["JetIDAK8"][cut]
-
+                    if len(bjets) > 0:
+                        nBJets = bjets.counts
+                    else:
+                        nBJets = np.zeros(len(evtw))
                     # defining weights for awkward arrays
                     ew = utl.awkwardReshape(electrons,evtw)
                     mw = utl.awkwardReshape(muons,evtw)
@@ -173,11 +227,22 @@ class MainProcessor(processor.ProcessorABC):
                     if len(evtw) > 0:
                         # Getting subset of variables based on number of AK8 jets
                         # calculating variables
+
                         ht = ak.sum(jets.pt,axis=1)
                         st = ht + met
                         metrht = utl.divide_vec(met,ht)
                         metrst = utl.divide_vec(met,st)
 
+                        # if name == "_pre_ge2AK4j_ht400":
+                        #     htTruth = ht>400
+                        #     allTrue = True
+                        #     for t in htTruth:
+                        #         if t == False:
+                        #             allTrue = 0
+                        #             break
+                        #     if allTrue == False:
+                        #         print(ht)
+                        #         print(htTruth)
                         # AK4 Jet Variables
                         jetPhi = jets.phi
                         jetEta = jets.eta
@@ -217,13 +282,14 @@ class MainProcessor(processor.ProcessorABC):
                         J2_tau32 = utl.tauRatio(tau3,tau2,1)
 
                         # filling histograms
-                        output['h_njets'+name].fill(njets=jets.counts.flatten(),weight=evtw)
-                        output['h_njetsAK8'+name].fill(njets=fjets.counts.flatten(),weight=evtw)
-                        output['h_nb'+name].fill(nb=bjets.counts,weight=evtw)
+                        output['h_njets'+name].fill(njets=jets.counts,weight=evtw)
+                        output['h_njetsAK8'+name].fill(njets=fjets.counts,weight=evtw)
+                        output['h_nb'+name].fill(nb=nBJets,weight=evtw)
                         output['h_nl'+name].fill(nl=(electrons.counts + muons.counts),weight=evtw)
                         output['h_ht'+name].fill(ht=ht,weight=evtw)
                         output['h_st'+name].fill(st=st,weight=evtw)
                         output['h_met'+name].fill(MET=met,weight=evtw)
+                        output['h_madHT'+name].fill(ht=madHT,weight=evtw)
                         output['h_jPt'+name].fill(pt=jets.pt.flatten(),weight=ak.flatten(jw))
                         output['h_jEta'+name].fill(eta=jetEta.flatten(),weight=ak.flatten(jw))
                         output['h_jPhi'+name].fill(phi=jetPhi.flatten(),weight=ak.flatten(jw))

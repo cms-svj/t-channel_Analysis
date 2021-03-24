@@ -79,11 +79,11 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
         ## varying mMed
         # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 400",  scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 2000", scale=scale, color=ROOT.kBlue),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
-        # # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
+        # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
         ## varying mDark
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-1",scale=scale, color=ROOT.kBlue),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
@@ -95,10 +95,10 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-3000_r-0p7",scale=scale, color=ROOT.kCyan),
         ## varying rinv at mMed 800
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
     ]
     return Data, sgData, bgData
 
@@ -213,11 +213,11 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
             h.append(g)
     return h
 
-def plotSignificance(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
+def plotSignificance(data, histoName, xlab, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
     rocBgVec = []
 
     reverseCut = False
-    rebinValue = 5 # how many bins to merge into 1 bin
+    rebinValue = rebinx # how many bins to merge into 1 bin
 
     # background
     for d in data[1]:
@@ -232,12 +232,20 @@ def plotSignificance(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0
     # signal
     rocSigVec = []
     for d in data[2]:
+        und_1 = histoName.find("_")
+        und_2 = histoName.find("_",und_1+1)
+        histoName_noCut = histoName[:und_2] + "_qc"
+        if "h_METr" in histoName:
+            und_3 = histoName.find("_",und_2+1)
+            histoName_noCut = histoName[:und_3] + "_qc"
+        h_full = d.getHisto(histoName_noCut, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
+        h_fullIn = h_full.Integral()
         h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
         h.Rebin(rebinValue)
         hIn = h.Integral()
         eff = np.array(makeRocVec(h,reverseCut)[0])
         effList = eff * hIn
-        signalEffList.append(eff)
+        signalEffList.append(eff*hIn/h_fullIn)
         rocSigVec.append([effList,d.legEntry()])
         sigLabelList.append(d.legEntry())
         cutValues = np.array(makeRocVec(h)[1])
@@ -258,59 +266,56 @@ def plotSignificance(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0
         foReal = fo[~np.isnan(fo)]
         fomList.append(foReal)
         sEffList.append(signalEffList[i][~np.isnan(fo)])
-        cutList = cutValues[~np.isnan(fo)]
+        cutList.append(cutValues[~np.isnan(fo)])
         plt.step(cutValues[~np.isnan(fo)],foReal/np.sum(foReal),label=rsv[1])
     plt.legend()
-    plt.xticks(np.arange(0,2100,50))
     plt.ylabel("Normalized FOM ( sqrt(2((S+B)*log(1+S/B)-S)) )")
-    plt.xlabel("MET Cut (GeV)")
-    plt.xlim(100,800)
-    plt.grid("MET Cut (GeV)")
-    plt.savefig("plots/FOM/FOM_" + histoName+".png")
+    plt.xlabel(xlab)
+    plt.grid(xlab)
+    plt.savefig(outputPath + "/FOM_" + histoName+".png")
 
     # comparing signal efficiency for different signals
     plt.figure(figsize=(12,8))
     for i in range(len(sEffList)):
         seff = sEffList[i]
         siglab = sigLabelList[i]
-        plt.step(cutList,seff,label=siglab)
+        plt.step(cutList[i],seff,label=siglab)
     plt.legend()
-    plt.xticks(np.arange(0,800,50))
     plt.ylabel("Signal Efficiency")
-    plt.xlabel("MET Cut (GeV)")
-    plt.xlim(0,800)
+    plt.xlabel(xlab)
     plt.grid()
-    plt.savefig("plots/FOM/sigEff_" + histoName+".png")
+    plt.savefig(outputPath + "/sigEff_" + histoName+".png")
 
     # comparing FOM and signal efficiency for each signal
     for i in range(len(sigLabelList)):
         slabel = sigLabelList[i]
         foms = fomList[i]
+        cutValues = cutList[i]
         seffs = sEffList[i]
 
         fig, ax1 = plt.subplots()
 
         color = 'tab:red'
-        ax1.set_xlabel("MET Cut (GeV)")
+        ax1.set_xlabel(xlab)
         ax1.set_ylabel("FOM: sqrt(2((S+B)*log(1+S/B)-S))")
-        ax1.step(cutList,foms,color=color)
+        ax1.step(cutValues,foms,color=color)
         ax1.tick_params(axis='y',labelcolor=color)
 
         ax2 = ax1.twinx()
 
         color = 'tab:blue'
         ax2.set_ylabel('Signal Efficiency', color=color)
-        ax2.step(cutList,seffs,color=color)
+        ax2.step(cutValues,seffs,color=color)
         ax2.tick_params(axis='y',labelcolor=color)
 
         fig.tight_layout()
-        plt.xlim(0,800)
         # for some reason, the x grid line is just not showing right, that's why we have the following code
-        for cut in np.arange(min(cutList),max(cutList),50):
-            plt.vlines(cut,0,1,color="silver",linewidth=0.5)
+        for cut in np.arange(min(cutValues),max(cutValues),50):
+            plt.vlines(cut,0,max(seffs),color="silver",linewidth=0.5)
         plt.grid()
-        plt.xticks(np.arange(0,800,100))
-        plt.savefig("plots/FOM/FOMSEff_" + histoName + "_" +  slabel + ".png")
+        plt.savefig(outputPath + "/FOMSEff_" + histoName + "_" +  slabel + ".png")
+
+    plt.close()
 
 def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False, manySigs=False):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
@@ -383,7 +388,7 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=99
     c1.Update();
     c1.RedrawAxis()
 
-    c1.SaveAs(outputPath+"/roc/"+histoName+"_ROC.png")
+    c1.SaveAs(outputPath+"/"+histoName+"_ROC.png")
     c1.Close()
     del c1
     del leg
@@ -542,96 +547,96 @@ def main():
     year = options.year
     # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
-    cuts = [""]
+    cutsImportant = ["_qc","_qc_trg","_pre_ge2AK4j_ht400_dpjp65","_pre_ge2AK8j_ht400__dpJp65","_pre_ge2AK8j_MET220","_pre_ge2AK4j_MET220","_pre_ge2AK4j_nb3","_pre_ge2AK8j_nb3"]
     Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
 
-    plotOutDir = "plots"
+    plotOutDir = "output/plots"
 
     if not os.path.exists(plotOutDir):
         os.makedirs(plotOutDir)
 
     plotDict = {
     # "plotname":               [xlabel,                                            ylabel,     xmin,   xmax,   rebinx_stack,   rebinx_roc, cuts]
-    "h_njets":                  ["Number of AK4 Jets",                              "Events",   0,      20,     -1,             1,          ["","_ge2AK8j","_ge2AK4j"]],
-    "h_njetsAK8":               ["Number of AK8 Jets",                              "Events",   0,      12,     -1,             1,          ["","_ge2AK8j","_ge2AK4j"]],
-    "h_nb":                     ["Number of B Jets",                                "Events",   0,      20,     -1,             1,          [""]],
-    "h_nl":                     ["Number of Leptons",                               "Events",   0,      10,     -1,             1,          [""]],
-    "h_ht":                     ["H_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         ["","_ge2AK8j","_ge2AK4j"]],
-    "h_st":                     ["S_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         ["","_ge2AK8j","_ge2AK4j"]],
-    "h_met":                    ["MET [GeV]",                                       "Events",   0,      2000,   20,             10,          ["","_ge2AK8j","_ge2AK4j"]],
-    "h_jPt":                    ["p_{T}(j) [GeV]",                                  "Events",   0,      2000,   10,             5,          [""]],
-    "h_jEta":                   ["#eta(j)",                                         "Events",   -6,     6,      10,             10,         [""]],
-    "h_jPhi":                   ["#phi(j)",                                         "Events",   -4,     4,      10,             10,         [""]],
-    "h_jAxismajor":             ["#sigma_{major}(j)",                               "Events",   0,      0.5,    -1,             5,          [""]],
-    "h_jAxisminor":             ["#sigma_{minor}(j)",                               "Events",   0,      0.3,    -1,             5,          [""]],
-    "h_jPtD":                   ["ptD(j)",                                          "Events",   0,      1.2,    -1,             2,          [""]],
-    "h_jPtAK8":                 ["p_{T}(J) [GeV]",                                  "Events",   0,      2000,   10,             5,          [""]],
-    "h_jEtaAK8":                ["#eta(J)",                                         "Events",   -6,     6,      10,             10,         [""]],
-    "h_jPhiAK8":                ["#phi(J)",                                         "Events",   -4,     4,      10,             10,         [""]],
-    "h_jAxismajorAK8":          ["#sigma_{major}(J)",                               "Events",   0,      0.5,    -1,             5,          [""]],
-    "h_jAxisminorAK8":          ["#sigma_{minor}(J)",                               "Events",   0,      0.3,    -1,             5,          [""]],
-    "h_jGirthAK8":              ["girth(J)",                                        "Events",   0,      0.5,    -1,             5,          [""]],
-    "h_jPtDAK8":                ["ptD(J)",                                          "Events",   0,      1.2,    -1,             2,          [""]],
-    "h_jTau1AK8":               ["#tau_{1}(J)",                                     "Events",   0,      0.8,    -1,             3,          [""]],
-    "h_jTau2AK8":               ["#tau_{2}(J)",                                     "Events",   0,      0.65,   -1,             3,          [""]],
-    "h_jTau3AK8":               ["#tau_{3}(J)",                                     "Events",   0,      0.35,   -1,             3,          [""]],
-    # "h_jTau21AK8":              ["#tau_{2}/#tau_{1}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
-    # "h_jTau32AK8":              ["#tau_{3}/#tau_{2}(J)",                            "Events",   0,      1.3,    -1,             3,          [""]],
-    "h_jSoftDropMassAK8":       ["m_{SD}(J)",                                       "Events",   0,      200,    -1,             3,          [""]],
-    "h_mT":                     ["m_{T}",                                           "Events",   0,      5000,   20,             20,         ["","_ge2AK8j","_ge2AK4j"]],
-    "h_METrHT_pt30":            ["MET/H_{T}",                                       "Events",   0,      10,     2,              2,          ["","_ge2AK8j","_ge2AK4j"]],
-    "h_METrST_pt30":            ["MET/S_{T}",                                       "Events",   0,      1,      5,              5,          ["","_ge2AK8j","_ge2AK4j"]],
-    "h_dEtaJ12":                ["#Delta#eta(J_{1},J_{2})",                         "Events",   0,      6,      5,              5,          ["_ge2AK8j"]],
-    "h_dRJ12":                  ["#Delta R(J_{1},J_{2})",                           "Events",   0,      6,      2,              3,          ["_ge2AK8j"]],
-    "h_dPhiJ1MET":              ["#Delta#phi(J_{1},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK8j"]],
-    "h_dPhiJ2MET":              ["#Delta#phi(J_{2},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK8j"]],
-    "h_dPhiJ1METrdPhiJ2MET":    ["#Delta#phi(J_{1},MET)/#Delta#phi(J_{2},MET)",     "Events",   0,      100,    2,              2,          ["_ge2AK8j"]],
-    "h_dPhiMinJMET":            ["#Delta#phi_{min}(J,MET)",                         "Events",   0,      3.15,   2,              4,          ["_ge2AK8j"]],
-    "h_j1PtAK8":                ["p_{T}(J_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK8j"]],
-    "h_j1EtaAK8":               ["#eta(J_{1})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK8j"]],
-    "h_j1PhiAK8":               ["#phi(J_{1})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK8j"]],
-    "h_j1AxismajorAK8":         ["#sigma_{major}(J_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
-    "h_j1AxisminorAK8":         ["#sigma_{minor}(J_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK8j"]],
-    "h_j1GirthAK8":             ["girth (J_{1})",                                   "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
-    "h_j1PtDAK8":               ["ptD (J_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK8j"]],
-    "h_j1Tau1AK8":              ["#tau_{1}(J_{1})",                                 "Events",   0,      0.8,    -1,             3,          ["_ge2AK8j"]],
-    "h_j1Tau2AK8":              ["#tau_{2}(J_{1})",                                 "Events",   0,      0.65,   -1,             3,          ["_ge2AK8j"]],
-    "h_j1Tau3AK8":              ["#tau_{3}(J_{1})",                                 "Events",   0,      0.35,   -1,             3,          ["_ge2AK8j"]],
-    "h_j1Tau21AK8":             ["#tau_{21}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
-    "h_j1Tau32AK8":             ["#tau_{32}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
-    "h_j1SoftDropMassAK8":      ["m_{SD}(J_{1})",                                   "Events",   0,      200,    -1,             3,          ["_ge2AK8j"]],
-    "h_j2PtAK8":                ["p_{T}(J_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK8j"]],
-    "h_j2EtaAK8":               ["#eta(J_{2})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK8j"]],
-    "h_j2PhiAK8":               ["#phi(J_{2})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK8j"]],
-    "h_j2AxismajorAK8":         ["#sigma_{major}(J_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
-    "h_j2AxisminorAK8":         ["#sigma_{minor}(J_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK8j"]],
-    "h_j2GirthAK8":             ["girth (J_{2})",                                   "Events",   0,      0.5,    -1,             5,          ["_ge2AK8j"]],
-    "h_j2PtDAK8":               ["ptD (J_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK8j"]],
-    "h_j2Tau1AK8":              ["#tau_{1}(J_{2})",                                 "Events",   0,      0.8,    -1,             3,          ["_ge2AK8j"]],
-    "h_j2Tau2AK8":              ["#tau_{2}(J_{2})",                                 "Events",   0,      0.65,   -1,             3,          ["_ge2AK8j"]],
-    "h_j2Tau3AK8":              ["#tau_{3}(J_{2})",                                 "Events",   0,      0.35,   -1,             3,          ["_ge2AK8j"]],
-    "h_j2Tau21AK8":             ["#tau_{21}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
-    "h_j2Tau32AK8":             ["#tau_{32}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_ge2AK8j"]],
-    "h_j2SoftDropMassAK8":      ["m_{SD}(J_{2})",                                   "Events",   0,      200,    -1,             3,          ["_ge2AK8j"]],
-    "h_dEtaj12":                ["#Delta#eta(j_{1},j_{2})",                         "Events",   0,      6,      5,              5,          ["_ge2AK4j"]],
-    "h_dRj12":                  ["#Delta R(j_{1},j_{2})",                           "Events",   0,      6,      2,              3,          ["_ge2AK4j"]],
-    "h_dPhij1MET":              ["#Delta#phi(j_{1},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK4j"]],
-    "h_dPhij2MET":              ["#Delta#phi(j_{2},MET)",                           "Events",   0,      3.15,   2,              5,          ["_ge2AK4j"]],
-    "h_dPhij1METrdPhij2MET":    ["#Delta#phi(j_{1},MET)/#Delta#phi(j_{2},MET)",     "Events",   0,      100,    2,              2,          ["_ge2AK4j"]],
-    "h_dPhiMinjMET":            ["#Delta#phi_{min}(j,MET)",                         "Events",   0,      3.15,   2,              4,          ["_ge2AK4j"]],
-    "h_j1Pt":                   ["p_{T}(j_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK4j"]],
-    "h_j1Eta":                  ["#eta(j_{1})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK4j"]],
-    "h_j1Phi":                  ["#phi(j_{1})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK4j"]],
-    "h_j1Axismajor":            ["#sigma_{major}(j_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK4j"]],
-    "h_j1Axisminor":            ["#sigma_{minor}(j_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK4j"]],
-    "h_j1PtD":                  ["ptD (j_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK4j"]],
-    "h_j2Pt":                   ["p_{T}(j_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          ["_ge2AK4j"]],
-    "h_j2Eta":                  ["#eta(j_{2})",                                     "Events",   -6,     6,      10,             10,         ["_ge2AK4j"]],
-    "h_j2Phi":                  ["#phi(j_{2})",                                     "Events",   -4,     4,      10,             10,         ["_ge2AK4j"]],
-    "h_j2Axismajor":            ["#sigma_{major}(j_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_ge2AK4j"]],
-    "h_j2Axisminor":            ["#sigma_{minor}(j_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_ge2AK4j"]],
-    "h_j2PtD":                  ["ptD (j_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_ge2AK4j"]],
+    "h_njets":                  ["Number of AK4 Jets",                              "Events",   0,      20,     -1,             1,          cutsImportant],
+    "h_njetsAK8":               ["Number of AK8 Jets",                              "Events",   0,      12,     -1,             1,          cutsImportant],
+    "h_nb":                     ["Number of B Jets",                                "Events",   0,      20,     -1,             1,          cutsImportant],
+    "h_nl":                     ["Number of Leptons",                               "Events",   0,      10,     -1,             1,          ["_qc_trg"]],
+    "h_ht":                     ["H_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         cutsImportant],
+    "h_st":                     ["S_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         cutsImportant],
+    "h_met":                    ["MET [GeV]",                                       "Events",   0,      2000,   20,             10,         cutsImportant],
+    "h_jPt":                    ["p_{T}(j) [GeV]",                                  "Events",   0,      2000,   10,             5,          ["_qc_trg"]],
+    "h_jEta":                   ["#eta(j)",                                         "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
+    "h_jPhi":                   ["#phi(j)",                                         "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
+    "h_jAxismajor":             ["#sigma_{major}(j)",                               "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_jAxisminor":             ["#sigma_{minor}(j)",                               "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
+    "h_jPtD":                   ["ptD(j)",                                          "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
+    "h_jPtAK8":                 ["p_{T}(J) [GeV]",                                  "Events",   0,      2000,   10,             5,          ["_qc_trg"]],
+    "h_jEtaAK8":                ["#eta(J)",                                         "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
+    "h_jPhiAK8":                ["#phi(J)",                                         "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
+    "h_jAxismajorAK8":          ["#sigma_{major}(J)",                               "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_jAxisminorAK8":          ["#sigma_{minor}(J)",                               "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
+    "h_jGirthAK8":              ["girth(J)",                                        "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_jPtDAK8":                ["ptD(J)",                                          "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
+    "h_jTau1AK8":               ["#tau_{1}(J)",                                     "Events",   0,      0.8,    -1,             3,          ["_qc_trg"]],
+    "h_jTau2AK8":               ["#tau_{2}(J)",                                     "Events",   0,      0.65,   -1,             3,          ["_qc_trg"]],
+    "h_jTau3AK8":               ["#tau_{3}(J)",                                     "Events",   0,      0.35,   -1,             3,          ["_qc_trg"]],
+    "h_jTau21AK8":              ["#tau_{2}/#tau_{1}(J)",                            "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
+    "h_jTau32AK8":              ["#tau_{3}/#tau_{2}(J)",                            "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
+    "h_jSoftDropMassAK8":       ["m_{SD}(J)",                                       "Events",   0,      200,    -1,             3,          ["_qc_trg"]],
+    "h_mT":                     ["m_{T}",                                           "Events",   0,      5000,   20,             20,         cutsImportant],
+    "h_METrHT_pt30":            ["MET/H_{T}",                                       "Events",   0,      10,     2,              2,          cutsImportant],
+    "h_METrST_pt30":            ["MET/S_{T}",                                       "Events",   0,      1,      2,              2,          cutsImportant],
+    "h_dEtaj12AK8":             ["#Delta#eta(J_{1},J_{2})",                         "Events",   0,      6,      5,              5,          cutsImportant],
+    "h_dRJ12AK8":               ["#Delta R(J_{1},J_{2})",                           "Events",   0,      6,      2,              3,          cutsImportant],
+    "h_dPhij1METAK8":           ["#Delta#phi(J_{1},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
+    "h_dPhij2METAK8":           ["#Delta#phi(J_{2},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
+    "h_dPhij1rdPhij2AK8":       ["#Delta#phi(J_{1},MET)/#Delta#phi(J_{2},MET)",     "Events",   0,      100,    2,              2,          cutsImportant],
+    "h_dPhiMinjMETAK8":         ["#Delta#phi_{min}(J,MET)",                         "Events",   0,      3.15,   2,              4,          cutsImportant],
+    "h_j1PtAK8":                ["p_{T}(J_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
+    "h_j1EtaAK8":               ["#eta(J_{1})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
+    "h_j1PhiAK8":               ["#phi(J_{1})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
+    "h_j1AxismajorAK8":         ["#sigma_{major}(J_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_j1AxisminorAK8":         ["#sigma_{minor}(J_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
+    "h_j1GirthAK8":             ["girth (J_{1})",                                   "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_j1PtDAK8":               ["ptD (J_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
+    "h_j1Tau1AK8":              ["#tau_{1}(J_{1})",                                 "Events",   0,      0.8,    -1,             3,          ["_qc_trg"]],
+    "h_j1Tau2AK8":              ["#tau_{2}(J_{1})",                                 "Events",   0,      0.65,   -1,             3,          ["_qc_trg"]],
+    "h_j1Tau3AK8":              ["#tau_{3}(J_{1})",                                 "Events",   0,      0.35,   -1,             3,          ["_qc_trg"]],
+    "h_j1Tau21AK8":             ["#tau_{21}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
+    "h_j1Tau32AK8":             ["#tau_{32}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
+    "h_j1SoftDropMassAK8":      ["m_{SD}(J_{1})",                                   "Events",   0,      200,    -1,             3,          ["_qc_trg"]],
+    "h_j2PtAK8":                ["p_{T}(J_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
+    "h_j2EtaAK8":               ["#eta(J_{2})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
+    "h_j2PhiAK8":               ["#phi(J_{2})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
+    "h_j2AxismajorAK8":         ["#sigma_{major}(J_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_j2AxisminorAK8":         ["#sigma_{minor}(J_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
+    "h_j2GirthAK8":             ["girth (J_{2})",                                   "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_j2PtDAK8":               ["ptD (J_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
+    "h_j2Tau1AK8":              ["#tau_{1}(J_{2})",                                 "Events",   0,      0.8,    -1,             3,          ["_qc_trg"]],
+    "h_j2Tau2AK8":              ["#tau_{2}(J_{2})",                                 "Events",   0,      0.65,   -1,             3,          ["_qc_trg"]],
+    "h_j2Tau3AK8":              ["#tau_{3}(J_{2})",                                 "Events",   0,      0.35,   -1,             3,          ["_qc_trg"]],
+    "h_j2Tau21AK8":             ["#tau_{21}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
+    "h_j2Tau32AK8":             ["#tau_{32}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
+    "h_j2SoftDropMassAK8":      ["m_{SD}(J_{2})",                                   "Events",   0,      200,    -1,             3,          ["_qc_trg"]],
+    "h_dEtaj12":                ["#Delta#eta(j_{1},j_{2})",                         "Events",   0,      6,      5,              5,          cutsImportant],
+    "h_dRJ12":                  ["#Delta R(j_{1},j_{2})",                           "Events",   0,      6,      2,              3,          cutsImportant],
+    "h_dPhij1MET":              ["#Delta#phi(j_{1},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
+    "h_dPhij2MET":              ["#Delta#phi(j_{2},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
+    "h_dPhij1rdPhij2":          ["#Delta#phi(j_{1},MET)/#Delta#phi(j_{2},MET)",     "Events",   0,      100,    2,              2,          cutsImportant],
+    "h_dPhiMinjMET":            ["#Delta#phi_{min}(j,MET)",                         "Events",   0,      3.15,   2,              4,          cutsImportant],
+    "h_j1Pt":                   ["p_{T}(j_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
+    "h_j1Eta":                  ["#eta(j_{1})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
+    "h_j1Phi":                  ["#phi(j_{1})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
+    "h_j1Axismajor":            ["#sigma_{major}(j_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_j1Axisminor":            ["#sigma_{minor}(j_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
+    "h_j1PtD":                  ["ptD (j_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
+    "h_j2Pt":                   ["p_{T}(j_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
+    "h_j2Eta":                  ["#eta(j_{2})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
+    "h_j2Phi":                  ["#phi(j_{2})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
+    "h_j2Axismajor":            ["#sigma_{major}(j_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
+    "h_j2Axisminor":            ["#sigma_{minor}(j_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
+    "h_j2PtD":                  ["ptD (j_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
     }
 
     for histName,details in plotDict.items():
@@ -639,11 +644,10 @@ def main():
         isNormBkg = options.isNormBkg
         onlySig = options.onlySig
         manySigs = options.manySigs
-
         for cut in details[6]:
-            plotROC(  (Data, bgData, sgData), histName+cut, plotOutDir,                         isLogY=False,   rebinx=details[5], manySigs=manySigs)
-            # plotStack((Data, bgData, sgData), histName+cut, plotOutDir, details[0], details[1], isLogY=True,    rebinx=details[4], norm=isNorm, xmin=details[2], xmax=details[3], normBkg=isNormBkg, onlySig=onlySig)
-            # if histName == "h_met":
-            #     plotSignificance((Data, bgData, sgData), histName+cut, plotOutDir,                  isLogY=False,   rebinx=details[5])
+            plotROC(  (Data, bgData, sgData), histName+cut, plotOutDir+"/roc/"+cut[1:],                         isLogY=False,   rebinx=details[5], manySigs=manySigs)
+            plotStack((Data, bgData, sgData), histName+cut, plotOutDir+"/Stacked/"+cut[1:], details[0], details[1], isLogY=True,    rebinx=details[4], norm=isNorm, xmin=details[2], xmax=details[3], normBkg=isNormBkg, onlySig=onlySig)
+            if histName == "h_met" or histName == "h_ht" or histName == "h_st" or histName == "h_METrHT_pt30" or histName == "h_METrST_pt30":
+                plotSignificance((Data, bgData, sgData), histName+cut, details[0], plotOutDir+"/FOM/"+cut[1:],                    isLogY=False,   rebinx=details[4])
 if __name__ == '__main__':
     main()

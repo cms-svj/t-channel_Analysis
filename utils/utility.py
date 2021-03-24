@@ -97,8 +97,11 @@ def divide(a,b):
     return val
 
 def divide_vec(a,b):
-    vfunc = np.vectorize(lambda a,b: divide(a,b))
-    return vfunc(a,b)
+    if len(a) > 0 and len(b) > 0:
+        vfunc = np.vectorize(lambda a,b: divide(a,b))
+        return vfunc(a,b)
+    else:
+        return np.array([])
 
 def tauRatio(tau_a,tau_b,i):
     Ji_tau_a = jetVar_vec(tau_a,i)

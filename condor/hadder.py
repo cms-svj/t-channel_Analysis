@@ -118,7 +118,7 @@ def main():
                 # if not options.noHadd: system(command)
 
                 ################################
-                ## below is the original code
+                # ## below is the original code
                 files = " " + " ".join(glob("%s/%s/MyAnalysis_%s_*.root" % (inPath, directory, sample)))
                 outfile = "%s/%s.root" % (outDir,sample)
                 command = "hadd %s/%s.root %s" % (outDir, sample, files)

@@ -87,9 +87,9 @@ def preselection(qualityCuts,electrons,muons,met):
     return (qualityCuts & (electrons.counts == 0) & (muons.counts == 0) & (met > 100))
     # return ((electrons.counts == 0) & (muons.counts == 0) & (met > 100))
 
-
 def passTrigger(triggerPass):
     indicesOfHighEffTrig = [11,12,13,14,67,107,108,131,8,90,98,116] # all s-channel + 5 highest signal efficiency
+    # indicesOfHighEffTrig = [11,12,13,14,67,107,108,131,116] # all s-channel + 2 of the 5 highest signal efficiency (no cross MET, HT triggers, or PFJet trigger); for sanity check
 
     tPassedHEList = []
     tPassedList = []

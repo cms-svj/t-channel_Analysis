@@ -1,5 +1,6 @@
 from coffea.analysis_objects import JaggedCandidateArray
 import numpy as np
+import awkward1 as ak
 
 class Objects:
     def __init__(self, df):
@@ -78,13 +79,16 @@ class Objects:
         return self.fjets[ak8QualityCut]
 
     def goodBJets(self,df,jets):
-        jets = jets[~np.isnan(jets.bDeepCSVprobb)]
-        deepCSV = jets.bDeepCSVprobb + jets.bDeepCSVprobbb
-        dataset = df['dataset']
-        # use medium working point
-        if "2016" in dataset:
-            return jets[deepCSV >= 0.6321]
-        elif "2017" in dataset:
-            return jets[deepCSV >= 0.4941]
-        elif "2018" in dataset:
-            return jets[deepCSV >= 0.4184]
+        if len(jets.flatten()) > 0:
+            jets = jets[~np.isnan(jets.bDeepCSVprobb)]
+            deepCSV = jets.bDeepCSVprobb + jets.bDeepCSVprobbb
+            dataset = df['dataset']
+            # use medium working point
+            if "2016" in dataset:
+                return jets[deepCSV >= 0.6321]
+            elif "2017" in dataset:
+                return jets[deepCSV >= 0.4941]
+            elif "2018" in dataset:
+                return jets[deepCSV >= 0.4184]
+        else:
+            return ak.Array([])
