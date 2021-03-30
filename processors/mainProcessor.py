@@ -54,6 +54,10 @@ class MainProcessor(processor.ProcessorABC):
                     histograms['h_dEtaj12AK8'+name]         = hist.Hist('h_dEtaj12AK8'+name,        hist.Bin("dEtaJ12",               r"$\Delta\eta(J_{1},J_{2})$",                       200,    0.0,    10.0))
                     histograms['h_dRJ12AK8'+name]           = hist.Hist('h_dRJ12AK8'+name,          hist.Bin("dRJ12",                 r"$\Delta R(J_{1},J_{2})$",                         100,    0.0,   10.0))
                     histograms['h_mT'+name]                 = hist.Hist('h_mT'+name,                hist.Bin("mT",                    r"$m_{T} (GeV)$",                                   500,    0.0,    5000.0))
+                    histograms['h_mT2_f4_msm'+name]         = hist.Hist('h_mT2_f4_msm'+name,        hist.Bin("mT2",                   r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0))
+                    histograms['h_mT2_f4_msm_dEta'+name]    = hist.Hist('h_mT2_f4_msm_dEta'+name,   hist.Bin("mT2",                   r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0))
+                    histograms['h_mT2_f4_msm_dPhi'+name]    = hist.Hist('h_mT2_f4_msm_dPhi'+name,   hist.Bin("mT2",                   r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0))
+                    histograms['h_mT2_f4_msm_dR'+name]      = hist.Hist('h_mT2_f4_msm_dR'+name,     hist.Bin("mT2",                   r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0))
                     histograms['h_METrHT_pt30'+name]        = hist.Hist('h_METrHT_pt30'+name,       hist.Bin("METrHT_pt30",           r"$MET/H_{T}$",                                     100,    0.0,    3.0))
                     histograms['h_METrST_pt30'+name]        = hist.Hist('h_METrST_pt30'+name,       hist.Bin("METrST_pt30",           r"$MET/S_{T}",                                      100,    0.0,    1.0))
                     histograms['h_j1Pt'+name]               = hist.Hist('h_j1Pt'+name,              hist.Bin("pt",                    r"$p_{T}$ [GeV]",                                   200,    0.0,    2000.0))
@@ -232,7 +236,6 @@ class MainProcessor(processor.ProcessorABC):
                         st = ht + met
                         metrht = utl.divide_vec(met,ht)
                         metrst = utl.divide_vec(met,st)
-
                         # if name == "_pre_ge2AK4j_ht400":
                         #     htTruth = ht>400
                         #     allTrue = True
@@ -258,8 +261,14 @@ class MainProcessor(processor.ProcessorABC):
                         deltaR12j = utl.delta_R(j1_eta,j2_eta,j1_phi,j2_phi)
 
                         # AK8 Jet Variables
+                        jetAK8pT = fjets.pt
                         jetAK8Phi = fjets.phi
                         jetAK8Eta = fjets.eta
+                        jetAK8M = fjets.mass
+                        MT2 = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"")
+                        MT2_dEta = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dEta")
+                        MT2_dPhi = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dPhi")
+                        MT2_dR = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dR")
                         j1_etaAK8 = utl.jetVar_vec(jetAK8Eta,0)
                         j2_etaAK8 = utl.jetVar_vec(jetAK8Eta,1)
                         j1_phiAK8 = utl.jetVar_vec(jetAK8Phi,0)
@@ -316,6 +325,10 @@ class MainProcessor(processor.ProcessorABC):
                         output['h_dEtaj12AK8'+name].fill(dEtaJ12=dEtaj12AK8,weight=evtw)
                         output['h_dRJ12AK8'+name].fill(dRJ12=deltaR12jAK8,weight=evtw)
                         output['h_mT'+name].fill(mT=mtAK8,weight=evtw)
+                        output['h_mT2_f4_msm'+name].fill(mT2=MT2,weight=evtw)
+                        output['h_mT2_f4_msm_dEta'+name].fill(mT2=MT2_dEta,weight=evtw)
+                        output['h_mT2_f4_msm_dPhi'+name].fill(mT2=MT2_dPhi,weight=evtw)
+                        output['h_mT2_f4_msm_dR'+name].fill(mT2=MT2_dR,weight=evtw)
                         output['h_METrHT_pt30'+name].fill(METrHT_pt30=metrht,weight=evtw)
                         output['h_METrST_pt30'+name].fill(METrST_pt30=metrst,weight=evtw)
                         output['h_j1Pt'+name].fill(pt=utl.jetVar_vec(jets.pt,0),weight=evtw)

@@ -1,6 +1,7 @@
 import numpy as np
 import awkward1 as ak
 import awkward
+from mt2 import mt2
 
 def awkwardReshape(akArray,npArray):
     if len(akArray) == 0:
@@ -108,3 +109,69 @@ def tauRatio(tau_a,tau_b,i):
     Ji_tau_b = jetVar_vec(tau_b,i)
     Ji_tau_ab = divide_vec(Ji_tau_a,Ji_tau_b)
     return Ji_tau_ab
+
+def lorentzVector(pt,eta,phi,mass,i):
+    vec4 = ak.zip(
+        {
+            "pt": [pt[i]],
+            "eta": [eta[i]],
+            "phi": [phi[i]],
+            "mass": [mass[i]]
+        },
+        with_name="PtEtaPhiMLorentzVector",
+    )
+    return vec4
+
+def M_2J(j1,j2):
+    totJets = j1+j2
+    return totJets.mass
+
+def MT2Cal(FDjet0,FSMjet0,FDjet1,FSMjet1,met,metPhi):
+    Fjet0 = FDjet0 + FSMjet0
+    Fjet1 = FDjet1 + FSMjet1
+    METx = met*np.cos(metPhi)
+    METy = met*np.sin(metPhi)
+    MT2v = mt2(
+    Fjet0.mass[0], Fjet0.pt[0] * np.cos(Fjet0.phi[0]), Fjet0.pt[0] * np.sin(Fjet0.phi[0]),
+    Fjet1.mass[0], Fjet1.pt[0] * np.cos(Fjet1.phi[0]), Fjet1.pt[0] * np.sin(Fjet1.phi[0]),
+    METx, METy, 0.0, 0.0, 0
+    )
+    return MT2v
+
+def f4msmCom(pt,eta,phi,mass,met,metPhi,cut):
+    MT2 = np.Inf
+    if len(pt) >= 4:
+        List4jets_3Com = [[0,1,2,3],[0,2,1,3],[0,3,1,2]]
+        diffList = []
+        jetList = []
+        for c in List4jets_3Com:
+            jc1 = lorentzVector(pt,eta,phi,mass,c[0])
+            jc2 = lorentzVector(pt,eta,phi,mass,c[1])
+            jc3 = lorentzVector(pt,eta,phi,mass,c[2])
+            jc4 = lorentzVector(pt,eta,phi,mass,c[3])
+            jetList.append([jc1,jc2,jc3,jc4])
+            diffList.append(abs(M_2J(jc1,jc2) - M_2J(jc3,jc4)))
+        comIndex = np.argmin(diffList)
+        msmJet = jetList[comIndex]
+        # applying angular cut
+        dEtaCut = 1.8
+        dPhiCut = 0.9
+        dRCutLow = 1.5
+        dRCutHigh = 4.0
+        dPhiMETCut = 1.5
+        if cut == "dEta":
+            if deltaEta(msmJet[0].eta[0],msmJet[1].eta[0]) < dEtaCut and deltaEta(msmJet[2].eta[0],msmJet[3].eta[0]) < dEtaCut:
+                MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
+        elif cut == "dPhi":
+            if deltaPhiji(msmJet[0].phi[0],msmJet[1].phi[0]) > dPhiCut and deltaPhiji(msmJet[2].phi[0],msmJet[3].phi[0]) > dPhiCut:
+                MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
+        elif cut == "dR":
+            if (dRCutLow < delta_R(msmJet[0].eta[0],msmJet[1].eta[0],msmJet[0].phi[0],msmJet[1].phi[0]) < dRCutHigh) and (dRCutLow < delta_R(msmJet[2].eta[0],msmJet[3].eta[0],msmJet[2].phi[0],msmJet[3].phi[0]) < dRCutHigh):
+                MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
+        elif cut == "":
+            MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
+    return MT2
+
+def f4msmCom_vec(pt,eta,phi,mass,met,metPhi,cut):
+    vfunc = np.vectorize(lambda pt,eta,phi,mass,met,metPhi,cut: f4msmCom(pt,eta,phi,mass,met,metPhi,cut))
+    return vfunc(pt,eta,phi,mass,met,metPhi,cut)
