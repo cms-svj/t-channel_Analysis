@@ -265,10 +265,6 @@ class MainProcessor(processor.ProcessorABC):
                         jetAK8Phi = fjets.phi
                         jetAK8Eta = fjets.eta
                         jetAK8M = fjets.mass
-                        MT2 = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"")
-                        MT2_dEta = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dEta")
-                        MT2_dPhi = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dPhi")
-                        MT2_dR = utl.f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dR")
                         j1_etaAK8 = utl.jetVar_vec(jetAK8Eta,0)
                         j2_etaAK8 = utl.jetVar_vec(jetAK8Eta,1)
                         j1_phiAK8 = utl.jetVar_vec(jetAK8Phi,0)
@@ -325,10 +321,6 @@ class MainProcessor(processor.ProcessorABC):
                         output['h_dEtaj12AK8'+name].fill(dEtaJ12=dEtaj12AK8,weight=evtw)
                         output['h_dRJ12AK8'+name].fill(dRJ12=deltaR12jAK8,weight=evtw)
                         output['h_mT'+name].fill(mT=mtAK8,weight=evtw)
-                        output['h_mT2_f4_msm'+name].fill(mT2=MT2,weight=evtw)
-                        output['h_mT2_f4_msm_dEta'+name].fill(mT2=MT2_dEta,weight=evtw)
-                        output['h_mT2_f4_msm_dPhi'+name].fill(mT2=MT2_dPhi,weight=evtw)
-                        output['h_mT2_f4_msm_dR'+name].fill(mT2=MT2_dR,weight=evtw)
                         output['h_METrHT_pt30'+name].fill(METrHT_pt30=metrht,weight=evtw)
                         output['h_METrST_pt30'+name].fill(METrST_pt30=metrst,weight=evtw)
                         output['h_j1Pt'+name].fill(pt=utl.jetVar_vec(jets.pt,0),weight=evtw)
