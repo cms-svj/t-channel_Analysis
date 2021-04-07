@@ -54,6 +54,13 @@ class Objects:
             tau3=df['JetsAK8_NsubjettinessTau3'].flatten(),
             softDropMass=df['JetsAK8_softDropMass'].flatten()
         )
+        self.gfjets = JaggedCandidateArray.candidatesfromcounts(
+            df['GenJetsAK8'].counts,
+            px=df['GenJetsAK8'].fP.fX.flatten(),
+            py=df['GenJetsAK8'].fP.fY.flatten(),
+            pz=df['GenJetsAK8'].fP.fZ.flatten(),
+            energy=df['GenJetsAK8'].fE.flatten(),
+        )
         # Quality cut
         self.etaCut = 2.4
         self.leptonPt = 10
@@ -77,6 +84,11 @@ class Objects:
         # # Good AK8 Jets Cut
         ak8QualityCut = (self.fjets.pt > 200) & (abs(self.fjets.eta) < self.etaCut)
         return self.fjets[ak8QualityCut]
+
+    def goodgfjets(self):
+        # # Good AK8 Jets Cut
+        ak8QualityCut = (self.gfjets.pt > 200) & (abs(self.gfjets.eta) < self.etaCut)
+        return self.gfjets[ak8QualityCut]
 
     def goodBJets(self,df,jets):
         if len(jets.flatten()) > 0:
