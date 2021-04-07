@@ -111,20 +111,37 @@ def tauRatio(tau_a,tau_b,i):
     return Ji_tau_ab
 
 def lorentzVector(pt,eta,phi,mass,i):
-    vec4 = ak.zip(
-        {
-            "pt": [pt[i]],
-            "eta": [eta[i]],
-            "phi": [phi[i]],
-            "mass": [mass[i]]
-        },
-        with_name="PtEtaPhiMLorentzVector",
-    )
-    return vec4
+    px = pt[i]*np.cos(phi[i])
+    py = pt[i]*np.sin(phi[i])
+    pz = pt[i]*np.sinh(eta[i])
+    p2 = px**2 + py**2 + pz**2
+    m2 = mass[i]**2
+    energy = np.sqrt(m2+p2)
+    return np.array([energy,px,py,pz])
+
+def mass4vec(m4vec):
+    E = m4vec[0]
+    px = m4vec[1]
+    py = m4vec[2]
+    pz = m4vec[3]
+    return np.sqrt(E**2 - (px**2 + py**2 + pz**2))
+
+def eta4vec(m4vec):
+    px = m4vec[1]
+    py = m4vec[2]
+    pz = m4vec[3]
+    pt = np.sqrt(px**2 + py**2)
+    return np.arcsinh(pz/pt)
+
+def phi4vec(m4vec):
+    px = m4vec[1]
+    py = m4vec[2]
+    pt = np.sqrt(px**2 + py**2)
+    return np.arcsin(py/pt)
 
 def M_2J(j1,j2):
     totJets = j1+j2
-    return totJets.mass
+    return mass4vec(totJets)
 
 def MT2Cal(FDjet0,FSMjet0,FDjet1,FSMjet1,met,metPhi):
     Fjet0 = FDjet0 + FSMjet0
@@ -132,8 +149,8 @@ def MT2Cal(FDjet0,FSMjet0,FDjet1,FSMjet1,met,metPhi):
     METx = met*np.cos(metPhi)
     METy = met*np.sin(metPhi)
     MT2v = mt2(
-    Fjet0.mass[0], Fjet0.pt[0] * np.cos(Fjet0.phi[0]), Fjet0.pt[0] * np.sin(Fjet0.phi[0]),
-    Fjet1.mass[0], Fjet1.pt[0] * np.cos(Fjet1.phi[0]), Fjet1.pt[0] * np.sin(Fjet1.phi[0]),
+    mass4vec(Fjet0), Fjet0[1], Fjet0[2],
+    mass4vec(Fjet1), Fjet1[1], Fjet1[2],
     METx, METy, 0.0, 0.0, 0
     )
     return MT2v
@@ -151,6 +168,11 @@ def f4msmCom(pt,eta,phi,mass,met,metPhi,cut):
             jc4 = lorentzVector(pt,eta,phi,mass,c[3])
             jetList.append([jc1,jc2,jc3,jc4])
             diffList.append(abs(M_2J(jc1,jc2) - M_2J(jc3,jc4)))
+        # print("."*50)
+        #
+        # print(diffList)
+        # print(np.argmin(diffList))
+        # print("."*50)
         comIndex = np.argmin(diffList)
         msmJet = jetList[comIndex]
         # applying angular cut
@@ -159,14 +181,15 @@ def f4msmCom(pt,eta,phi,mass,met,metPhi,cut):
         dRCutLow = 1.5
         dRCutHigh = 4.0
         dPhiMETCut = 1.5
+
         if cut == "dEta":
-            if deltaEta(msmJet[0].eta[0],msmJet[1].eta[0]) < dEtaCut and deltaEta(msmJet[2].eta[0],msmJet[3].eta[0]) < dEtaCut:
+            if deltaEta(eta4vec(msmJet[0]),eta4vec(msmJet[1])) < dEtaCut and deltaEta(eta4vec(msmJet[2]),eta4vec(msmJet[3])) < dEtaCut:
                 MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
         elif cut == "dPhi":
-            if deltaPhiji(msmJet[0].phi[0],msmJet[1].phi[0]) > dPhiCut and deltaPhiji(msmJet[2].phi[0],msmJet[3].phi[0]) > dPhiCut:
+            if deltaPhiji(phi4vec(msmJet[0]),phi4vec(msmJet[1])) < dPhiCut and deltaPhiji(phi4vec(msmJet[2]),phi4vec(msmJet[3])) > dPhiCut:
                 MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
         elif cut == "dR":
-            if (dRCutLow < delta_R(msmJet[0].eta[0],msmJet[1].eta[0],msmJet[0].phi[0],msmJet[1].phi[0]) < dRCutHigh) and (dRCutLow < delta_R(msmJet[2].eta[0],msmJet[3].eta[0],msmJet[2].phi[0],msmJet[3].phi[0]) < dRCutHigh):
+            if (dRCutLow < delta_R(eta4vec(msmJet[0]),eta4vec(msmJet[1]),phi4vec(msmJet[0]),phi4vec(msmJet[1])) < dRCutHigh) and (dRCutLow < delta_R(eta4vec(msmJet[2]),eta4vec(msmJet[3]),phi4vec(msmJet[2]),phi4vec(msmJet[3])) < dRCutHigh):
                 MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
         elif cut == "":
             MT2 = MT2Cal(msmJet[0],msmJet[1],msmJet[2],msmJet[3],met,metPhi)
