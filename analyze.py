@@ -91,11 +91,13 @@ def main():
             print('Dask client info ->', client)
             time.sleep(10)
 
+    sf = s.sfGetter(sample)
+    print("scaleFactor = {}".format(sf))
     # run processor
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(),
+        processor_instance=MainProcessor(sf),
         executor=processor.dask_executor if options.dask else processor.futures_executor,
         executor_args=exe_args,
         chunksize=options.chunksize,

@@ -1,7 +1,7 @@
 import numpy as np
 import awkward1 as ak
 
-def ttStitch(df):
+def TTStitch(df):
     dataset = df['dataset']
 
     # # TT Stiching mask
@@ -12,7 +12,7 @@ def ttStitch(df):
     genMET = df['GenMET']
 
     ttStitchMask = None
-    if "TTJets_Inc" in dataset:
+    if "TTJets_Inc" in dataset or "mTTJetsmini_Incl" in dataset:
         ttStitchMask = (madHT < 600) & (nEle==0) & (nMu==0) & (nTau==0)
     elif "TTJets_HT" in dataset:
         ttStitchMask = (madHT >= 600)
@@ -38,7 +38,7 @@ def vetoPhiSpike(etaLead,phiLead,etaSub,phiSub,rad,eta,phi):
                 break
     return veto
 
-def phiSpikeFilter(df,Jets):
+def PhiSpikeFilter(df,Jets):
     dataset = df['dataset']
     # phi spike filters
     rad = 0.028816 # half the length of the diagonal of the eta-phi rectangular cell
@@ -83,14 +83,14 @@ def METFilters(df):
     return ((gSTH == 1) & (HBHEN == 1) & (HBHEIN == 1) & (BPFM == 1) & (BCC == 1) &
     (EDCTP == 1) & (eeBS == 1) & (nV > 0))
 
-def preselection(qualityCuts,electrons,muons,met):
-    return (qualityCuts & (electrons.counts == 0) & (muons.counts == 0) & (met > 100))
-    # return ((electrons.counts == 0) & (muons.counts == 0) & (met > 100))
+def Preselection(qualityCuts,electrons,muons):
+    return (qualityCuts & (electrons.counts == 0) & (muons.counts == 0))
 
-def passTrigger(triggerPass):
-    indicesOfHighEffTrig = [11,12,13,14,67,107,108,131,8,90,98,116] # all s-channel + 5 highest signal efficiency
+def PassTrigger(triggerPass):
+    # indicesOfHighEffTrig = [4, 5, 6, 8, 9, 11, 12, 13, 14, 17, 22, 23, 24, 34, 38, 39, 40, 50, 65, 66, 67, 90, 91, 98, 99, 101, 102, 107, 108, 116, 118, 120, 131, 133, 135, 141, 142, 146] # all good triggers
+    indicesOfHighEffTrig = [11,12,13,14,67,107,108,131,8,90,98,116] # all s-channel + 5 highest signal efficiency (no muon trigger)
     # indicesOfHighEffTrig = [11,12,13,14,67,107,108,131,116] # all s-channel + 2 of the 5 highest signal efficiency (no cross MET, HT triggers, or PFJet trigger); for sanity check
-
+    # indicesOfHighEffTrig = [11,12,13,14,67,107,108] # all s-channel
     tPassedHEList = []
     tPassedList = []
     for evt in triggerPass:
@@ -104,6 +104,54 @@ def passTrigger(triggerPass):
         tPassedHEList.append(tPassedHE)
     tPassedList = ak.Array(tPassedList)
     tPassedHEList = ak.Array(tPassedHEList)
-
-    # oneTrigger = ak.count(tPassedList,axis=-1) > 0
     return ak.count(tPassedHEList,axis=-1) > 0
+
+def cutList(df,inpObj):
+    evtw = inpObj["evtw"]
+    electrons = inpObj["electrons"]
+    muons = inpObj["muons"]
+    jets = inpObj["jets"]
+    fjets = inpObj["fjets"]
+    bjets = inpObj["bjets"]
+    met = inpObj["met"]
+    triggerPass = inpObj["triggerPass"]
+    jetID = inpObj["jetID"]
+    jetIDAK8 = inpObj["jetIDAK8"]
+    ht = inpObj["ht"]
+    dPhiMinj = inpObj["dPhiMinj"]
+    dPhiMinjAK8 = inpObj["dPhiMinjAK8"]
+    deltaR12jAK8 = inpObj["deltaR12jAK8"]
+    ttStitch = TTStitch(df)
+    metFilters = METFilters(df)
+    triggerCut = PassTrigger(triggerPass)
+    psFilter = PhiSpikeFilter(df,jets)
+    qualityCuts = metFilters & psFilter & ttStitch
+    preselection = Preselection(qualityCuts,electrons,muons)
+
+    cuts = {
+            ""                          : np.ones(len(evtw),dtype=bool),
+            # "_trg"                      : triggerCut,
+            # "_qc"                       : ttStitch & metFilters & psFilter,
+            # "_qc_trg"                   : ttStitch & metFilters & psFilter & triggerCut,
+            # "_qc_trg_0l"                : ttStitch & metFilters & psFilter & triggerCut & (electrons.counts == 0) & (muons.counts == 0),
+            "_pre"                      : preselection,
+            # "_pre_ge2AK4j"              : preselection & (jets.counts >= 2) & (jetID == True),
+            # "_pre_ge2AK8j"              : preselection & (fjets.counts >= 2) & (jetIDAK8 == True),
+            "_pre_trg"                  : preselection & triggerCut,
+            ##  cuts for optimizing significance for full t-channel production
+            # "_pre_ge4AK8j_trg"          : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut,
+            # "_pre_ge4AK8j_trg_met100"   : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100),
+            # "_pre_ge4AK8j_trg_nb2"      : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (bjets.counts >= 2),
+            # "_pre_ge4AK8j_trg_dR3p3"    : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_met100_dR3p3"    : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_nb2_dR3p3"       : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (bjets.counts >= 2) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_met100_nb2"      : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (bjets.counts >= 2),
+            # "_pre_ge4AK8j_trg_met100_nb2_dR3p3"      : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (bjets.counts >= 2) & (deltaR12jAK8 < 3.3),
+            ## optimum cuts for pairProduction
+            "_pre_trg_nb5"              : preselection & triggerCut & (bjets.counts >= 5),
+            "_pre_trg_met300"           : preselection & triggerCut & (met > 300),
+            "_pre_trg_nb5_met300"       : preselection & triggerCut & (bjets.counts >= 5) & (met > 300),
+            ## cuts for NN training files
+            "_npz"                      : metFilters & psFilter & triggerCut & (electrons.counts == 0) & (muons.counts == 0),
+    }
+    return cuts
