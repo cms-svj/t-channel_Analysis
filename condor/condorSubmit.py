@@ -29,11 +29,18 @@ def main():
     parser.add_option ('-n',              dest='numfile',  type='int',                         default = 10,            help="number of files per job")
     parser.add_option ('-d',              dest='datasets', type='string',                      default = '',            help="List of datasets, comma separated")
     parser.add_option ('-c',              dest='noSubmit',                action='store_true', default = False,         help="Do not submit jobs.  Only create condor_submit.txt.")
+    parser.add_option ('-p',              dest='makeROOT',                action='store_true', default = False,         help="Make root tree instead of histograms.")
+    parser.add_option ('--pout',          dest='NNTrainOut',                                   default = "",            help="Directory to store the NN training root files.")
     parser.add_option ('-w','--workers',  dest='workers',  type='int',                         default = 2,             help='Number of workers to use for multi-worker executors (e.g. futures or condor)')
     parser.add_option ('--output',        dest='outPath',  type='string',                      default = '.',           help="Name of directory where output of each condor job goes")
     parser.add_option('-s', '--chunksize',dest='chunksize',type='int',                           default=10000,           help='Chunk size',)
     options, args = parser.parse_args()
 
+    analyzeFile = "analyze.py"
+    if options.makeROOT:
+        if options.NNTrainOut == "":
+            raise Exception("Please specify the output directory for the NN training files using --pout.")
+        analyzeFile = "analyze_root_varModule.py"
     # prepare the list of hardcoded files to transfer
     filestoTransfer = []
 
@@ -44,6 +51,9 @@ def main():
     fileParts.append("Transfer_Input_Files = %s/%s.tar.gz, %s/exestuff.tar.gz\n" % (options.outPath,"tchannel",options.outPath))
     fileParts.append("Should_Transfer_Files = YES\n")
     fileParts.append("WhenToTransferOutput = ON_EXIT\n")
+    fileParts.append("request_disk = 1000000\n")
+    fileParts.append("request_memory = 2000\n")
+    fileParts.append("request_cpus = 4\n")
     fileParts.append("x509userproxy = $ENV(X509_USER_PROXY)\n\n")
 
     # loop over all sample collections in the dataset
@@ -70,8 +80,9 @@ def main():
                 outputDir = "%s/output-files/%s" % (options.outPath, sc)
 
                 # list the output files that will be transfered to output directory
+                outfile = "MyAnalysis_%s_%s.root" % (n, startFileNum)
                 outputFiles = [
-                   "MyAnalysis_%s_%s.root" % (n, startFileNum),
+                   outfile,
                 ]
                 transfer = "transfer_output_remaps = \""
                 for f_ in outputFiles:
@@ -82,7 +93,7 @@ def main():
 
                 # add each job to the jdl file
                 fileParts.append(transfer)
-                fileParts.append("Arguments = %s %i %i %i %i\n"%(n, nFilesPerJob, startFileNum, options.workers, options.chunksize))
+                fileParts.append("Arguments = %s %i %i %i %i %s %s\n"%(n, nFilesPerJob, startFileNum, options.workers, options.chunksize,analyzeFile,options.NNTrainOut))
                 fileParts.append("Output = %s/log-files/MyAnalysis_%s_%i.stdout\n"%(options.outPath, n, startFileNum))
                 fileParts.append("Error = %s/log-files/MyAnalysis_%s_%i.stderr\n"%(options.outPath, n, startFileNum))
                 fileParts.append("Log = %s/log-files/MyAnalysis_%s_%i.log\n"%(options.outPath, n, startFileNum))
@@ -104,7 +115,7 @@ def main():
         print("Making the tar ball")
         makeExeAndFriendsTarball(filestoTransfer, "exestuff", options.outPath)
         #system("tar --exclude-caches-all --exclude-vcs -zcf %s/tchannel.tar.gz -C ${TCHANNEL_BASE}/.. tchannel --exclude=src --exclude=tmp" % options.outPath)
-        system("tar czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} . --exclude=EventLoopFramework --exclude=condor --exclude=notebooks --exclude=root --exclude=.git --exclude=coffeaenv.tar.gz" % options.outPath)
+        system("tar czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} . --exclude=EventLoopFramework --exclude=test --exclude=output --exclude=condor --exclude=notebooks --exclude=root --exclude=.git --exclude=coffeaenv.tar.gz" % options.outPath)
 
         # submit the jobs to condor
         system('mkdir -p %s/log-files' % options.outPath)
