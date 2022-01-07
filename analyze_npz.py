@@ -55,92 +55,8 @@ def use_dask(condor,njobs,port):
     return exe_args
 
 def dataStream(output,fname):
-    np.savez(
-    fname,
-    evtw=output["evtw"].value,
-    jw=output["jw"].value,
-    fjw=output["fjw"].value,
-    njets=output["njets"].value,
-    njetsAK8=output["njetsAK8"].value,
-    nb=output["nb"].value,
-    nl=output["nl"].value,
-    ht=output["ht"].value,
-    st=output["st"].value,
-    met=output["met"].value,
-    madHT=output["madHT"].value,
-    jPt=output["jPt"].value,
-    jEta=output["jEta"].value,
-    jPhi=output["jPhi"].value,
-    jAxismajor=output["jAxismajor"].value,
-    jAxisminor=output["jAxisminor"].value,
-    jPtD=output["jPtD"].value,
-    dPhiMinjMET=output["dPhiMinjMET"].value,
-    dEtaj12=output["dEtaj12"].value,
-    dRJ12=output["dRJ12"].value,
-    jPtAK8=output["jPtAK8"].value,
-    jEtaAK8=output["jEtaAK8"].value,
-    jPhiAK8=output["jPhiAK8"].value,
-    jAxismajorAK8=output["jAxismajorAK8"].value,
-    jAxisminorAK8=output["jAxisminorAK8"].value,
-    jGirthAK8=output["jGirthAK8"].value,
-    jPtDAK8=output["jPtDAK8"].value,
-    jTau1AK8=output["jTau1AK8"].value,
-    jTau2AK8=output["jTau2AK8"].value,
-    jTau3AK8=output["jTau3AK8"].value,
-    jTau21AK8=output["jTau21AK8"].value,
-    jTau32AK8=output["jTau32AK8"].value,
-    jSoftDropMassAK8=output["jSoftDropMassAK8"].value,
-    dPhiMinjMETAK8=output["dPhiMinjMETAK8"].value,
-    dEtaj12AK8=output["dEtaj12AK8"].value,
-    dRJ12AK8=output["dRJ12AK8"].value,
-    mT=output["mT"].value,
-    METrHT_pt30=output["METrHT_pt30"].value,
-    METrST_pt30=output["METrST_pt30"].value,
-    j1Pt=output["j1Pt"].value,
-    j1Eta=output["j1Eta"].value,
-    j1Phi=output["j1Phi"].value,
-    j1Axismajor=output["j1Axismajor"].value,
-    j1Axisminor=output["j1Axisminor"].value,
-    j1PtD=output["j1PtD"].value,
-    dPhij1MET=output["dPhij1MET"].value,
-    j2Pt=output["j2Pt"].value,
-    j2Eta=output["j2Eta"].value,
-    j2Phi=output["j2Phi"].value,
-    j2Axismajor=output["j2Axismajor"].value,
-    j2Axisminor=output["j2Axisminor"].value,
-    j2PtD=output["j2PtD"].value,
-    dPhij2MET=output["dPhij2MET"].value,
-    dPhij1rdPhij2=output["dPhij1rdPhij2"].value,
-    j1PtAK8=output["j1PtAK8"].value,
-    j1EtaAK8=output["j1EtaAK8"].value,
-    j1PhiAK8=output["j1PhiAK8"].value,
-    j1AxismajorAK8=output["j1AxismajorAK8"].value,
-    j1AxisminorAK8=output["j1AxisminorAK8"].value,
-    j1GirthAK8=output["j1GirthAK8"].value,
-    j1PtDAK8=output["j1PtDAK8"].value,
-    j1Tau1AK8=output["j1Tau1AK8"].value,
-    j1Tau2AK8=output["j1Tau2AK8"].value,
-    j1Tau3AK8=output["j1Tau3AK8"].value,
-    j1Tau21AK8=output["j1Tau21AK8"].value,
-    j1Tau32AK8=output["j1Tau32AK8"].value,
-    j1SoftDropMassAK8=output["j1SoftDropMassAK8"].value,
-    dPhij1METAK8=output["dPhij1METAK8"].value,
-    j2PtAK8=output["j2PtAK8"].value,
-    j2EtaAK8=output["j2EtaAK8"].value,
-    j2PhiAK8=output["j2PhiAK8"].value,
-    j2AxismajorAK8=output["j2AxismajorAK8"].value,
-    j2AxisminorAK8=output["j2AxisminorAK8"].value,
-    j2GirthAK8=output["j2GirthAK8"].value,
-    j2PtDAK8=output["j2PtDAK8"].value,
-    j2Tau1AK8=output["j2Tau1AK8"].value,
-    j2Tau2AK8=output["j2Tau2AK8"].value,
-    j2Tau3AK8=output["j2Tau3AK8"].value,
-    j2Tau21AK8=output["j2Tau21AK8"].value,
-    j2Tau32AK8=output["j2Tau32AK8"].value,
-    j2SoftDropMassAK8=output["j2SoftDropMassAK8"].value,
-    dPhij2METAK8=output["dPhij2METAK8"].value,
-    dPhij1rdPhij2AK8=output["dPhij1rdPhij2AK8"].value
-    )
+    values_dict = {v:output[v].value for v in output.keys()}
+    np.savez_compressed(fname, **values_dict)
 
 def main():
     # start run time clock
@@ -165,6 +81,7 @@ def main():
     sample = options.dataset
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
+    outfile = "MyAnalysis_%s_%d" % (sample, options.startFile) if options.condor or options.dask else "test"
 
     # get processor args
     exe_args = {'workers': options.workers, 'flatten': False}
@@ -178,11 +95,13 @@ def main():
             print('Dask client info ->', client)
             time.sleep(10)
 
+    sf = s.sfGetter(sample)
+    print("scaleFactor = {}".format(sf))
     # run processor
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(),
+        processor_instance=MainProcessor(sf),
         executor=processor.dask_executor if options.dask else processor.futures_executor,
         executor_args=exe_args,
         chunksize=options.chunksize,
@@ -191,7 +110,7 @@ def main():
 
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
-    dataStream(output, sample)
+    dataStream(output, outfile)
 
     # print run time in seconds
     dt = time.time() - tstart
@@ -199,3 +118,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#python analyze_npz.py -d [filename] -w 2 -s 10000
