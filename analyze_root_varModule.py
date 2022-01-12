@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 
 from coffea import hist, processor
-from processors.mainProcessor import MainProcessor
+from processors.rootProcessor_varModule import MainProcessor
 import uproot
 import sys,os
 from utils import samples as s
 import time
 from optparse import OptionParser
 from glob import glob
+import numpy as np
 
 def use_dask(condor,njobs,port):
     from dask.distributed import Client
@@ -74,10 +75,9 @@ def main():
 
     # set output root file
     sample = options.dataset
-    outfile = "MyAnalysis_%s_%d.root" % (sample, options.startFile) if options.condor or options.dask else "test.root"
-
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
+    outfile = "MyAnalysis_%s_%d" % (sample, options.startFile) if options.condor or options.dask else "test"
 
     # get processor args
     exe_args = {'workers': options.workers, 'flatten': False}
@@ -106,16 +106,22 @@ def main():
 
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
-    fout = uproot.recreate(outfile)
-    if isinstance(output,tuple): output = output[0]
-    for key,H in output.items():
-        if type(H) is hist.Hist and H._sumw2 is not None:
-            fout[key] = hist.export1d(H)
-    fout.close()
-
+    values_dict = {}
+    branchdict = {}
+    for v in output.keys():
+        if len(output[v].value) > 0:
+            branchdict[v] = uproot.newbranch("f4")
+            values_dict[v] = output[v].value
+    tree = uproot.newtree(branchdict)
+    if values_dict != {}:
+        with uproot.recreate("{}.root".format(outfile)) as f:
+            f["t"] = tree
+            f["t"].extend(values_dict)
     # print run time in seconds
     dt = time.time() - tstart
     print("run time: %.2f [sec]" % (dt))
 
 if __name__ == "__main__":
     main()
+
+#python analyze_npz.py -d [filename] -w 2 -s 10000
