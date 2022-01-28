@@ -113,7 +113,7 @@ class Objects:
 
     def goodGenFatJets(self):
         # # Good AK8 Jets Cut
-        ak8QualityCut = self.gfjets.pt > 0 & (abs(self.gfjets.eta) < 5.0)
+        ak8QualityCut = self.gfjets.pt > 170 & (abs(self.gfjets.eta) < 5.0)
         return self.gfjets[ak8QualityCut]
 
     def goodBJets(self,df,jets):
@@ -155,17 +155,6 @@ def inpObj(df,scaleFactor):
     inpObj["ht"] = ak.sum(inpObj["jets"].pt,axis=1)
     inpObj["dPhiMinj"] = utl.deltaPhi(inpObj["jets"].phi,inpObj["metPhi"]).min()
     inpObj["dPhiMinjAK8"] = utl.deltaPhi(inpObj["fjets"].phi,inpObj["metPhi"]).min()
-    ## matching AK8 Jet to AK8 GenJet to get jet category for AK8 Jet
-    ## GenJetsAK8_hvCategory is only present in the signal samples, not the V17 background
-    # jetCats = []
-    # jetsAK8GenInd = df["JetsAK8_genIndex"][obj.goodFatJetCut()]
-    # for gji in range(len(jetsAK8GenInd)):
-    #     genInd = jetsAK8GenInd[gji]
-    #     genCat = df["GenJetsAK8_hvCategory"][gji]
-    #     jetCats.append(list(genCat[genInd]))
-    # jetCats = ak.Array(jetCats)
-    # inpObj["JetsAK8_hvCategory"] = jetCats
-    # inpObj["GenJetsAK8_hvCategory"] = df['GenJetsAK8_hvCategory']
     jetAK8Eta = inpObj["fjets"].eta
     jetAK8Phi = inpObj["fjets"].phi
     j1_etaAK8 = utl.jetVar_vec(jetAK8Eta,0)
@@ -173,6 +162,19 @@ def inpObj(df,scaleFactor):
     j1_phiAK8 = utl.jetVar_vec(jetAK8Phi,0)
     j2_phiAK8 = utl.jetVar_vec(jetAK8Phi,1)
     inpObj["deltaR12jAK8"] = utl.delta_R(j1_etaAK8,j2_etaAK8,j1_phiAK8,j2_phiAK8)
+    ## matching AK8 Jet to AK8 GenJet to get jet category for AK8 Jet
+    ## still need to fix this, not working fully yet
+    ## GenJetsAK8_hvCategory is only present in the signal samples, not the V17 background
+    # jetCats = []
+    # jetsAK8GenInd = df["JetsAK8_genIndex"][obj.goodFatJetCut()]
+    # for gji in range(len(jetsAK8GenInd)):
+    #     genInd = jetsAK8GenInd[gji]
+    #     genCat = df["GenJetsAK8_hvCategory"][gji]
+    #     if len(genCat) > 0:
+    #         jetCats.append(list(genCat[genInd]))
+    # jetCats = ak.Array(jetCats)
+    # inpObj["JetsAK8_hvCategory"] = jetCats
+    # inpObj["GenJetsAK8_hvCategory"] = df['GenJetsAK8_hvCategory']
     # inpObj["GenMT2_AK8"] = df['GenMT2_AK8']
     # inpObj["GenJetsAK8_darkPtFrac"] = df['GenJetsAK8_darkPtFrac']
 

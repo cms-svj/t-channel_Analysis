@@ -83,8 +83,8 @@ def METFilters(df):
     return ((gSTH == 1) & (HBHEN == 1) & (HBHEIN == 1) & (BPFM == 1) & (BCC == 1) &
     (EDCTP == 1) & (eeBS == 1) & (nV > 0))
 
-def Preselection(qualityCuts,electrons,muons):
-    return (qualityCuts & (electrons.counts == 0) & (muons.counts == 0))
+def Preselection(qualityCuts,nl):
+    return (qualityCuts & (nl == 0))
 
 def PassTrigger(triggerPass):
     # indicesOfHighEffTrig = [4, 5, 6, 8, 9, 11, 12, 13, 14, 17, 22, 23, 24, 34, 38, 39, 40, 50, 65, 66, 67, 90, 91, 98, 99, 101, 102, 107, 108, 116, 118, 120, 131, 133, 135, 141, 142, 146] # all good triggers
@@ -106,27 +106,27 @@ def PassTrigger(triggerPass):
     tPassedHEList = ak.Array(tPassedHEList)
     return ak.count(tPassedHEList,axis=-1) > 0
 
-def cutList(df,inpObj):
-    evtw = inpObj["evtw"]
-    electrons = inpObj["electrons"]
-    muons = inpObj["muons"]
-    jets = inpObj["jets"]
-    fjets = inpObj["fjets"]
-    bjets = inpObj["bjets"]
-    met = inpObj["met"]
-    triggerPass = inpObj["triggerPass"]
-    jetID = inpObj["jetID"]
-    jetIDAK8 = inpObj["jetIDAK8"]
-    ht = inpObj["ht"]
-    dPhiMinj = inpObj["dPhiMinj"]
-    dPhiMinjAK8 = inpObj["dPhiMinjAK8"]
-    deltaR12jAK8 = inpObj["deltaR12jAK8"]
+def cutList(df,vars_noCut):
+    evtw = vars_noCut["evtw"][0]
+    nl = vars_noCut["nl"][0]
+    njets = vars_noCut["njets"][0]
+    njetsAK8 = vars_noCut["njetsAK8"][0]
+    nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]
+    nb = vars_noCut["nb"][0]
+    met = vars_noCut["met"][0]
+    ht = vars_noCut["ht"][0]
+    dPhiMinj = vars_noCut["dPhiMinjMET"][0]
+    dPhiMinjAK8 = vars_noCut["dPhiMinjMETAK8"][0]
+    deltaR12jAK8 = vars_noCut["dRJ12AK8"][0]
+    triggerPass = df["TriggerPass"]
+    jetID = df["JetID"]
+    jetIDAK8 = df["JetIDAK8"]
     ttStitch = TTStitch(df)
     metFilters = METFilters(df)
     triggerCut = PassTrigger(triggerPass)
-    psFilter = PhiSpikeFilter(df,jets)
-    qualityCuts = metFilters & psFilter & ttStitch
-    preselection = Preselection(qualityCuts,electrons,muons)
+    psFilter = PhiSpikeFilter(df,vars_noCut['jets'])
+    qualityCuts = metFilters & psFilter & ttStitch & (njets >= 2) & (jetID == True)
+    preselection = Preselection(qualityCuts,nl)
 
     cuts = {
             ""                          : np.ones(len(evtw),dtype=bool),
@@ -134,24 +134,40 @@ def cutList(df,inpObj):
             # "_qc"                       : ttStitch & metFilters & psFilter,
             # "_qc_trg"                   : ttStitch & metFilters & psFilter & triggerCut,
             # "_qc_trg_0l"                : ttStitch & metFilters & psFilter & triggerCut & (electrons.counts == 0) & (muons.counts == 0),
-            "_pre"                      : preselection,
-            # "_pre_ge2AK4j"              : preselection & (jets.counts >= 2) & (jetID == True),
-            # "_pre_ge2AK8j"              : preselection & (fjets.counts >= 2) & (jetIDAK8 == True),
-            "_pre_trg"                  : preselection & triggerCut,
+            # "_pre"                      : preselection,
+            # "_pre_ge2AK4j"              : preselection & (njets >= 2) & (jetID == True),
+            # "_pre_ge2AK8j"              : preselection & (njetsAK8 >= 2) & (jetIDAK8 == True),
+            "_pre_trg"                    : preselection & triggerCut,
+            "_pre_trg_1PSVJ"              : preselection & triggerCut & (nsvjJetsAK8 >= 1) & (jetIDAK8 == True),
+            "_pre_trg_2PSVJ"              : preselection & triggerCut & (nsvjJetsAK8 >= 2) & (jetIDAK8 == True),
+            # nsvjJetsAK8 characterization
+            "_pre_trg_0SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 0) & (jetIDAK8 == True),
+            "_pre_trg_1SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 1) & (jetIDAK8 == True),
+            "_pre_trg_2SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 2) & (jetIDAK8 == True),
+            "_pre_trg_3SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 3) & (jetIDAK8 == True),
+            "_pre_trg_4SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 4) & (jetIDAK8 == True),
+            "_pre_trg_5PSVJ"             : preselection & triggerCut & (nsvjJetsAK8 >= 5) & (jetIDAK8 == True),
+            ## njetsAK8 characterization
+            # "_pre_trg_0FJ"              : preselection & triggerCut & (njetsAK8 == 0) & (jetIDAK8 == True),
+            # "_pre_trg_1FJ"              : preselection & triggerCut & (njetsAK8 == 1) & (jetIDAK8 == True),
+            # "_pre_trg_2FJ"              : preselection & triggerCut & (njetsAK8 == 2) & (jetIDAK8 == True),
+            # "_pre_trg_3FJ"              : preselection & triggerCut & (njetsAK8 == 3) & (jetIDAK8 == True),
+            # "_pre_trg_4FJ"              : preselection & triggerCut & (njetsAK8 == 4) & (jetIDAK8 == True),
+            # "_pre_trg_5PFJ"             : preselection & triggerCut & (njetsAK8 >= 5) & (jetIDAK8 == True),
             ##  cuts for optimizing significance for full t-channel production
-            # "_pre_ge4AK8j_trg"          : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut,
-            # "_pre_ge4AK8j_trg_met100"   : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100),
-            # "_pre_ge4AK8j_trg_nb2"      : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (bjets.counts >= 2),
-            # "_pre_ge4AK8j_trg_dR3p3"    : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (deltaR12jAK8 < 3.3),
-            # "_pre_ge4AK8j_trg_met100_dR3p3"    : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (deltaR12jAK8 < 3.3),
-            # "_pre_ge4AK8j_trg_nb2_dR3p3"       : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (bjets.counts >= 2) & (deltaR12jAK8 < 3.3),
-            # "_pre_ge4AK8j_trg_met100_nb2"      : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (bjets.counts >= 2),
-            # "_pre_ge4AK8j_trg_met100_nb2_dR3p3"      : preselection & (fjets.counts >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (bjets.counts >= 2) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg"          : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut,
+            # "_pre_ge4AK8j_trg_met100"   : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100),
+            # "_pre_ge4AK8j_trg_nb2"      : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (nb >= 2),
+            # "_pre_ge4AK8j_trg_dR3p3"    : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_met100_dR3p3"    : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_nb2_dR3p3"       : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (nb >= 2) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_met100_nb2"      : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (nb >= 2),
+            # "_pre_ge4AK8j_trg_met100_nb2_dR3p3"      : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (nb >= 2) & (deltaR12jAK8 < 3.3),
             ## optimum cuts for pairProduction
-            "_pre_trg_nb5"              : preselection & triggerCut & (bjets.counts >= 5),
-            "_pre_trg_met300"           : preselection & triggerCut & (met > 300),
-            "_pre_trg_nb5_met300"       : preselection & triggerCut & (bjets.counts >= 5) & (met > 300),
+            # "_pre_trg_nb5"              : preselection & triggerCut & (nb >= 5),
+            # "_pre_trg_met300"           : preselection & triggerCut & (met > 300),
+            # "_pre_trg_nb5_met300"       : preselection & triggerCut & (nb >= 5) & (met > 300),
             ## cuts for NN training files
-            "_npz"                      : metFilters & psFilter & triggerCut & (electrons.counts == 0) & (muons.counts == 0),
+            # "_npz"                      : metFilters & psFilter & triggerCut & (electrons.counts == 0) & (muons.counts == 0),
     }
     return cuts
