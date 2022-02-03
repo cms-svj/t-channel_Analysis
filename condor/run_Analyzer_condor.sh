@@ -44,7 +44,7 @@ if [[ ${analyzeFile} == analyze.py ]]
 then
   mv MyAnalysis*.root ${base_dir}
 else
-  xrdcp -f MyAnalysis*.root ${NNTrainingOut}.
+  xrdcp -f MyAnalysis*.root ${NNTrainingOut}/.
   rm MyAnalysis*.root
 fi
 

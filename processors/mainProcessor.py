@@ -6,7 +6,6 @@ from utils import utility as utl
 import utils.objects as ob
 from utils import baseline as bl
 from utils.variables import variables
-from itertools import combinations
 from utils.runNeuralNetwork import runNN
 
 class MainProcessor(processor.ProcessorABC):

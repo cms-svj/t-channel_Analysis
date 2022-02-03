@@ -106,12 +106,11 @@ def PassTrigger(triggerPass):
     tPassedHEList = ak.Array(tPassedHEList)
     return ak.count(tPassedHEList,axis=-1) > 0
 
-def cutList(df,vars_noCut):
+def cutList(df,vars_noCut,SVJCut=True):
     evtw = vars_noCut["evtw"][0]
     nl = vars_noCut["nl"][0]
     njets = vars_noCut["njets"][0]
     njetsAK8 = vars_noCut["njetsAK8"][0]
-    nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]
     nb = vars_noCut["nb"][0]
     met = vars_noCut["met"][0]
     ht = vars_noCut["ht"][0]
@@ -125,7 +124,8 @@ def cutList(df,vars_noCut):
     metFilters = METFilters(df)
     triggerCut = PassTrigger(triggerPass)
     psFilter = PhiSpikeFilter(df,vars_noCut['jets'])
-    qualityCuts = metFilters & psFilter & ttStitch & (njets >= 2) & (jetID == True)
+    # qualityCuts = metFilters & psFilter & ttStitch & (njets >= 2)
+    qualityCuts = metFilters & psFilter & (njets >= 2) # low pT AK8Jet study
     preselection = Preselection(qualityCuts,nl)
 
     cuts = {
@@ -134,40 +134,52 @@ def cutList(df,vars_noCut):
             # "_qc"                       : ttStitch & metFilters & psFilter,
             # "_qc_trg"                   : ttStitch & metFilters & psFilter & triggerCut,
             # "_qc_trg_0l"                : ttStitch & metFilters & psFilter & triggerCut & (electrons.counts == 0) & (muons.counts == 0),
-            # "_pre"                      : preselection,
-            # "_pre_ge2AK4j"              : preselection & (njets >= 2) & (jetID == True),
-            # "_pre_ge2AK8j"              : preselection & (njetsAK8 >= 2) & (jetIDAK8 == True),
-            "_pre_trg"                    : preselection & triggerCut,
-            "_pre_trg_1PSVJ"              : preselection & triggerCut & (nsvjJetsAK8 >= 1) & (jetIDAK8 == True),
-            "_pre_trg_2PSVJ"              : preselection & triggerCut & (nsvjJetsAK8 >= 2) & (jetIDAK8 == True),
-            # nsvjJetsAK8 characterization
-            "_pre_trg_0SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 0) & (jetIDAK8 == True),
-            "_pre_trg_1SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 1) & (jetIDAK8 == True),
-            "_pre_trg_2SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 2) & (jetIDAK8 == True),
-            "_pre_trg_3SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 3) & (jetIDAK8 == True),
-            "_pre_trg_4SVJ"              : preselection & triggerCut & (nsvjJetsAK8 == 4) & (jetIDAK8 == True),
-            "_pre_trg_5PSVJ"             : preselection & triggerCut & (nsvjJetsAK8 >= 5) & (jetIDAK8 == True),
+            # "_pre"                        : preselection,
+            # "_pre_ge2AK4j"              : preselection & (njets >= 2),
+            # "_pre_ge2AK8j"              : preselection & (njetsAK8 >= 2),
+            # "_pre_trg"                    : preselection & triggerCut,
             ## njetsAK8 characterization
-            # "_pre_trg_0FJ"              : preselection & triggerCut & (njetsAK8 == 0) & (jetIDAK8 == True),
-            # "_pre_trg_1FJ"              : preselection & triggerCut & (njetsAK8 == 1) & (jetIDAK8 == True),
-            # "_pre_trg_2FJ"              : preselection & triggerCut & (njetsAK8 == 2) & (jetIDAK8 == True),
-            # "_pre_trg_3FJ"              : preselection & triggerCut & (njetsAK8 == 3) & (jetIDAK8 == True),
-            # "_pre_trg_4FJ"              : preselection & triggerCut & (njetsAK8 == 4) & (jetIDAK8 == True),
-            # "_pre_trg_5PFJ"             : preselection & triggerCut & (njetsAK8 >= 5) & (jetIDAK8 == True),
+            # "_pre_trg_0FJ"              : preselection & triggerCut & (njetsAK8 == 0),
+            # "_pre_trg_1FJ"              : preselection & triggerCut & (njetsAK8 == 1),
+            # "_pre_trg_2FJ"              : preselection & triggerCut & (njetsAK8 == 2),
+            # "_pre_trg_3FJ"              : preselection & triggerCut & (njetsAK8 == 3),
+            # "_pre_trg_4FJ"              : preselection & triggerCut & (njetsAK8 == 4),
+            # "_pre_trg_5PFJ"             : preselection & triggerCut & (njetsAK8 >= 5),
             ##  cuts for optimizing significance for full t-channel production
-            # "_pre_ge4AK8j_trg"          : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut,
-            # "_pre_ge4AK8j_trg_met100"   : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100),
-            # "_pre_ge4AK8j_trg_nb2"      : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (nb >= 2),
-            # "_pre_ge4AK8j_trg_dR3p3"    : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (deltaR12jAK8 < 3.3),
-            # "_pre_ge4AK8j_trg_met100_dR3p3"    : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (deltaR12jAK8 < 3.3),
-            # "_pre_ge4AK8j_trg_nb2_dR3p3"       : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (nb >= 2) & (deltaR12jAK8 < 3.3),
-            # "_pre_ge4AK8j_trg_met100_nb2"      : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (nb >= 2),
-            # "_pre_ge4AK8j_trg_met100_nb2_dR3p3"      : preselection & (njetsAK8 >= 4) & (jetIDAK8 == True) & triggerCut & (met > 100) & (nb >= 2) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg"          : preselection & (njetsAK8 >= 4) & triggerCut,
+            # "_pre_ge4AK8j_trg_met100"   : preselection & (njetsAK8 >= 4) & triggerCut & (met > 100),
+            # "_pre_ge4AK8j_trg_nb2"      : preselection & (njetsAK8 >= 4) & triggerCut & (nb >= 2),
+            # "_pre_ge4AK8j_trg_dR3p3"    : preselection & (njetsAK8 >= 4) & triggerCut & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_met100_dR3p3"    : preselection & (njetsAK8 >= 4) & triggerCut & (met > 100) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_nb2_dR3p3"       : preselection & (njetsAK8 >= 4) & triggerCut & (nb >= 2) & (deltaR12jAK8 < 3.3),
+            # "_pre_ge4AK8j_trg_met100_nb2"      : preselection & (njetsAK8 >= 4) & triggerCut & (met > 100) & (nb >= 2),
+            # "_pre_ge4AK8j_trg_met100_nb2_dR3p3"      : preselection & (njetsAK8 >= 4) & triggerCut & (met > 100) & (nb >= 2) & (deltaR12jAK8 < 3.3),
             ## optimum cuts for pairProduction
             # "_pre_trg_nb5"              : preselection & triggerCut & (nb >= 5),
             # "_pre_trg_met300"           : preselection & triggerCut & (met > 300),
             # "_pre_trg_nb5_met300"       : preselection & triggerCut & (nb >= 5) & (met > 300),
             ## cuts for NN training files
-            # "_npz"                      : metFilters & psFilter & triggerCut & (electrons.counts == 0) & (muons.counts == 0),
+            "_npz"                      : metFilters & psFilter & triggerCut & (nl == 0),
+            ## cuts with no triggers
+            "_pre"                  : preselection,
+            "_pre_ge2AK8j"          : preselection & (njetsAK8 >= 2),
+            "_pre_0FJ"              : preselection & (njetsAK8 == 0),
+            "_pre_1FJ"              : preselection & (njetsAK8 == 1),
+            "_pre_2FJ"              : preselection & (njetsAK8 == 2),
+            "_pre_3FJ"              : preselection & (njetsAK8 == 3),
+            "_pre_4FJ"              : preselection & (njetsAK8 == 4),
+            "_pre_5PFJ"             : preselection & (njetsAK8 >= 5)
     }
+    # cuts with svj
+    if SVJCut == True:
+        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]
+        cuts["_pre_trg_1PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 1)
+        cuts["_pre_trg_2PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 2)
+        # nsvj characterization
+        cuts["_pre_trg_0SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 0)
+        cuts["_pre_trg_1SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 1)
+        cuts["_pre_trg_2SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 2)
+        cuts["_pre_trg_3SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 3)
+        cuts["_pre_trg_4SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 4)
+        cuts["_pre_trg_5PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 5)
     return cuts

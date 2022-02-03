@@ -93,6 +93,7 @@ def main():
 
     sf = s.sfGetter(sample)
     print("scaleFactor = {}".format(sf))
+
     # run processor
     output = processor.run_uproot_job(
         fileset,
@@ -115,8 +116,8 @@ def main():
     tree = uproot.newtree(branchdict)
     if values_dict != {}:
         with uproot.recreate("{}.root".format(outfile)) as f:
-            f["t"] = tree
-            f["t"].extend(values_dict)
+            f["tree"] = tree
+            f["tree"].extend(values_dict)
     # print run time in seconds
     dt = time.time() - tstart
     print("run time: %.2f [sec]" % (dt))

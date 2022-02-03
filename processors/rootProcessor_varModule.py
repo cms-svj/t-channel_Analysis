@@ -5,7 +5,6 @@ import awkward
 from utils import utility as utl
 import utils.objects as ob
 from utils import baseline as bl
-from itertools import combinations
 from utils.variables import variables
 
 def col_accumulator(a):
@@ -32,29 +31,29 @@ class MainProcessor(processor.ProcessorABC):
 
         def process(self, df):
                 ## objects used for cuts
-                inpObj_noCut = ob.inpObj(df,self.scaleFactor)
+                vars_noCut = utl.varGetter(df,self.scaleFactor)
                 # Our preselection
-                cuts = bl.cutList(df,inpObj_noCut)
+                cuts = bl.cutList(df,vars_noCut,SVJCut=False)
 
                 if self.setupNPArr is None:
                     self.setupNPArray(cuts,variables)
                 output = self.accumulator.identity()
 
                 # run cut loop
-                for cutName,cut in cuts.items():
-                    if cutName == "_npz":
-                        # defining objects
-                        inpObj = {}
-                        for key,item in inpObj_noCut.items():
-                            inpObj[key] = item[cut]
+                cut = cuts["_npz"]
+                weight = vars_noCut["evtw"][0][cut]
+                if len(weight) > 0:
+                    for varName,varDetail in variables.items():
+                        # only store jetAK8 variables
+                        if varDetail[4] == 1:
+                            hIn = vars_noCut[varName][0][cut]
+                            # properly flatten certain inputs
+                            if varDetail[5] == 1:
+                                hIn = hIn.flatten()
+                            elif varDetail[5] == 2:
+                                hIn = ak.flatten(hIn)
+                            output['{}'.format(varName)] += col_accumulator(hIn)
 
-                        if len(inpObj['evtw']) > 0:
-                                varValDict = utl.varGetter(inpObj)
-                                for varName,varDetail in varValDict.items():
-                                    if variables[varName][4] == 1:
-                                        output['{}'.format(varName)] += col_accumulator(varDetail[0])
-                                    elif variables[varName][4] == 2:
-                                        output['{}'.format(varName)] += col_accumulator(np.repeat(ak.to_numpy(varDetail[0]),ak.to_numpy(varValDict["njetsAK8"][0])))
                 return output
 
         def postprocess(self, accumulator):
