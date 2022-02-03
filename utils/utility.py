@@ -290,6 +290,10 @@ def varGetter(df,scaleFactor):
     fHFHad = fjets.fHFHad
     fHFEM = fjets.fHFEM
     fChEM = fjets.fChEM
+    fChHad = fjets.fChHad
+    lean = fjets.lean
+    momenthalf = fjets.momenthalf
+    mult = fjets.mult
     nPho = fjets.nPho
     nNeu = fjets.nNeu
     nNeuHad = fjets.nNeuHad
@@ -297,7 +301,7 @@ def varGetter(df,scaleFactor):
     nEle = fjets.nEle
     nChHad = fjets.nChHad
     nCh = fjets.nCh
-    mult = fjets.mult
+    ptdrlog = fjets.ptdrlog
     J_tau21 = tau2/tau1
     J_tau32 = tau3/tau2
     J1_tau21 = tauRatio(tau2,tau1,0)
@@ -359,6 +363,9 @@ def varGetter(df,scaleFactor):
     varVal['jHfHadEFractAK8'] = [fHFHad,'fjw']
     varVal['jHfEMEFractAK8'] = [fHFEM,'fjw']
     varVal['jChEMEFractAK8'] = [fChEM,'fjw']
+    varVal['jChHadEFractAK8'] = [fChHad,'fjw']
+    varVal['jLeanAK8'] = [lean,'fjw']
+    varVal['jMomentHalfAK8'] = [momenthalf,'fjw']
     varVal['jPhoMultAK8'] = [nPho,'fjw']
     varVal['jNeuMultAK8'] = [nNeu,'fjw']
     varVal['jNeuHadMultAK8'] = [nNeuHad,'fjw']
@@ -367,6 +374,7 @@ def varGetter(df,scaleFactor):
     varVal['jChHadMultAK8'] = [nChHad,'fjw']
     varVal['jChMultAK8'] = [nCh,'fjw']
     varVal['jMultAK8'] = [mult,'fjw']
+    varVal['jPtdrlogAK8'] = [ptdrlog,'fjw']
     varVal['dPhijMETAK8'] = [dPhijAK8,'fjw']
     varVal['dPhiMinjMETAK8'] = [dPhiMinjAK8,'evtw']
     varVal['dEtaj12AK8'] = [dEtaj12AK8,'evtw']
