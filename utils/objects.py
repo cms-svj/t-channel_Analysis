@@ -49,24 +49,25 @@ class Objects:
             energy=df['JetsAK8'].fE.flatten(),
             axismajor=df['JetsAK8_axismajor'].flatten(),
             axisminor=df['JetsAK8_axisminor'].flatten(),
-            girth=df['JetsAK8_girth'].flatten(),
-            ptD=df['JetsAK8_ptD'].flatten(),
-            tau1=df['JetsAK8_NsubjettinessTau1'].flatten(),
-            tau2=df['JetsAK8_NsubjettinessTau2'].flatten(),
-            tau3=df['JetsAK8_NsubjettinessTau3'].flatten(),
+            deepDoubleBDiscriminatorH=df['JetsAK8_deepDoubleBDiscriminatorH'].flatten(),
+            deepDoubleBDiscriminatorQ=df['JetsAK8_deepDoubleBDiscriminatorQ'].flatten(),
+            doubleBDiscriminator=df['JetsAK8_doubleBDiscriminator'].flatten(),
             ecfN2b1=df['JetsAK8_ecfN2b1'].flatten(),
             ecfN2b2=df['JetsAK8_ecfN2b2'].flatten(),
             ecfN3b1=df['JetsAK8_ecfN3b1'].flatten(),
             ecfN3b2=df['JetsAK8_ecfN3b2'].flatten(),
-            fEle=df['JetsAK8_electronEnergyFraction'].flatten(),
             fChEM=df['JetsAK8_chargedEmEnergyFraction'].flatten(),
             fChHad=df['JetsAK8_chargedHadronEnergyFraction'].flatten(),
+            fEle=df['JetsAK8_electronEnergyFraction'].flatten(),
             fHFEM=df['JetsAK8_hfEMEnergyFraction'].flatten(),
             fHFHad=df['JetsAK8_hfHadronEnergyFraction'].flatten(),
             fMu=df['JetsAK8_muonEnergyFraction'].flatten(),
             fNeuEM=df['JetsAK8_neutralEmEnergyFraction'].flatten(),
             fNeuHad=df['JetsAK8_neutralHadronEnergyFraction'].flatten(),
             fPho=df['JetsAK8_photonEnergyFraction'].flatten(),
+            girth=df['JetsAK8_girth'].flatten(),
+            hDiscriminatorDeep=df['JetsAK8_hDiscriminatorDeep'].flatten(),
+            jetsAK8ID = df["JetsAK8_ID"].flatten(),
             lean=df['JetsAK8_lean'].flatten(),
             momenthalf=df['JetsAK8_momenthalf'].flatten(),
             mult=df['JetsAK8_multiplicity'].flatten(),
@@ -77,9 +78,17 @@ class Objects:
             nNeu=df['JetsAK8_neutralMultiplicity'].flatten(),
             nNeuHad=df['JetsAK8_neutralHadronMultiplicity'].flatten(),
             nPho=df['JetsAK8_photonMultiplicity'].flatten(),
+            numBhadrons=df['JetsAK8_NumBhadrons'].flatten(),
+            numChadrons=df['JetsAK8_NumChadrons'].flatten(),
+            ptD=df['JetsAK8_ptD'].flatten(),
             ptdrlog=df['JetsAK8_ptdrlog'].flatten(),
             softDropMass=df['JetsAK8_softDropMass'].flatten(),
-            jetsAK8ID = df["JetsAK8_ID"].flatten()
+            tau1=df['JetsAK8_NsubjettinessTau1'].flatten(),
+            tau2=df['JetsAK8_NsubjettinessTau2'].flatten(),
+            tau3=df['JetsAK8_NsubjettinessTau3'].flatten(),
+            tDiscriminatorDeep=df['JetsAK8_tDiscriminatorDeep'].flatten(),
+            wDiscriminatorDeep=df['JetsAK8_wDiscriminatorDeep'].flatten(),
+            zDiscriminatorDeep=df['JetsAK8_zDiscriminatorDeep'].flatten()
         )
         self.gfjets = JaggedCandidateArray.candidatesfromcounts(
             df['GenJetsAK8'].counts,
@@ -107,15 +116,13 @@ class Objects:
         ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < 5.0) & (self.jets.jetsID == True)
         return self.jets[ak4QualityCut]
 
-    def goodFatJets(self):
-        # # Good AK8 Jets Cut
-        ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0) & (self.fjets.jetsAK8ID == True)
-        return self.fjets[ak8QualityCut]
-
     def goodFatJetCut(self):
         # # Good AK8 Jets Cut
         ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0) & (self.fjets.jetsAK8ID == True)
         return ak8QualityCut
+
+    def goodFatJets(self):
+        return self.fjets[self.goodFatJetCut()]
 
     def goodGenFatJets(self):
         # # Good AK8 Jets Cut
