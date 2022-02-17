@@ -99,7 +99,14 @@ To make histograms locally using the signal and background ntuples, make sure yo
 ```bash
 python analyze.py -d <sample label> -N <number of files>
 ```
-This is usually done for debugging and testing purposes. The list of sample labels can be found in `input/sampleLabels.txt`.
+To make neural network training files locally using the signal and background ntuples, make sure you are in `t-channel_Analysis`
+```bash
+python analyze_root_varModule.py -d <sample label> -N <number of files>
+```
+In both cases, the output files are called `test.root`.
+<sample label> can be anything in the `input/sampleLabels.txt`, but be careful with the t-channel signals, because the JSON files contain both the pair production and full t-channel files. So for example, `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1` alone will probably make the code run over the pair production sample. We need to update `utils/samples.py` to make it smarter, but now just use <sample label> that are more specific. For example, `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM` will grab the full t-channel samples, while `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-pythia8` will grab the pair production samples.
+
+Running things locally is usually done for debugging and testing purposes.
 * `-d`: sample labels for list of input files to run over, which can be found in `input/sampleLabels.txt`.
 * `-N`: number of files from the sample to run over. Default is -1.
 * `-M`: index of the first file to run over.
