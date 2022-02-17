@@ -8,7 +8,6 @@ chunksize=$5
 analyzeFile=$6
 NNTrainingOut=$7
 base_dir=`pwd`
-LCG=/cvmfs/sft.cern.ch/lcg/views/LCG_96python3/x86_64-centos7-gcc8-opt
 
 echo "ls output"
 ls -l
@@ -24,8 +23,6 @@ ls -l
 $ECHO "\nSetting up the activation script for the virtual environment ... "
 sed -i '40s/.*/VIRTUAL_ENV="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}" )")" \&\& pwd)"/' myenv/bin/activate
 find myenv/bin/ -type f -print0 | xargs -0 -P 4 sed -i '1s/#!.*python$/#!\/usr\/bin\/env python/'
-sed -i "2a source ${LCG}/setup.sh"'\nexport PYTHONPATH=""' myenv/bin/activate
-sed -i "4a source ${LCG}/setup.csh"'\nsetenv PYTHONPATH ""' myenv/bin/activate.csh
 echo "Activating our virtual environment"
 source myenv/bin/activate
 storage_dir=$(readlink -f $PWD)
