@@ -11,8 +11,9 @@ def col_accumulator(a):
     return processor.column_accumulator(np.array(a))
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,sf):
+        def __init__(self,dataset,sf):
             self._accumulator = processor.dict_accumulator({})
+            self.dataset = dataset
             self.setupNPArr = None
             self.scaleFactor = sf
         @property
@@ -31,7 +32,7 @@ class MainProcessor(processor.ProcessorABC):
 
         def process(self, df):
                 ## objects used for cuts
-                vars_noCut = utl.varGetter(df,self.scaleFactor)
+                vars_noCut = utl.varGetter(df,self.dataset,self.scaleFactor)
                 # Our preselection
                 cuts = bl.cutList(df,vars_noCut,SVJCut=False)
 

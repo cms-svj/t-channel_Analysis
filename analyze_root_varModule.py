@@ -98,7 +98,7 @@ def main():
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(sf),
+        processor_instance=MainProcessor(sample,sf),
         executor=processor.dask_executor if options.dask else processor.futures_executor,
         executor_args=exe_args,
         chunksize=options.chunksize,
@@ -115,6 +115,7 @@ def main():
             values_dict[v] = output[v].value
     tree = uproot.newtree(branchdict)
     if values_dict != {}:
+        print("saving root files...")
         with uproot.recreate("{}.root".format(outfile)) as f:
             f["tree"] = tree
             f["tree"].extend(values_dict)
