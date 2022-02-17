@@ -9,9 +9,10 @@ from utils.variables import variables
 from utils.runNeuralNetwork import runNN
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,sf,model,varSet,normMean,normStd):
+        def __init__(self,dataset,sf,model,varSet,normMean,normStd):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
+                self.dataset = dataset
                 self.scaleFactor = sf
                 self.model = model
                 self.varSet = varSet
@@ -32,7 +33,7 @@ class MainProcessor(processor.ProcessorABC):
         def process(self, df):
                 # cut loop
                 ## objects used for cuts
-                vars_noCut = utl.varGetter(df,self.scaleFactor)
+                vars_noCut = utl.varGetter(df,self.dataset,self.scaleFactor)
                 runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
                 # Our preselection
                 cuts = bl.cutList(df,vars_noCut)
@@ -51,6 +52,8 @@ class MainProcessor(processor.ProcessorABC):
                     if len(weight) > 0:
                         ## filling histograms
                         for varName,varDetail in variables.items():
+                            if len(vars_noCut[varName][0]) != len(cut):
+                                print(len(vars_noCut[varName][0]),len(cut))
                             hIn = vars_noCut[varName][0][cut]
                             hW = weight
                             wKey = vars_noCut[varName][1]

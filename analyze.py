@@ -116,7 +116,7 @@ def main():
         fileset,
         treename='TreeMaker2/PreSelection',
         # processor_instance=MainProcessor(sf,model,varSet,normMean,normStd),
-        processor_instance=MainProcessor(sf,model,varSet,normMean,normStd),
+        processor_instance=MainProcessor(sample,sf,model,varSet,normMean,normStd),
         executor=processor.dask_executor if options.dask else processor.futures_executor,
         executor_args=exe_args,
         chunksize=options.chunksize,
