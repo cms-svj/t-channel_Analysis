@@ -2,12 +2,16 @@
 
 from coffea import hist, processor
 from processors.mainProcessor import MainProcessor
-import uproot
+import uproot3
 import sys,os
 from utils import samples as s
 import time
 from optparse import OptionParser
 from glob import glob
+import numpy as np
+# from magiconfig import MagiConfig
+# from utils.models import DNN, DNN_GRF
+# import torch
 
 def use_dask(condor,njobs,port):
     from dask.distributed import Client
@@ -80,7 +84,7 @@ def main():
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
 
     # get processor args
-    exe_args = {'workers': options.workers, 'flatten': False}
+    exe_args = {'workers': options.workers, 'schema': processor.TreeMakerSchema}
     if options.dask:
         exe_args = use_dask(options.condor,options.workers,options.port)
         if options.quiet: exe_args['status'] = False
@@ -93,11 +97,26 @@ def main():
 
     sf = s.sfGetter(sample)
     print("scaleFactor = {}".format(sf))
+    # open saved neural network
+    # device = torch.device('cpu')
+    # modelLocation = "."
+    # varSet = ['njets', 'njetsAK8', 'nb', 'dPhij1rdPhij2AK8', 'dPhiMinjMETAK8', 'dEtaj12AK8', 'dRJ12AK8', 'jGirthAK8', 'jTau1AK8', 'jTau2AK8', 'jTau3AK8', 'jTau21AK8', 'jTau32AK8', 'jSoftDropMassAK8', 'jAxisminorAK8', 'jAxismajorAK8', 'jPtDAK8', 'jecfN2b1AK8', 'jecfN3b1AK8', 'jEleEFractAK8', 'jMuEFractAK8', 'jNeuHadEFractAK8', 'jPhoEFractAK8', 'jPhoMultAK8', 'jNeuMultAK8', 'jNeuHadMultAK8', 'jMuMultAK8', 'jEleMultAK8', 'jChHadMultAK8', 'jChMultAK8', 'jNeuEmEFractAK8', 'jHfHadEFractAK8', 'jHfEMEFractAK8', 'jChEMEFractAK8', 'jMultAK8', 'jecfN3b2AK8', 'jecfN2b2AK8', 'jPhiAK8', 'jEtaAK8']
+    # hyper = MagiConfig(batchSize=2000, dropout=0.3, epochs=10, lambdaDC=0.0, lambdaGR=1.0, lambdaReg=0.0, lambdaTag=1.0, learning_rate=0.001, n_pTBins=35, num_of_layers_features=2, num_of_layers_pT=5, num_of_layers_tag=2, num_of_nodes=40, pTBins=[50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500], rseed=30)
+    # model = DNN_GRF(n_var=len(varSet),  n_layers_features=hyper.num_of_layers_features, n_layers_tag=hyper.num_of_layers_tag, n_layers_pT=hyper.num_of_layers_pT, n_nodes=hyper.num_of_nodes, n_outputs=2, n_pTBins=hyper.n_pTBins, drop_out_p=hyper.dropout).to(device=device)
+    # print("Loading model from file {}/net.pth".format(modelLocation))
+    # model.load_state_dict(torch.load("{}/net.pth".format(modelLocation),map_location=device))
+    # model.eval()
+    # model.to('cpu')
+    # normMeanStd = np.load("{}/normMeanStd.npz".format(modelLocation))
+    # normMean = normMeanStd["normMean"]
+    # normStd = normMeanStd["normStd"]
+
     # run processor
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(sf),
+        processor_instance=MainProcessor(sample,sf),
+        # processor_instance=MainProcessor(sample,sf,model,varSet,normMean,normStd),
         executor=processor.dask_executor if options.dask else processor.futures_executor,
         executor_args=exe_args,
         chunksize=options.chunksize,
@@ -106,7 +125,7 @@ def main():
 
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
-    fout = uproot.recreate(outfile)
+    fout = uproot3.recreate(outfile)
     if isinstance(output,tuple): output = output[0]
     for key,H in output.items():
         if type(H) is hist.Hist and H._sumw2 is not None:

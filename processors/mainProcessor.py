@@ -1,18 +1,28 @@
 from coffea import hist, processor
 import numpy as np
-import awkward1 as ak
-import awkward
+import awkward as ak
 from utils import utility as utl
 import utils.objects as ob
 from utils import baseline as bl
 from utils.variables import variables
-from itertools import combinations
+# from utils.runNeuralNetwork import runNN
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,sf):
+        def __init__(self,dataset,sf):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
+                self.dataset = dataset
                 self.scaleFactor = sf
+
+        # def __init__(self,dataset,sf,model,varSet,normMean,normStd):
+        #         self._accumulator = processor.dict_accumulator({})
+        #         self.setupHistos = None
+        #         self.dataset = dataset
+        #         self.scaleFactor = sf
+        #         self.model = model
+        #         self.varSet = varSet
+        #         self.normMean = normMean
+        #         self.normStd = normStd
         @property
         def accumulator(self):
                 return self._accumulator
@@ -25,12 +35,13 @@ class MainProcessor(processor.ProcessorABC):
                 self._accumulator = processor.dict_accumulator(histograms)
                 self.setupHistos = True
 
-        def process(self, df):
+        def process(self, events):
                 # cut loop
                 ## objects used for cuts
-                inpObj_noCut = ob.inpObj(df,self.scaleFactor)
+                vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor)
+                # runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
                 # Our preselection
-                cuts = bl.cutList(df,inpObj_noCut)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
 
                 # setup histograms
                 if self.setupHistos is None:
@@ -40,14 +51,29 @@ class MainProcessor(processor.ProcessorABC):
                 # run cut loop
                 for cutName,cut in cuts.items():
                     # defining objects
-                    inpObj = {}
-                    for key,item in inpObj_noCut.items():
-                        inpObj[key] = item[cut]
-                    if len(inpObj["evtw"]) > 0:
-                        varValDict = utl.varGetter(inpObj)
-                        # filling histograms
-                        for varName,varDetail in varValDict.items():
-                            output['h_{}{}'.format(varName,cutName)].fill(val=varDetail[0],weight=varDetail[1])
+                    weight = vars_noCut["evtw"][0][cut]
+                    jweight = ak.flatten(vars_noCut["jw"][0][cut])
+                    fjweight = ak.flatten(vars_noCut["fjw"][0][cut])
+                    if len(events) > 0:
+                        ## filling histograms
+                        for varName,varDetail in variables.items():
+                            if len(vars_noCut[varName][0]) != len(cut):
+                                print(len(vars_noCut[varName][0]),len(cut))
+                            hIn = vars_noCut[varName][0][cut]
+                            hW = weight
+                            wKey = vars_noCut[varName][1]
+                            # properly flatten certain inputs
+                            if varDetail[5] >= 1:
+                                hIn = ak.flatten(hIn)
+                            # make sure the correct weights are applied
+                            if wKey == "jw":
+                                hW = jweight
+                            elif wKey == "fjw":
+                                hW = fjweight
+                            elif wKey == "w1":
+                                hW = np.ones(len(weight))
+                            if len(hIn) > 0:
+                                output['h_{}{}'.format(varName,cutName)].fill(val=hIn,weight=hW)
                         ## filling histograms by jet category
                         # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM
                         # for varName,varDetail in varValDict.items():
