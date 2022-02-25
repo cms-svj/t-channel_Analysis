@@ -66,7 +66,7 @@ def main():
 
     # get options from command line
     parser = OptionParser()
-    parser.add_option('-d', '--dataset',   help='dataset',           dest='dataset')
+    parser.add_option('-d', '--dataset', help='dataset', dest='dataset', type=str, default="2018_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1")
     parser.add_option('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, default=-1)
     parser.add_option('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
