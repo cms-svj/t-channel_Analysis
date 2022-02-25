@@ -118,6 +118,6 @@ variables = {
 "JetsAK8_hvCategory":                     ["JetAK8 hvCategory",                                32,     0.0,    32.0,        1,     2],
 # "GenMT2_AK8":                             [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      0,     0],
 # "GenJetsAK8_darkPtFrac":                  ["GenJetAK8 Dark pT Fraction",                       100,    0.0,    1.0,         0,     1],
-# 'nsvjJetsAK8':                            ["Number of SVJ AK8Jets",                            20,     0.0,    20.0,        0,     0],
-# 'nnOutput':                               ["nnOutput",                                         100,    0.0,    1.0,         0,     1],
+'nsvjJetsAK8':                            ["Number of SVJ AK8Jets",                            20,     0.0,    20.0,        0,     0],
+'nnOutput':                               ["nnOutput",                                         100,    0.0,    1.0,         0,     1],
 }

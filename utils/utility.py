@@ -1,6 +1,6 @@
 import numpy as np
 import awkward as ak
-# from mt2 import mt2
+from mt2 import mt2
 from . import objects as ob
 
 def awkwardReshape(akArray,npArray):

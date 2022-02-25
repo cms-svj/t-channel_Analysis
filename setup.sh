@@ -17,7 +17,7 @@ usage(){
 }
 
 NAME=coffeaenv
-LCG=/cvmfs/sft.cern.ch/lcg/views/LCG_96python3/x86_64-centos7-gcc8-opt
+LCG=/cvmfs/sft.cern.ch/lcg/views/LCG_101cuda/x86_64-centos7-gcc8-opt
 DEV=0
 
 # check arguments
@@ -49,19 +49,19 @@ python -m venv --copies $NAME
 source $NAME/bin/activate
 
 $ECHO "\nSetup for Dask on LPC ... "
-pypackages=lib/python3.6/site-packages/
+pypackages=lib/python3.8/site-packages/
 lcgprefix=${LCG}/${pypackages}
 # need to remove python path from LCG to avoid dask conflicts
 export PYTHONPATH=""
 ln -sf ${lcgprefix}/pyxrootd ${NAME}/${pypackages}/pyxrootd
 ln -sf ${lcgprefix}/XRootD ${NAME}/${pypackages}/XRootD
 git clone git@github.com:cms-svj/lpc_dask
+python -m pip install --no-cache-dir pip --upgrade
 python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
 
 $ECHO "\nInstalling 'pip' packages ... "
-python -m pip install --no-cache-dir setuptools pip wheel --upgrade
-python -m pip install --no-cache-dir xxhash
-python -m pip install --no-cache-dir uproot4
+python -m pip install --no-cache-dir magiconfig
+python -m pip install --no-cache-dir torch==1.9 --upgrade
 python -m pip install --no-cache-dir mt2
 if [[ "$DEV" == "1" ]]; then
 	$ECHO "\nInstalling the 'development' version of Coffea ... "
@@ -72,7 +72,7 @@ if [[ "$DEV" == "1" ]]; then
 	cd ..
 else
 	$ECHO "Installing the 'production' version of Coffea ... "
-	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.6.47
+	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.7.12
 fi
 
 # apply patches
