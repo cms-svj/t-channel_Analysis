@@ -93,11 +93,12 @@ def main():
 
     sf = s.sfGetter(sample)
     print("scaleFactor = {}".format(sf))
+
     # run processor
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(sf),
+        processor_instance=MainProcessor(sample,sf),
         executor=processor.dask_executor if options.dask else processor.futures_executor,
         executor_args=exe_args,
         chunksize=options.chunksize,
@@ -114,9 +115,10 @@ def main():
             values_dict[v] = output[v].value
     tree = uproot.newtree(branchdict)
     if values_dict != {}:
+        print("saving root files...")
         with uproot.recreate("{}.root".format(outfile)) as f:
-            f["t"] = tree
-            f["t"].extend(values_dict)
+            f["tree"] = tree
+            f["tree"].extend(values_dict)
     # print run time in seconds
     dt = time.time() - tstart
     print("run time: %.2f [sec]" % (dt))

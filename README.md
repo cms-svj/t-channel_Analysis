@@ -86,11 +86,27 @@ It's a good idea to get/renew a voms ticket if you're going to be working with X
 voms-proxy-init -voms cms --valid 192:00
 ```
 ### Running the Analysis
+Currently the default setup does not work for the neural network. So instead of doing `source init.sh` while you are in `t-channel_Analysis`,
+you should follow the steps in https://github.com/cms-svj/t-channel_Analysis/issues/22 to set up the environment.
+Also need to add `python -m pip install --ignore-installed magiconfig` to the set up steps above.
+After that, you will also need to make soft links to the neural network file and the npz file that contains the normalization information.
+For now you can do the following:
+```
+ln -s /uscms/home/keanet/nobackup/SVJ/Tagger/SVJTaggerNN/logs/test_tch_normMeanStd/net.pth net.pth
+ln -s /uscms/home/keanet/nobackup/SVJ/Tagger/SVJTaggerNN/logs/test_tch_normMeanStd/normMeanStd.npz normMeanStd.npz
+```
 To make histograms locally using the signal and background ntuples, make sure you are in `t-channel_Analysis`
 ```bash
 python analyze.py -d <sample label> -N <number of files>
 ```
-This is usually done for debugging and testing purposes. The list of sample labels can be found in `input/sampleLabels.txt`.
+To make neural network training files locally using the signal and background ntuples, make sure you are in `t-channel_Analysis`
+```bash
+python analyze_root_varModule.py -d <sample label> -N <number of files>
+```
+In both cases, the output files are called `test.root`.
+<sample label> can be anything in the `input/sampleLabels.txt`, but be careful with the t-channel signals, because the JSON files contain both the pair production and full t-channel files. So for example, `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1` alone will probably make the code run over the pair production sample. We need to update `utils/samples.py` to make it smarter, but now just use <sample label> that are more specific. For example, `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM` will grab the full t-channel samples, while `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-pythia8` will grab the pair production samples.
+
+Running things locally is usually done for debugging and testing purposes.
 * `-d`: sample labels for list of input files to run over, which can be found in `input/sampleLabels.txt`.
 * `-N`: number of files from the sample to run over. Default is -1.
 * `-M`: index of the first file to run over.
@@ -106,10 +122,17 @@ Dask can be used to run `analyze.py` in parallel, either locally or on Condor. T
 To view the status dashboard, specify `--port 8NNN` (using the forwarded port from the earlier ssh command)
 and navigate to `localhost:8NNN` in a web browser.
 
-To make histograms on condor, cd into the `condor` directory and run
+To make histograms on condor using the singularity container, cd into the `condor` directory (make sure you are in the default `coffeaenv` environment) and run
 ```bash
-python condorSubmit.py -d 2018_QCD,2018_TTJets,2018_WJets,2018_ZJets,2018_mMed -n 10 -w 1 --output testDir
+python singularitySubmit.py -d 2018_QCD,2018_TTJets,2018_WJets,2018_ZJets,2018_mMed -n 10 -w 1 --output [output directory for histogram files]
 ```
+To make neural network training input files on condor, cd into the `condor` directory (make sure you are in the default `coffeaenv` environment) and run
+```bash
+python condorSubmit.py -d 2018_QCD,2018_mMed,2018_TTJets,2018_WJets,2018_ZJets -n 5 -w 1 --output [output directory] -p --pout [eos output directory for storing the training files]
+```
+* actually the argument after `--output` does not do anything in this case.
+* also be careful when using `2018_mMed` after the `-d` flag, because the JSON files contain both the pair production and full t-channel signals, so those files have very similar names, and `utils/samples.py` may not grab the desired inputs. Still need to work on `samples.py` to make it smarter.
+
 This will run over all the backgrounds (QCD, TTJets, WJets, ZJets) and the t-channel signals (the s-channel signals are labeled as 2016_mZprime,2017_mZprime). -n 10 means each job will use 10 root files as input, while -w 1 means we are using 1 CPU per job. An higher number of CPU used will use too much memory causing the job to be held, while a higher number of input files can make the job run longer and may also cause memory issue. After the jobs have finished running, the output histogram root files should be in `condor/testDir` (set by the --output flag).
 * `-d`: sample labels for list of input files to run over. Can use the labels found in `input/sampleLabels.txt` or more general labels such as 2018_QCD.
 * `-n`: number of files from the sample to run over. Default is -1.
