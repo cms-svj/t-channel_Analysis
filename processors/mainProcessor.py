@@ -13,7 +13,6 @@ class MainProcessor(processor.ProcessorABC):
                 self.setupHistos = None
                 self.dataset = dataset
                 self.scaleFactor = sf
-
         # def __init__(self,dataset,sf,model,varSet,normMean,normStd):
         #         self._accumulator = processor.dict_accumulator({})
         #         self.setupHistos = None
@@ -23,6 +22,7 @@ class MainProcessor(processor.ProcessorABC):
         #         self.varSet = varSet
         #         self.normMean = normMean
         #         self.normStd = normStd
+
         @property
         def accumulator(self):
                 return self._accumulator

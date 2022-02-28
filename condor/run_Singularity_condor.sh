@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 dataset_longname=$1
 nfiles=$2
@@ -17,7 +17,12 @@ mkdir tchannel
 mv tchannel.tar.gz tchannel/.
 cd tchannel
 tar -xzf tchannel.tar.gz
-source init.sh
+ls -l
+
+# Setup the activation script for the virtual environment
+$ECHO "\nSetting up the activation script for the virtual environment ... "
+storage_dir=$(readlink -f $PWD)
+export TCHANNEL_BASE=${storage_dir}
 
 echo "ls output"
 ls -l
@@ -25,9 +30,11 @@ ls -l
 echo "output of uname -s : "
 uname -s
 
-#printf "\n\n"
-#cp ${base_dir}/exestuff.tar.gz .
-#tar xzf exestuff.tar.gz
+echo "unpacking exestuff"
+cp ${base_dir}/exestuff.tar.gz .
+tar xzf exestuff.tar.gz
+mv exestuff/* .
+ls -l
 
 echo "\n\n Attempting to run MyAnalysis executable.\n\n"
 echo ${dataset_longname}
@@ -44,7 +51,7 @@ if [[ ${analyzeFile} == analyze.py ]]
 then
   mv MyAnalysis*.root ${base_dir}
 else
-  xrdcp -f MyAnalysis*.root ${NNTrainingOut}/.
+  xrdcp -f MyAnalysis*.root ${NNTrainingOut}.
   rm MyAnalysis*.root
 fi
 
