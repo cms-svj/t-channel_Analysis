@@ -21,10 +21,6 @@ ls -l
 
 # Setup the activation script for the virtual environment
 $ECHO "\nSetting up the activation script for the virtual environment ... "
-sed -i '40s/.*/VIRTUAL_ENV="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}" )")" \&\& pwd)"/' myenv/bin/activate
-find myenv/bin/ -type f -print0 | xargs -0 -P 4 sed -i '1s/#!.*python$/#!\/usr\/bin\/env python/'
-echo "Activating our virtual environment"
-source myenv/bin/activate
 storage_dir=$(readlink -f $PWD)
 export TCHANNEL_BASE=${storage_dir}
 

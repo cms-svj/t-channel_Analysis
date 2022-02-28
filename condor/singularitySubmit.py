@@ -43,14 +43,13 @@ def main():
             raise Exception("Please specify the output directory for the NN training files using --pout.")
         analyzeFile = "analyze_root_varModule.py"
     # prepare the list of hardcoded files to transfer
-    filestoTransfer = [environ["TCHANNEL_BASE"] + "/net.pth",
-                       environ["TCHANNEL_BASE"] + "/normMeanStd.npz"]
+    filestoTransfer = []
 
     # add top of jdl file
     fileParts = []
     fileParts.append("Universe   = vanilla\n")
     fileParts.append("Executable = run_Singularity_condor.sh\n")
-    fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity\"\n")
+    fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest\"\n")
     fileParts.append("Transfer_Input_Files = %s/%s.tar.gz, %s/exestuff.tar.gz\n" % (options.outPath,"tchannel",options.outPath))
     fileParts.append("Should_Transfer_Files = YES\n")
     fileParts.append("WhenToTransferOutput = ON_EXIT\n")

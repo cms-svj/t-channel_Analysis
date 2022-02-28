@@ -1,23 +1,28 @@
 from coffea import hist, processor
 import numpy as np
-import awkward1 as ak
-import awkward
+import awkward as ak
 from utils import utility as utl
 import utils.objects as ob
 from utils import baseline as bl
 from utils.variables import variables
-from utils.runNeuralNetwork import runNN
+# from utils.runNeuralNetwork import runNN
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf,model,varSet,normMean,normStd):
+        def __init__(self,dataset,sf):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
                 self.dataset = dataset
                 self.scaleFactor = sf
-                self.model = model
-                self.varSet = varSet
-                self.normMean = normMean
-                self.normStd = normStd
+        # def __init__(self,dataset,sf,model,varSet,normMean,normStd):
+        #         self._accumulator = processor.dict_accumulator({})
+        #         self.setupHistos = None
+        #         self.dataset = dataset
+        #         self.scaleFactor = sf
+        #         self.model = model
+        #         self.varSet = varSet
+        #         self.normMean = normMean
+        #         self.normStd = normStd
+
         @property
         def accumulator(self):
                 return self._accumulator
@@ -30,13 +35,13 @@ class MainProcessor(processor.ProcessorABC):
                 self._accumulator = processor.dict_accumulator(histograms)
                 self.setupHistos = True
 
-        def process(self, df):
+        def process(self, events):
                 # cut loop
                 ## objects used for cuts
-                vars_noCut = utl.varGetter(df,self.dataset,self.scaleFactor)
-                runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
+                vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor)
+                # runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
                 # Our preselection
-                cuts = bl.cutList(df,vars_noCut)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
 
                 # setup histograms
                 if self.setupHistos is None:
@@ -49,7 +54,7 @@ class MainProcessor(processor.ProcessorABC):
                     weight = vars_noCut["evtw"][0][cut]
                     jweight = ak.flatten(vars_noCut["jw"][0][cut])
                     fjweight = ak.flatten(vars_noCut["fjw"][0][cut])
-                    if len(weight) > 0:
+                    if len(events) > 0:
                         ## filling histograms
                         for varName,varDetail in variables.items():
                             if len(vars_noCut[varName][0]) != len(cut):
@@ -58,9 +63,7 @@ class MainProcessor(processor.ProcessorABC):
                             hW = weight
                             wKey = vars_noCut[varName][1]
                             # properly flatten certain inputs
-                            if varDetail[5] == 1:
-                                hIn = hIn.flatten()
-                            elif varDetail[5] == 2:
+                            if varDetail[5] >= 1:
                                 hIn = ak.flatten(hIn)
                             # make sure the correct weights are applied
                             if wKey == "jw":
