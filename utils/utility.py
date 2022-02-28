@@ -2,6 +2,7 @@ import numpy as np
 import awkward1 as ak
 import awkward
 from mt2 import mt2
+from . import objects as ob
 
 def awkwardReshape(akArray,npArray):
     if len(akArray) == 0:
@@ -107,7 +108,7 @@ def divide_vec(a,b):
 def tauRatio(tau_a,tau_b,i):
     Ji_tau_a = jetVar_vec(tau_a,i)
     Ji_tau_b = jetVar_vec(tau_b,i)
-    Ji_tau_ab = divide_vec(Ji_tau_a,Ji_tau_b)
+    Ji_tau_ab = Ji_tau_a/Ji_tau_b
     return Ji_tau_ab
 
 def lorentzVector(pt,eta,phi,mass,i):
@@ -209,29 +210,55 @@ def tch_hvCat_decode(hvCat):
     hvCat = decode(hvCat,1,"stableD",catList)
     return catList
 
-def varGetter(inpObj):
+def varGetter(df,dataset,scaleFactor):
     varVal = {}
-    jets = inpObj["jets"]
-    bjets = inpObj["bjets"]
-    fjets = inpObj["fjets"]
-    gfjets = inpObj["gfjets"]
-    electrons = inpObj["electrons"]
-    muons = inpObj["muons"]
-    met = inpObj["met"]
-    metPhi = inpObj["metPhi"]
-    mtAK8 = inpObj["mtAK8"]
-    madHT = inpObj["madHT"]
-    # GenMT2_AK8 = inpObj["GenMT2_AK8"]
-    # GenJetsAK8_darkPtFrac = inpObj["GenJetsAK8_darkPtFrac"]
-    # GenJetsAK8_hvCategory = inpObj["GenJetsAK8_hvCategory"]
-    # JetsAK8_hvCategory = inpObj["JetsAK8_hvCategory"]
-    eCounter = inpObj["eCounter"]
-    evtw = inpObj["evtw"]
+    luminosity = 21071.0+38654.0
+    evtw = luminosity*df['Weight']*scaleFactor
+    eCounter = np.where(evtw >= 0, 1, -1)
+    obj = ob.Objects(df)
+    jets = obj.goodJets()
+    bjets = obj.goodBJets(df,jets)
+    fjets = obj.goodFatJets()
+    gfjets = obj.goodGenFatJets()
+    electrons = obj.goodElectrons()
+    muons = obj.goodMuons()
+    met = df['MET']
+    metPhi = df['METPhi']
+    mtAK8 = df['MT_AK8']
+    madHT = df['madHT']
+    jetAK8Eta = fjets.eta
+    jetAK8Phi = fjets.phi
+    j1_etaAK8 = jetVar_vec(jetAK8Eta,0)
+    j2_etaAK8 = jetVar_vec(jetAK8Eta,1)
+    j1_phiAK8 = jetVar_vec(jetAK8Phi,0)
+    j2_phiAK8 = jetVar_vec(jetAK8Phi,1)
+
+    ## GenJetsAK8_hvCategory is only present in the signal samples, not the V17 background
+    jetCats = []
+    bkgKeys = ["QCD","TTJets","WJets","ZJets"]
+    isSignal = True
+    for k in bkgKeys:
+        if k in dataset:
+            isSignal = False
+            break
+    if isSignal:
+        jetsAK8GenInd = df["JetsAK8_genIndex"][obj.goodFatJetCut()]
+        for gji in range(len(jetsAK8GenInd)):
+            genInd = jetsAK8GenInd[gji]
+            genCat = df["GenJetsAK8_hvCategory"][gji]
+            if len(genCat) > 0:
+                jetCats.append(list(genCat[genInd]))
+            else:
+                jetCats.append([])
+        jetCats = ak.Array(jetCats)
+        varVal['JetsAK8_hvCategory'] = [jetCats,'fjw']
+    else:
+        varVal['JetsAK8_hvCategory'] = [awkwardReshape(fjets,np.ones(len(evtw))*-1),'fjw']
+
     ew = awkwardReshape(electrons,evtw)
     mw = awkwardReshape(muons,evtw)
     jw = awkwardReshape(jets,evtw)
     fjw = awkwardReshape(fjets,evtw)
-    gfjw = awkwardReshape(gfjets,evtw)
     ht = ak.sum(jets.pt,axis=1)
     st = ht + met
     metrht = divide_vec(met,ht)
@@ -250,7 +277,6 @@ def varGetter(inpObj):
     dPhiMinj = deltaPhi(jetPhi,metPhi).min()
     dEtaj12 = deltaEta_vec(j1_eta,j2_eta)
     deltaR12j = delta_R(j1_eta,j2_eta,j1_phi,j2_phi)
-    jweight = ak.flatten(jw)
 
     # AK8 Jet Variables
     jetAK8pT = fjets.pt
@@ -268,33 +294,11 @@ def varGetter(inpObj):
     dPhiMinjAK8 = dPhijAK8.min()
     dEtaj12AK8 = deltaEta_vec(j1_etaAK8,j2_etaAK8)
     deltaR12jAK8 = delta_R(j1_etaAK8,j2_etaAK8,j1_phiAK8,j2_phiAK8)
-    fjweight = ak.flatten(fjw)
-    gfjweight = ak.flatten(gfjw)
     tau1 = fjets.tau1
     tau2 = fjets.tau2
     tau3 = fjets.tau3
-    ecfN2b1 = fjets.ecfN2b1
-    ecfN2b2 = fjets.ecfN2b2
-    ecfN3b1 = fjets.ecfN3b1
-    ecfN3b2 = fjets.ecfN3b2
-    fEle = fjets.fEle
-    fMu = fjets.fMu
-    fNeuHad = fjets.fNeuHad
-    fPho = fjets.fPho
-    fNeuEM = fjets.fNeuEM
-    fHFHad = fjets.fHFHad
-    fHFEM = fjets.fHFEM
-    fChEM = fjets.fChEM
-    nPho = fjets.nPho
-    nNeu = fjets.nNeu
-    nNeuHad = fjets.nNeuHad
-    nMu = fjets.nMu
-    nEle = fjets.nEle
-    nChHad = fjets.nChHad
-    nCh = fjets.nCh
-    mult = fjets.mult
-    J_tau21 = divide_vec(tau2.flatten(),tau1.flatten())
-    J_tau32 = divide_vec(tau3.flatten(),tau2.flatten())
+    J_tau21 = tau2/tau1
+    J_tau32 = tau3/tau2
     J1_tau21 = tauRatio(tau2,tau1,0)
     J1_tau32 = tauRatio(tau3,tau2,0)
     J2_tau21 = tauRatio(tau2,tau1,1)
@@ -305,117 +309,132 @@ def varGetter(inpObj):
     else:
         nBJets = np.zeros(len(evtw))
 
-    varVal['eCounter'] = [eCounter,np.ones(len(eCounter))]
-    varVal['evtw'] = [evtw,evtw]
-    varVal['jw'] = [jweight,jweight]
-    varVal['fjw'] = [fjweight,fjweight]
-    varVal['njets'] = [jets.counts,evtw]
-    varVal['njetsAK8'] = [fjets.counts,evtw]
-    varVal['nb'] = [nBJets,evtw]
-    varVal['nl'] = [(electrons.counts + muons.counts),evtw]
-    varVal['ht'] = [ht,evtw]
-    varVal['st'] = [st,evtw]
-    varVal['met'] = [met,evtw]
-    varVal['madHT'] = [madHT,evtw]
-    varVal['jPt'] = [jets.pt.flatten(),jweight]
-    varVal['jEta'] = [jetEta.flatten(),jweight]
-    varVal['jPhi'] = [jetPhi.flatten(),jweight]
-    varVal['jAxismajor'] = [jets.axismajor.flatten(),jweight]
-    varVal['jAxisminor'] = [jets.axisminor.flatten(),jweight]
-    varVal['jPtD'] = [jets.ptD.flatten(),jweight]
-    varVal['dPhiMinjMET'] = [dPhiMinj,evtw]
-    varVal['dEtaj12'] = [dEtaj12,evtw]
-    varVal['dRJ12'] = [deltaR12j,evtw]
-    varVal['jPtAK8'] = [fjets.pt.flatten(),fjweight]
-    varVal['jEtaAK8'] = [jetAK8Eta.flatten(),fjweight]
-    varVal['jPhiAK8'] = [jetAK8Phi.flatten(),fjweight]
-    varVal['jAxismajorAK8'] = [fjets.axismajor.flatten(),fjweight]
-    varVal['jAxisminorAK8'] = [fjets.axisminor.flatten(),fjweight]
-    varVal['jGirthAK8'] = [fjets.girth.flatten(),fjweight]
-    varVal['jPtDAK8'] = [fjets.ptD.flatten(),fjweight]
-    varVal['jTau1AK8'] = [tau1.flatten(),fjweight]
-    varVal['jTau2AK8'] = [tau2.flatten(),fjweight]
-    varVal['jTau3AK8'] = [tau3.flatten(),fjweight]
-    varVal['jTau21AK8'] = [J_tau21,fjweight]
-    varVal['jTau32AK8'] = [J_tau32,fjweight]
-    varVal['jSoftDropMassAK8'] = [fjets.softDropMass.flatten(),fjweight]
-    varVal['jecfN2b1AK8'] = [ecfN2b1.flatten(),fjweight]
-    varVal['jecfN2b2AK8'] = [ecfN2b2.flatten(),fjweight]
-    varVal['jecfN3b1AK8'] = [ecfN3b1.flatten(),fjweight]
-    varVal['jecfN3b2AK8'] = [ecfN3b2.flatten(),fjweight]
-    varVal['jEleEFractAK8'] = [fEle.flatten(),fjweight]
-    varVal['jMuEFractAK8'] = [fMu.flatten(),fjweight]
-    varVal['jNeuHadEFractAK8'] = [fNeuHad.flatten(),fjweight]
-    varVal['jPhoEFractAK8'] = [fPho.flatten(),fjweight]
-    varVal['jNeuEmEFractAK8'] = [fNeuEM.flatten(),fjweight]
-    varVal['jHfHadEFractAK8'] = [fHFHad.flatten(),fjweight]
-    varVal['jHfEMEFractAK8'] = [fHFEM.flatten(),fjweight]
-    varVal['jChEMEFractAK8'] = [fChEM.flatten(),fjweight]
-    varVal['jPhoMultAK8'] = [nPho.flatten(),fjweight]
-    varVal['jNeuMultAK8'] = [nNeu.flatten(),fjweight]
-    varVal['jNeuHadMultAK8'] = [nNeuHad.flatten(),fjweight]
-    varVal['jMuMultAK8'] = [nMu.flatten(),fjweight]
-    varVal['jEleMultAK8'] = [nEle.flatten(),fjweight]
-    varVal['jChHadMultAK8'] = [nChHad.flatten(),fjweight]
-    varVal['jChMultAK8'] = [nCh.flatten(),fjweight]
-    varVal['jMultAK8'] = [mult.flatten(),fjweight]
-    varVal['dPhijMETAK8'] = [dPhijAK8.flatten(),fjweight]
-    varVal['dPhiMinjMETAK8'] = [dPhiMinjAK8,evtw]
-    varVal['dEtaj12AK8'] = [dEtaj12AK8,evtw]
-    varVal['dRJ12AK8'] = [deltaR12jAK8,evtw]
-    varVal['mT'] = [mtAK8,evtw]
-    varVal['METrHT_pt30'] = [metrht,evtw]
-    varVal['METrST_pt30'] = [metrst,evtw]
-    varVal['j1Pt'] = [jetVar_vec(jets.pt,0),evtw]
-    varVal['j1Eta'] = [j1_eta,evtw]
-    varVal['j1Phi'] = [j1_phi,evtw]
-    varVal['j1Axismajor'] = [jetVar_vec(jets.axismajor,0),evtw]
-    varVal['j1Axisminor'] = [jetVar_vec(jets.axisminor,0),evtw]
-    varVal['j1PtD'] = [jetVar_vec(jets.ptD,0),evtw]
-    varVal['dPhij1MET'] = [dPhij1,evtw]
-    varVal['j2Pt'] = [jetVar_vec(jets.pt,1),evtw]
-    varVal['j2Eta'] = [j2_eta,evtw]
-    varVal['j2Phi'] = [j2_phi,evtw]
-    varVal['j2Axismajor'] = [jetVar_vec(jets.axismajor,1),evtw]
-    varVal['j2Axisminor'] = [jetVar_vec(jets.axisminor,1),evtw]
-    varVal['j2PtD'] = [jetVar_vec(jets.ptD,1),evtw]
-    varVal['dPhij2MET'] = [dPhij2,evtw]
-    varVal['dPhij1rdPhij2'] = [dPhij1rdPhij2,evtw]
-    varVal['j1PtAK8'] = [jetVar_vec(fjets.pt,0),evtw]
-    varVal['j1EtaAK8'] = [j1_etaAK8,evtw]
-    varVal['j1PhiAK8'] = [j1_phiAK8,evtw]
-    varVal['j1AxismajorAK8'] = [jetVar_vec(fjets.axismajor,0),evtw]
-    varVal['j1AxisminorAK8'] = [jetVar_vec(fjets.axisminor,0),evtw]
-    varVal['j1GirthAK8'] = [jetVar_vec(fjets.girth,0),evtw]
-    varVal['j1PtDAK8'] = [jetVar_vec(fjets.ptD,0),evtw]
-    varVal['j1Tau1AK8'] = [jetVar_vec(fjets.tau1,0),evtw]
-    varVal['j1Tau2AK8'] = [jetVar_vec(fjets.tau2,0),evtw]
-    varVal['j1Tau3AK8'] = [jetVar_vec(fjets.tau3,0),evtw]
-    varVal['j1Tau21AK8'] = [J1_tau21,evtw]
-    varVal['j1Tau32AK8'] = [J1_tau32,evtw]
-    varVal['j1SoftDropMassAK8'] = [jetVar_vec(fjets.softDropMass,0),evtw]
-    varVal['dPhij1METAK8'] = [dPhij1AK8,evtw]
-    varVal['j2PtAK8'] = [jetVar_vec(fjets.pt,1),evtw]
-    varVal['j2EtaAK8'] = [j2_etaAK8,evtw]
-    varVal['j2PhiAK8'] = [j2_phiAK8,evtw]
-    varVal['j2AxismajorAK8'] = [jetVar_vec(fjets.axismajor,1),evtw]
-    varVal['j2AxisminorAK8'] = [jetVar_vec(fjets.axisminor,1),evtw]
-    varVal['j2GirthAK8'] = [jetVar_vec(fjets.girth,1),evtw]
-    varVal['j2PtDAK8'] = [jetVar_vec(fjets.ptD,1),evtw]
-    varVal['j2Tau1AK8'] = [jetVar_vec(fjets.tau1,1),evtw]
-    varVal['j2Tau2AK8'] = [jetVar_vec(fjets.tau2,1),evtw]
-    varVal['j2Tau3AK8'] = [jetVar_vec(fjets.tau3,1),evtw]
-    varVal['j2Tau21AK8'] = [J2_tau21,evtw]
-    varVal['j2Tau32AK8'] = [J2_tau32,evtw]
-    varVal['j2SoftDropMassAK8'] = [jetVar_vec(fjets.softDropMass,1),evtw]
-    varVal['dPhij2METAK8'] = [dPhij2AK8,evtw]
-    varVal['dPhij1rdPhij2AK8'] = [dPhij1rdPhij2AK8,evtw]
-    # varVal['mT2_f4_msm'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,""),evtw]
-    # varVal['mT2_f4_msm_dEta'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dEta"),evtw]
-    # varVal['mT2_f4_msm_dPhi'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dPhi"),evtw]
-    # varVal['mT2_f4_msm_dR'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dR"),evtw]
-    # varVal['GenMT2_AK8'] = [GenMT2_AK8,evtw]
+    varVal['jets'] = jets
+    varVal['fjets'] = fjets
+    varVal['eCounter'] = [eCounter,'w1']
+    varVal['evtw'] = [evtw,'evtw']
+    varVal['jw'] = [jw,'jw']
+    varVal['fjw'] = [fjw,'fjw']
+    varVal['njets'] = [jets.counts,'evtw']
+    varVal['njetsAK8'] = [fjets.counts,'evtw']
+    varVal['nb'] = [nBJets,'evtw']
+    varVal['nl'] = [(electrons.counts + muons.counts),'evtw']
+    varVal['ht'] = [ht,'evtw']
+    varVal['st'] = [st,'evtw']
+    varVal['met'] = [met,'evtw']
+    varVal['metPhi'] = [metPhi, 'evtw']
+    varVal['madHT'] = [madHT,'evtw']
+    varVal['jPt'] = [jets.pt,'jw']
+    varVal['jEta'] = [jetEta,'jw']
+    varVal['jPhi'] = [jetPhi,'jw']
+    varVal['jAxismajor'] = [jets.axismajor,'jw']
+    varVal['jAxisminor'] = [jets.axisminor,'jw']
+    varVal['jPtD'] = [jets.ptD,'jw']
+    varVal['dPhiMinjMET'] = [dPhiMinj,'evtw']
+    varVal['dEtaj12'] = [dEtaj12,'evtw']
+    varVal['dRJ12'] = [deltaR12j,'evtw']
+    varVal['jPtAK8'] = [fjets.pt,'fjw']
+    varVal['jEtaAK8'] = [jetAK8Eta,'fjw']
+    varVal['jPhiAK8'] = [jetAK8Phi,'fjw']
+    varVal['jAxismajorAK8'] = [fjets.axismajor,'fjw']
+    varVal['jAxisminorAK8'] = [fjets.axisminor,'fjw']
+    varVal['jdeepDoubleBDiscriminatorHAK8'] = [fjets.deepDoubleBDiscriminatorH,'fjw']
+    varVal['jdeepDoubleBDiscriminatorQAK8'] = [fjets.deepDoubleBDiscriminatorQ,'fjw']
+    varVal['jdoubleBDiscriminatorAK8'] = [fjets.doubleBDiscriminator,'fjw']
+    varVal['jecfN2b1AK8'] = [fjets.ecfN2b1,'fjw']
+    varVal['jecfN2b2AK8'] = [fjets.ecfN2b2,'fjw']
+    varVal['jecfN3b1AK8'] = [fjets.ecfN3b1,'fjw']
+    varVal['jecfN3b2AK8'] = [fjets.ecfN3b2,'fjw']
+    varVal['jChEMEFractAK8'] = [fjets.fChEM,'fjw']
+    varVal['jChHadEFractAK8'] = [fjets.fChHad,'fjw']
+    varVal['jEleEFractAK8'] = [fjets.fEle,'fjw']
+    varVal['jHfEMEFractAK8'] = [fjets.fHFEM,'fjw']
+    varVal['jHfHadEFractAK8'] = [fjets.fHFHad,'fjw']
+    varVal['jMuEFractAK8'] = [fjets.fMu,'fjw']
+    varVal['jNeuEmEFractAK8'] = [fjets.fNeuEM,'fjw']
+    varVal['jNeuHadEFractAK8'] = [fjets.fNeuHad,'fjw']
+    varVal['jPhoEFractAK8'] = [fjets.fPho,'fjw']
+    varVal['jGirthAK8'] = [fjets.girth,'fjw']
+    varVal['jhDiscriminatorDeepAK8'] = [fjets.hDiscriminatorDeep,'fjw']
+    varVal['jLeanAK8'] = [fjets.lean,'fjw']
+    varVal['jMomentHalfAK8'] = [fjets.momenthalf,'fjw']
+    varVal['jNumBhadronsAK8'] = [fjets.numBhadrons,'fjw']
+    varVal['jNumChadronsAK8'] = [fjets.numChadrons,'fjw']
+    varVal['jChHadMultAK8'] = [fjets.nChHad,'fjw']
+    varVal['jChMultAK8'] = [fjets.nCh,'fjw']
+    varVal['jEleMultAK8'] = [fjets.nEle,'fjw']
+    varVal['jMuMultAK8'] = [fjets.nMu,'fjw']
+    varVal['jNeuHadMultAK8'] = [fjets.nNeuHad,'fjw']
+    varVal['jNeuMultAK8'] = [fjets.nNeu,'fjw']
+    varVal['jPhoMultAK8'] = [fjets.nPho,'fjw']
+    varVal['jMultAK8'] = [fjets.mult,'fjw']
+    varVal['jPtDAK8'] = [fjets.ptD,'fjw']
+    varVal['jPtdrlogAK8'] = [fjets.ptdrlog,'fjw']
+    varVal['jSoftDropMassAK8'] = [fjets.softDropMass,'fjw']
+    varVal['jTau1AK8'] = [tau1,'fjw']
+    varVal['jTau2AK8'] = [tau2,'fjw']
+    varVal['jTau3AK8'] = [tau3,'fjw']
+    varVal['jTau21AK8'] = [J_tau21,'fjw']
+    varVal['jTau32AK8'] = [J_tau32,'fjw']
+    varVal['jtDiscriminatorDeepAK8'] = [fjets.tDiscriminatorDeep,'fjw']
+    varVal['jwDiscriminatorDeepAK8'] = [fjets.wDiscriminatorDeep,'fjw']
+    varVal['jzDiscriminatorDeepAK8'] = [fjets.zDiscriminatorDeep,'fjw']
+    varVal['dPhijMETAK8'] = [dPhijAK8,'fjw']
+    varVal['dPhiMinjMETAK8'] = [dPhiMinjAK8,'evtw']
+    varVal['dEtaj12AK8'] = [dEtaj12AK8,'evtw']
+    varVal['dRJ12AK8'] = [deltaR12jAK8,'evtw']
+    varVal['mT'] = [mtAK8,'evtw']
+    varVal['METrHT_pt30'] = [metrht,'evtw']
+    varVal['METrST_pt30'] = [metrst,'evtw']
+    varVal['j1Pt'] = [jetVar_vec(jets.pt,0),'evtw']
+    varVal['j1Eta'] = [j1_eta,'evtw']
+    varVal['j1Phi'] = [j1_phi,'evtw']
+    varVal['j1Axismajor'] = [jetVar_vec(jets.axismajor,0),'evtw']
+    varVal['j1Axisminor'] = [jetVar_vec(jets.axisminor,0),'evtw']
+    varVal['j1PtD'] = [jetVar_vec(jets.ptD,0),'evtw']
+    varVal['dPhij1MET'] = [dPhij1,'evtw']
+    varVal['j2Pt'] = [jetVar_vec(jets.pt,1),'evtw']
+    varVal['j2Eta'] = [j2_eta,'evtw']
+    varVal['j2Phi'] = [j2_phi,'evtw']
+    varVal['j2Axismajor'] = [jetVar_vec(jets.axismajor,1),'evtw']
+    varVal['j2Axisminor'] = [jetVar_vec(jets.axisminor,1),'evtw']
+    varVal['j2PtD'] = [jetVar_vec(jets.ptD,1),'evtw']
+    varVal['dPhij2MET'] = [dPhij2,'evtw']
+    varVal['dPhij1rdPhij2'] = [dPhij1rdPhij2,'evtw']
+    varVal['j1PtAK8'] = [jetVar_vec(fjets.pt,0),'evtw']
+    varVal['j1EtaAK8'] = [j1_etaAK8,'evtw']
+    varVal['j1PhiAK8'] = [j1_phiAK8,'evtw']
+    varVal['j1AxismajorAK8'] = [jetVar_vec(fjets.axismajor,0),'evtw']
+    varVal['j1AxisminorAK8'] = [jetVar_vec(fjets.axisminor,0),'evtw']
+    varVal['j1GirthAK8'] = [jetVar_vec(fjets.girth,0),'evtw']
+    varVal['j1PtDAK8'] = [jetVar_vec(fjets.ptD,0),'evtw']
+    varVal['j1Tau1AK8'] = [jetVar_vec(fjets.tau1,0),'evtw']
+    varVal['j1Tau2AK8'] = [jetVar_vec(fjets.tau2,0),'evtw']
+    varVal['j1Tau3AK8'] = [jetVar_vec(fjets.tau3,0),'evtw']
+    varVal['j1Tau21AK8'] = [J1_tau21,'evtw']
+    varVal['j1Tau32AK8'] = [J1_tau32,'evtw']
+    varVal['j1SoftDropMassAK8'] = [jetVar_vec(fjets.softDropMass,0),'evtw']
+    varVal['dPhij1METAK8'] = [dPhij1AK8,'evtw']
+    varVal['j2PtAK8'] = [jetVar_vec(fjets.pt,1),'evtw']
+    varVal['j2EtaAK8'] = [j2_etaAK8,'evtw']
+    varVal['j2PhiAK8'] = [j2_phiAK8,'evtw']
+    varVal['j2AxismajorAK8'] = [jetVar_vec(fjets.axismajor,1),'evtw']
+    varVal['j2AxisminorAK8'] = [jetVar_vec(fjets.axisminor,1),'evtw']
+    varVal['j2GirthAK8'] = [jetVar_vec(fjets.girth,1),'evtw']
+    varVal['j2PtDAK8'] = [jetVar_vec(fjets.ptD,1),'evtw']
+    varVal['j2Tau1AK8'] = [jetVar_vec(fjets.tau1,1),'evtw']
+    varVal['j2Tau2AK8'] = [jetVar_vec(fjets.tau2,1),'evtw']
+    varVal['j2Tau3AK8'] = [jetVar_vec(fjets.tau3,1),'evtw']
+    varVal['j2Tau21AK8'] = [J2_tau21,'evtw']
+    varVal['j2Tau32AK8'] = [J2_tau32,'evtw']
+    varVal['j2SoftDropMassAK8'] = [jetVar_vec(fjets.softDropMass,1),'evtw']
+    varVal['dPhij2METAK8'] = [dPhij2AK8,'evtw']
+    varVal['dPhij1rdPhij2AK8'] = [dPhij1rdPhij2AK8,'evtw']
     # varVal['GenJetsAK8_hvCategory'] = [GenJetsAK8_hvCategory.flatten(),gfjweight]
+    # varVal['mT2_f4_msm'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,""),'evtw']
+    # varVal['mT2_f4_msm_dEta'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dEta"),'evtw']
+    # varVal['mT2_f4_msm_dPhi'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dPhi"),'evtw']
+    # varVal['mT2_f4_msm_dR'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dR"),'evtw']
     # varVal['GenJetsAK8_darkPtFrac'] = [GenJetsAK8_darkPtFrac.flatten(),gfjweight]
-    # varVal['JetsAK8_hvCategory'] = [ak.flatten(JetsAK8_hvCategory),fjweight]
+    # varVal['GenMT2_AK8'] = [GenMT2_AK8,'evtw']
     return varVal

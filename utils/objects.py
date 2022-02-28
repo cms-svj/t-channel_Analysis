@@ -38,7 +38,8 @@ class Objects:
             axisminor=df['Jets_axisminor'].flatten(),
             ptD=df['Jets_ptD'].flatten(),
             bDeepCSVprobb=df['Jets_bJetTagDeepCSVprobb'].flatten(),
-            bDeepCSVprobbb=df['Jets_bJetTagDeepCSVprobbb'].flatten()
+            bDeepCSVprobbb=df['Jets_bJetTagDeepCSVprobbb'].flatten(),
+            jetsID = df["Jets_ID"].flatten()
         )
         self.fjets = JaggedCandidateArray.candidatesfromcounts(
             df['JetsAK8'].counts,
@@ -48,32 +49,46 @@ class Objects:
             energy=df['JetsAK8'].fE.flatten(),
             axismajor=df['JetsAK8_axismajor'].flatten(),
             axisminor=df['JetsAK8_axisminor'].flatten(),
-            girth=df['JetsAK8_girth'].flatten(),
-            ptD=df['JetsAK8_ptD'].flatten(),
-            tau1=df['JetsAK8_NsubjettinessTau1'].flatten(),
-            tau2=df['JetsAK8_NsubjettinessTau2'].flatten(),
-            tau3=df['JetsAK8_NsubjettinessTau3'].flatten(),
+            deepDoubleBDiscriminatorH=df['JetsAK8_deepDoubleBDiscriminatorH'].flatten(),
+            deepDoubleBDiscriminatorQ=df['JetsAK8_deepDoubleBDiscriminatorQ'].flatten(),
+            doubleBDiscriminator=df['JetsAK8_doubleBDiscriminator'].flatten(),
             ecfN2b1=df['JetsAK8_ecfN2b1'].flatten(),
             ecfN2b2=df['JetsAK8_ecfN2b2'].flatten(),
             ecfN3b1=df['JetsAK8_ecfN3b1'].flatten(),
             ecfN3b2=df['JetsAK8_ecfN3b2'].flatten(),
+            fChEM=df['JetsAK8_chargedEmEnergyFraction'].flatten(),
+            fChHad=df['JetsAK8_chargedHadronEnergyFraction'].flatten(),
             fEle=df['JetsAK8_electronEnergyFraction'].flatten(),
+            fHFEM=df['JetsAK8_hfEMEnergyFraction'].flatten(),
+            fHFHad=df['JetsAK8_hfHadronEnergyFraction'].flatten(),
             fMu=df['JetsAK8_muonEnergyFraction'].flatten(),
+            fNeuEM=df['JetsAK8_neutralEmEnergyFraction'].flatten(),
             fNeuHad=df['JetsAK8_neutralHadronEnergyFraction'].flatten(),
             fPho=df['JetsAK8_photonEnergyFraction'].flatten(),
-            fNeuEM=df['JetsAK8_neutralEmEnergyFraction'].flatten(),
-            fHFHad=df['JetsAK8_hfHadronEnergyFraction'].flatten(),
-            fHFEM=df['JetsAK8_hfEMEnergyFraction'].flatten(),
-            fChEM=df['JetsAK8_chargedEmEnergyFraction'].flatten(),
-            nPho=df['JetsAK8_photonMultiplicity'].flatten(),
+            girth=df['JetsAK8_girth'].flatten(),
+            hDiscriminatorDeep=df['JetsAK8_hDiscriminatorDeep'].flatten(),
+            jetsAK8ID = df["JetsAK8_ID"].flatten(),
+            lean=df['JetsAK8_lean'].flatten(),
+            momenthalf=df['JetsAK8_momenthalf'].flatten(),
+            mult=df['JetsAK8_multiplicity'].flatten(),
+            nCh=df['JetsAK8_chargedMultiplicity'].flatten(),
+            nChHad=df['JetsAK8_chargedHadronMultiplicity'].flatten(),
+            nEle=df['JetsAK8_electronMultiplicity'].flatten(),
+            nMu=df['JetsAK8_muonMultiplicity'].flatten(),
             nNeu=df['JetsAK8_neutralMultiplicity'].flatten(),
             nNeuHad=df['JetsAK8_neutralHadronMultiplicity'].flatten(),
-            nMu=df['JetsAK8_muonMultiplicity'].flatten(),
-            nEle=df['JetsAK8_electronMultiplicity'].flatten(),
-            nChHad=df['JetsAK8_chargedHadronMultiplicity'].flatten(),
-            nCh=df['JetsAK8_chargedMultiplicity'].flatten(),
-            mult=df['JetsAK8_multiplicity'].flatten(),
+            nPho=df['JetsAK8_photonMultiplicity'].flatten(),
+            numBhadrons=df['JetsAK8_NumBhadrons'].flatten(),
+            numChadrons=df['JetsAK8_NumChadrons'].flatten(),
+            ptD=df['JetsAK8_ptD'].flatten(),
+            ptdrlog=df['JetsAK8_ptdrlog'].flatten(),
             softDropMass=df['JetsAK8_softDropMass'].flatten(),
+            tau1=df['JetsAK8_NsubjettinessTau1'].flatten(),
+            tau2=df['JetsAK8_NsubjettinessTau2'].flatten(),
+            tau3=df['JetsAK8_NsubjettinessTau3'].flatten(),
+            tDiscriminatorDeep=df['JetsAK8_tDiscriminatorDeep'].flatten(),
+            wDiscriminatorDeep=df['JetsAK8_wDiscriminatorDeep'].flatten(),
+            zDiscriminatorDeep=df['JetsAK8_zDiscriminatorDeep'].flatten()
         )
         self.gfjets = JaggedCandidateArray.candidatesfromcounts(
             df['GenJetsAK8'].counts,
@@ -98,22 +113,20 @@ class Objects:
 
     def goodJets(self):
         # # Good AK4 Jets Cut
-        ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < 5.0)
+        ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < 5.0) & (self.jets.jetsID == True)
         return self.jets[ak4QualityCut]
-
-    def goodFatJets(self):
-        # # Good AK8 Jets Cut
-        ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0)
-        return self.fjets[ak8QualityCut]
 
     def goodFatJetCut(self):
         # # Good AK8 Jets Cut
-        ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0)
+        ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0) & (self.fjets.jetsAK8ID == True)
         return ak8QualityCut
+
+    def goodFatJets(self):
+        return self.fjets[self.goodFatJetCut()]
 
     def goodGenFatJets(self):
         # # Good AK8 Jets Cut
-        ak8QualityCut = self.gfjets.pt > 0 & (abs(self.gfjets.eta) < 5.0)
+        ak8QualityCut = self.gfjets.pt > 170 & (abs(self.gfjets.eta) < 5.0)
         return self.gfjets[ak8QualityCut]
 
     def goodBJets(self,df,jets):
@@ -130,50 +143,3 @@ class Objects:
                 return jets[deepCSV >= 0.4184]
         else:
             return ak.Array([])
-
-def inpObj(df,scaleFactor):
-    inpObj = {}
-    luminosity = 21071.0+38654.0
-    inpObj["evtw"] = luminosity*df['Weight']*scaleFactor
-    inpObj["eCounter"] = np.where(inpObj["evtw"] >= 0, 1, -1)
-
-    obj = Objects(df)
-    inpObj["electrons"] = obj.goodElectrons()
-    inpObj["muons"] = obj.goodMuons()
-    inpObj["jets"] = obj.goodJets()
-    inpObj["fjets"] = obj.goodFatJets()
-    inpObj["gfjets"] = obj.goodGenFatJets()
-    inpObj["bjets"] = obj.goodBJets(df,inpObj["jets"])
-    inpObj["metPhi"] = df['METPhi']
-    inpObj["madHT"] = df['madHT']
-    inpObj["genMET"] = df['GenMET']
-    inpObj["met"] = df['MET']
-    inpObj["mtAK8"] = df['MT_AK8']
-    inpObj["triggerPass"] = df['TriggerPass']
-    inpObj["jetID"] = df['JetID']
-    inpObj["jetIDAK8"] = df['JetIDAK8']
-    inpObj["ht"] = ak.sum(inpObj["jets"].pt,axis=1)
-    inpObj["dPhiMinj"] = utl.deltaPhi(inpObj["jets"].phi,inpObj["metPhi"]).min()
-    inpObj["dPhiMinjAK8"] = utl.deltaPhi(inpObj["fjets"].phi,inpObj["metPhi"]).min()
-    ## matching AK8 Jet to AK8 GenJet to get jet category for AK8 Jet
-    ## GenJetsAK8_hvCategory is only present in the signal samples, not the V17 background
-    # jetCats = []
-    # jetsAK8GenInd = df["JetsAK8_genIndex"][obj.goodFatJetCut()]
-    # for gji in range(len(jetsAK8GenInd)):
-    #     genInd = jetsAK8GenInd[gji]
-    #     genCat = df["GenJetsAK8_hvCategory"][gji]
-    #     jetCats.append(list(genCat[genInd]))
-    # jetCats = ak.Array(jetCats)
-    # inpObj["JetsAK8_hvCategory"] = jetCats
-    # inpObj["GenJetsAK8_hvCategory"] = df['GenJetsAK8_hvCategory']
-    jetAK8Eta = inpObj["fjets"].eta
-    jetAK8Phi = inpObj["fjets"].phi
-    j1_etaAK8 = utl.jetVar_vec(jetAK8Eta,0)
-    j2_etaAK8 = utl.jetVar_vec(jetAK8Eta,1)
-    j1_phiAK8 = utl.jetVar_vec(jetAK8Phi,0)
-    j2_phiAK8 = utl.jetVar_vec(jetAK8Phi,1)
-    inpObj["deltaR12jAK8"] = utl.delta_R(j1_etaAK8,j2_etaAK8,j1_phiAK8,j2_phiAK8)
-    # inpObj["GenMT2_AK8"] = df['GenMT2_AK8']
-    # inpObj["GenJetsAK8_darkPtFrac"] = df['GenJetsAK8_darkPtFrac']
-
-    return inpObj
