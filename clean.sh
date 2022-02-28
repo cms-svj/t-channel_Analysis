@@ -49,4 +49,7 @@ $ECHO "\nRemoving the ipython/jupyter kernel ... "
 storage_dir=$(readlink -f $PWD)
 rm -rf ${storage_dir}/.local/share/jupyter/kernels/${NAME}
 
+$ECHO "\nRemoving lpc_dask"
+rm -rf lpc_dask
+
 $ECHO "\nFINISHED"

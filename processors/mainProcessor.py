@@ -5,24 +5,18 @@ from utils import utility as utl
 import utils.objects as ob
 from utils import baseline as bl
 from utils.variables import variables
-# from utils.runNeuralNetwork import runNN
+from utils.runNeuralNetwork import runNN
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf):
+        def __init__(self,dataset,sf,model,varSet,normMean,normStd):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
                 self.dataset = dataset
                 self.scaleFactor = sf
-        # def __init__(self,dataset,sf,model,varSet,normMean,normStd):
-        #         self._accumulator = processor.dict_accumulator({})
-        #         self.setupHistos = None
-        #         self.dataset = dataset
-        #         self.scaleFactor = sf
-        #         self.model = model
-        #         self.varSet = varSet
-        #         self.normMean = normMean
-        #         self.normStd = normStd
-
+                self.model = model
+                self.varSet = varSet
+                self.normMean = normMean
+                self.normStd = normStd
         @property
         def accumulator(self):
                 return self._accumulator
@@ -39,7 +33,7 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor)
-                # runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
+                runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
 
@@ -58,7 +52,7 @@ class MainProcessor(processor.ProcessorABC):
                         ## filling histograms
                         for varName,varDetail in variables.items():
                             if len(vars_noCut[varName][0]) != len(cut):
-                                print(len(vars_noCut[varName][0]),len(cut))
+                                print(varName, len(vars_noCut[varName][0]), cutName, len(cut))
                             hIn = vars_noCut[varName][0][cut]
                             hW = weight
                             wKey = vars_noCut[varName][1]

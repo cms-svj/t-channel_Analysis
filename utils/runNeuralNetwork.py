@@ -1,12 +1,11 @@
 import numpy as np
-import awkward1 as ak
+import awkward as ak
 import torch.utils.data as udata
 import torch
 import pandas as pd
 from .variables import variables
 from torch.nn import functional as f
-import matplotlib.pyplot as plt
-from coffea.analysis_objects import JaggedCandidateArray
+from utils import utility as u
 
 def normalize(df,normMean,normStd):
     return (df-normMean)/normStd
@@ -19,7 +18,7 @@ def get_all_vars(varsIn,varSet,normMean,normStd):
         if variables[var][4] == 2:
             inputArr = np.repeat(ak.to_numpy(inputArr),ak.to_numpy(varsIn["njetsAK8"][0]))
         if variables[var][5] == 1:
-            inputArr = inputArr.flatten()
+            inputArr = ak.flatten(inputArr)
         elif variables[var][5] == 2:
             inputArr = ak.flatten(inputArr)
         dataSet[var] = inputArr
@@ -55,15 +54,10 @@ def runNN(model,varsIn,varSet,normMean,normStd):
     dataset = RootDataset(varsIn=varsIn,varSet=varSet, normMean=normMean, normStd=normStd)
     nnOutput = getNNOutput(dataset, model)
     fjets = varsIn["fjets"]
-    svjJetsAK8 = JaggedCandidateArray.candidatesfromcounts(
-        fjets.counts,
-        pt=fjets.pt.flatten(),
-        eta=fjets.eta.flatten(),
-        phi=fjets.phi.flatten(),
-        mass=fjets.mass.flatten(),
-        nnOutput = nnOutput
-    )
+    counts = ak.num(fjets.pt)
+    svjJetsAK8 = ak.unflatten(nnOutput, counts)
+
     wpt = 0.5
-    darksvjJetsAK8 = svjJetsAK8[svjJetsAK8.nnOutput >= wpt]
-    varsIn['nsvjJetsAK8'] = [darksvjJetsAK8.counts,"evtw"]
-    varsIn['nnOutput'] = [svjJetsAK8.nnOutput,"fjw"]
+    darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
+    varsIn['nsvjJetsAK8'] = [ak.num(darksvjJetsAK8),"evtw"]
+    varsIn['nnOutput'] = [svjJetsAK8,"fjw"]
