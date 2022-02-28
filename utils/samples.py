@@ -56,18 +56,18 @@ def getAllFilesets():
 
 def sfGetter(sample):
     scaleFactor = {
-        "2018_mQCDmini_Pt_80to120":      29535000./575000., # 29535000./575000.
-        "2018_mQCDmini_Pt_120to170":     25255000./800000.,
-        "2018_mQCDmini_Pt_170to300":     29710000./680000.,
-        "2018_mQCDmini_Pt_300to470":     41744000./728000.,
-        "2018_mQCDmini_Pt_470to600":     42459973./368000., # only the second half of the mini samples
-        "2018_mQCDmini_Pt_600to800":     64061000./219000.,
-        "2018_mQCDmini_Pt_800to1000":    37598000./264000.,
-        "2018_mQCDmini_Pt_1000to1400":   18485000./420000.,
-        "2018_mQCDmini_Pt_1400to1800":   6928000./352000.,
-        "2018_mQCDmini_Pt_1800to2400":   4017800./383420.,
-        "2018_mQCDmini_Pt_2400to3200":   2394000./360000.,
-        "2018_mQCDmini_Pt_3200toInf":    800000./275000.,
+        "2018_mQCDmini_Pt_80to120":      29535000./3565000., # 29535000./575000.
+        "2018_mQCDmini_Pt_120to170":     25255000./3940000.,
+        "2018_mQCDmini_Pt_170to300":     29710000./3175000.,
+        "2018_mQCDmini_Pt_300to470":     41744000./3600000.,
+        "2018_mQCDmini_Pt_470to600":     42459973./3712000., # only the second half of the mini samples
+        "2018_mQCDmini_Pt_600to800":     64061000./1848000.,
+        "2018_mQCDmini_Pt_800to1000":    37598000./1902000.,
+        "2018_mQCDmini_Pt_1000to1400":   18485000./2037000.,
+        "2018_mQCDmini_Pt_1400to1800":   6928000./1972000.,
+        "2018_mQCDmini_Pt_1800to2400":   4017800./1445800.,
+        "2018_mQCDmini_Pt_2400to3200":   2394000./1440000.,
+        "2018_mQCDmini_Pt_3200toInf":    800000./800000.,
         "2018_mTTJetsmini_Incl":         10244307./841560.
     }
     sf = 1
