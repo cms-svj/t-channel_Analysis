@@ -84,20 +84,15 @@ def Preselection(qualityCuts,nl):
 
 def PassTrigger(triggerPass):
     indicesOfHighEffTrig = [11,12,13,14,67,107,108,131,8,90,98,116]
-    tPassedHEList = []
-    tPassedList = []
-    for evt in triggerPass:
-        tPassed = []
-        tPassedHE = []
-        for tp in range(len(evt)):
-            if evt[tp] == 1:
-                if tp in indicesOfHighEffTrig:
-                    tPassedHE.append(tp)
-        tPassedList.append(tPassed)
-        tPassedHEList.append(tPassedHE)
-    tPassedList = ak.Array(tPassedList)
-    tPassedHEList = ak.Array(tPassedHEList)
-    return ak.count(tPassedHEList,axis=-1) > 0
+    triggerPass = ak.to_numpy(triggerPass)
+    nTrigs= len(triggerPass[0])
+    trigReq = []
+    for i in range(nTrigs):
+        if i in indicesOfHighEffTrig:
+            trigReq.append(1)
+        else:
+            trigReq.append(0)
+    return np.sum(np.multiply(trigReq,triggerPass),axis=1) > 0
 
 def cutList(dataset,events,vars_noCut,SVJCut=True):
     evtw = vars_noCut["evtw"][0]
