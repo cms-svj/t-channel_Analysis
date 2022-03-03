@@ -51,8 +51,6 @@ class MainProcessor(processor.ProcessorABC):
                     if len(events) > 0:
                         ## filling histograms
                         for varName,varDetail in variables.items():
-                            if len(vars_noCut[varName][0]) != len(cut):
-                                print(varName, len(vars_noCut[varName][0]), cutName, len(cut))
                             hIn = vars_noCut[varName][0][cut]
                             hW = weight
                             wKey = vars_noCut[varName][1]
