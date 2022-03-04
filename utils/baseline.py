@@ -92,7 +92,8 @@ def PassTrigger(triggerPass):
             trigReq.append(1)
         else:
             trigReq.append(0)
-    return np.sum(np.multiply(trigReq,triggerPass),axis=1) > 0
+    mult = triggerPass*trigReq
+    return np.any(mult==1,axis=1)
 
 def cutList(dataset,events,vars_noCut,SVJCut=True):
     evtw = vars_noCut["evtw"][0]
