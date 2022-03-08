@@ -25,7 +25,7 @@ class Objects:
 
     def goodJets(self):
         # # Good AK4 Jets Cut
-        ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < 5.0) & (self.jets.ID == True)
+        ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < 2.0) & (self.jets.ID == True)
         return self.jets[ak4QualityCut]
 
     def goodFatJets(self):
