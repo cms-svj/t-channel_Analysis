@@ -15,12 +15,12 @@ class Objects:
 
     def goodElectrons(self):
         # # Good Electrons
-        electronQualityCut = (self.electrons.pt > self.leptonPt) & (abs(self.electrons.eta) < self.etaCut) & (self.electrons.iso < 0.1)
+        electronQualityCut = (self.electrons.pt > self.leptonPt) & (abs(self.electrons.eta) < self.etaCut)
         return self.electrons[electronQualityCut]
 
     def goodMuons(self):
         # # Good Muons
-        muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso < 0.4)
+        muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut)
         return self.muons[muonQualityCut]
 
     def goodJets(self):

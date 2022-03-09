@@ -110,6 +110,8 @@ variables = {
 'j2SoftDropMassAK8':                      [r"$m_{SD}(j)$",                                     40,     0.0,    200,         2,     0],
 'dPhij2METAK8':                           [r"$\Delta\phi(J_{1},MET)$",                         100,    0.0,    4.0,         2,     0],
 'dPhij1rdPhij2AK8':                       [r"$\Delta\phi(J_{1},MET)/\Delta\phi(J_{2},MET)$",   100,    0.0,    100.0,       2,     0],
+'electronsIso':                           ["electrons iso",                                    500,    0.0,    50.0,        0,     1],
+'muonsIso':                               ["muons iso",                                        500,    0.0,    100.0,       0,     1],
 # 'mT2_f4_msm':                             [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0],
 # 'mT2_f4_msm_dEta':                        [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0],
 # 'mT2_f4_msm_dPhi':                        [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0],
