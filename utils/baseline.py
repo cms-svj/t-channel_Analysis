@@ -1,5 +1,6 @@
 import numpy as np
 import awkward as ak
+from . import triggerDict as tD
 
 def TTStitch(dataset,events):
     # # TT Stiching mask
@@ -82,13 +83,15 @@ def METFilters(events):
 def Preselection(qualityCuts,nl):
     return (qualityCuts & (nl == 0))
 
-def PassTrigger(triggerPass):
-    indicesOfHighEffTrig = [11,12,13,14,67,107,108,131,8,90,98,116]
+def trgListtoInd(trgList):
+    return [tD.trigDict.get(trg) for trg in trgList]
+
+def PassTrigger(triggerPass,indices):
     triggerPass = ak.to_numpy(triggerPass)
     nTrigs= len(triggerPass[0])
     trigReq = []
     for i in range(nTrigs):
-        if i in indicesOfHighEffTrig:
+        if i in indices:
             trigReq.append(1)
         else:
             trigReq.append(0)
@@ -111,7 +114,6 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     jetIDAK8 = events.JetIDAK8
     ttStitch = TTStitch(dataset,events)
     metFilters = METFilters(events)
-    triggerCut = PassTrigger(triggerPass)
     # psFilter = PhiSpikeFilter(dataset,vars_noCut['jets'])
     # qualityCuts = metFilters & psFilter & ttStitch
     # qualityCuts = metFilters & psFilter # NN training files
@@ -123,12 +125,17 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
 
     cuts = {
             ""                          : np.ones(len(evtw),dtype=bool),
-            "_trg"                         : triggerCut,
-            "_trg_metfilter"             : triggerCut & metFilters,
             "_metfilter_0l"              : metFilters & (nl == 0),
-            "_trg_metfilter_0l"          : triggerCut & metFilters & (nl == 0),
-            # "_trg_metfilter_0l_trgPlat"  : triggerCut & metFilters & (nl == 0) & trgPlat,
     }
+
+    # trigger choices
+    HETrg_noSch_ind =  trgListtoInd(tD.HETrg_noSch)
+    cuts["_HETrg_noSch"] = PassTrigger(triggerPass,HETrg_noSch_ind)
+    HETrg_wSch_ind =  trgListtoInd(tD.HETrg_wSch)
+    schTrigIns = trgListtoInd(tD.schTriggers)
+    cuts["_HETrg_wSch"] = PassTrigger(triggerPass,HETrg_wSch_ind + schTrigIns)
+    oldHEsch_ind =  trgListtoInd(tD.oldHEsch)
+    cuts["_oldHEsch"] = PassTrigger(triggerPass,oldHEsch_ind + schTrigIns)
     # cuts with svj
     if SVJCut == True:
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]

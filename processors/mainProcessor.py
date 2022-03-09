@@ -48,6 +48,8 @@ class MainProcessor(processor.ProcessorABC):
                     weight = vars_noCut["evtw"][0][cut]
                     jweight = ak.flatten(vars_noCut["jw"][0][cut])
                     fjweight = ak.flatten(vars_noCut["fjw"][0][cut])
+                    eweight = ak.flatten(vars_noCut["ew"][0][cut])
+                    mweight = ak.flatten(vars_noCut["mw"][0][cut])
                     if len(events) > 0:
                         ## filling histograms
                         for varName,varDetail in variables.items():
@@ -62,6 +64,10 @@ class MainProcessor(processor.ProcessorABC):
                                 hW = jweight
                             elif wKey == "fjw":
                                 hW = fjweight
+                            elif wKey == "ew":
+                                hW = eweight
+                            elif wKey == "mw":
+                                hW = mweight
                             elif wKey == "w1":
                                 hW = np.ones(len(weight))
                             if len(hIn) > 0:
