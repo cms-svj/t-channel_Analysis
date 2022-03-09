@@ -90,11 +90,8 @@ def PassTrigger(triggerPass,indices):
     triggerPass = ak.to_numpy(triggerPass)
     nTrigs= len(triggerPass[0])
     trigReq = []
-    for i in range(nTrigs):
-        if i in indices:
-            trigReq.append(1)
-        else:
-            trigReq.append(0)
+    trigReq = np.zeros(nTrigs, dtype=int)
+    trigReq[indices] = 1
     mult = triggerPass*trigReq
     return np.any(mult==1,axis=1)
 
