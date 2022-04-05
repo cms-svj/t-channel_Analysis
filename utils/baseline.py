@@ -83,8 +83,8 @@ def METFilters(events):
 def Preselection(qualityCuts,nl):
     return (qualityCuts & (nl == 0))
 
-def trgListtoInd(trgList):
-    return [tD.trigDict.get(trg) for trg in trgList]
+def trgListtoInd(trigDict,trgList):
+    return [trigDict.get("HLT_{}_v".format(trg)) for trg in trgList]
 
 def PassTrigger(triggerPass,indices):
     triggerPass = ak.to_numpy(triggerPass)
@@ -119,20 +119,21 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     metCut = met > 300
     htCut = 1250
     trgPlat = metCut & htCut
-
     cuts = {
             ""                          : np.ones(len(evtw),dtype=bool),
             "_metfilter_0l"              : metFilters & (nl == 0),
     }
 
     # trigger choices
-    HETrg_noSch_ind =  trgListtoInd(tD.HETrg_noSch)
-    cuts["_HETrg_noSch"] = PassTrigger(triggerPass,HETrg_noSch_ind)
-    HETrg_wSch_ind =  trgListtoInd(tD.HETrg_wSch)
-    schTrigIns = trgListtoInd(tD.schTriggers)
-    cuts["_HETrg_wSch"] = PassTrigger(triggerPass,HETrg_wSch_ind + schTrigIns)
-    oldHEsch_ind =  trgListtoInd(tD.oldHEsch)
-    cuts["_oldHEsch"] = PassTrigger(triggerPass,oldHEsch_ind + schTrigIns)
+    years = ["2016","2017","2018"]
+    yr = 0
+    for year in years:
+        if year in dataset:
+            yr = year
+    trigDict = tD.trigDicts[yr]
+    trgSelection = tD.trgSelections[yr]
+    tch_trgs =  trgListtoInd(trigDict,trgSelection)
+    cuts["_trg"] = PassTrigger(triggerPass,tch_trgs)
     # cuts with svj
     if SVJCut == True:
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]

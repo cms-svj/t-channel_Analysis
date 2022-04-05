@@ -145,7 +145,12 @@ def tch_hvCat_decode(hvCat):
 
 def varGetter(dataset,events,scaleFactor):
     varVal = {}
-    luminosity = 21071.0+38654.0
+    if "2016" in dataset:
+        luminosity = 35921.036
+    elif "2017" in dataset:
+        luminosity = 41521.331
+    elif "2018" in dataset:
+        luminosity = 59692.692
     evtw = luminosity*events.Weight*scaleFactor
     eCounter = np.where(evtw >= 0, 1, -1)
     obj = ob.Objects(events)
