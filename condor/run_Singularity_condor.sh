@@ -20,7 +20,7 @@ tar -xzf tchannel.tar.gz
 ls -l
 
 # Setup the activation script for the virtual environment
-$ECHO "\nSetting up the activation script for the virtual environment ... "
+echo "\nSetting up the activation script for the virtual environment ... "
 source init.sh
 
 echo "ls output"
@@ -40,7 +40,6 @@ echo ${dataset_longname}
 echo ${nfiles}
 echo ${startfile}
 echo ${workers}
-# python analyze.py --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile} -w ${workers} -s ${chunksize}
 python ${analyzeFile} --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile} -w ${workers} -s ${chunksize}
 
 echo "\n\n ls output\n"
@@ -50,7 +49,7 @@ if [[ ${analyzeFile} == analyze.py ]]
 then
   mv MyAnalysis*.root ${base_dir}
 else
-  xrdcp -f MyAnalysis*.root ${NNTrainingOut}.
+  xrdcp -f MyAnalysis*.root ${NNTrainingOut}/.
   rm MyAnalysis*.root
 fi
 

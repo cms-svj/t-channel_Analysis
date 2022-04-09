@@ -10,6 +10,7 @@ def removeCopies(x):
 def makeExeAndFriendsTarball(filestoTransfer, fname, path):
     system("mkdir -p %s" % fname)
     for fn in removeCopies(filestoTransfer):
+        print(fn)
         system("cd %s; ln -s %s" % (fname, fn))
 
     tarallinputs = "tar czf %s/%s.tar.gz %s --dereference"% (path, fname, fname)
@@ -114,7 +115,6 @@ def main():
         print("-"*50)
         print("Making the tar ball")
         makeExeAndFriendsTarball(filestoTransfer, "exestuff", options.outPath)
-        #system("tar --exclude-caches-all --exclude-vcs -zcf %s/tchannel.tar.gz -C ${TCHANNEL_BASE}/.. tchannel --exclude=src --exclude=tmp" % options.outPath)
         system("tar czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} . --exclude=EventLoopFramework --exclude=test --exclude=output --exclude=condor --exclude=notebooks --exclude=root --exclude=.git --exclude=coffeaenv.tar.gz" % options.outPath)
 
         # submit the jobs to condor
