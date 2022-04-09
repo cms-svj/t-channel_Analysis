@@ -21,8 +21,7 @@ ls -l
 
 # Setup the activation script for the virtual environment
 $ECHO "\nSetting up the activation script for the virtual environment ... "
-storage_dir=$(readlink -f $PWD)
-export TCHANNEL_BASE=${storage_dir}
+source init.sh
 
 echo "ls output"
 ls -l

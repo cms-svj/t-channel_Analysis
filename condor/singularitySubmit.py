@@ -34,7 +34,7 @@ def main():
     parser.add_option ('--pout',          dest='NNTrainOut',                                   default = "",            help="Directory to store the NN training root files.")
     parser.add_option ('-w','--workers',  dest='workers',  type='int',                         default = 2,             help='Number of workers to use for multi-worker executors (e.g. futures or condor)')
     parser.add_option ('--output',        dest='outPath',  type='string',                      default = '.',           help="Name of directory where output of each condor job goes")
-    parser.add_option('-s', '--chunksize',dest='chunksize',type='int',                           default=10000,           help='Chunk size',)
+    parser.add_option('-s', '--chunksize',dest='chunksize',type='int',                         default=10000,           help='Chunk size',)
     options, args = parser.parse_args()
 
     analyzeFile = "analyze.py"
@@ -49,7 +49,8 @@ def main():
     fileParts = []
     fileParts.append("Universe   = vanilla\n")
     fileParts.append("Executable = run_Singularity_condor.sh\n")
-    fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest\"\n")
+    #fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest\"\n")
+    fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity\"\n")
     fileParts.append("Transfer_Input_Files = %s/%s.tar.gz, %s/exestuff.tar.gz\n" % (options.outPath,"tchannel",options.outPath))
     fileParts.append("Should_Transfer_Files = YES\n")
     fileParts.append("WhenToTransferOutput = ON_EXIT\n")
@@ -116,8 +117,7 @@ def main():
         print("-"*50)
         print("Making the tar ball")
         makeExeAndFriendsTarball(filestoTransfer, "exestuff", options.outPath)
-        #system("tar --exclude-caches-all --exclude-vcs -zcf %s/tchannel.tar.gz -C ${TCHANNEL_BASE}/.. tchannel --exclude=src --exclude=tmp" % options.outPath)
-        system("tar czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} . --exclude=coffeaenv --exclude=EventLoopFramework --exclude=test --exclude=output --exclude=condor --exclude=notebooks --exclude=root --exclude=.git --exclude=coffeaenv.tar.gz" % options.outPath)
+        system("tar -czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} --exclude=./EventLoopFramework --exclude=./coffeaenv.tar.gz --exclude=./condor --exclude=root --exclude=.git --exclude=./notebooks ." % options.outPath)
 
         # submit the jobs to condor
         system('mkdir -p %s/log-files' % options.outPath)
