@@ -101,12 +101,9 @@ Dask can be used to run `analyze.py` in parallel, either locally or on Condor. T
 To view the status dashboard, specify `--port 8NNN` (using the forwarded port from the earlier ssh command)
 and navigate to `localhost:8NNN` in a web browser.
 
-To make histograms on condor using the singularity container, cd into the `condor` directory (make sure you are in the default `coffeaenv` environment) and run
+To run jobs on condor, cd into the `condor` directory and run
 ```bash
-python singularitySubmit.py -d 2018_QCD,2018_TTJets,2018_WJets,2018_ZJets,2018_mMed -n 10 -w 1 --output [output directory for histogram files]
-```
-To make neural network training input files on condor, cd into the `condor` directory (make sure you are in the default `coffeaenv` environment) and run
-```bash
+source initCondor.sh
 python condorSubmit.py -d 2018_QCD,2018_mMed,2018_TTJets,2018_WJets,2018_ZJets -n 5 -w 1 --output [output directory] -p --pout [eos output directory for storing the training files]
 ```
 * actually the argument after `--output` does not do anything in this case.
