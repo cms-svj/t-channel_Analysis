@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 dataset_longname=$1
 nfiles=$2
@@ -17,6 +17,10 @@ mkdir tchannel
 mv tchannel.tar.gz tchannel/.
 cd tchannel
 tar -xzf tchannel.tar.gz
+ls -l
+
+# Setup the activation script for the virtual environment
+echo "\nSetting up the activation script for the virtual environment ... "
 source init.sh
 
 echo "ls output"
@@ -25,9 +29,11 @@ ls -l
 echo "output of uname -s : "
 uname -s
 
-#printf "\n\n"
-#cp ${base_dir}/exestuff.tar.gz .
-#tar xzf exestuff.tar.gz
+echo "unpacking exestuff"
+cp ${base_dir}/exestuff.tar.gz .
+tar xzf exestuff.tar.gz
+mv exestuff/* .
+ls -l
 
 echo "\n\n Attempting to run MyAnalysis executable.\n\n"
 echo ${dataset_longname}
