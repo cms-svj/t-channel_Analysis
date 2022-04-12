@@ -11,6 +11,7 @@ usage(){
 	$ECHO
 	$ECHO "Options:"
 	$ECHO "-d              \tuse the developer branch of Coffea (default = 0)"
+	$ECHO "-l              \tuse default LCG environment"
 	$ECHO "-h              \tprint this message and exit"
 	$ECHO "-n [NAME]       \toverride the name of the virtual environment (default = coffeaenv)"
 	exit $EXIT
@@ -18,6 +19,7 @@ usage(){
 
 NAME=coffeaenv
 LCG=/cvmfs/sft.cern.ch/lcg/views/LCG_101cuda/x86_64-centos7-gcc8-opt
+SC=/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity
 DEV=0
 useLCG=0
 
@@ -45,18 +47,27 @@ done
 if [[ "$useLCG" == "1" ]]; then
         $ECHO "\nGetting the LCG environment ... "
         source $LCG/setup.sh
+        pyenvflag=--copies
+elif [[ "$SINGULARITY_CONTAINER" == "$SC" ]]; then
+        $ECHO "\nBuilding env on top of Singularity container \"$SINGULARITY_CONTAINER\" ... "
+        pyenvflag=--system-site-packages
 else
-        $ECHO "\nAssuming you are in the right Singularity container ... "    
+        $ECHO "Error: Expected to be in Singularity container \"$SC\""
+        $ECHO "Error: Either launch the correct Singularity container or specify that you are using LCG with the \"-l\" flag"
+        exit
 fi
+
+# Finding path to env
+pypath=`which python | sed 's/bin\/python//g'`
 
 # Install most of the needed software in a virtual environment
 # following https://aarongorka.com/blog/portable-virtualenv/, an alternative is https://github.com/pantsbuild/pex
 $ECHO "\nMaking and activating the virtual environment ... "
-python -m venv --system-site-packages $NAME
+python -m venv $pyenvflag $NAME
 source $NAME/bin/activate
 
+# Setting up Dask
 $ECHO "\nSetup for Dask on LPC ... \n"
-pypath=`which python | sed 's/bin\/python//g'`
 pyversion=$(python -c"import sys; print('{}.{}'.format(sys.version_info.major,sys.version_info.minor))")
 pypackages=lib/python${pyversion}/site-packages/
 siteprefix=${pypath}/${pypackages}
@@ -65,15 +76,15 @@ export PYTHONPATH=""
 ln -sf ${siteprefix}/pyxrootd ${NAME}/${pypackages}/pyxrootd
 ln -sf ${siteprefix}/XRootD   ${NAME}/${pypackages}/XRootD
 git clone git@github.com:cms-svj/lpc_dask
-python -m pip install --no-cache-dir pip --upgrade
-python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
 
+# pip installing extra python packages
 $ECHO "\nInstalling 'pip' packages ... \n"
 python -m pip install --no-cache-dir pip --upgrade
-if [[ "$useLCG" == "1" ]]; then
-        python -m pip install --no-cache-dir torch==1.9 --upgrade
-fi
+python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
 python -m pip install --no-cache-dir magiconfig
+if [[ "$useLCG" == "1" ]]; then
+        python -m pip install --no-cache-dir torch==1.9 --upgrade        
+fi
 python -m pip install --no-cache-dir mt2
 if [[ "$DEV" == "1" ]]; then
 	$ECHO "\nInstalling the 'development' version of Coffea ... "
@@ -101,10 +112,12 @@ find $NAME/bin/ -type f -print0 | xargs -0 -P 4 sed -i '1s/#!.*python$/#!\/usr\/
 sed -i "2a source ${pypath}/setup.sh"'\nexport PYTHONPATH=""' $NAME/bin/activate
 sed -i "4a source ${pypath}/setup.csh"'\nsetenv PYTHONPATH ""' $NAME/bin/activate.csh
 
+# Setting up jupyter
 $ECHO "\nSetting up the ipython/jupyter kernel ... "
 storage_dir=$(readlink -f $PWD)
 ipython kernel install --prefix=${storage_dir}/.local --name=$NAME
 
+# Finishing up
 tar -zcf ${NAME}.tar.gz ${NAME}
 deactivate
 $ECHO "\nFINISHED"
