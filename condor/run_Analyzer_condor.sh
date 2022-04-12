@@ -9,6 +9,9 @@ analyzeFile=$6
 NNTrainingOut=$7
 base_dir=`pwd`
 
+echo "singularity container:"
+echo $SINGULARITY_CONTAINER
+
 echo "ls output"
 ls -l
 

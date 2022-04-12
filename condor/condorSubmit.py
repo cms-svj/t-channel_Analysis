@@ -31,6 +31,7 @@ def main():
     parser.add_option ('-d',              dest='datasets', type='string',                      default = '',            help="List of datasets, comma separated")
     parser.add_option ('-c',              dest='noSubmit',                action='store_true', default = False,         help="Do not submit jobs.  Only create condor_submit.txt.")
     parser.add_option ('-p',              dest='makeROOT',                action='store_true', default = False,         help="Make root tree instead of histograms.")
+    parser.add_option ('-l',              dest='useLCG',                  action='store_true', default = False,         help="Run using the LCG environment")
     parser.add_option ('--pout',          dest='NNTrainOut',                                   default = "",            help="Directory to store the NN training root files.")
     parser.add_option ('-w','--workers',  dest='workers',  type='int',                         default = 2,             help='Number of workers to use for multi-worker executors (e.g. futures or condor)')
     parser.add_option ('--output',        dest='outPath',  type='string',                      default = '.',           help="Name of directory where output of each condor job goes")
@@ -49,8 +50,8 @@ def main():
     fileParts = []
     fileParts.append("Universe   = vanilla\n")
     fileParts.append("Executable = run_Analyzer_condor.sh\n")
-    #fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest\"\n")
-    fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity\"\n")
+    #if not options.useLCG: fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest\"\n")
+    if not options.useLCG: fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity\"\n")
     fileParts.append("Transfer_Input_Files = %s/%s.tar.gz, %s/exestuff.tar.gz\n" % (options.outPath,"tchannel",options.outPath))
     fileParts.append("Should_Transfer_Files = YES\n")
     fileParts.append("WhenToTransferOutput = ON_EXIT\n")
@@ -117,7 +118,7 @@ def main():
         print("-"*50)
         print("Making the tar ball")
         makeExeAndFriendsTarball(filestoTransfer, "exestuff", options.outPath)
-        system("tar -czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} --exclude=./EventLoopFramework --exclude=./coffeaenv.tar.gz --exclude=./condor --exclude=root --exclude=.git --exclude=./notebooks ." % options.outPath)
+        system("tar -czf %s/tchannel.tar.gz -C ${TCHANNEL_BASE} --exclude=./EventLoopFramework --exclude=./*.gz --exclude=./coffeaenvLCG --exclude=./condor --exclude=./*.root --exclude=./.git --exclude=./notebooks ." % options.outPath)
 
         # submit the jobs to condor
         system('mkdir -p %s/log-files' % options.outPath)
