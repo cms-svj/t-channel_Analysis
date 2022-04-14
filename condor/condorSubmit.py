@@ -58,7 +58,9 @@ def main():
     fileParts.append("request_disk = 1000000\n")
     fileParts.append("request_memory = 2000\n")
     fileParts.append("request_cpus = 4\n")
+    fileParts.append("Requirements = $(requirements:True) && (TARGET.has_avx)\n")
     fileParts.append("x509userproxy = $ENV(X509_USER_PROXY)\n\n")
+
 
     # loop over all sample collections in the dataset
     datasets = getDatasets(options.datasets)
