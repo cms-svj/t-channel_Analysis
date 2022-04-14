@@ -48,6 +48,7 @@ if [[ "$useLCG" == "1" ]]; then
         $ECHO "\nGetting the LCG environment ... "
         source $LCG/setup.sh
         pyenvflag=--copies
+        NAME=${NAME}LCG
 elif [[ "$SINGULARITY_CONTAINER" == "$SC" ]]; then
         $ECHO "\nBuilding env on top of Singularity container \"$SINGULARITY_CONTAINER\" ... "
         pyenvflag=--system-site-packages
