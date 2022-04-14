@@ -160,6 +160,7 @@ def varGetter(dataset,events,scaleFactor):
     gfjets = obj.goodGenFatJets()
     electrons = obj.goodElectrons()
     muons = obj.goodMuons()
+    nonIsoMuons = obj.nonIsoMuons()
     met = events.MET
     metPhi = events.METPhi
     mtAK8 = events.MT_AK8
@@ -198,6 +199,7 @@ def varGetter(dataset,events,scaleFactor):
 
     ew = awkwardReshape(electrons,evtw)
     mw = awkwardReshape(muons,evtw)
+    nimw = awkwardReshape(nonIsoMuons,evtw)
     jw = awkwardReshape(jets,evtw)
     fjw = awkwardReshape(fjets,evtw)
     ht = ak.sum(jets.pt,axis=1)
@@ -258,10 +260,12 @@ def varGetter(dataset,events,scaleFactor):
     varVal['fjw'] = [fjw,'fjw']
     varVal['ew'] = [ew,'ew']
     varVal['mw'] = [mw,'mw']
+    varVal['nimw'] = [nimw,'nimw']
     varVal['njets'] = [ak.num(jets),'evtw']
     varVal['njetsAK8'] = [ak.num(fjets),'evtw']
     varVal['nb'] = [nBJets,'evtw']
     varVal['nl'] = [(ak.num(electrons) + ak.num(muons)),'evtw']
+    varVal['nnim'] = [ak.num(nonIsoMuons), 'evtw']
     varVal['ht'] = [ht,'evtw']
     varVal['st'] = [st,'evtw']
     varVal['met'] = [met,'evtw']
@@ -366,6 +370,7 @@ def varGetter(dataset,events,scaleFactor):
     varVal['dPhij1rdPhij2AK8'] = [dPhij1rdPhij2AK8,'evtw']
     varVal['electronsIso'] = [electrons.iso,'ew']
     varVal['muonsIso'] = [muons.iso,'mw']
+    varVal['nonIsoMuonsIso'] = [nonIsoMuons.iso,'nimw']
     # varVal['GenJetsAK8_hvCategory'] = [GenJetsAK8_hvCategory.flatten(),gfjweight]
     # varVal['mT2_f4_msm'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,""),'evtw']
     # varVal['mT2_f4_msm_dEta'] = [f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dEta"),'evtw']

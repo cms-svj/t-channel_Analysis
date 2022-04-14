@@ -98,6 +98,7 @@ def PassTrigger(triggerPass,indices):
 def cutList(dataset,events,vars_noCut,SVJCut=True):
     evtw = vars_noCut["evtw"][0]
     nl = vars_noCut["nl"][0]
+    nnim = vars_noCut["nnim"][0]
     njets = vars_noCut["njets"][0]
     njetsAK8 = vars_noCut["njetsAK8"][0]
     nb = vars_noCut["nb"][0]
@@ -119,10 +120,6 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     metCut = met > 300
     htCut = 1250
     trgPlat = metCut & htCut
-    cuts = {
-            ""                          : np.ones(len(evtw),dtype=bool),
-            "_metfilter_0l"              : metFilters & (nl == 0),
-    }
 
     # trigger choices
     years = ["2016","2017","2018"]
@@ -132,8 +129,19 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
             yr = year
     trigDict = tD.trigDicts[yr]
     trgSelection = tD.trgSelections[yr]
+    trgSelectionsQCDCR = tD.trgSelectionsQCDCR[yr]
     tch_trgs =  trgListtoInd(trigDict,trgSelection)
-    cuts["_trg"] = PassTrigger(triggerPass,tch_trgs)
+    tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
+
+    # Define all cuts for histo making
+    cuts = {
+            ""                          : np.ones(len(evtw),dtype=bool),
+            "_metfilter_0l"             : metFilters & (nl == 0),
+            "_trg"                      : PassTrigger(triggerPass,tch_trgs),
+            "_metfilter_0l_1nim"        : metFilters & (nl == 0) & (nnim == 1),
+            "_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
+    }
+
     # cuts with svj
     if SVJCut == True:
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]
