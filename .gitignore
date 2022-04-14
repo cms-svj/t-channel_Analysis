@@ -13,6 +13,8 @@
 **.ps
 **.jpeg
 **.eps
+**.npz
+**.pth
 
 #condor log files
 **.log
