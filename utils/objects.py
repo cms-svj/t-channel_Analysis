@@ -11,7 +11,7 @@ class Objects:
         self.gfjets = events.GenJetsAK8
         # Quality cut
         self.etaCut = 2.4
-        self.leptonPt = 10
+        self.leptonPt = 10.0
 
     def goodElectrons(self):
         # # Good Electrons
@@ -22,6 +22,11 @@ class Objects:
         # # Good Muons
         muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso < 0.4)
         return self.muons[muonQualityCut]
+
+    def nonIsoMuons(self):
+        # # Good Muons
+        nonIsomuonQualityCut = (self.muons.pt > 55.0) & (abs(self.muons.eta) < self.etaCut) & (self.muons.passIso == False) & (self.muons.mediumID == True)
+        return self.muons[nonIsomuonQualityCut]
 
     def goodJets(self):
         # # Good AK4 Jets Cut

@@ -256,3 +256,16 @@ trgSelections = {
                 "PFMETNoMu120_PFMHTNoMu120_IDTight"
             ]
 }
+
+trgSelectionsQCDCR = {
+    "2016" : [
+        "Mu50", 
+        "TkMu50",
+    ],
+    "2017" : [
+        "Mu50",
+    ],
+    "2018" : [
+        "Mu50",
+    ],
+}
