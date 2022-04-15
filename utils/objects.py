@@ -8,7 +8,7 @@ class Objects:
         self.muons = events.Muons
         self.jets = events.Jets
         self.fjets = events.JetsAK8
-        self.gfjets = events.GenJetsAK8
+        # self.gfjets = events.GenJetsAK8
         # Quality cut
         self.etaCut = 2.4
         self.leptonPt = 10
@@ -33,10 +33,10 @@ class Objects:
         ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0) & (self.fjets.ID == True)
         return self.fjets[ak8QualityCut]
 
-    def goodGenFatJets(self):
-        # # Good AK8 Jets Cut
-        ak8QualityCut = self.gfjets.pt > 170 & (abs(self.gfjets.eta) < 5.0)
-        return self.gfjets[ak8QualityCut]
+    # def goodGenFatJets(self):
+    #     # # Good AK8 Jets Cut
+    #     ak8QualityCut = self.gfjets.pt > 170 & (abs(self.gfjets.eta) < 5.0)
+    #     return self.gfjets[ak8QualityCut]
 
     def goodBJets(self,dataset,jets):
         if len(jets) > 0:

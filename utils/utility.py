@@ -145,25 +145,32 @@ def tch_hvCat_decode(hvCat):
 
 def varGetter(dataset,events,scaleFactor):
     varVal = {}
-    if "2016" in dataset:
-        luminosity = 35921.036
-    elif "2017" in dataset:
-        luminosity = 41521.331
-    elif "2018" in dataset:
-        luminosity = 59692.692
-    evtw = luminosity*events.Weight*scaleFactor
+    dataKeys = ["HTMHT","JetHT","MET","SingleElectron","SingleMuon","SinglePhoton","EGamma"]
+    isData = False
+    for dKey in dataKeys:
+        if dKey in dataset:
+            isData = True
+            break
+    evtw = np.ones(len(events))
+    if not isData:
+        if "2016" in dataset:
+            luminosity = 35921.036
+        elif "2017" in dataset:
+            luminosity = 41521.331
+        elif "2018" in dataset:
+            luminosity = 59692.692
+        evtw = luminosity*events.Weight*scaleFactor
     eCounter = np.where(evtw >= 0, 1, -1)
     obj = ob.Objects(events)
     jets = obj.goodJets()
     bjets = obj.goodBJets(dataset,jets)
     fjets = obj.goodFatJets()
-    gfjets = obj.goodGenFatJets()
+    # gfjets = obj.goodGenFatJets()
     electrons = obj.goodElectrons()
     muons = obj.goodMuons()
     met = events.MET
     metPhi = events.METPhi
     mtAK8 = events.MT_AK8
-    madHT = events.madHT
     jetAK8Eta = fjets.eta
     jetAK8Phi = fjets.phi
     j1_etaAK8 = jetVar_i(jetAK8Eta,0)
@@ -174,15 +181,15 @@ def varGetter(dataset,events,scaleFactor):
     ## GenJetsAK8_hvCategory is only present in the signal samples, not the V17 background
     jetCats = []
     bkgKeys = ["QCD","TTJets","WJets","ZJets"]
-    isSignal = True
-    for k in bkgKeys:
-        if k in dataset:
-            isSignal = False
-            break
+    isSignal = False
+    if "mMed" in dataset:
+        isSignal = True
     if isSignal:
         jetsAK8GenInd = fjets.genIndex
         for gji in range(len(jetsAK8GenInd)):
             genInd = jetsAK8GenInd[gji]
+            GenJetsAK8 = events.GenJetsAK8
+            gfjets = GenJetsAK8[GenJetsAK8.pt > 170 & (abs(GenJetsAK8.eta) < 5.0)]
             genCat = gfjets.hvCategory[gji]
             if (len(genCat) > 0) and (len(genInd) > 0):
                 if np.max(genInd) < len(genCat):
@@ -266,7 +273,7 @@ def varGetter(dataset,events,scaleFactor):
     varVal['st'] = [st,'evtw']
     varVal['met'] = [met,'evtw']
     varVal['metPhi'] = [metPhi, 'evtw']
-    varVal['madHT'] = [madHT,'evtw']
+    # varVal['madHT'] = [madHT,'evtw']
     varVal['jPt'] = [jets.pt,'jw']
     varVal['jEta'] = [jetEta,'jw']
     varVal['jPhi'] = [jetPhi,'jw']
