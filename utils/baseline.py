@@ -4,21 +4,21 @@ from . import triggerDict as tD
 
 def TTStitch(dataset,events):
     # # TT Stiching mask
-    madHT = events.madHT
-    nEle = ak.num(events.GenElectrons)
-    nMu = ak.num(events.GenMuons)
-    nTau = ak.num(events.GenTaus)
-    genMET = events.GenMET
-
     ttStitchMask = None
-    if "TTJets_Inc" in dataset or "mTTJetsmini_Incl" in dataset:
-        ttStitchMask = (madHT < 600) & (nEle==0) & (nMu==0) & (nTau==0)
-    elif "TTJets_HT" in dataset:
-        ttStitchMask = (madHT >= 600)
-    elif ("TTJets_DiLept" in dataset and "genMET" not in dataset) or ("TTJets_SingleLeptFromT" in dataset and "genMET" not in dataset):
-        ttStitchMask = (madHT < 600) & (genMET < 150)
-    elif ("TTJets_DiLept" in dataset and "genMET" in dataset) or ("TTJets_SingleLeptFromT" in dataset and "genMET" in dataset):
-        ttStitchMask = (madHT < 600) & (genMET >= 150)
+    if "TTJets" in dataset:
+        madHT = events.madHT
+        nEle = ak.num(events.GenElectrons)
+        nMu = ak.num(events.GenMuons)
+        nTau = ak.num(events.GenTaus)
+        genMET = events.GenMET
+        if "TTJets_Inc" in dataset or "mTTJetsmini_Incl" in dataset:
+            ttStitchMask = (madHT < 600) & (nEle==0) & (nMu==0) & (nTau==0)
+        elif "TTJets_HT" in dataset:
+            ttStitchMask = (madHT >= 600)
+        elif ("TTJets_DiLept" in dataset and "genMET" not in dataset) or ("TTJets_SingleLeptFromT" in dataset and "genMET" not in dataset):
+            ttStitchMask = (madHT < 600) & (genMET < 150)
+        elif ("TTJets_DiLept" in dataset and "genMET" in dataset) or ("TTJets_SingleLeptFromT" in dataset and "genMET" in dataset):
+            ttStitchMask = (madHT < 600) & (genMET >= 150)
     else:
         ttStitchMask = np.ones(len(events),dtype=bool)
 
