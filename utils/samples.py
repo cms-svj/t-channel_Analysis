@@ -7,7 +7,14 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1):
     f_ = sample.find("_")
     year = sample[:f_]
     detailKey = sample[f_+1:]
-    kind = "signals" if ("mMed" in detailKey or "mZprime" in detailKey) else "backgrounds"
+    kind = "backgrounds"
+    if ("mMed" in detailKey) or ("mZprime" in detailKey):
+        kind = "signals"
+    dataKeys = ["HTMHT","JetHT","MET","SingleElectron","SingleMuon","SinglePhoton","EGamma"]
+    for dKey in dataKeys:
+        if dKey in detailKey:
+            kind = "data"
+            break
     if "Incl" in detailKey:
         ii = detailKey.find("Incl")
         detailKey = detailKey[:ii] + "Tune"
