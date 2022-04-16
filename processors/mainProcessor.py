@@ -32,7 +32,7 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor)
-                runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
+                # runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
 
@@ -44,17 +44,17 @@ class MainProcessor(processor.ProcessorABC):
                 # run cut loop
                 for cutName,cut in cuts.items():
                     # defining objects
-                    weight = vars_noCut["evtw"][0][cut]
-                    jweight = ak.flatten(vars_noCut["jw"][0][cut])
-                    fjweight = ak.flatten(vars_noCut["fjw"][0][cut])
-                    eweight = ak.flatten(vars_noCut["ew"][0][cut])
-                    mweight = ak.flatten(vars_noCut["mw"][0][cut])
+                    weight = vars_noCut["evtw"][cut]
+                    jweight = ak.flatten(vars_noCut["jw"][cut])
+                    fjweight = ak.flatten(vars_noCut["fjw"][cut])
+                    eweight = ak.flatten(vars_noCut["ew"][cut])
+                    mweight = ak.flatten(vars_noCut["mw"][cut])
                     if len(events) > 0:
                         ## filling histograms
                         for varName,varDetail in variables.items():
-                            hIn = vars_noCut[varName][0][cut]
+                            hIn = vars_noCut[varName][cut]
                             hW = weight
-                            wKey = vars_noCut[varName][1]
+                            wKey = varDetail[6]
                             # properly flatten certain inputs
                             if varDetail[5] >= 1:
                                 hIn = ak.flatten(hIn)

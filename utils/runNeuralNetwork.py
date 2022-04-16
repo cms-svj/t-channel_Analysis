@@ -14,9 +14,9 @@ def get_all_vars(varsIn,varSet,normMean,normStd):
     dSets = []
     dataSet = pd.DataFrame()
     for var in varSet:
-        inputArr = varsIn[var][0]
+        inputArr = varsIn[var]
         if variables[var][4] == 2:
-            inputArr = np.repeat(ak.to_numpy(inputArr),ak.to_numpy(varsIn["njetsAK8"][0]))
+            inputArr = np.repeat(ak.to_numpy(inputArr),ak.to_numpy(varsIn["njetsAK8"])
         if variables[var][5] == 1:
             inputArr = ak.flatten(inputArr)
         elif variables[var][5] == 2:
@@ -59,5 +59,5 @@ def runNN(model,varsIn,varSet,normMean,normStd):
 
     wpt = 0.5
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
-    varsIn['nsvjJetsAK8'] = [ak.num(darksvjJetsAK8),"evtw"]
-    varsIn['nnOutput'] = [svjJetsAK8,"fjw"]
+    varsIn['nsvjJetsAK8'] = ak.num(darksvjJetsAK8)
+    varsIn['nnOutput'] = svjJetsAK8
