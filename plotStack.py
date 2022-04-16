@@ -10,7 +10,8 @@ import numpy as np
 import utils.CMS_lumi as CMS_lumi
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-
+import pandas as pd
+from utils.variables import variables as vars
 
 mpl.rc("font", family="serif", size=15)
 
@@ -20,6 +21,30 @@ def fom(S,B):
 
 def signif(S,B):
     return S/(np.sqrt( B + (0.3*B)**2 ))
+
+def makeDirs(plotOutDir,cut,plotType):
+    if not os.path.exists(plotOutDir+"/"+plotType+"/"+cut[1:]):
+        os.makedirs(plotOutDir+"/"+plotType+"/"+cut[1:])
+
+def find_nearest(trgeff, target):
+    trgeff = np.asarray(trgeff)
+    idx = (np.abs(trgeff - target)).argmin()
+    return int(trgeff[idx])
+
+def divisorGenerator(n):
+    large_divisors = []
+    for i in range(1, int(np.sqrt(n) + 1)):
+        if n % i == 0:
+            yield i
+            if i*i != n:
+                large_divisors.append(n / i)
+    for divisor in reversed(large_divisors):
+        yield divisor
+
+def rebinCalc(nBins,target):
+    rebinFloat = nBins/float(target)
+    allDivs = list(divisorGenerator(nBins))
+    return find_nearest(allDivs, rebinFloat)
 
 def normHisto(hist, doNorm=False):
     if doNorm:
@@ -56,7 +81,7 @@ def getData(path, scale=1.0, year = "2018"):
     Data = [
         #info.DataSetInfo(basedir=path, fileName=year+"_Data.root",        sys= -1.0, label="Data",        scale=scale),
     ]
-
+    # qdm_qsmDir = "condor/testHadd_main_01062022_noEtaCut_pT170_withJetCat_pairProduction"
     # Normal
     bgData = [
         # info.DataSetInfo(basedir=path, fileName=year+"_Triboson.root",        label="VVV",                     scale=scale, color=(ROOT.kGray)),
@@ -64,10 +89,16 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_DYJetsToLL_M-50.root", label="Z#gamma*+jets",           scale=scale, color=(ROOT.kOrange + 2)),
         # info.DataSetInfo(basedir=path, fileName=year+"_TTX.root",             label="ttX",                     scale=scale, color=(ROOT.kCyan + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_ST.root",              label="Single top",              scale=scale, color=(ROOT.kRed + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",           label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
-        info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",           label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
+        # full bkg sample
+        # info.DataSetInfo(basedir=path, fileName=year+"_mTTJetsmini_Inc_noEtaCut_pT50.root",     label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
+        info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",             label="Z#rightarrow#nu#nu+jets",    scale=scale, color=(ROOT.kGray + 1)),
+        info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",              label="W+jets",                    scale=scale, color=(ROOT.kYellow + 1)),
+        info.DataSetInfo(basedir=path, fileName=year+"_TTTo.root",              label="t#bar{t} (pow)",             scale=scale, color=(ROOT.kBlue - 6)),
+        info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",               label="QCD",                        scale=scale, color=(ROOT.kGreen + 1)),
     ]
     #
     sgData = [
@@ -78,27 +109,42 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",           label="s-ch baseline", scale=scale, color=ROOT.kRed),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
         ## varying mMed
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-400_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 400",  scale=scale, color=ROOT.kMagenta + 1),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kOrange + 2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 2000", scale=scale, color=ROOT.kBlue),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kGreen+2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 500",  scale=scale, color=ROOT.kMagenta + 1),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 600",  scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 1000", scale=scale, color=ROOT.kBlack),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="baseline", scale=scale, color=ROOT.kOrange+2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kCyan),
         # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 6000", scale=scale, color=ROOT.kCyan),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="mMed 4000", scale=scale, color=ROOT.kRed),
         ## varying mDark
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-1",scale=scale, color=ROOT.kBlue),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-50_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-50",scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-100_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_mD-100",scale=scale, color=ROOT.kCyan),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-2000_mD-1",scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-50_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_mD-50",scale=scale, color=ROOT.kRed),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-100_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-2000_mD-100",scale=scale, color=ROOT.kViolet-1),
         ## varying rinv
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="M-3000_r-0p1",scale=scale, color=ROOT.kBlue),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-3000_r-0p3",scale=scale, color=ROOT.kGreen+2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-3000_r-0p7",scale=scale, color=ROOT.kCyan),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="M-2000_r-0p1",scale=scale, color=ROOT.kOrange+3),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_r-0p3",scale=scale, color=ROOT.kGreen+2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-2000_r-0p7",scale=scale, color=ROOT.kPink+1),
+        ## varying alpha
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-low_yukawa-1.root",    label="M-2000_a-low",scale=scale, color=ROOT.kGray),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_a-peak",scale=scale, color=ROOT.kGreen+2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-high_yukawa-1.root",    label="M-2000_a-high",scale=scale, color=ROOT.kYellow+2),
         ## varying rinv at mMed 800
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",     label="M-800_r-0p1", scale=scale, color=ROOT.kOrange + 2),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
+        ## comparing QdM and QsM jets
+        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed400.root",     label="mMed 400 QdM",  scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed400.root",     label="mMed 400 QsM",  scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed600.root",     label="mMed 600 QdM",  scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed600.root",     label="mMed 600 QsM",  scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed800.root",     label="mMed 800 QdM",  scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed800.root",     label="mMed 800 QsM",  scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed1000.root",    label="mMed 1000 QdM", scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed1000.root",    label="mMed 1000 QsM", scale=scale, color=ROOT.kBlack),
     ]
     return Data, sgData, bgData
 
@@ -133,6 +179,7 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
                 ymax = 2.
             else:
                 ymax = pow(ymax/locMin, scale)*locMin
+                # ymax = 10**8
         dummy.GetYaxis().SetRangeUser(locMin, 10*ymax)
     else:
         locMin = 0.0
@@ -142,29 +189,33 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
     #set x-axis range
     if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
 
-def makeRocVec(h,reverse=False):
+def makeRocVec(h,reverse=False,ignoreUnderflow=False):
     h.Scale( 1.0 / h.Integral() );
     v, cuts = [], []
-    for i in range(0, h.GetNbinsX()+1):
+    si = 1
+    if ignoreUnderflow == True:
+        si = -1
+    for i in range(si, h.GetNbinsX()+1):
         if reverse:
-            val = h.Integral(0, i)
+            val = h.Integral(si, i)
         else:
             val = h.Integral(i, h.GetNbinsX())
         v.append(val)
-        cuts.append(h.GetBinLowEdge(i)+h.GetBinWidth(i))
+        cuts.append(h.GetBinLowEdge(i))
     return v, cuts
 
 def ROCArea(n,mBg,mSig):
     mBgAr = [1] + mBg + [0]
     mSigAr = [0] + mSig + [0]
     gAr = ROOT.TGraph(n, array("d", mBgAr), array("d", mSigAr))
-    gArea = round(gAr.Integral(),2)
+    gArea = round(gAr.Integral(),2) # original way
+    # gArea = round(np.trapz(mBgAr,mSigAr),2)
     return gArea
 
-def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
+def drawRocCurve(fType, rocBgVec, rocSigVec, leg,manySigs=False, stList=None, rocValues=None, allRocValues=None):
     h = []
 
-    baselineNames = ["t-ch 3000","mMed 3000","M-800_r-0p3","M-3000_mD-20"]
+    baselineNames = "baseline"
 
     if manySigs:
         for rbv in rocBgVec:
@@ -173,7 +224,7 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
         rocBgVec = [QCDVec]
     else:
         for rsv in rocSigVec:
-            if rsv[2] in baselineNames:
+            if rsv[2] == baselineNames:
                 baseVec = rsv
         rocSigVec = [baseVec]
 
@@ -197,8 +248,9 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
                 col = cBg
 
             g = ROOT.TGraph(n, array("d", mBg_f), array("d", mSig_f))
+            rebinx = rebinCalc(n,20)
             for i in range(0,n):
-                if ((i % rebinx == 0) and (rebinx != -1)):
+                if i % rebinx == 0:
                     latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(round(cutSig[i],2)))
                     latex.SetTextSize(0.02)
                     latex.SetTextColor(ROOT.kRed)
@@ -210,42 +262,36 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, rebinx,manySigs=False):
             g.SetMarkerColor(col)
             g.Draw("same LP text")
             leg.AddEntry(g, "#splitline{" + fType + " " + lBg + " vs " + lSig + "_" + rv + "}{("+"{:.2f}".format(gArea)+")}", "LP")
+            if stList != None:
+                newEntry = stList + [lBg,"{:.2f}".format(gArea)]
+                rocValues.loc[len(rocValues.index)] = newEntry
             h.append(g)
     return h
 
-def plotSignificance(data, histoName, xlab, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9):
+def plotSignificance(data, histName, totalBin, xlab, plotOutDir, cut, isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, reverseCut=False, signifValues=None):
     rocBgVec = []
-
-    reverseCut = False
+    histoName = histName + cut
+    outputPath = plotOutDir+"/FOM/"+cut[1:]
     rebinValue = rebinx # how many bins to merge into 1 bin
 
     # background
+    print("histoName",histoName)
     for d in data[1]:
-        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False, overflow=True)
         h.Rebin(rebinValue)
         hIn = h.Integral()
         effList = np.array(makeRocVec(h,reverseCut)[0]) * hIn
         rocBgVec.append([effList])
 
-    signalEffList = []
     sigLabelList = []
     # signal
     rocSigVec = []
     for d in data[2]:
-        und_1 = histoName.find("_")
-        und_2 = histoName.find("_",und_1+1)
-        histoName_noCut = histoName[:und_2] + "_qc"
-        if "h_METr" in histoName:
-            und_3 = histoName.find("_",und_2+1)
-            histoName_noCut = histoName[:und_3] + "_qc"
-        h_full = d.getHisto(histoName_noCut, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
-        h_fullIn = h_full.Integral()
-        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False, overflow=True)
         h.Rebin(rebinValue)
         hIn = h.Integral()
         eff = np.array(makeRocVec(h,reverseCut)[0])
         effList = eff * hIn
-        signalEffList.append(eff*hIn/h_fullIn)
         rocSigVec.append([effList,d.legEntry()])
         sigLabelList.append(d.legEntry())
         cutValues = np.array(makeRocVec(h)[1])
@@ -255,69 +301,90 @@ def plotSignificance(data, histoName, xlab, outputPath="./", isLogY=False, rebin
         B += rbv[0]
 
     fomList = []
+    normedfomList = []
+    normedcutList = []
     cutList = []
-    sEffList = []
 
+    colorList = ['b','g','r','c','m','y']
+    lineStyles = ["solid","dashed","dotted"]
     # comparing the locations of maximum FOM for different signals
-    plt.figure(figsize=(12,8))
+    fig = plt.figure(figsize=(12,8))
+    ax = plt.subplot(111)
     for i in range(len(rocSigVec)):
         rsv = rocSigVec[i]
         fo = fom(rsv[0],B)
-        foReal = fo[~np.isnan(fo)]
+        foReal = np.ma.masked_invalid(fo)
         fomList.append(foReal)
-        sEffList.append(signalEffList[i][~np.isnan(fo)])
-        cutList.append(cutValues[~np.isnan(fo)])
-        plt.step(cutValues[~np.isnan(fo)],foReal/np.sum(foReal),label=rsv[1])
-    plt.legend()
-    plt.ylabel("Normalized FOM ( sqrt(2((S+B)*log(1+S/B)-S)) )")
-    plt.xlabel(xlab)
-    plt.grid(xlab)
+        maxFOM = foReal.max()
+        normedfomList.append(foReal/maxFOM)
+        cutList.append(cutValues)
+        newEntry = [cut,histName.replace("h_",""),rsv[1],maxFOM]
+        signifValues.loc[len(signifValues.index)] = newEntry
+        lstyle = "solid"
+        mstyle = "o"
+        if i > len(colorList) - 1:
+            lstyle = "dashed"
+            mstyle = "D"
+        if i > len(colorList)*2 - 1:
+            lstyle = "^"
+        ax.plot(cutValues[:-1],foReal[1:]/maxFOM,label=rsv[1] + " ({:.1e})".format(maxFOM), marker=mstyle, linestyle=lstyle, color=colorList[i%len(colorList)])
+
+    pltTitle = ">= cut"
+    if reverseCut:
+        pltTitle = "<= cut"
+
+    ax.plot(cutList[0][:-1],np.ma.masked_invalid(normedfomList).mean(axis=0)[1:],label="Average",linewidth=5,alpha=0.5,color="black")
+    ax.set_title(pltTitle)
+    ax.legend(loc='upper right', fontsize=12, ncol=3)
+    ax.set_ylabel("Normalized FOM ( sqrt(2((S+B)*log(1+S/B)-S)) )")
+    ax.set_xlabel(xlab)
+    ax.set_ylim(0,1.5)
     plt.savefig(outputPath + "/FOM_" + histoName+".png")
 
-    # comparing signal efficiency for different signals
-    plt.figure(figsize=(12,8))
-    for i in range(len(sEffList)):
-        seff = sEffList[i]
-        siglab = sigLabelList[i]
-        plt.step(cutList[i],seff,label=siglab)
-    plt.legend()
-    plt.ylabel("Signal Efficiency")
-    plt.xlabel(xlab)
-    plt.grid()
-    plt.savefig(outputPath + "/sigEff_" + histoName+".png")
+    # # comparing signal efficiency for different signals
+    # plt.figure(figsize=(12,8))
+    # for i in range(len(sEffList)):
+    #     seff = sEffList[i]
+    #     siglab = sigLabelList[i]
+    #     plt.step(cutList[i],seff,label=siglab)
+    # plt.legend()
+    # plt.ylabel("Signal Efficiency")
+    # plt.xlabel(xlab)
+    # plt.grid()
+    # plt.savefig(outputPath + "/sigEff_" + histoName+".png")
 
-    # comparing FOM and signal efficiency for each signal
-    for i in range(len(sigLabelList)):
-        slabel = sigLabelList[i]
-        foms = fomList[i]
-        cutValues = cutList[i]
-        seffs = sEffList[i]
-
-        fig, ax1 = plt.subplots()
-
-        color = 'tab:red'
-        ax1.set_xlabel(xlab)
-        ax1.set_ylabel("FOM: sqrt(2((S+B)*log(1+S/B)-S))")
-        ax1.step(cutValues,foms,color=color)
-        ax1.tick_params(axis='y',labelcolor=color)
-
-        ax2 = ax1.twinx()
-
-        color = 'tab:blue'
-        ax2.set_ylabel('Signal Efficiency', color=color)
-        ax2.step(cutValues,seffs,color=color)
-        ax2.tick_params(axis='y',labelcolor=color)
-
-        fig.tight_layout()
-        # for some reason, the x grid line is just not showing right, that's why we have the following code
-        for cut in np.arange(min(cutValues),max(cutValues),50):
-            plt.vlines(cut,0,max(seffs),color="silver",linewidth=0.5)
-        plt.grid()
-        plt.savefig(outputPath + "/FOMSEff_" + histoName + "_" +  slabel + ".png")
+    # # comparing FOM and signal efficiency for each signal
+    # for i in range(len(sigLabelList)):
+    #     slabel = sigLabelList[i]
+    #     foms = fomList[i]
+    #     cutValues = cutList[i]
+    #     seffs = sEffList[i]
+    #
+    #     fig, ax1 = plt.subplots()
+    #
+    #     color = 'red'
+    #     ax1.set_xlabel(xlab)
+    #     ax1.set_ylabel("FOM: sqrt(2((S+B)*log(1+S/B)-S))")
+    #     ax1.step(cutValues,foms,color=color)
+    #     ax1.tick_params(axis='y',labelcolor=color)
+    #
+    #     ax2 = ax1.twinx()
+    #
+    #     color = 'blue'
+    #     ax2.set_ylabel('Signal Efficiency', color=color)
+    #     ax2.step(cutValues,seffs,color=color)
+    #     ax2.tick_params(axis='y',labelcolor=color)
+    #
+    #     fig.tight_layout()
+    #     # for some reason, the x grid line is just not showing right, that's why we have the following code
+    #     for cut in np.arange(min(cutValues),max(cutValues),50):
+    #         plt.vlines(cut,0,max(seffs),color="silver",linewidth=0.5)
+    #     plt.grid()
+    #     plt.savefig(outputPath + "/FOMSEff_" + histoName + "_" +  slabel + ".png")
 
     plt.close()
 
-def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False, manySigs=False):
+def plotROC(data, histoName, outputPath="./", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, manySigs=False, stList=None, rocValues=None, allRocValues=None):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
 
@@ -346,12 +413,12 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=99
 
     rocBgVec = []
     for d in data[1]:
-        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False, overflow=False)
         rocBgVec.append(makeRocVec(h) + ( d.legEntry(), d.getColor()))
 
     rocSigVec = []
     for d in data[2]:
-        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False)
+        h = d.getHisto(histoName, rebinx=-1, xmin=xmin, xmax=xmax, fill=True, showEvents=False, overflow=False)
         rocSigVec.append(makeRocVec(h) + (d.legEntry(), d.getColor()))
 
     #create a dummy histogram to act as the axes
@@ -362,7 +429,8 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=99
     setupDummy(dummy, leg, "", "#epsilon_{ bg}", "#epsilon_{ sg}", isLogY, xmin, xmax, ymin, ymax, lmax)
     dummy.Draw("hist")
     leg.Draw("same")
-    history = drawRocCurve("", rocBgVec, rocSigVec, leg, rebinx, manySigs)
+    print(histoName)
+    history = drawRocCurve("", rocBgVec, rocSigVec, leg, manySigs, stList, rocValues, allRocValues)
 
     line1 = ROOT.TF1( "line1","1",0,1)
     line1.SetLineColor(ROOT.kBlack)
@@ -373,7 +441,9 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=99
     line2.Draw("same")
 
     dummy.Draw("AXIS same")
-
+    # dummy.GetXaxis().SetRangeUser(0,0.1)
+    # dummy.SetMinimum(0.8)
+    # dummy.SetMaximum(1.1)
     # CMS label
     CMS_lumi.writeExtraText = 1
     lumi = "59.7"
@@ -393,10 +463,9 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, rebinx=-1.0, xmin=99
     del c1
     del leg
 
-def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, norm=False, normBkg=False, onlySig=False):
+def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, normBkg=False, onlySig=False, stList=None, yieldValues=None):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
-
     #create the canvas for the plot
     c1 = ROOT.TCanvas( "c", "c", 800, 800)
     c1.cd()
@@ -421,11 +490,15 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
     ROOT.gStyle.SetLegendTextSize(0.024)
 
     #Setup background histos
+    rebinx = rebinCalc(totalBin,40)
     hs = ROOT.THStack()
     hMC = None
     firstPass = True
     for d in data[1]:
         h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=True)
+        if (stList != None) and (not normBkg):
+            newEntry = stList + [d.legEntry(),"{:.2f}".format(h.Integral())]
+            yieldValues.loc[len(yieldValues.index)] = newEntry
         if normBkg:
             normHisto(h, True)
             h.SetLineWidth(3)
@@ -483,6 +556,9 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
         #firstPass=True
         for d in data[2]:
             h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, showEvents=True)
+            if (stList != None) and (not normBkg):
+                newEntry = stList + [d.legEntry(),"{:.2f}".format(h.Integral())]
+                yieldValues.loc[len(yieldValues.index)] = newEntry
             #if(firstPass):
             sig = round(simpleSig(h, hMC),2)
             #firstPass=False
@@ -508,6 +584,15 @@ def plotStack(data, histoName, outputPath="./", xTitle="", yTitle="", isLogY=Fal
         dummy.SetMaximum(10**8)
     dummy.Draw("AXIS same")
 
+    # ran = [870, 2385.0]
+    # vl = ROOT.TLine(ran[0],0,ran[0],10**6)
+    # vl.SetLineWidth(2)
+    # vl.SetLineColor(ROOT.kRed)
+    # vl.Draw("same")
+    # vl2 = ROOT.TLine(ran[1],0,ran[1],10**6)
+    # vl2.SetLineWidth(2)
+    # vl2.SetLineColor(ROOT.kRed)
+    # vl2.Draw("same")
     # CMS label
     CMS_lumi.writeExtraText = 1
     lumi = "59.7"
@@ -547,107 +632,72 @@ def main():
     year = options.year
     # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
-    cutsImportant = ["_qc","_qc_trg","_pre_ge2AK4j_ht400_dpjp65","_pre_ge2AK8j_ht400__dpJp65","_pre_ge2AK8j_MET220","_pre_ge2AK4j_MET220","_pre_ge2AK4j_nb3","_pre_ge2AK8j_nb3"]
+    cutsImportant = ["_qual_trg_st"]
     Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
+    allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc"])
+    rocValues = pd.DataFrame(columns=["cut","var","bkg","roc_auc"])
+    yieldValues = pd.DataFrame(columns=["cut","var","source","yield"])
+    signifValues = pd.DataFrame(columns=["cut","var","source","max signif."])
+    plotOutDir = "output/UL_jetalt2p4_trigger_qual_FlorianCuts_2018_morejN_count"
 
-    plotOutDir = "output/plots"
-
-    if not os.path.exists(plotOutDir):
-        os.makedirs(plotOutDir)
-
-    plotDict = {
-    # "plotname":               [xlabel,                                            ylabel,     xmin,   xmax,   rebinx_stack,   rebinx_roc, cuts]
-    "h_njets":                  ["Number of AK4 Jets",                              "Events",   0,      20,     -1,             1,          cutsImportant],
-    "h_njetsAK8":               ["Number of AK8 Jets",                              "Events",   0,      12,     -1,             1,          cutsImportant],
-    "h_nb":                     ["Number of B Jets",                                "Events",   0,      20,     -1,             1,          cutsImportant],
-    "h_nl":                     ["Number of Leptons",                               "Events",   0,      10,     -1,             1,          ["_qc_trg"]],
-    "h_ht":                     ["H_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         cutsImportant],
-    "h_st":                     ["S_{T} [GeV]",                                     "Events",   0,      5000,   20,             10,         cutsImportant],
-    "h_met":                    ["MET [GeV]",                                       "Events",   0,      2000,   20,             10,         cutsImportant],
-    "h_jPt":                    ["p_{T}(j) [GeV]",                                  "Events",   0,      2000,   10,             5,          ["_qc_trg"]],
-    "h_jEta":                   ["#eta(j)",                                         "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
-    "h_jPhi":                   ["#phi(j)",                                         "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
-    "h_jAxismajor":             ["#sigma_{major}(j)",                               "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_jAxisminor":             ["#sigma_{minor}(j)",                               "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
-    "h_jPtD":                   ["ptD(j)",                                          "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
-    "h_jPtAK8":                 ["p_{T}(J) [GeV]",                                  "Events",   0,      2000,   10,             5,          ["_qc_trg"]],
-    "h_jEtaAK8":                ["#eta(J)",                                         "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
-    "h_jPhiAK8":                ["#phi(J)",                                         "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
-    "h_jAxismajorAK8":          ["#sigma_{major}(J)",                               "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_jAxisminorAK8":          ["#sigma_{minor}(J)",                               "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
-    "h_jGirthAK8":              ["girth(J)",                                        "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_jPtDAK8":                ["ptD(J)",                                          "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
-    "h_jTau1AK8":               ["#tau_{1}(J)",                                     "Events",   0,      0.8,    -1,             3,          ["_qc_trg"]],
-    "h_jTau2AK8":               ["#tau_{2}(J)",                                     "Events",   0,      0.65,   -1,             3,          ["_qc_trg"]],
-    "h_jTau3AK8":               ["#tau_{3}(J)",                                     "Events",   0,      0.35,   -1,             3,          ["_qc_trg"]],
-    "h_jTau21AK8":              ["#tau_{2}/#tau_{1}(J)",                            "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
-    "h_jTau32AK8":              ["#tau_{3}/#tau_{2}(J)",                            "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
-    "h_jSoftDropMassAK8":       ["m_{SD}(J)",                                       "Events",   0,      200,    -1,             3,          ["_qc_trg"]],
-    "h_mT":                     ["m_{T}",                                           "Events",   0,      5000,   20,             20,         cutsImportant],
-    "h_METrHT_pt30":            ["MET/H_{T}",                                       "Events",   0,      10,     2,              2,          cutsImportant],
-    "h_METrST_pt30":            ["MET/S_{T}",                                       "Events",   0,      1,      2,              2,          cutsImportant],
-    "h_dEtaj12AK8":             ["#Delta#eta(J_{1},J_{2})",                         "Events",   0,      6,      5,              5,          cutsImportant],
-    "h_dRJ12AK8":               ["#Delta R(J_{1},J_{2})",                           "Events",   0,      6,      2,              3,          cutsImportant],
-    "h_dPhij1METAK8":           ["#Delta#phi(J_{1},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
-    "h_dPhij2METAK8":           ["#Delta#phi(J_{2},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
-    "h_dPhij1rdPhij2AK8":       ["#Delta#phi(J_{1},MET)/#Delta#phi(J_{2},MET)",     "Events",   0,      100,    2,              2,          cutsImportant],
-    "h_dPhiMinjMETAK8":         ["#Delta#phi_{min}(J,MET)",                         "Events",   0,      3.15,   2,              4,          cutsImportant],
-    "h_j1PtAK8":                ["p_{T}(J_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
-    "h_j1EtaAK8":               ["#eta(J_{1})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
-    "h_j1PhiAK8":               ["#phi(J_{1})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
-    "h_j1AxismajorAK8":         ["#sigma_{major}(J_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_j1AxisminorAK8":         ["#sigma_{minor}(J_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
-    "h_j1GirthAK8":             ["girth (J_{1})",                                   "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_j1PtDAK8":               ["ptD (J_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
-    "h_j1Tau1AK8":              ["#tau_{1}(J_{1})",                                 "Events",   0,      0.8,    -1,             3,          ["_qc_trg"]],
-    "h_j1Tau2AK8":              ["#tau_{2}(J_{1})",                                 "Events",   0,      0.65,   -1,             3,          ["_qc_trg"]],
-    "h_j1Tau3AK8":              ["#tau_{3}(J_{1})",                                 "Events",   0,      0.35,   -1,             3,          ["_qc_trg"]],
-    "h_j1Tau21AK8":             ["#tau_{21}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
-    "h_j1Tau32AK8":             ["#tau_{32}(J_{1})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
-    "h_j1SoftDropMassAK8":      ["m_{SD}(J_{1})",                                   "Events",   0,      200,    -1,             3,          ["_qc_trg"]],
-    "h_j2PtAK8":                ["p_{T}(J_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
-    "h_j2EtaAK8":               ["#eta(J_{2})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
-    "h_j2PhiAK8":               ["#phi(J_{2})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
-    "h_j2AxismajorAK8":         ["#sigma_{major}(J_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_j2AxisminorAK8":         ["#sigma_{minor}(J_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
-    "h_j2GirthAK8":             ["girth (J_{2})",                                   "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_j2PtDAK8":               ["ptD (J_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
-    "h_j2Tau1AK8":              ["#tau_{1}(J_{2})",                                 "Events",   0,      0.8,    -1,             3,          ["_qc_trg"]],
-    "h_j2Tau2AK8":              ["#tau_{2}(J_{2})",                                 "Events",   0,      0.65,   -1,             3,          ["_qc_trg"]],
-    "h_j2Tau3AK8":              ["#tau_{3}(J_{2})",                                 "Events",   0,      0.35,   -1,             3,          ["_qc_trg"]],
-    "h_j2Tau21AK8":             ["#tau_{21}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
-    "h_j2Tau32AK8":             ["#tau_{32}(J_{2})",                                "Events",   0,      1.3,    -1,             3,          ["_qc_trg"]],
-    "h_j2SoftDropMassAK8":      ["m_{SD}(J_{2})",                                   "Events",   0,      200,    -1,             3,          ["_qc_trg"]],
-    "h_dEtaj12":                ["#Delta#eta(j_{1},j_{2})",                         "Events",   0,      6,      5,              5,          cutsImportant],
-    "h_dRJ12":                  ["#Delta R(j_{1},j_{2})",                           "Events",   0,      6,      2,              3,          cutsImportant],
-    "h_dPhij1MET":              ["#Delta#phi(j_{1},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
-    "h_dPhij2MET":              ["#Delta#phi(j_{2},MET)",                           "Events",   0,      3.15,   2,              5,          cutsImportant],
-    "h_dPhij1rdPhij2":          ["#Delta#phi(j_{1},MET)/#Delta#phi(j_{2},MET)",     "Events",   0,      100,    2,              2,          cutsImportant],
-    "h_dPhiMinjMET":            ["#Delta#phi_{min}(j,MET)",                         "Events",   0,      3.15,   2,              4,          cutsImportant],
-    "h_j1Pt":                   ["p_{T}(j_{1}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
-    "h_j1Eta":                  ["#eta(j_{1})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
-    "h_j1Phi":                  ["#phi(j_{1})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
-    "h_j1Axismajor":            ["#sigma_{major}(j_{1})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_j1Axisminor":            ["#sigma_{minor}(j_{1})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
-    "h_j1PtD":                  ["ptD (j_{1})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
-    "h_j2Pt":                   ["p_{T}(j_{2}) [GeV]",                              "Events",   0,      2000,   10,             5,          cutsImportant],
-    "h_j2Eta":                  ["#eta(j_{2})",                                     "Events",   -6,     6,      10,             10,         ["_qc_trg"]],
-    "h_j2Phi":                  ["#phi(j_{2})",                                     "Events",   -4,     4,      10,             10,         ["_qc_trg"]],
-    "h_j2Axismajor":            ["#sigma_{major}(j_{2})",                           "Events",   0,      0.5,    -1,             5,          ["_qc_trg"]],
-    "h_j2Axisminor":            ["#sigma_{minor}(j_{2})",                           "Events",   0,      0.3,    -1,             5,          ["_qc_trg"]],
-    "h_j2PtD":                  ["ptD (j_{2})",                                     "Events",   0,      1.2,    -1,             2,          ["_qc_trg"]],
+    preVars = {
+        "h_njets":False,
+        "h_njetsAK8":False,
+        "h_nb":False,
+        "h_ht":False,
+        "h_st":False,
+        "h_met":False,
+        "h_mT":True,
+        "h_METrHT_pt30":False,
+        "h_METrST_pt30":False,
+        "h_dEtaj12AK8":True,
+        "h_dRJ12AK8":True,
+        "h_dPhij1METAK8":False,
+        "h_dPhij2METAK8":False,
+        "h_dPhij1rdPhij2AK8":False,
+        "h_dPhiMinjMETAK8":False,
+        "h_dEtaj12":True,
+        "h_dRJ12":True,
+        "h_dPhij1MET":False,
+        "h_dPhij2MET":False,
+        "h_dPhij1rdPhij2":True,
+        "h_dPhiMinjMET":True,
+        "h_mT2_f4_msm":False,
+        "h_mT2_f4_msm_dEta":False,
+        "h_mT2_f4_msm_dPhi":False,
+        "h_mT2_f4_msm_dR":False,
     }
+    varsSkip = [
+    "eCounter",
+    "evtw",
+    "jw",
+    "fjw"
+    ]
 
-    for histName,details in plotDict.items():
+    for histName,details in vars.items():
         isNorm = options.isNorm
         isNormBkg = options.isNormBkg
         onlySig = options.onlySig
         manySigs = options.manySigs
-        for cut in details[6]:
-            plotROC(  (Data, bgData, sgData), histName+cut, plotOutDir+"/roc/"+cut[1:],                         isLogY=False,   rebinx=details[5], manySigs=manySigs)
-            plotStack((Data, bgData, sgData), histName+cut, plotOutDir+"/Stacked/"+cut[1:], details[0], details[1], isLogY=True,    rebinx=details[4], norm=isNorm, xmin=details[2], xmax=details[3], normBkg=isNormBkg, onlySig=onlySig)
-            if histName == "h_met" or histName == "h_ht" or histName == "h_st" or histName == "h_METrHT_pt30" or histName == "h_METrST_pt30":
-                plotSignificance((Data, bgData, sgData), histName+cut, details[0], plotOutDir+"/FOM/"+cut[1:],                    isLogY=False,   rebinx=details[4])
+        if histName in varsSkip:
+            continue
+        # if details[6] != "evtw":
+        #     continue
+        for cut in cutsImportant:
+            makeDirs(plotOutDir,cut,"Stacked")
+            makeDirs(plotOutDir,cut,"roc")
+            makeDirs(plotOutDir,cut,"FOM")
+            makeDirs(plotOutDir,cut,"NormedStacked")
+            stList = [cut,histName]
+            print("histName",histName)
+            plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:],                         isLogY=False,   manySigs=manySigs, stList=stList, rocValues=rocValues, allRocValues=allRocValues)
+            plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
+            plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/NormedStacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=True, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
+            # if histName in preVars.keys():
+            #     plotSignificance((Data, bgData, sgData), "h_"+histName, details[1], details[0], plotOutDir, cut,                    isLogY=False, reverseCut=preVars[histName], signifValues=signifValues)
+    rocValues.to_csv("{}/rocValues.csv".format(plotOutDir))
+    yieldValues.to_csv("{}/yieldValues.csv".format(plotOutDir))
+    signifValues.to_csv("{}/signifValues.csv".format(plotOutDir))
 if __name__ == '__main__':
     main()
