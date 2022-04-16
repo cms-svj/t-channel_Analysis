@@ -67,7 +67,8 @@ def main():
 
     # get options from command line
     parser = OptionParser()
-    parser.add_option('-d', '--dataset', help='dataset', dest='dataset', type=str, default="2018_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1")
+    parser.add_option('-d', '--dataset',   help='dataset', dest='dataset', type=str, default="2018_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1")
+    parser.add_option('-j', '--jNVar',     help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
     parser.add_option('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, default=-1)
     parser.add_option('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
@@ -119,7 +120,7 @@ def main():
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(sample,sf,model,varSet,normMean,normStd),
+        processor_instance=MainProcessor(sample,sf,model,varSet,normMean,normStd,options.jNVar),
         executor=processor.dask_executor if options.dask else processor.futures_executor,
         executor_args=exe_args,
         chunksize=options.chunksize,
@@ -131,7 +132,9 @@ def main():
     fout = uproot3.recreate(outfile)
     if isinstance(output,tuple): output = output[0]
     for key,H in output.items():
-        if type(H) is hist.Hist and H._sumw2 is not None:
+        if type(H) is hist.Hist: #and H._sumw2 is not None:
+            if H._sumw2 is None:
+                H.fill(val=np.Inf)
             fout[key] = hist.export1d(H)
     fout.close()
 
