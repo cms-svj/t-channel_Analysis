@@ -105,23 +105,27 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     ht = vars_noCut["ht"][0]
     dPhiMinj = vars_noCut["dPhiMinjMET"][0]
     dPhiMinjAK8 = vars_noCut["dPhiMinjMETAK8"][0]
-    deltaR12jAK8 = vars_noCut["dRJ12AK8"][0]
+    deltaR12jAK8 = vars_noCut["dRj12AK8"][0]
     triggerPass = events.TriggerPass
     jetID = events.JetID
     jetIDAK8 = events.JetIDAK8
     ttStitch = TTStitch(dataset,events)
     metFilters = METFilters(events)
     # psFilter = PhiSpikeFilter(dataset,vars_noCut['jets'])
-    # qualityCuts = metFilters & psFilter & ttStitch
+    qualityCuts = metFilters & (nl == 0)
     # qualityCuts = metFilters & psFilter # NN training files
     # preselection = Preselection(qualityCuts,nl)
     # cuts to get over trigger plateau
-    metCut = met > 300
-    htCut = 1250
+    metCut = met > 266
+    htCut = ht > 1280
+    stCut = (ht + met) > 1350
     trgPlat = metCut & htCut
     cuts = {
             ""                          : np.ones(len(evtw),dtype=bool),
-            "_metfilter_0l"              : metFilters & (nl == 0),
+            "_qual"             : qualityCuts,
+            "_qual_met"         : qualityCuts & metCut,
+            "_qual_ht"          : qualityCuts & htCut,
+            "_qual_st"          : qualityCuts & stCut
     }
 
     # trigger choices
@@ -133,7 +137,10 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     trigDict = tD.trigDicts[yr]
     trgSelection = tD.trgSelections[yr]
     tch_trgs =  trgListtoInd(trigDict,trgSelection)
-    cuts["_trg"] = PassTrigger(triggerPass,tch_trgs)
+    cuts["_qual_trg"] = qualityCuts & PassTrigger(triggerPass,tch_trgs)
+    cuts["_qual_trg_met"] = cuts["_qual_trg"] & metCut
+    cuts["_qual_trg_ht"] = cuts["_qual_trg"] & htCut
+    cuts["_qual_trg_st"] = cuts["_qual_trg"] & stCut
     # cuts with svj
     if SVJCut == True:
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]
