@@ -7,7 +7,7 @@ from utils.variables import variables
 from utils.runNeuralNetwork import runNN
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf,model,varSet,normMean,normStd):
+        def __init__(self,dataset,sf,model,varSet,normMean,normStd,jNVar):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
                 self.dataset = dataset
@@ -16,6 +16,7 @@ class MainProcessor(processor.ProcessorABC):
                 self.varSet = varSet
                 self.normMean = normMean
                 self.normStd = normStd
+                self.jNVar = jNVar
         @property
         def accumulator(self):
                 return self._accumulator
@@ -23,7 +24,7 @@ class MainProcessor(processor.ProcessorABC):
         def setupHistogram(self,cuts):
                 histograms = {}
                 for cutName,cut in cuts.items():
-                    for histName,histDetail in variables.items():
+                    for histName,histDetail in variables(self.jNVar).items():
                         histograms['h_{}{}'.format(histName,cutName)] = hist.Hist('h_{}{}'.format(histName,cutName), hist.Bin("val", histDetail[0], histDetail[1], histDetail[2], histDetail[3]))
                 self._accumulator = processor.dict_accumulator(histograms)
                 self.setupHistos = True
@@ -31,7 +32,7 @@ class MainProcessor(processor.ProcessorABC):
         def process(self, events):
                 # cut loop
                 ## objects used for cuts
-                vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor)
+                vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor,self.jNVar)
                 # runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
@@ -51,7 +52,7 @@ class MainProcessor(processor.ProcessorABC):
                     mweight = ak.flatten(vars_noCut["mw"][cut])
                     if len(events) > 0:
                         ## filling histograms
-                        for varName,varDetail in variables.items():
+                        for varName,varDetail in variables(self.jNVar).items():
                             hIn = vars_noCut[varName][cut]
                             hW = weight
                             wKey = varDetail[6]
@@ -74,7 +75,7 @@ class MainProcessor(processor.ProcessorABC):
                         ## filling histograms by jet category
                         # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM
                         # for varName,varDetail in varValDict.items():
-                        #     if variables[varName][4] == 1:
+                        #     if variables(self.jNVar)[varName][4] == 1:
                         #         output['h_{}{}'.format(varName,cutName)].fill(val=varDetail[0][jetCat],weight=varDetail[1][jetCat])
                         #     else:
                         #         output['h_{}{}'.format(varName,cutName)].fill(val=varDetail[0],weight=varDetail[1])

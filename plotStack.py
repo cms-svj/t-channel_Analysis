@@ -617,12 +617,13 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
 
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
-    parser.add_option('-y',                 dest='year',       type='string',  default='2018',                 help="Can pass in the run year")
-    parser.add_option('-d', '--dataset',    dest='dataset',                    default='testHadd_11242020',    help='dataset')
-    parser.add_option('-n',                 dest='isNorm',     action="store_true",                            help="Normalize stack plots")
     parser.add_option('-b',                 dest='isNormBkg',  action="store_true",                            help="Normalized Bakground and Signal plots")
-    parser.add_option('-s',                 dest='onlySig',    action="store_true",                            help="Plot only signals")
+    parser.add_option('-d', '--dataset',    dest='dataset',                    default='testHadd_11242020',    help='dataset')
+    parser.add_option('-j', '--jNVar',      help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
     parser.add_option('-m',                 dest='manySigs',   action="store_true",                            help="Plot ROC curves with many signals vs. QCD")
+    parser.add_option('-n',                 dest='isNorm',     action="store_true",                            help="Normalize stack plots")
+    parser.add_option('-s',                 dest='onlySig',    action="store_true",                            help="Plot only signals")
+    parser.add_option('-y',                 dest='year',       type='string',  default='2018',                 help="Can pass in the run year")
     options, args = parser.parse_args()
 
     year = options.year
@@ -671,7 +672,7 @@ def main():
     ]
 
     count = 0
-    for histName,details in vars.items():
+    for histName,details in vars(options.jNVar).items():
         count += 1
         if count >= 15:
             break

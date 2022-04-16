@@ -105,7 +105,6 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     ht = vars_noCut["ht"]
     dPhiMinj = vars_noCut["dPhiMinjMET"]
     dPhiMinjAK8 = vars_noCut["dPhiMinjMETAK8"]
-    deltaR12jAK8 = vars_noCut["dRj12AK8"]
     triggerPass = events.TriggerPass
     jetID = events.JetID
     jetIDAK8 = events.JetIDAK8
