@@ -16,7 +16,7 @@ def get_all_vars(varsIn,varSet,normMean,normStd):
     for var in varSet:
         inputArr = varsIn[var]
         if variables[var][4] == 2:
-            inputArr = np.repeat(ak.to_numpy(inputArr),ak.to_numpy(varsIn["njetsAK8"])
+            inputArr = np.repeat(ak.to_numpy(inputArr),ak.to_numpy(varsIn["njetsAK8"]))
         if variables[var][5] == 1:
             inputArr = ak.flatten(inputArr)
         elif variables[var][5] == 2:
