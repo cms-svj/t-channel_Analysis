@@ -212,60 +212,56 @@ def ROCArea(n,mBg,mSig):
     # gArea = round(np.trapz(mBgAr,mSigAr),2)
     return gArea
 
-def drawRocCurve(fType, rocBgVec, rocSigVec, leg,manySigs=False, stList=None, rocValues=None, allRocValues=None):
-    h = []
-
-    baselineNames = "baseline"
-
-    if manySigs:
-        for rbv in rocBgVec:
-            if rbv[2] == "QCD":
-                QCDVec = rbv
-        rocBgVec = [QCDVec]
-    else:
-        for rsv in rocSigVec:
-            if rsv[2] == baselineNames:
-                baseVec = rsv
-        rocSigVec = [baseVec]
-
+def drawRocCurve(fType, rocBgVec, rocSigVec, leg, manySigs=False, stList=None, allRocValues=None, baseline="baseline", mainBkg = "QCD"):
+    # saving all the ROC scores for all signals and backgrounds
+    rocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir","varCut","cBg","cSig","mBg","mSig"])
     for mBg, cutBg, lBg, cBg in rocBgVec:
         for mSig, cutSig, lSig, cSig in rocSigVec:
             n = len(mBg)
             gArea = ROCArea(n,mBg,mSig)
-            rv = ">cut"
+            rv = ">=cut"
             if gArea < 0.5:
                 mBg_f = 1 - np.array(mBg)
                 mSig_f = 1 - np.array(mSig)
-                rv = "<cut"
+                rv = "<=cut"
                 gArea = 1 - gArea
             else:
                 mBg_f = mBg
                 mSig_f = mSig
+            rocValues.loc[len(rocValues.index)] = stList + [lSig,lBg,round(gArea,3),rv,cutSig,cBg,cSig,mBg_f,mSig_f]
+            allRocValues.loc[len(allRocValues.index)] = stList + [lSig,lBg,round(gArea,3),rv]
 
-            if manySigs:
-                col = cSig
-            else:
-                col = cBg
-
-            g = ROOT.TGraph(n, array("d", mBg_f), array("d", mSig_f))
-            rebinx = rebinCalc(n,20)
-            for i in range(0,n):
-                if i % rebinx == 0:
-                    latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(round(cutSig[i],2)))
-                    latex.SetTextSize(0.02)
-                    latex.SetTextColor(ROOT.kRed)
-                    g.GetListOfFunctions().Add(latex) # add cut values
-            g.SetLineWidth(2)
-            g.SetLineColor(col)
-            g.SetMarkerSize(0.7)
-            g.SetMarkerStyle(ROOT.kFullSquare)
-            g.SetMarkerColor(col)
-            g.Draw("same LP text")
-            leg.AddEntry(g, "#splitline{" + fType + " " + lBg + " vs " + lSig + "_" + rv + "}{("+"{:.2f}".format(gArea)+")}", "LP")
-            if stList != None:
-                newEntry = stList + [lBg,"{:.2f}".format(gArea)]
-                rocValues.loc[len(rocValues.index)] = newEntry
-            h.append(g)
+    if manySigs:
+        rocValues = rocValues[rocValues["bkg"] == mainBkg]
+        colLabel = "cSig"
+        varMCLabel = "sig"
+        mainMC = mainBkg
+    else:
+        rocValues = rocValues[rocValues["sig"] == baseline]
+        colLabel = "cBg"
+        varMCLabel = "bkg"
+        mainMC = baseline
+    h = []
+    for varMC in list(rocValues[varMCLabel]):
+        datai = rocValues[rocValues[varMCLabel] == varMC].iloc[0]
+        n = len(datai["mBg"])
+        g = ROOT.TGraph(n, array("d", datai["mBg"]), array("d", datai["mSig"]))
+        rebinx = rebinCalc(n,20)
+        for i in range(0,n):
+            if i % rebinx == 0:
+                latex = ROOT.TLatex(g.GetX()[i], g.GetY()[i],str(round(datai["varCut"][i],2)))
+                latex.SetTextSize(0.02)
+                latex.SetTextColor(ROOT.kRed)
+                g.GetListOfFunctions().Add(latex) # add cut values
+        g.SetLineWidth(2)
+        print("col",datai[colLabel])
+        g.SetLineColor(datai[colLabel])
+        g.SetMarkerSize(0.7)
+        g.SetMarkerStyle(ROOT.kFullSquare)
+        g.SetMarkerColor(datai[colLabel])
+        g.Draw("same LP text")
+        leg.AddEntry(g, "#splitline{" + fType + " " + mainMC + " vs " + varMC + "_" + datai["cutDir"] + "}{("+"{:.2f}".format(datai["roc_auc"])+")}", "LP")
+        h.append(g)
     return h
 
 def plotSignificance(data, histName, totalBin, xlab, plotOutDir, cut, isLogY=False, rebinx=-1.0, xmin=999.9, xmax=-999.9, reverseCut=False, signifValues=None):
@@ -384,7 +380,7 @@ def plotSignificance(data, histName, totalBin, xlab, plotOutDir, cut, isLogY=Fal
 
     plt.close()
 
-def plotROC(data, histoName, outputPath="./", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, manySigs=False, stList=None, rocValues=None, allRocValues=None):
+def plotROC(data, histoName, outputPath="./", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, manySigs=False, stList=None, allRocValues=None):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
 
@@ -430,7 +426,7 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, xmin=999.9, xmax=-99
     dummy.Draw("hist")
     leg.Draw("same")
     print(histoName)
-    history = drawRocCurve("", rocBgVec, rocSigVec, leg, manySigs, stList, rocValues, allRocValues)
+    history = drawRocCurve("", rocBgVec, rocSigVec, leg, manySigs, stList, allRocValues)
 
     line1 = ROOT.TF1( "line1","1",0,1)
     line1.SetLineColor(ROOT.kBlack)
@@ -635,8 +631,7 @@ def main():
     cutsImportant = ["_qual_trg_st"]
     Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
-    allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc"])
-    rocValues = pd.DataFrame(columns=["cut","var","bkg","roc_auc"])
+    allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir"])
     yieldValues = pd.DataFrame(columns=["cut","var","source","yield"])
     signifValues = pd.DataFrame(columns=["cut","var","source","max signif."])
     plotOutDir = "output/UL_jetalt2p4_trigger_qual_FlorianCuts_2018_morejN_count"
@@ -675,15 +670,19 @@ def main():
     "fjw"
     ]
 
+    count = 0
     for histName,details in vars.items():
+        count += 1
+        if count >= 15:
+            break
         isNorm = options.isNorm
         isNormBkg = options.isNormBkg
         onlySig = options.onlySig
         manySigs = options.manySigs
         if histName in varsSkip:
             continue
-        # if details[6] != "evtw":
-        #     continue
+        if details[6] != "evtw":
+            continue
         for cut in cutsImportant:
             makeDirs(plotOutDir,cut,"Stacked")
             makeDirs(plotOutDir,cut,"roc")
@@ -691,13 +690,14 @@ def main():
             makeDirs(plotOutDir,cut,"NormedStacked")
             stList = [cut,histName]
             print("histName",histName)
-            plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:],                         isLogY=False,   manySigs=manySigs, stList=stList, rocValues=rocValues, allRocValues=allRocValues)
+            plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:],                         isLogY=False,   manySigs=manySigs, stList=stList, allRocValues=allRocValues)
             plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
             plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/NormedStacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=True, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
             # if histName in preVars.keys():
             #     plotSignificance((Data, bgData, sgData), "h_"+histName, details[1], details[0], plotOutDir, cut,                    isLogY=False, reverseCut=preVars[histName], signifValues=signifValues)
-    rocValues.to_csv("{}/rocValues.csv".format(plotOutDir))
     yieldValues.to_csv("{}/yieldValues.csv".format(plotOutDir))
     signifValues.to_csv("{}/signifValues.csv".format(plotOutDir))
+    allRocValues.to_csv("{}/allRocValues.csv".format(plotOutDir))
+
 if __name__ == '__main__':
     main()
