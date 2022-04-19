@@ -20,7 +20,7 @@ class Objects:
 
     def goodMuons(self):
         # # Good Muons
-        muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) #& (self.muons.iso < 0.4)
+        muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso < 0.4)
         return self.muons[muonQualityCut]
 
     def nonIsoMuons(self):

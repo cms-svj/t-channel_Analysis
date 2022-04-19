@@ -145,10 +145,8 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
             "_qual_trg_met"     : qualityCuts & passTrigger & metCut,
             "_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
             "_qual_trg_st"      : qualityCuts & passTrigger & stCut,        
-
-            "_qual_0l_trg"         : qualityCuts & passTrigger & (nnim == 0),
-            "_qual_1nim_trg"       : qualityCuts & passTrigger & (nnim >= 1),
-            #"_metfilter_0l_1nim"        : metFilters & (nl == 0) & (nnim == 1),
+            "_qual_trg_0nim"    : qualityCuts & passTrigger & (nnim == 0),
+            "_qual_trg_ge1nim"  : qualityCuts & passTrigger & (nnim >= 1),
             #"_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
     }
 
