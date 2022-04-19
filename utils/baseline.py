@@ -96,29 +96,29 @@ def PassTrigger(triggerPass,indices):
     return np.any(mult==1,axis=1)
 
 def cutList(dataset,events,vars_noCut,SVJCut=True):
-    evtw = vars_noCut["evtw"][0]
-    nl = vars_noCut["nl"][0]
-    nnim = vars_noCut["nnim"][0]
-    njets = vars_noCut["njets"][0]
-    njetsAK8 = vars_noCut["njetsAK8"][0]
-    nb = vars_noCut["nb"][0]
-    met = vars_noCut["met"][0]
-    ht = vars_noCut["ht"][0]
-    dPhiMinj = vars_noCut["dPhiMinjMET"][0]
-    dPhiMinjAK8 = vars_noCut["dPhiMinjMETAK8"][0]
-    deltaR12jAK8 = vars_noCut["dRJ12AK8"][0]
+    evtw = vars_noCut["evtw"]
+    nl = vars_noCut["nl"]
+    nnim = vars_noCut["nnim"]
+    njets = vars_noCut["njets"]
+    njetsAK8 = vars_noCut["njetsAK8"]
+    nb = vars_noCut["nb"]
+    met = vars_noCut["met"]
+    ht = vars_noCut["ht"]
+    dPhiMinj = vars_noCut["dPhiMinjMET"]
+    dPhiMinjAK8 = vars_noCut["dPhiMinjMETAK8"]
     triggerPass = events.TriggerPass
     jetID = events.JetID
     jetIDAK8 = events.JetIDAK8
     ttStitch = TTStitch(dataset,events)
     metFilters = METFilters(events)
     # psFilter = PhiSpikeFilter(dataset,vars_noCut['jets'])
-    # qualityCuts = metFilters & psFilter & ttStitch
+    qualityCuts = metFilters & (nl == 0)
     # qualityCuts = metFilters & psFilter # NN training files
     # preselection = Preselection(qualityCuts,nl)
     # cuts to get over trigger plateau
-    metCut = met > 300
-    htCut = 1250
+    metCut = met > 266
+    htCut = ht > 1280
+    stCut = (ht + met) > 1350
     trgPlat = metCut & htCut
 
     # trigger choices
@@ -136,18 +136,25 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
 
     # Define all cuts for histo making
     cuts = {
-            "1"                          : np.ones(len(evtw),dtype=bool),
-            "2_metfilter_0l"             : metFilters & (nl == 0),
-            "3_trg"                      : passTrigger,
-            "4_metfilter_0l_trg"         : metFilters & (nl == 0)   & passTrigger,
-            "5_metfilter_1nim_trg"       : metFilters & (nnim == 1) & passTrigger,
+            ""                  : np.ones(len(evtw),dtype=bool),
+            "_qual"             : qualityCuts,
+            "_qual_met"         : qualityCuts & metCut,
+            "_qual_ht"          : qualityCuts & htCut,
+            "_qual_st"          : qualityCuts & stCut,
+            "_qual_trg"         : qualityCuts & passTrigger,
+            "_qual_trg_met"     : qualityCuts & passTrigger & metCut,
+            "_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
+            "_qual_trg_st"      : qualityCuts & passTrigger & stCut,        
+
+            "_qual_0l_trg"         : qualityCuts & passTrigger & (nnim == 0),
+            "_qual_1nim_trg"       : qualityCuts & passTrigger & (nnim >= 1),
             #"_metfilter_0l_1nim"        : metFilters & (nl == 0) & (nnim == 1),
             #"_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
     }
 
     # cuts with svj
     if SVJCut == True:
-        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"][0]
+        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
         # cuts["_pre_trg_1PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 1)
         # cuts["_pre_trg_2PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 2)
         # # nsvj characterization
