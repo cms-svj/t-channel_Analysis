@@ -20,12 +20,12 @@ class Objects:
 
     def goodMuons(self):
         # # Good Muons
-        muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso < 0.4)
+        muonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) #& (self.muons.iso < 0.4)
         return self.muons[muonQualityCut]
 
     def nonIsoMuons(self):
         # # Good Muons
-        nonIsomuonQualityCut = (self.muons.pt > 55.0) & (abs(self.muons.eta) < self.etaCut) & (self.muons.passIso == False) & (self.muons.mediumID == True)
+        nonIsomuonQualityCut = (self.muons.pt > self.leptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso > 0.4) & (self.muons.mediumID == True)
         return self.muons[nonIsomuonQualityCut]
 
     def goodJets(self):

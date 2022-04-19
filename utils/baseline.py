@@ -132,14 +132,17 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     trgSelectionsQCDCR = tD.trgSelectionsQCDCR[yr]
     tch_trgs =  trgListtoInd(trigDict,trgSelection)
     tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
+    passTrigger = PassTrigger(triggerPass,tch_trgs)
 
     # Define all cuts for histo making
     cuts = {
-            ""                          : np.ones(len(evtw),dtype=bool),
-            "_metfilter_0l"             : metFilters & (nl == 0),
-            "_trg"                      : PassTrigger(triggerPass,tch_trgs),
-            "_metfilter_0l_1nim"        : metFilters & (nl == 0) & (nnim == 1),
-            "_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
+            "1"                          : np.ones(len(evtw),dtype=bool),
+            "2_metfilter_0l"             : metFilters & (nl == 0),
+            "3_trg"                      : passTrigger,
+            "4_metfilter_0l_trg"         : metFilters & (nl == 0)   & passTrigger,
+            "5_metfilter_1nim_trg"       : metFilters & (nnim == 1) & passTrigger,
+            #"_metfilter_0l_1nim"        : metFilters & (nl == 0) & (nnim == 1),
+            #"_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
     }
 
     # cuts with svj
