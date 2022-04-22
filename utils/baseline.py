@@ -137,16 +137,16 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     # Define all cuts for histo making
     cuts = {
             ""                  : np.ones(len(evtw),dtype=bool),
-            "_qual"             : qualityCuts,
-            "_qual_met"         : qualityCuts & metCut,
-            "_qual_ht"          : qualityCuts & htCut,
-            "_qual_st"          : qualityCuts & stCut,
+            #"_qual"             : qualityCuts,
+            #"_qual_met"         : qualityCuts & metCut,
+            #"_qual_ht"          : qualityCuts & htCut,
+            #"_qual_st"          : qualityCuts & stCut,
             "_qual_trg"         : qualityCuts & passTrigger,
-            "_qual_trg_met"     : qualityCuts & passTrigger & metCut,
-            "_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
-            "_qual_trg_st"      : qualityCuts & passTrigger & stCut,        
-            "_qual_trg_0nim"    : qualityCuts & passTrigger & (nnim == 0),
-            "_qual_trg_ge1nim"  : qualityCuts & passTrigger & (nnim >= 1),
+            #"_qual_trg_met"     : qualityCuts & passTrigger & metCut,
+            #"_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
+            "_qual_trg_st"         : qualityCuts & passTrigger & stCut,        
+            "_qual_trg_st_0nim"    : qualityCuts & passTrigger & stCut & (nnim == 0),
+            "_qual_trg_st_ge1nim"  : qualityCuts & passTrigger & stCut & (nnim >= 1),
             #"_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
     }
 

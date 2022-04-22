@@ -47,7 +47,7 @@ def rebinCalc(nBins,target):
     return find_nearest(allDivs, rebinFloat)
 
 def normHisto(hist, doNorm=False):
-    if doNorm:
+    if doNorm and not hist.Integral() <= 0.0:
         hist.Scale(1.0/hist.Integral())
 
 def simpleSig(hSig, hBg):
@@ -97,7 +97,7 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_mTTJetsmini_Inc_noEtaCut_pT50.root",     label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
         info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",             label="Z#rightarrow#nu#nu+jets",    scale=scale, color=(ROOT.kGray + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",              label="W+jets",                    scale=scale, color=(ROOT.kYellow + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_TTTo.root",              label="t#bar{t} (pow)",             scale=scale, color=(ROOT.kBlue - 6)),
+        info.DataSetInfo(basedir=path, fileName=year+"_TT.root",              label="t#bar{t} (pow)",             scale=scale, color=(ROOT.kBlue - 6)),
         info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",               label="QCD",                        scale=scale, color=(ROOT.kGreen + 1)),
     ]
     #
@@ -189,8 +189,9 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
     #set x-axis range
     if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
 
-def makeRocVec(h,reverse=False,ignoreUnderflow=False):
-    h.Scale( 1.0 / h.Integral() );
+def makeRocVec(h,reverse=False,ignoreUnderflow=False):    
+    if h.Integral() > 0.0:
+        h.Scale( 1.0 / h.Integral() );
     v, cuts = [], []
     si = 1
     if ignoreUnderflow == True:
@@ -254,7 +255,6 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, manySigs=False, stList=None, a
                 latex.SetTextColor(ROOT.kRed)
                 g.GetListOfFunctions().Add(latex) # add cut values
         g.SetLineWidth(2)
-        print("col",datai[colLabel])
         g.SetLineColor(datai[colLabel])
         g.SetMarkerSize(0.7)
         g.SetMarkerStyle(ROOT.kFullSquare)
@@ -629,7 +629,7 @@ def main():
     year = options.year
     # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
-    cutsImportant = ["_qual_trg_st"]
+    cutsImportant = ["_qual_trg","_qual_trg_0nim","_qual_trg_ge1nim"]
     Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
     allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir"])
@@ -671,19 +671,15 @@ def main():
     "fjw"
     ]
 
-    count = 0
     for histName,details in vars(options.jNVar).items():
-        count += 1
-        if count >= 15:
-            break
         isNorm = options.isNorm
         isNormBkg = options.isNormBkg
         onlySig = options.onlySig
         manySigs = options.manySigs
         if histName in varsSkip:
             continue
-        if details[6] != "evtw":
-            continue
+        #if details[6] != "evtw":
+        #    continue
         for cut in cutsImportant:
             makeDirs(plotOutDir,cut,"Stacked")
             makeDirs(plotOutDir,cut,"roc")
