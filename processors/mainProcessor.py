@@ -33,7 +33,7 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor,self.jNVar)
-                # runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
+                runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
 

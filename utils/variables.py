@@ -2,7 +2,7 @@ from itertools import combinations
 
 def variables(jNVar=False):
     # [xlabel,number of bins,xmin,xmax,whether to keep it in npz for training (0=do not keep, 1=keep as is, 2=keep but make sure the length is the same as AK8 variables), whether to flatten the array or not when filling histogram (2 = ak.flatten(), 1 = .flatten(), 0 = do not flatten)]
-    variables = {
+    allVars = {
     'eCounter':                               ["h_eCounter",                                        2,    -1.1,    1.1,         0,     0,       'w1'],
     'evtw':                                   ["h_evtw",                                            2,    -1.1,    1.1,         0,     0,       'evtw'],
     'jw':                                     ["h_jw",                                              2,    -1.1,    1.1,         0,     2,       'jw'],
@@ -62,13 +62,17 @@ def variables(jNVar=False):
     'jPtDAK8':                                ["ptD",                                              40,     0.0,    1.2,         1,     1,       'fjw'],
     'jSoftDropMassAK8':                       [r"$m_{SD}(J)$",                                     200,    0.0,    900,         1,     1,       'fjw'],
     'dPhijMETAK8':                            [r"$\Delta\phi(J,MET)$",                             100,    0.0,    4.0,         1,     1,       'fjw'],
+    'dEtaj12AK8':                             [r"$\Delta\eta(J_{1},J_{2})$",                       200,    0.0,    10.0,        2,     0,       'evtw'],
+    'dRJ12AK8':                               [r"$\Delta R(J_{1},J_{2})$",                         100,    0.0,    10.0,        2,     0,       'evtw'],
     'dPhiMinjMETAK8':                         [r"$\Delta\phi_{min}(j,MET)$",                       100,    0.0,    4.0,         2,     0,       'evtw'],
     'mT':                                     [r"$m_{T} (GeV)$",                                   500,    0.0,    6000.0,      2,     0,       'evtw'],
     'METrHT_pt30':                            [r"$MET/H_{T}$",                                     100,    0.0,    3.0,         2,     0,       'evtw'],
     'METrST_pt30':                            [r"$MET/S_{T}",                                      100,    0.0,    1.0,         2,     0,       'evtw'],
+    'dPhij1rdPhij2AK8':                       [r"$\Delta\phi(J_{1},MET)/\Delta\phi(J_{2},MET)$",   100,    0.0,    100.0,       2,     0,       'evtw'],
     'electronsIso':                           ["electrons iso",                                    100,    0.0,    1.0,         0,     1,         'ew'],
     'muonsIso':                               ["muons iso",                                        100,    0.0,    1.0,         0,     1,         'mw'],
     'nonIsoMuonsIso':                         ["NonIsoMuons iso",                                  200,    0.0,    10.0,        0,     1,       'nimw'],
+    'nonIsoMuonsPt':                          ["NonIsoMuons $p_{T}$ [GeV]",                        200,    0.0,    2500.0,      0,     1,       'nimw'],
     # 'mT2_f4_msm':                             [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0,'evtw'],
     # 'mT2_f4_msm_dEta':                        [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0,'evtw'],
     # 'mT2_f4_msm_dPhi':                        [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0,'evtw'],
@@ -77,8 +81,8 @@ def variables(jNVar=False):
     # "JetsAK8_hvCategory":                     ["JetAK8 hvCategory",                                32,     0.0,    32.0,        1,     2,'fjw'],
     # "GenMT2_AK8":                             [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      0,     0,,'evtw'],
     # "GenJetsAK8_darkPtFrac":                  ["GenJetAK8 Dark pT Fraction",                       100,    0.0,    1.0,         0,     1,'fjw'],
-    # 'nsvjJetsAK8':                            ["Number of SVJ AK8Jets",                            20,     0.0,    20.0,        0,     0,,'evtw'],
-    # 'nnOutput':                               ["nnOutput",                                         100,    0.0,    1.0,         0,     1,'fjw'],
+    'nsvjJetsAK8':                            ["Number of SVJ AK8Jets",                            20,     0.0,    20.0,        0,     0,'evtw'],
+    'nnOutput':                               ["nnOutput",                                         100,    0.0,    1.0,         0,     1,'fjw'],
     }
     if jNVar:
         # preparing histograms for jN variables
@@ -107,7 +111,7 @@ def variables(jNVar=False):
                 'j{}SoftDropMassAK8'.format(i+1):                      [r"$m_{SD}(J_"+str(i+1)+")$",                                   200,    0.0,    900,         2,     0,       'evtw'],
                 'dPhij{}METAK8'.format(i+1):                           [r"$\Delta\phi(J_{"+str(i+1)+"},MET)$",                         100,    0.0,    4.0,         2,     0,       'evtw'],
             }
-            variables.update(jNList)
+            allVars.update(jNList)
 
         allComs = list(combinations(range(maxN),2))
         for com in allComs:
@@ -123,7 +127,7 @@ def variables(jNVar=False):
                 'dRj{}{}AK8'.format(j1,j2):                            [r"$\Delta R(J_{"+str(j1)+"},J_{"+str(j2)+"})$",                         100,    0.0,    6.0,         2,     0,      'evtw'],
                 'dPhij{}rdPhij{}AK8'.format(j1,j2):                    [r"$\Delta\phi(J_{"+str(j1)+"},MET)/\Delta\phi(J_{"+str(j2)+"},MET)$",   100,    0.0,    120.0,       2,     0,      'evtw'],
             }
-            variables.update(jNjMList)
+            allVars.update(jNjMList)
 
-    return variables
+    return allVars
 

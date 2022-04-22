@@ -325,11 +325,15 @@ def varGetter(dataset,events,scaleFactor,jNVar=False):
     varVal['jSoftDropMassAK8'] = fjets.softDropMass
     varVal['dPhijMETAK8'] = dPhijAK8
     varVal['dPhiMinjMETAK8'] = dPhiMinjAK8
+    varVal['dEtaj12AK8'] = dEtaj12AK8
+    varVal['dRJ12AK8'] = deltaR12jAK8
     varVal['mT'] = mtAK8
     varVal['METrHT_pt30'] = metrht
     varVal['METrST_pt30'] = metrst
+    varVal['dPhij1rdPhij2AK8'] = dPhij1rdPhij2AK8
     varVal['electronsIso'] = electrons.iso
     varVal['muonsIso'] = muons.iso
+    varVal['nonIsoMuonsPt'] = nonIsoMuons.pt
     varVal['nonIsoMuonsIso'] = nonIsoMuons.iso
     if jNVar:
         # preparing histograms for jN variables
