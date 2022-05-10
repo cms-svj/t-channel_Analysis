@@ -72,7 +72,7 @@ def variables(jNVar=False):
     'electronsIso':                           ["electrons iso",                                    100,    0.0,    1.0,         0,     1,         'ew'],
     'muonsIso':                               ["muons iso",                                        100,    0.0,    1.0,         0,     1,         'mw'],
     'nonIsoMuonsIso':                         ["NonIsoMuons iso",                                  200,    0.0,    10.0,        0,     1,       'nimw'],
-    'nonIsoMuonsPt':                          ["NonIsoMuons $p_{T}$ [GeV]",                        200,    0.0,    2500.0,      0,     1,       'nimw'],
+    'nonIsoMuonsPt':                          ["NonIsoMuons $p_{T}$ [GeV]",                        500,    0.0,    2500.0,      0,     1,       'nimw'],
     # 'mT2_f4_msm':                             [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0,'evtw'],
     # 'mT2_f4_msm_dEta':                        [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0,'evtw'],
     # 'mT2_f4_msm_dPhi':                        [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      2,     0,'evtw'],
