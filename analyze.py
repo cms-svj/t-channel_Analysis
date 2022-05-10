@@ -131,6 +131,7 @@ def main():
     ## the loop makes sure we are only saving the histograms that are filled
     fout = uproot3.recreate(outfile)
     if isinstance(output,tuple): output = output[0]
+    output = dict(sorted(output.items()))
     for key,H in output.items():
         if type(H) is hist.Hist: #and H._sumw2 is not None:
             if H._sumw2 is None:
