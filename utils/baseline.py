@@ -98,6 +98,7 @@ def PassTrigger(triggerPass,indices):
 def cutList(dataset,events,vars_noCut,SVJCut=True):
     evtw = vars_noCut["evtw"]
     nl = vars_noCut["nl"]
+    nnim = vars_noCut["nnim"]
     njets = vars_noCut["njets"]
     njetsAK8 = vars_noCut["njetsAK8"]
     nb = vars_noCut["nb"]
@@ -119,13 +120,6 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     htCut = ht > 1280
     stCut = (ht + met) > 1350
     trgPlat = metCut & htCut
-    cuts = {
-            ""                          : np.ones(len(evtw),dtype=bool),
-            "_qual"             : qualityCuts,
-            "_qual_met"         : qualityCuts & metCut,
-            "_qual_ht"          : qualityCuts & htCut,
-            "_qual_st"          : qualityCuts & stCut
-    }
 
     # trigger choices
     years = ["2016","2017","2018"]
@@ -135,11 +129,27 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
             yr = year
     trigDict = tD.trigDicts[yr]
     trgSelection = tD.trgSelections[yr]
+    trgSelectionsQCDCR = tD.trgSelectionsQCDCR[yr]
     tch_trgs =  trgListtoInd(trigDict,trgSelection)
-    cuts["_qual_trg"] = qualityCuts & PassTrigger(triggerPass,tch_trgs)
-    cuts["_qual_trg_met"] = cuts["_qual_trg"] & metCut
-    cuts["_qual_trg_ht"] = cuts["_qual_trg"] & htCut
-    cuts["_qual_trg_st"] = cuts["_qual_trg"] & stCut
+    tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
+    passTrigger = PassTrigger(triggerPass,tch_trgs)
+
+    # Define all cuts for histo making
+    cuts = {
+            ""                  : np.ones(len(evtw),dtype=bool),
+            #"_qual"             : qualityCuts,
+            #"_qual_met"         : qualityCuts & metCut,
+            #"_qual_ht"          : qualityCuts & htCut,
+            #"_qual_st"          : qualityCuts & stCut,
+            "_qual_trg"         : qualityCuts & passTrigger,
+            #"_qual_trg_met"     : qualityCuts & passTrigger & metCut,
+            #"_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
+            "_qual_trg_st"         : qualityCuts & passTrigger & stCut,        
+            "_qual_trg_st_0nim"    : qualityCuts & passTrigger & stCut & (nnim == 0),
+            "_qual_trg_st_ge1nim"  : qualityCuts & passTrigger & stCut & (nnim >= 1),
+            #"_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
+    }
+
     # cuts with svj
     if SVJCut == True:
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]

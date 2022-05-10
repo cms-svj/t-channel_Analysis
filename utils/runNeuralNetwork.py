@@ -15,11 +15,11 @@ def get_all_vars(varsIn,varSet,normMean,normStd):
     dataSet = pd.DataFrame()
     for var in varSet:
         inputArr = varsIn[var]
-        if variables[var][4] == 2:
+        if variables()[var][4] == 2:
             inputArr = np.repeat(ak.to_numpy(inputArr),ak.to_numpy(varsIn["njetsAK8"]))
-        if variables[var][5] == 1:
+        if variables()[var][5] == 1:
             inputArr = ak.flatten(inputArr)
-        elif variables[var][5] == 2:
+        elif variables()[var][5] == 2:
             inputArr = ak.flatten(inputArr)
         dataSet[var] = inputArr
     dataSet = normalize(dataSet,normMean,normStd)

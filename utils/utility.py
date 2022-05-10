@@ -169,6 +169,7 @@ def varGetter(dataset,events,scaleFactor,jNVar=False):
     # gfjets = obj.goodGenFatJets()
     electrons = obj.goodElectrons()
     muons = obj.goodMuons()
+    nonIsoMuons = obj.nonIsoMuons()
     met = events.MET
     metPhi = events.METPhi
     mtAK8 = events.MT_AK8
@@ -206,6 +207,7 @@ def varGetter(dataset,events,scaleFactor,jNVar=False):
 
     ew = awkwardReshape(electrons,evtw)
     mw = awkwardReshape(muons,evtw)
+    nimw = awkwardReshape(nonIsoMuons,evtw)
     jw = awkwardReshape(jets,evtw)
     fjw = awkwardReshape(fjets,evtw)
     ht = ak.sum(jets.pt,axis=1)
@@ -266,10 +268,12 @@ def varGetter(dataset,events,scaleFactor,jNVar=False):
     varVal['fjw'] = fjw
     varVal['ew'] = ew
     varVal['mw'] = mw
+    varVal['nimw'] = nimw
     varVal['njets'] = ak.num(jets)
     varVal['njetsAK8'] = ak.num(fjets)
     varVal['nb'] = nBJets
     varVal['nl'] = (ak.num(electrons) + ak.num(muons))
+    varVal['nnim'] = ak.num(nonIsoMuons)
     varVal['ht'] = ht
     varVal['st'] = st
     varVal['met'] = met
@@ -321,11 +325,16 @@ def varGetter(dataset,events,scaleFactor,jNVar=False):
     varVal['jSoftDropMassAK8'] = fjets.softDropMass
     varVal['dPhijMETAK8'] = dPhijAK8
     varVal['dPhiMinjMETAK8'] = dPhiMinjAK8
+    varVal['dEtaj12AK8'] = dEtaj12AK8
+    varVal['dRJ12AK8'] = deltaR12jAK8
     varVal['mT'] = mtAK8
     varVal['METrHT_pt30'] = metrht
     varVal['METrST_pt30'] = metrst
+    varVal['dPhij1rdPhij2AK8'] = dPhij1rdPhij2AK8
     varVal['electronsIso'] = electrons.iso
     varVal['muonsIso'] = muons.iso
+    varVal['nonIsoMuonsPt'] = nonIsoMuons.pt
+    varVal['nonIsoMuonsIso'] = nonIsoMuons.iso
     if jNVar:
         # preparing histograms for jN variables
         maxN = 4
