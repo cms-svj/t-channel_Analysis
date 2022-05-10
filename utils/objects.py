@@ -25,7 +25,7 @@ class Objects:
 
     def nonIsoMuons(self):
         # # non Iso Muons
-        nonIsomuonQualityCut = (self.muons.pt > 55.0) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso > 0.4) & (self.muons.mediumID == True)
+        nonIsomuonQualityCut = (self.muons.pt > 10.0) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso > 0.4) & (self.muons.mediumID == True)
         return self.muons[nonIsomuonQualityCut]
 
     def goodJets(self):
