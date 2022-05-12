@@ -82,6 +82,8 @@ def variables(jNVar=False):
     # "GenMT2_AK8":                             [r"$m_{T2} (GeV)$",                                  500,    0.0,    5000.0,      0,     0,,'evtw'],
     # "GenJetsAK8_darkPtFrac":                  ["GenJetAK8 Dark pT Fraction",                       100,    0.0,    1.0,         0,     1,'fjw'],
     'nsvjJetsAK8':                            ["Number of SVJ AK8Jets",                            20,     0.0,    20.0,        0,     0,'evtw'],
+    'nsvjJetsAK8Plus1':                       ["Number of SVJ AK8Jets pred1Jets",                  20,     0.0,    20.0,        0,     0,'pred1_evtw'],
+    'nsvjJetsAK8Plus2':                       ["Number of SVJ AK8Jets pred2Jets",                  20,     0.0,    20.0,        0,     0,'pred2_evtw'],
     'nnOutput':                               ["nnOutput",                                         100,    0.0,    1.0,         0,     1,'fjw'],
     }
     if jNVar:

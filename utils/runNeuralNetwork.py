@@ -59,5 +59,44 @@ def runNN(model,varsIn,varSet,normMean,normStd):
 
     wpt = 0.5
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
+    bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     varsIn['nsvjJetsAK8'] = ak.num(darksvjJetsAK8)
     varsIn['nnOutput'] = svjJetsAK8
+    fakerate = 0.47*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+
+    #######################################################
+    # Extrapolate number of tag jets from low to high
+    #######################################################
+    inputArray = fakerate
+
+    # Extrapolate N+1 tagged jets from N tagged jets
+    nsvjJetsAK8_pred1jets = ak.sum(fakerate, axis=1)
+
+    # Extrapolate N+2 tagged jets from N tagged jets
+    allComboEff = ak.cartesian([inputArray, inputArray], axis=1, nested=True)
+    allComboZeros = ak.to_list(ak.zeros_like(allComboEff))
+    for i, event in enumerate(allComboEff):
+        for j, row in enumerate(event):
+            for k, ele in enumerate(row):
+                product = ele["0"]*ele["1"]
+                allComboZeros[i][j][k] = product
+    allComboProducts = ak.Array(allComboZeros)
+    totalSum = ak.sum(ak.sum(allComboProducts, axis=1), axis=1)
+    trace = ak.sum(inputArray*inputArray, axis=1)
+    nsvjJetsAK8_pred2jets = totalSum - trace
+
+    # Save extrapolation variables
+    #print("----------------")
+    #print(ak.to_list(counts))
+    #print(ak.to_list(varsIn['nsvjJetsAK8']))
+    #print(ak.to_list(inputArray))
+    #print(ak.to_list(nsvjJetsAK8_pred1jets))
+    #print(ak.to_list(nsvjJetsAK8_pred2jets))
+    #print("\n\n")
+    varsIn['nsvjJetsAK8_pred1jets'] = nsvjJetsAK8_pred1jets
+    varsIn['nsvjJetsAK8_pred2jets'] = nsvjJetsAK8_pred2jets
+    varsIn['pred1_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred1jets
+    varsIn['pred2_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred2jets
+    varsIn['nsvjJetsAK8Plus1'] = ak.num(darksvjJetsAK8) + 1.0
+    varsIn['nsvjJetsAK8Plus2'] = ak.num(darksvjJetsAK8) + 2.0
+
