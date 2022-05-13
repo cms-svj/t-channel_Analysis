@@ -1,5 +1,6 @@
 #!/bin/bash
 
+source local.sh
 NAME=coffeaenv
 
 # vars for jupyter

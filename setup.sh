@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+source local.sh
+
 case `uname` in
   Linux) ECHO="echo -e" ;;
   *) ECHO="echo" ;;
@@ -18,8 +20,8 @@ usage(){
 }
 
 NAME=coffeaenv
-LCG=/cvmfs/sft.cern.ch/lcg/views/LCG_101cuda/x86_64-centos7-gcc8-opt
-SC=/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity
+LCG=$TCHANNEL_LCG
+SC=$TCHANNEL_SC
 DEV=0
 useLCG=0
 

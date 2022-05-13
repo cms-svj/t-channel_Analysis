@@ -50,8 +50,7 @@ def main():
     fileParts = []
     fileParts.append("Universe   = vanilla\n")
     fileParts.append("Executable = run_Analyzer_condor.sh\n")
-    #if not options.useLCG: fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/coffeateam/coffea-dask:latest\"\n")
-    if not options.useLCG: fileParts.append("+SingularityImage = \"/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity\"\n")
+    if not options.useLCG: fileParts.append('+SingularityImage = "{}"\n'.format(environ["TCHANNEL_SC"]))
     fileParts.append("Transfer_Input_Files = %s/%s.tar.gz, %s/exestuff.tar.gz\n" % (options.outPath,"tchannel",options.outPath))
     fileParts.append("Should_Transfer_Files = YES\n")
     fileParts.append("WhenToTransferOutput = ON_EXIT\n")
