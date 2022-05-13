@@ -8,4 +8,4 @@ if [ -z "$SINGULARITY_BIND" ]; then
 	fi
 fi
 
-singularity run --nv --bind /cvmfs $TCHAN_SC
+singularity run --nv --bind /cvmfs $TCHANNEL_SC $@

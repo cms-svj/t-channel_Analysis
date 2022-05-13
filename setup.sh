@@ -7,23 +7,23 @@ case `uname` in
   *) ECHO="echo" ;;
 esac
 
-usage(){
-	EXIT=$1
-	$ECHO "setup.sh [options]"
-	$ECHO
-	$ECHO "Options:"
-	$ECHO "-d              \tuse the developer branch of Coffea (default = 0)"
-	$ECHO "-l              \tuse default LCG environment"
-	$ECHO "-h              \tprint this message and exit"
-	$ECHO "-n [NAME]       \toverride the name of the virtual environment (default = coffeaenv)"
-	exit $EXIT
-}
-
 NAME=coffeaenv
 LCG=$TCHANNEL_LCG
 SC=$TCHANNEL_SC
 DEV=0
 useLCG=0
+
+usage(){
+	EXIT=$1
+	$ECHO "setup.sh [options]"
+	$ECHO
+	$ECHO "Options:"
+	$ECHO "-d              \tuse the developer branch of Coffea"
+	$ECHO "-l              \tuse LCG environment (appends LCG to venv name)"
+	$ECHO "-h              \tprint this message and exit"
+	$ECHO "-n [NAME]       \toverride the name of the virtual environment (default = $NAME)"
+	exit $EXIT
+}
 
 # check arguments
 while getopts "dlhn:" opt; do
@@ -51,13 +51,12 @@ if [[ "$useLCG" -eq 1 ]]; then
         source $LCG/setup.sh
         pyenvflag=--copies
         NAME=${NAME}LCG
-elif [[ "$SINGULARITY_CONTAINER" == "$SC" ]]; then
+elif [[ "$SINGULARITY_CONTAINER" == "" ]]; then
+        ./launchSingularity.sh "$0 $@"
+        exit 0
+else
         $ECHO "\nBuilding env on top of Singularity container \"$SINGULARITY_CONTAINER\" ... "
         pyenvflag=--system-site-packages
-else
-        $ECHO "Error: Expected to be in Singularity container \"$SC\""
-        $ECHO "Error: Either launch the correct Singularity container or specify that you are using LCG with the \"-l\" flag"
-        exit
 fi
 
 # Finding path to env
