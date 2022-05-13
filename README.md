@@ -24,7 +24,7 @@ To begin the initial setup, run the following commands:
 cd <working_directory>
 git clone git@github.com:cms-svj/t-channel_Analysis.git
 cd t-channel_Analysis
-source launchSingularity.sh # if using Singularity
+./launchSingularity.sh # if using Singularity
 ./setup.sh
 ```
 Remember to replace `<working_directory>` with the directory where you want your files/folders to appear. You can change the name of the virtual environment by using the `-n` option and you can use the development version of coffea by using the `-d` option. These commands only need to be run during the initial setup. When doing your day-to-day tasks, you can skip these. The LCG method can be setup by skipping the Singularity launching step and by adding a `-l` flag to the setup.sh script.
