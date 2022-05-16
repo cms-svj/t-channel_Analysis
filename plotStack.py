@@ -629,7 +629,7 @@ def main():
     year = options.year
     # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
     #cuts = ["_ge2AK8j"]
-    cutsImportant = ["_qual_trg","_qual_trg_0nim","_qual_trg_ge1nim"]
+    cutsImportant = ["_qual_trg_st","_qual_trg_st_0nim","_qual_trg_st_ge1nim"]
     Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
     allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir"])

@@ -54,7 +54,7 @@ class MainProcessor(processor.ProcessorABC):
                     pred1_evtw = vars_noCut["pred1_evtw"][cut]
                     pred2_evtw = vars_noCut["pred2_evtw"][cut]
                     pred3_evtw = vars_noCut["pred3_evtw"][cut]
-                    #pred4_evtw = vars_noCut["pred4_evtw"][cut]
+                    pred4_evtw = vars_noCut["pred4_evtw"][cut]
                     if len(events) > 0:
                         ## filling histograms
                         for varName,varDetail in variables(self.jNVar).items():
@@ -81,8 +81,8 @@ class MainProcessor(processor.ProcessorABC):
                                 hW = pred2_evtw
                             elif wKey == "pred3_evtw":
                                 hW = pred3_evtw
-                            #elif wKey == "pred4_evtw":
-                            #    hW = pred4_evtw
+                            elif wKey == "pred4_evtw":
+                                hW = pred4_evtw
                             elif wKey == "w1":
                                 hW = np.ones(len(weight))
                             if len(hIn) > 0:

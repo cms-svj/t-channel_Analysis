@@ -85,7 +85,7 @@ def variables(jNVar=False):
     'nsvjJetsAK8Plus1':                       ["Number of SVJ AK8Jets pred1Jets",                  10,     0.0,    10.0,        0,     0,'pred1_evtw'],
     'nsvjJetsAK8Plus2':                       ["Number of SVJ AK8Jets pred2Jets",                  10,     0.0,    10.0,        0,     0,'pred2_evtw'],
     'nsvjJetsAK8Plus3':                       ["Number of SVJ AK8Jets pred3Jets",                  10,     0.0,    10.0,        0,     0,'pred3_evtw'],
-    #'nsvjJetsAK8Plus4':                       ["Number of SVJ AK8Jets pred4Jets",                  10,     0.0,    10.0,        0,     0,'pred4_evtw'],
+    'nsvjJetsAK8Plus4':                       ["Number of SVJ AK8Jets pred4Jets",                  10,     0.0,    10.0,        0,     0,'pred4_evtw'],
     'nnOutput':                               ["nnOutput",                                         100,    0.0,    1.0,         0,     1,'fjw'],
     }
     if jNVar:
