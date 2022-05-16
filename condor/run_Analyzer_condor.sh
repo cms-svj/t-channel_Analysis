@@ -24,7 +24,7 @@ ls -l
 
 # Setup the activation script for the virtual environment
 echo "\nSetting up the activation script for the virtual environment ... "
-source init.sh
+source init.sh ""
 
 echo "ls output"
 ls -l

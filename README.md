@@ -10,13 +10,11 @@ The Coffea+Torch environment can be setup in two ways. Each method adds a python
 
 Begin by logging into `cmslpc`:
 ```bash
-ssh -L localhost:8NNN:localhost:8NNN  <username>@cmslpc-sl7.fnal.gov
+ssh -L localhost:8NNN:localhost:8NNN <username>@cmslpc-sl7.fnal.gov
 ```
 Remember to replace `<username>` by your username. The `-L` option is needed if you'd like to work with Jupyter. Replace the `NNN` in `8NNN` with a unique number.
-If you are not going to work with Jupyter, you can just do:
-```bash
-ssh -L localhost:8NNN:localhost:8NNN  <username>@cmslpc-sl7.fnal.gov
-```
+If you are not going to work with Jupyter, you can omit `-L localhost:8NNN:localhost:8NNN`.
+
 ### Python Virtual Environment
 
 To begin the initial setup, run the following commands:
@@ -24,7 +22,6 @@ To begin the initial setup, run the following commands:
 cd <working_directory>
 git clone git@github.com:cms-svj/t-channel_Analysis.git
 cd t-channel_Analysis
-source launchSingularity.sh # if using Singularity
 ./setup.sh
 ```
 Remember to replace `<working_directory>` with the directory where you want your files/folders to appear. You can change the name of the virtual environment by using the `-n` option and you can use the development version of coffea by using the `-d` option. These commands only need to be run during the initial setup. When doing your day-to-day tasks, you can skip these. The LCG method can be setup by skipping the Singularity launching step and by adding a `-l` flag to the setup.sh script.
@@ -32,8 +29,12 @@ Remember to replace `<working_directory>` with the directory where you want your
 To activate the `coffeaenv` environment and set the Jupyter paths, run the command (every time):
 ```bash
 cd <working_directory>/t-channel_Analysis
-source launchSingularity.sh # if using Singularity
 source init.sh
+```
+
+If you're using LCG, the last line above changes:
+```
+source initLCG.sh
 ```
 
 When you are done working and would like to ``de-activate'' the `coffeaenv` environment, run the command:
@@ -64,6 +65,7 @@ It's a good idea to get/renew a voms ticket if you're going to be working with X
 ```bash
 voms-proxy-init -voms cms --valid 192:00
 ```
+
 ### Running the Analysis
 Currently the default setup does not work for the neural network. So instead of doing `source init.sh` while you are in `t-channel_Analysis`,
 you should follow the steps in https://github.com/cms-svj/t-channel_Analysis/issues/22 to set up the environment.
