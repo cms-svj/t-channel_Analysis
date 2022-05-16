@@ -1,35 +1,37 @@
 #!/usr/bin/env bash
 
+source local.sh
+
 case `uname` in
   Linux) ECHO="echo -e" ;;
   *) ECHO="echo" ;;
 esac
+
+NAME=coffeaenv
+LCG=$TCHANNEL_LCG
+SC=$TCHANNEL_SC
+DEV=0
+useLCG=0
 
 usage(){
 	EXIT=$1
 	$ECHO "setup.sh [options]"
 	$ECHO
 	$ECHO "Options:"
-	$ECHO "-d              \tuse the developer branch of Coffea (default = 0)"
-	$ECHO "-l              \tuse default LCG environment"
+	$ECHO "-d              \tuse the developer branch of Coffea"
+	$ECHO "-l              \tuse LCG environment (appends LCG to venv name)"
 	$ECHO "-h              \tprint this message and exit"
-	$ECHO "-n [NAME]       \toverride the name of the virtual environment (default = coffeaenv)"
+	$ECHO "-n [NAME]       \toverride the name of the virtual environment (default = $NAME)"
 	exit $EXIT
 }
-
-NAME=coffeaenv
-LCG=/cvmfs/sft.cern.ch/lcg/views/LCG_101cuda/x86_64-centos7-gcc8-opt
-SC=/cvmfs/unpacked.cern.ch/registry.hub.docker.com/fnallpc/fnallpc-docker:pytorch-1.9.0-cuda11.1-cudnn8-runtime-singularity
-DEV=0
-useLCG=0
 
 # check arguments
 while getopts "dlhn:" opt; do
 	case "$opt" in
 		d) DEV=1
 		;;
-                l) useLCG=1
-                ;;
+		l) useLCG=1
+		;;
 		h) usage 0
 		;;
 		n) NAME=$OPTARG
@@ -44,18 +46,17 @@ while getopts "dlhn:" opt; do
 done
 
 # Setup the base environment
-if [[ "$useLCG" == "1" ]]; then
+if [[ "$useLCG" -eq 1 ]]; then
         $ECHO "\nGetting the LCG environment ... "
         source $LCG/setup.sh
         pyenvflag=--copies
         NAME=${NAME}LCG
-elif [[ "$SINGULARITY_CONTAINER" == "$SC" ]]; then
+elif [[ "$SINGULARITY_CONTAINER" == "" ]]; then
+        ./launchSingularity.sh "$0 $@"
+        exit 0
+else
         $ECHO "\nBuilding env on top of Singularity container \"$SINGULARITY_CONTAINER\" ... "
         pyenvflag=--system-site-packages
-else
-        $ECHO "Error: Expected to be in Singularity container \"$SC\""
-        $ECHO "Error: Either launch the correct Singularity container or specify that you are using LCG with the \"-l\" flag"
-        exit
 fi
 
 # Finding path to env
@@ -83,11 +84,11 @@ $ECHO "\nInstalling 'pip' packages ... \n"
 python -m pip install --no-cache-dir pip --upgrade
 python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
 python -m pip install --no-cache-dir magiconfig
-if [[ "$useLCG" == "1" ]]; then
-        python -m pip install --no-cache-dir torch==1.9 --upgrade        
+if [[ "$useLCG" -eq 1 ]]; then
+        python -m pip install --no-cache-dir torch==1.9 --upgrade
 fi
 python -m pip install --no-cache-dir mt2
-if [[ "$DEV" == "1" ]]; then
+if [[ "$DEV" -eq 1 ]]; then
 	$ECHO "\nInstalling the 'development' version of Coffea ... "
 	python -m pip install --no-cache-dir flake8 pytest coverage
 	git clone https://github.com/CoffeaTeam/coffea
@@ -99,9 +100,6 @@ else
 	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.7.14
 fi
 
-# apply patches
-./patch.sh $NAME
-
 # Clone TreeMaker for its lists of samples and files
 $ECHO "\nCloning the TreeMaker repository ..."
 git clone git@github.com:TreeMaker/TreeMaker.git ${NAME}/${pypackages}/TreeMaker/
@@ -110,8 +108,10 @@ git clone git@github.com:TreeMaker/TreeMaker.git ${NAME}/${pypackages}/TreeMaker
 $ECHO "\nSetting up the activation script for the virtual environment ... "
 sed -i '40s/.*/VIRTUAL_ENV="$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}" )")" \&\& pwd)"/' $NAME/bin/activate
 find $NAME/bin/ -type f -print0 | xargs -0 -P 4 sed -i '1s/#!.*python$/#!\/usr\/bin\/env python/'
-sed -i "2a source ${pypath}/setup.sh"'\nexport PYTHONPATH=""' $NAME/bin/activate
-sed -i "4a source ${pypath}/setup.csh"'\nsetenv PYTHONPATH ""' $NAME/bin/activate.csh
+if [[ "$useLCG" -eq 1 ]]; then
+	sed -i "2a source ${pypath}/setup.sh"'\nexport PYTHONPATH=""' $NAME/bin/activate
+	sed -i "4a source ${pypath}/setup.csh"'\nsetenv PYTHONPATH ""' $NAME/bin/activate.csh
+fi
 
 # Setting up jupyter
 $ECHO "\nSetting up the ipython/jupyter kernel ... "

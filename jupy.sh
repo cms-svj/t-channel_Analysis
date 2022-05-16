@@ -6,7 +6,7 @@ if [ -z "$PORT" ]; then
 fi
 
 # generate 32 bit random hex string
-TOKEN=$(hexdump -n 16 -e '4/4 "%08X" 1 "\n"' /dev/random)
+TOKEN=$(python -c 'import random; print("%030x" % random.randrange(16**30))')
 
 echo "Server url: http://127.0.0.1:${PORT}/?token=${TOKEN}"
 echo ""
