@@ -3,6 +3,7 @@ import awkward as ak
 import torch.utils.data as udata
 import torch
 import pandas as pd
+import math
 from .variables import variables
 from torch.nn import functional as f
 from utils import utility as u
@@ -50,6 +51,61 @@ def getNNOutput(dataset, model):
         output_tag = np.nan_to_num(output_tag,nan=-1)
     return output_tag
 
+def extrapolateNTaggedJets(inputArray, nRank):
+    # Extrapolate N+nRank tagged jets from N tagged jets
+    prediction = None
+    arrayList = [inputArray for x in range(nRank)]
+    allComboEff = ak.cartesian(arrayList, axis=1, nested=True)
+    allComboZeros = ak.to_list(ak.zeros_like(allComboEff))
+
+    if nRank == 1:
+        prediction = ak.sum(inputArray, axis=1)    
+
+    elif nRank == 2:
+        #c1, c2 = ak.unzip(allComboEff)
+        #allComboProducts = c1*c2
+        #prediction = ak.to_list(allComboProducts)
+        #
+        #for i, event in enumerate(allComboProducts):
+        #    s = 0.0
+        #    for j, row in enumerate(event):
+        #        for k, ele in enumerate(row):
+        #            if(j==k): continue
+        #            s+=ele
+        #    prediction[i] = s
+
+        allCombo = ak.combinations(inputArray, nRank, axis=1)
+        c1, c2 = ak.unzip(allCombo)
+        allComboProducts = math.factorial(nRank)*c1*c2
+        prediction = ak.sum(allComboProducts, axis=1)
+
+    elif nRank == 3:
+        #c1, c2, c3 = ak.unzip(allComboEff)
+        #allComboProducts = c1*c2*c3        
+        #prediction = ak.to_list(allComboProducts)
+        #
+        #for i, event in enumerate(allComboProducts):
+        #    s = 0.0
+        #    for j, row in enumerate(event):
+        #        for k, row2 in enumerate(row):
+        #            for l, ele in enumerate(row2):
+        #                if(j==k or k==l or j==l): continue
+        #                s+=ele
+        #    prediction[i] = s
+
+        allCombo = ak.combinations(inputArray, nRank, axis=1)
+        c1, c2, c3 = ak.unzip(allCombo)
+        allComboProducts = math.factorial(nRank)*c1*c2*c3
+        prediction = ak.sum(allComboProducts, axis=1)
+
+    elif nRank == 4:
+        allCombo = ak.combinations(inputArray, nRank, axis=1)
+        c1, c2, c3, c4 = ak.unzip(allCombo)
+        allComboProducts = math.factorial(nRank)*c1*c2*c3*c4
+        prediction = ak.sum(allComboProducts, axis=1)        
+
+    return prediction
+
 def runNN(model,varsIn,varSet,normMean,normStd):
     dataset = RootDataset(varsIn=varsIn,varSet=varSet, normMean=normMean, normStd=normStd)
     nnOutput = getNNOutput(dataset, model)
@@ -67,36 +123,21 @@ def runNN(model,varsIn,varSet,normMean,normStd):
     #######################################################
     # Extrapolate number of tag jets from low to high
     #######################################################
-    inputArray = fakerate
+    nsvjJetsAK8_pred1jets = extrapolateNTaggedJets(fakerate, 1)
+    nsvjJetsAK8_pred2jets = extrapolateNTaggedJets(fakerate, 2)
+    nsvjJetsAK8_pred3jets = extrapolateNTaggedJets(fakerate, 3)
+    #nsvjJetsAK8_pred4jets = extrapolateNTaggedJets(fakerate, 4)
 
-    # Extrapolate N+1 tagged jets from N tagged jets
-    nsvjJetsAK8_pred1jets = ak.sum(fakerate, axis=1)
-
-    # Extrapolate N+2 tagged jets from N tagged jets
-    allComboEff = ak.cartesian([inputArray, inputArray], axis=1, nested=True)
-    allComboZeros = ak.to_list(ak.zeros_like(allComboEff))
-    for i, event in enumerate(allComboEff):
-        for j, row in enumerate(event):
-            for k, ele in enumerate(row):
-                product = ele["0"]*ele["1"]
-                allComboZeros[i][j][k] = product
-    allComboProducts = ak.Array(allComboZeros)
-    totalSum = ak.sum(ak.sum(allComboProducts, axis=1), axis=1)
-    trace = ak.sum(inputArray*inputArray, axis=1)
-    nsvjJetsAK8_pred2jets = totalSum - trace
-
-    # Save extrapolation variables
-    #print("----------------")
-    #print(ak.to_list(counts))
-    #print(ak.to_list(varsIn['nsvjJetsAK8']))
-    #print(ak.to_list(inputArray))
-    #print(ak.to_list(nsvjJetsAK8_pred1jets))
-    #print(ak.to_list(nsvjJetsAK8_pred2jets))
-    #print("\n\n")
     varsIn['nsvjJetsAK8_pred1jets'] = nsvjJetsAK8_pred1jets
     varsIn['nsvjJetsAK8_pred2jets'] = nsvjJetsAK8_pred2jets
+    varsIn['nsvjJetsAK8_pred3jets'] = nsvjJetsAK8_pred3jets
+    #varsIn['nsvjJetsAK8_pred4jets'] = nsvjJetsAK8_pred4jets
     varsIn['pred1_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred1jets
     varsIn['pred2_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred2jets
+    varsIn['pred3_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred3jets
+    #varsIn['pred4_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred4jets
     varsIn['nsvjJetsAK8Plus1'] = ak.num(darksvjJetsAK8) + 1.0
     varsIn['nsvjJetsAK8Plus2'] = ak.num(darksvjJetsAK8) + 2.0
+    varsIn['nsvjJetsAK8Plus3'] = ak.num(darksvjJetsAK8) + 3.0
+    #varsIn['nsvjJetsAK8Plus4'] = ak.num(darksvjJetsAK8) + 4.0
 
