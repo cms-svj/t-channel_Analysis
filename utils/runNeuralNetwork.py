@@ -3,9 +3,11 @@ import awkward as ak
 import torch.utils.data as udata
 import torch
 import pandas as pd
+import math
 from .variables import variables
 from torch.nn import functional as f
 from utils import utility as u
+from utils.poibin import PoiBin
 
 def normalize(df,normMean,normStd):
     return (df-normMean)/normStd
@@ -50,6 +52,28 @@ def getNNOutput(dataset, model):
         output_tag = np.nan_to_num(output_tag,nan=-1)
     return output_tag
 
+def extrapolateNTaggedJets(inputArray, nRank):
+    # Extrapolate N+nRank tagged jets from N tagged jets
+    #prediction = None
+    #if nRank == 1:
+    #    prediction = ak.sum(inputArray, axis=1)    
+    #else:
+    #    allCombo = ak.combinations(inputArray, nRank, axis=1)
+    #    uz = ak.unzip(allCombo)
+    #    uzprod = ak.prod(uz, axis=0)
+    #    allComboProducts = math.factorial(nRank)*uzprod
+    #    prediction = ak.sum(allComboProducts, axis=1)
+
+    prediction = ak.to_list(ak.zeros_like(inputArray))
+    for i, a in enumerate(inputArray):
+        res = [0.0]
+        if len(a) >= nRank: 
+            pb = PoiBin(ak.to_numpy(a))
+            res = pb.pmf([nRank])
+        prediction[i] = res[0]    
+
+    return prediction
+
 def runNN(model,varsIn,varSet,normMean,normStd):
     dataset = RootDataset(varsIn=varsIn,varSet=varSet, normMean=normMean, normStd=normStd)
     nnOutput = getNNOutput(dataset, model)
@@ -59,5 +83,30 @@ def runNN(model,varsIn,varSet,normMean,normStd):
 
     wpt = 0.5
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
+    bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     varsIn['nsvjJetsAK8'] = ak.num(darksvjJetsAK8)
     varsIn['nnOutput'] = svjJetsAK8
+    fakerate = 0.65*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+    #fakerate = 0.47*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+
+    #######################################################
+    # Extrapolate number of tag jets from low to high
+    #######################################################
+    nsvjJetsAK8_pred1jets = extrapolateNTaggedJets(fakerate, 1)
+    nsvjJetsAK8_pred2jets = extrapolateNTaggedJets(fakerate, 2)
+    nsvjJetsAK8_pred3jets = extrapolateNTaggedJets(fakerate, 3)
+    nsvjJetsAK8_pred4jets = extrapolateNTaggedJets(fakerate, 4)
+
+    varsIn['nsvjJetsAK8_pred1jets'] = nsvjJetsAK8_pred1jets
+    varsIn['nsvjJetsAK8_pred2jets'] = nsvjJetsAK8_pred2jets
+    varsIn['nsvjJetsAK8_pred3jets'] = nsvjJetsAK8_pred3jets
+    varsIn['nsvjJetsAK8_pred4jets'] = nsvjJetsAK8_pred4jets
+    varsIn['pred1_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred1jets
+    varsIn['pred2_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred2jets
+    varsIn['pred3_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred3jets
+    varsIn['pred4_evtw'] = varsIn['evtw']*nsvjJetsAK8_pred4jets
+    varsIn['nsvjJetsAK8Plus1'] = ak.num(darksvjJetsAK8) + 1.0
+    varsIn['nsvjJetsAK8Plus2'] = ak.num(darksvjJetsAK8) + 2.0
+    varsIn['nsvjJetsAK8Plus3'] = ak.num(darksvjJetsAK8) + 3.0
+    varsIn['nsvjJetsAK8Plus4'] = ak.num(darksvjJetsAK8) + 4.0
+

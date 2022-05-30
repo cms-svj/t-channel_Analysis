@@ -101,6 +101,7 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     nnim = vars_noCut["nnim"]
     njets = vars_noCut["njets"]
     njetsAK8 = vars_noCut["njetsAK8"]
+    nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
     nb = vars_noCut["nb"]
     met = vars_noCut["met"]
     ht = vars_noCut["ht"]
@@ -141,25 +142,35 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
             #"_qual_met"         : qualityCuts & metCut,
             #"_qual_ht"          : qualityCuts & htCut,
             #"_qual_st"          : qualityCuts & stCut,
-            "_qual_trg"         : qualityCuts & passTrigger,
+            #"_qual_trg"         : qualityCuts & passTrigger,
             #"_qual_trg_met"     : qualityCuts & passTrigger & metCut,
             #"_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
-            "_qual_trg_st"         : qualityCuts & passTrigger & stCut,        
-            "_qual_trg_st_0nim"    : qualityCuts & passTrigger & stCut & (nnim == 0),
-            "_qual_trg_st_ge1nim"  : qualityCuts & passTrigger & stCut & (nnim >= 1),
+            "_qual_trg_st"             : qualityCuts & passTrigger & stCut,        
+            "_qual_trg_st_0nim"        : qualityCuts & passTrigger & stCut & (nnim == 0),
+            "_qual_trg_st_0nim_0J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 0),
+            "_qual_trg_st_0nim_1J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 1),
+            "_qual_trg_st_0nim_2J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 2),
+            "_qual_trg_st_0nim_ge1J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 1),
+            "_qual_trg_st_0nim_ge2J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 2),
+
+            "_qual_trg_st_ge1nim"      : qualityCuts & passTrigger & stCut & (nnim >= 1),
+            "_qual_trg_st_ge1nim_0J"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 0),
+            "_qual_trg_st_ge1nim_1J"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 1),
+            "_qual_trg_st_ge1nim_2J"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 2),
+            "_qual_trg_st_ge1nim_ge1J" : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 1),
+            "_qual_trg_st_ge1nim_ge2J" : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 2),
             #"_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
     }
 
     # cuts with svj
-    if SVJCut == True:
-        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
-        # cuts["_pre_trg_1PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 1)
-        # cuts["_pre_trg_2PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 2)
-        # # nsvj characterization
-        # cuts["_pre_trg_0SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 0)
-        # cuts["_pre_trg_1SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 1)
-        # cuts["_pre_trg_2SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 2)
-        # cuts["_pre_trg_3SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 3)
-        # cuts["_pre_trg_4SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 4)
-        # cuts["_pre_trg_5PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 5)
+    #if SVJCut == True:
+    #     cuts["_pre_trg_1PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 1)
+    #     cuts["_pre_trg_2PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 2)
+    #     # nsvj characterization
+    #     cuts["_pre_trg_0SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 0)
+    #     cuts["_pre_trg_1SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 1)
+    #     cuts["_pre_trg_2SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 2)
+    #     cuts["_pre_trg_3SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 3)
+    #     cuts["_pre_trg_4SVJ"] =   preselection & triggerCut & (nsvjJetsAK8 == 4)
+    #     cuts["_pre_trg_5PSVJ"] =  preselection & triggerCut & (nsvjJetsAK8 >= 5)
     return cuts
