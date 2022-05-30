@@ -7,6 +7,7 @@ import math
 from .variables import variables
 from torch.nn import functional as f
 from utils import utility as u
+from utils.poibin import PoiBin
 
 def normalize(df,normMean,normStd):
     return (df-normMean)/normStd
@@ -53,15 +54,23 @@ def getNNOutput(dataset, model):
 
 def extrapolateNTaggedJets(inputArray, nRank):
     # Extrapolate N+nRank tagged jets from N tagged jets
-    prediction = None
-    if nRank == 1:
-        prediction = ak.sum(inputArray, axis=1)    
-    else:
-        allCombo = ak.combinations(inputArray, nRank, axis=1)
-        uz = ak.unzip(allCombo)
-        uzprod = ak.prod(uz, axis=0)
-        allComboProducts = math.factorial(nRank)*uzprod
-        prediction = ak.sum(allComboProducts, axis=1)
+    #prediction = None
+    #if nRank == 1:
+    #    prediction = ak.sum(inputArray, axis=1)    
+    #else:
+    #    allCombo = ak.combinations(inputArray, nRank, axis=1)
+    #    uz = ak.unzip(allCombo)
+    #    uzprod = ak.prod(uz, axis=0)
+    #    allComboProducts = math.factorial(nRank)*uzprod
+    #    prediction = ak.sum(allComboProducts, axis=1)
+
+    prediction = ak.to_list(ak.zeros_like(inputArray))
+    for i, a in enumerate(inputArray):
+        res = [0.0]
+        if len(a) >= nRank: 
+            pb = PoiBin(ak.to_numpy(a))
+            res = pb.pmf([nRank])
+        prediction[i] = res[0]    
 
     return prediction
 
@@ -77,7 +86,8 @@ def runNN(model,varsIn,varSet,normMean,normStd):
     bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     varsIn['nsvjJetsAK8'] = ak.num(darksvjJetsAK8)
     varsIn['nnOutput'] = svjJetsAK8
-    fakerate = 0.47*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+    fakerate = 0.65*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+    #fakerate = 0.47*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
 
     #######################################################
     # Extrapolate number of tag jets from low to high
