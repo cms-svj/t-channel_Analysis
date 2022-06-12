@@ -74,7 +74,21 @@ def extrapolateNTaggedJets(inputArray, nRank):
 
     return prediction
 
-def runNN(model,varsIn,varSet,normMean,normStd):
+def findFakeRate(fakerateHisto, bgroundJetsAK8):
+    pt = bgroundJetsAK8.pt
+    eta = bgroundJetsAK8.eta
+    value = pt
+    x, y = fakerateHisto.values()                
+
+    fakerate = ak.to_list(ak.zeros_like(value))
+    for i, a1 in enumerate(value):
+        for j, v in enumerate(a1):
+            idx = np.absolute(x-v).argmin()
+            fakerate[i][j] = y[idx]
+
+    return ak.Array(fakerate)
+
+def runNN(model,varsIn,varSet,normMean,normStd,fakerateHisto):
     dataset = RootDataset(varsIn=varsIn,varSet=varSet, normMean=normMean, normStd=normStd)
     nnOutput = getNNOutput(dataset, model)
     fjets = varsIn["fjets"]
@@ -86,12 +100,14 @@ def runNN(model,varsIn,varSet,normMean,normStd):
     bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     varsIn['nsvjJetsAK8'] = ak.num(darksvjJetsAK8)
     varsIn['nnOutput'] = svjJetsAK8
-    fakerate = 0.65*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
-    #fakerate = 0.47*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+    varsIn['svfjw'] = u.awkwardReshape(darksvjJetsAK8,varsIn['evtw'])
+    varsIn['svjPtAK8'] = darksvjJetsAK8.pt
+    varsIn['svjEtaAK8'] = darksvjJetsAK8.eta
 
     #######################################################
     # Extrapolate number of tag jets from low to high
     #######################################################
+    fakerate = findFakeRate(fakerateHisto, bgroundJetsAK8)
     nsvjJetsAK8_pred1jets = extrapolateNTaggedJets(fakerate, 1)
     nsvjJetsAK8_pred2jets = extrapolateNTaggedJets(fakerate, 2)
     nsvjJetsAK8_pred3jets = extrapolateNTaggedJets(fakerate, 3)

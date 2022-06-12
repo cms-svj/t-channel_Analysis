@@ -291,14 +291,11 @@ class PoiBin(object):
         """
         chi = np.empty(self.number_trials + 1, dtype=complex)
         chi[0] = 1
-        half_number_trials = int(
-            self.number_trials / 2 + self.number_trials % 2)
+        half_number_trials = int(self.number_trials / 2 + self.number_trials % 2)
         # set first half of chis:
-        chi[1:half_number_trials + 1] = self.get_chi(
-            np.arange(1, half_number_trials + 1))
+        chi[1:half_number_trials + 1] = self.get_chi(np.arange(1, half_number_trials + 1))
         # set second half of chis:
-        chi[half_number_trials + 1:self.number_trials + 1] = np.conjugate(
-            chi[1:self.number_trials - half_number_trials + 1] [::-1])
+        chi[half_number_trials + 1:self.number_trials + 1] = np.conjugate(chi[1:self.number_trials - half_number_trials + 1] [::-1])
         chi /= self.number_trials + 1
         xi = np.fft.fft(chi)
         if self.check_xi_are_real(xi, eps=1e-15):
@@ -317,8 +314,7 @@ class PoiBin(object):
         """
         # get_z:
         exp_value = np.exp(self.omega * idx_array * 1j)
-        xy = 1 - self.success_probabilities + \
-            self.success_probabilities * exp_value[:, np.newaxis]
+        xy = 1 - self.success_probabilities + self.success_probabilities * exp_value[:, np.newaxis]
         # sum over the principal values of the arguments of z:
         argz_sum = np.arctan2(xy.imag, xy.real).sum(axis=1)
         # get d value:
@@ -358,8 +354,7 @@ class PoiBin(object):
 
         self.success_probabilities_complement = 1 - self.success_probabilities
 
-        return np.dot(self.success_probabilities,
-                      (self.success_probabilities_complement))
+        return np.dot(self.success_probabilities, (self.success_probabilities_complement))
 
     def get_std(self, var):
         """Return the standard deviation of the distribution.
@@ -388,9 +383,7 @@ class PoiBin(object):
         """
 
         probs_aux = 1 - 2*self.success_probabilities
-        probs_aux_2 = np.multiply(
-            probs_aux, np.multiply(self.success_probabilities_complement,
-                                   self.success_probabilities))
+        probs_aux_2 = np.multiply(probs_aux, np.multiply(self.success_probabilities_complement, self.success_probabilities))
         return probs_aux_2.sum()/np.power(std, 3)
 
     def get_amax(self, event_probabilities):

@@ -5,6 +5,7 @@ from utils import utility as utl
 from utils import baseline as bl
 from utils.variables import variables
 from utils.runNeuralNetwork import runNN
+import uproot
 
 class MainProcessor(processor.ProcessorABC):
         def __init__(self,dataset,sf,model,varSet,normMean,normStd,jNVar):
@@ -17,9 +18,19 @@ class MainProcessor(processor.ProcessorABC):
                 self.normMean = normMean
                 self.normStd = normStd
                 self.jNVar = jNVar
+                self.fakerateFile = uproot.open("fakerate.root")
+                self.fakerateHisto = self.fakerateFile["jPt_Fakerate_SR;1"]
+
         @property
         def accumulator(self):
                 return self._accumulator
+
+        def getSFEvaluator(self, rootFileName, histoName):
+                ext = lookup_tools.extractor()
+                ext.add_weight_sets(["{} {} {}".format(histoName, histoName, rootFileName)])
+                ext.finalize()
+                evaluator = ext.make_evaluator()
+                return evaluator[histoName]
 
         def setupHistogram(self,cuts):
                 histograms = {}
@@ -33,7 +44,7 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor,self.jNVar)
-                runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd)
+                runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd,self.fakerateHisto)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
 
@@ -45,46 +56,36 @@ class MainProcessor(processor.ProcessorABC):
                 # run cut loop
                 for cutName,cut in cuts.items():
                     # defining objects
-                    weight = vars_noCut["evtw"][cut]
-                    jweight = ak.flatten(vars_noCut["jw"][cut])
-                    fjweight = ak.flatten(vars_noCut["fjw"][cut])
-                    eweight = ak.flatten(vars_noCut["ew"][cut])
-                    mweight = ak.flatten(vars_noCut["mw"][cut])
-                    nimweight = ak.flatten(vars_noCut["nimw"][cut])
-                    pred1_evtw = vars_noCut["pred1_evtw"][cut]
-                    pred2_evtw = vars_noCut["pred2_evtw"][cut]
-                    pred3_evtw = vars_noCut["pred3_evtw"][cut]
-                    pred4_evtw = vars_noCut["pred4_evtw"][cut]
+                    weights = {
+                            "evtw" : vars_noCut["evtw"][cut],
+                            "jw"   : ak.flatten(vars_noCut["jw"][cut]),
+                            "fjw"  : ak.flatten(vars_noCut["fjw"][cut]),
+                            "ew"   : ak.flatten(vars_noCut["ew"][cut]),
+                            "mw"   : ak.flatten(vars_noCut["mw"][cut]),
+                            "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
+                            "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
+                            "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
+                            "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
+                            "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
+                            "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
+                    }
+
                     if len(events) > 0:
                         ## filling histograms
                         for varName,varDetail in variables(self.jNVar).items():
                             hIn = vars_noCut[varName][cut]
-                            hW = weight
+                            weight = weights["evtw"]
                             wKey = varDetail[6]
                             # properly flatten certain inputs
                             if varDetail[5] >= 1:
                                 hIn = ak.flatten(hIn)
                             # make sure the correct weights are applied
-                            if wKey == "jw":
-                                hW = jweight
-                            elif wKey == "fjw":
-                                hW = fjweight
-                            elif wKey == "ew":
-                                hW = eweight
-                            elif wKey == "mw":
-                                hW = mweight
-                            elif wKey == "nimw":    
-                                hW = nimweight
-                            elif wKey == "pred1_evtw":
-                                hW = pred1_evtw
-                            elif wKey == "pred2_evtw":
-                                hW = pred2_evtw
-                            elif wKey == "pred3_evtw":
-                                hW = pred3_evtw
-                            elif wKey == "pred4_evtw":
-                                hW = pred4_evtw
+                            if wKey in weights.keys():
+                                hW = weights[wKey]
                             elif wKey == "w1":
                                 hW = np.ones(len(weight))
+                            else:
+                                hW = weight
                             if len(hIn) > 0:
                                 output['h_{}{}'.format(varName,cutName)].fill(val=hIn,weight=hW)
                         ## filling histograms by jet category

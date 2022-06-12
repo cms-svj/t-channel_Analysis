@@ -87,6 +87,8 @@ def variables(jNVar=False):
     'nsvjJetsAK8Plus3':                       ["Number of SVJ AK8Jets pred3Jets",                  10,     0.0,    10.0,        0,     0,'pred3_evtw'],
     'nsvjJetsAK8Plus4':                       ["Number of SVJ AK8Jets pred4Jets",                  10,     0.0,    10.0,        0,     0,'pred4_evtw'],
     'nnOutput':                               ["nnOutput",                                         100,    0.0,    1.0,         0,     1,'fjw'],
+    'svjPtAK8':                                 [r"$p_{T}$ [GeV]",                                 200,    0.0,    2800.0,      1,     1,     'svfjw'],
+    'svjEtaAK8':                                [r"$\eta$",                                        200,   -6.0,    6.0,         1,     1,     'svfjw'],
     }
     if jNVar:
         # preparing histograms for jN variables
