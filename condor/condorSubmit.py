@@ -44,7 +44,9 @@ def main():
             raise Exception("Please specify the output directory for the NN training files using --pout.")
         analyzeFile = "analyze_root_varModule.py"
     # prepare the list of hardcoded files to transfer
-    filestoTransfer = []
+    filestoTransfer = [
+      environ["TCHANNEL_BASE"]+"/fakerate.root"
+    ]
 
     # add top of jdl file
     fileParts = []
@@ -55,7 +57,7 @@ def main():
     fileParts.append("Should_Transfer_Files = YES\n")
     fileParts.append("WhenToTransferOutput = ON_EXIT\n")
     fileParts.append("request_disk = 1000000\n")
-    fileParts.append("request_memory = 2000\n")
+    fileParts.append("request_memory = 4000\n")
     fileParts.append("request_cpus = 4\n")
     fileParts.append("Requirements = $(requirements:True) && (TARGET.has_avx)\n")
     fileParts.append("x509userproxy = $ENV(X509_USER_PROXY)\n\n")
