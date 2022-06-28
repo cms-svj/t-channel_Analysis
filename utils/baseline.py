@@ -155,6 +155,9 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
             "_qual_trg_st_0nim_0J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 0),
             "_qual_trg_st_0nim_1J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 1),
             "_qual_trg_st_0nim_2J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2),
+            "_qual_trg_st_0nim_2J_0SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2) & (nsvjJetsAK8 == 0),
+            "_qual_trg_st_0nim_2J_1SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2) & (nsvjJetsAK8 == 1),
+            "_qual_trg_st_0nim_2J_2SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2) & (nsvjJetsAK8 == 2),
             "_qual_trg_st_0nim_ge1J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 >= 1),
             "_qual_trg_st_0nim_ge2J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 >= 2),
 
