@@ -155,9 +155,14 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
             "_qual_trg_st_0nim_0J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 0),
             "_qual_trg_st_0nim_1J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 1),
             "_qual_trg_st_0nim_2J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2),
-            "_qual_trg_st_0nim_2J_0SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2) & (nsvjJetsAK8 == 0),
-            "_qual_trg_st_0nim_2J_1SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2) & (nsvjJetsAK8 == 1),
-            "_qual_trg_st_0nim_2J_2SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2) & (nsvjJetsAK8 == 2),
+
+            "_qual_trg_st_0nim_4J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4),
+            "_qual_trg_st_0nim_4J_0SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 0),
+            "_qual_trg_st_0nim_4J_1SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 1),
+            "_qual_trg_st_0nim_4J_2SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 2),
+            "_qual_trg_st_0nim_4J_3SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 3),
+            "_qual_trg_st_0nim_4J_4SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 4),
+
             "_qual_trg_st_0nim_ge1J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 >= 1),
             "_qual_trg_st_0nim_ge2J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 >= 2),
 
