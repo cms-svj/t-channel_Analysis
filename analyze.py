@@ -2,7 +2,7 @@
 
 from coffea import hist, processor
 from processors.mainProcessor import MainProcessor
-import uproot3
+import uproot
 import sys,os
 from utils import samples as s
 import time
@@ -152,14 +152,17 @@ def main():
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
     ###########################################################################################################
-    fout = uproot3.recreate(outfile)
+    fout = uproot.recreate(outfile)
     if isinstance(output,tuple): output = output[0]
     output = dict(sorted(output.items()))
     for key,H in output.items():
         if type(H) is hist.Hist: #and H._sumw2 is not None:
-            if H._sumw2 is None:
+            if H.dim() == 0:
+                print("Somethings wrong with this histogram \"{}\" skipping the write out".format(H.label))
+                continue
+            elif H.dim() == 1 and H._sumw2 is None:
                 H.fill(val=np.Inf)
-            fout[key] = hist.export1d(H)
+            fout[key] = H.to_hist()
     fout.close()
 
     ###########################################################################################################
