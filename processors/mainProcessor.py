@@ -20,6 +20,7 @@ class MainProcessor(processor.ProcessorABC):
                 self.jNVar = jNVar
                 self.fakerateFile = uproot.open("fakerate.root")
                 self.fakerateHisto = self.fakerateFile["jPt_Fakerate_SR;1"]
+                #self.fakerateHisto = self.fakerateFile["jEta_Fakerate_CR;1"]
 
         @property
         def accumulator(self):
@@ -35,8 +36,12 @@ class MainProcessor(processor.ProcessorABC):
         def setupHistogram(self,cuts):
                 histograms = {}
                 for cutName,cut in cuts.items():
-                    for histName,histDetail in variables(self.jNVar).items():
-                        histograms['h_{}{}'.format(histName,cutName)] = hist.Hist('h_{}{}'.format(histName,cutName), hist.Bin("val", histDetail[0], histDetail[1], histDetail[2], histDetail[3]))
+                    for histName, histDetail in variables(self.jNVar).items():
+                        if   histDetail.dim == 1:
+                            histograms['h_{}{}'.format(histName,cutName)] = hist.Hist('h_{}{}'.format(histName,cutName), histDetail.xbins)
+                        elif histDetail.dim == 2:                        
+                            histograms['h_{}{}'.format(histName,cutName)] = hist.Hist('h_{}{}'.format(histName,cutName), histDetail.xbins, histDetail.ybins)
+
                 self._accumulator = processor.dict_accumulator(histograms)
                 self.setupHistos = True
 
@@ -72,13 +77,17 @@ class MainProcessor(processor.ProcessorABC):
 
                     if len(events) > 0:
                         ## filling histograms
-                        for varName,varDetail in variables(self.jNVar).items():
-                            hIn = vars_noCut[varName][cut]
+                        for histName, varDetail in variables(self.jNVar).items():
+                            vX = vars_noCut[varDetail.varXName][cut]
+                            vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]
-                            wKey = varDetail[6]
+                            wKey = varDetail.weightName
+
                             # properly flatten certain inputs
-                            if varDetail[5] >= 1:
-                                hIn = ak.flatten(hIn)
+                            if varDetail.flattenInfo >= 1:
+                                vX = ak.flatten(vX)
+                                vY = ak.flatten(vY) if varDetail.dim == 2 else None
+
                             # make sure the correct weights are applied
                             if wKey in weights.keys():
                                 hW = weights[wKey]
@@ -86,8 +95,13 @@ class MainProcessor(processor.ProcessorABC):
                                 hW = np.ones(len(weight))
                             else:
                                 hW = weight
-                            if len(hIn) > 0:
-                                output['h_{}{}'.format(varName,cutName)].fill(val=hIn,weight=hW)
+
+                            if len(vX) > 0:
+                                if   varDetail.dim == 1:
+                                    output['h_{}{}'.format(histName,cutName)].fill(val=vX, weight=hW)
+                                elif varDetail.dim == 2:
+                                    output['h_{}{}'.format(histName,cutName)].fill(val1=vX, val2=vY, weight=hW)
+                        
                         ## filling histograms by jet category
                         # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM
                         # for varName,varDetail in varValDict.items():
