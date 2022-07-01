@@ -2,7 +2,7 @@
 
 from coffea import hist, processor
 from processors.mainProcessor import MainProcessor
-import uproot3
+import uproot
 import sys,os
 from utils import samples as s
 import time
@@ -25,7 +25,6 @@ def use_dask(condor,njobs,port):
     job_extra = {'transfer_input_files': ','.join(initpylist)}
 
     extra = ['--worker-port 10002:10100']
-
     hostname = socket.gethostname()
 
     if condor:
@@ -39,7 +38,6 @@ def use_dask(condor,njobs,port):
             extra=extra,
             job_extra=job_extra,
         )
-
         cluster.scale(jobs=njobs)
 
         client = Client(cluster,
@@ -52,20 +50,24 @@ def use_dask(condor,njobs,port):
         'client': client,
         'savemetrics': True,
         'schema': None,
-        'nano': False,
+        #'nano': False,
         'align_clusters': True
     }
 
     return exe_args
 
 def main():
+    ###########################################################################################################
     # Removing numpy warnings; might not be a good idea
+    ###########################################################################################################
     np.seterr(all='ignore')
 
     # start run time clock
     tstart = time.time()
 
+    ###########################################################################################################
     # get options from command line
+    ###########################################################################################################
     parser = OptionParser()
     parser.add_option('-d', '--dataset',   help='dataset', dest='dataset', type=str, default="2018_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1")
     parser.add_option('-j', '--jNVar',     help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
@@ -81,15 +83,26 @@ def main():
     parser.add_option('-m', '--maxchunks', help='Max number of chunks (for testing)',        dest='maxchunks', type=int, default=None)
     options, args = parser.parse_args()
 
+    ###########################################################################################################
     # set output root file
+    ###########################################################################################################
     sample = options.dataset
     outfile = "MyAnalysis_%s_%d.root" % (sample, options.startFile) if options.condor or options.dask else "test.root"
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
+    sf = s.sfGetter(sample)
+    print("scaleFactor = {}".format(sf))
 
-    # get processor args
-    exe_args = {'workers': options.workers, 'schema': processor.TreeMakerSchema}
+    ###########################################################################################################
+    # get executor/processor args
+    ###########################################################################################################
+    exe_args = {
+        'workers': options.workers, 
+        'schema': processor.TreeMakerSchema
+    }
+    MainExecutor = processor.futures_executor
+
     if options.dask:
         exe_args = use_dask(options.condor,options.workers,options.port)
         if options.quiet: exe_args['status'] = False
@@ -100,14 +113,20 @@ def main():
             print('Dask client info ->', client)
             time.sleep(10)
 
-    sf = s.sfGetter(sample)
-    print("scaleFactor = {}".format(sf))
+        MainExecutor = processor.dask_executor
+
+    ###########################################################################################################
     # open saved neural network
+    ###########################################################################################################
     device = torch.device('cpu')
     modelLocation = "."
-    varSet = ['njets', 'njetsAK8', 'nb', 'dPhij1rdPhij2AK8', 'dPhiMinjMETAK8', 'dEtaj12AK8', 'dRJ12AK8', 'jGirthAK8', 'jTau1AK8', 'jTau2AK8', 'jTau3AK8', 'jTau21AK8', 'jTau32AK8', 'jSoftDropMassAK8', 'jAxisminorAK8', 'jAxismajorAK8', 'jPtDAK8', 'jecfN2b1AK8', 'jecfN3b1AK8', 'jEleEFractAK8', 'jMuEFractAK8', 'jNeuHadEFractAK8', 'jPhoEFractAK8', 'jPhoMultAK8', 'jNeuMultAK8', 'jNeuHadMultAK8', 'jMuMultAK8', 'jEleMultAK8', 'jChHadMultAK8', 'jChMultAK8', 'jNeuEmEFractAK8', 'jHfHadEFractAK8', 'jHfEMEFractAK8', 'jChEMEFractAK8', 'jMultAK8', 'jecfN3b2AK8', 'jecfN2b2AK8', 'jPhiAK8', 'jEtaAK8']
-    hyper = MagiConfig(batchSize=2000, dropout=0.3, epochs=10, lambdaDC=0.0, lambdaGR=1.0, lambdaReg=0.0, lambdaTag=1.0, learning_rate=0.001, n_pTBins=35, num_of_layers_features=2, num_of_layers_pT=5, num_of_layers_tag=2, num_of_nodes=40, pTBins=[50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500], rseed=30)
-    model = DNN_GRF(n_var=len(varSet),  n_layers_features=hyper.num_of_layers_features, n_layers_tag=hyper.num_of_layers_tag, n_layers_pT=hyper.num_of_layers_pT, n_nodes=hyper.num_of_nodes, n_outputs=2, n_pTBins=hyper.n_pTBins, drop_out_p=hyper.dropout).to(device=device)
+    varSet = ['njets', 'njetsAK8', 'nb', 'dPhij1rdPhij2AK8', 'dPhiMinjMETAK8', 'dEtaj12AK8', 'dRJ12AK8', 'jGirthAK8', 'jTau1AK8', 'jTau2AK8', 'jTau3AK8', 'jTau21AK8', 'jTau32AK8', 'jSoftDropMassAK8', 
+              'jAxisminorAK8', 'jAxismajorAK8', 'jPtDAK8', 'jecfN2b1AK8', 'jecfN3b1AK8', 'jEleEFractAK8', 'jMuEFractAK8', 'jNeuHadEFractAK8', 'jPhoEFractAK8', 'jPhoMultAK8', 'jNeuMultAK8', 'jNeuHadMultAK8', 
+              'jMuMultAK8', 'jEleMultAK8', 'jChHadMultAK8', 'jChMultAK8', 'jNeuEmEFractAK8', 'jHfHadEFractAK8', 'jHfEMEFractAK8', 'jChEMEFractAK8', 'jMultAK8', 'jecfN3b2AK8', 'jecfN2b2AK8', 'jPhiAK8', 'jEtaAK8']
+    hyper = MagiConfig(batchSize=2000, dropout=0.3, epochs=10, lambdaDC=0.0, lambdaGR=1.0, lambdaReg=0.0, lambdaTag=1.0, learning_rate=0.001, n_pTBins=35, num_of_layers_features=2, num_of_layers_pT=5, 
+                       num_of_layers_tag=2, num_of_nodes=40, pTBins=[50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650, 700, 750, 800, 850, 900, 950, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 2000, 2500, 3000, 3500, 4000, 4500], rseed=30)
+    model = DNN_GRF(n_var=len(varSet),  n_layers_features=hyper.num_of_layers_features, n_layers_tag=hyper.num_of_layers_tag, n_layers_pT=hyper.num_of_layers_pT, n_nodes=hyper.num_of_nodes, 
+                    n_outputs=2, n_pTBins=hyper.n_pTBins, drop_out_p=hyper.dropout).to(device=device)
     print("Loading model from file {}/net.pth".format(modelLocation))
     model.load_state_dict(torch.load("{}/net.pth".format(modelLocation),map_location=device))
     model.eval()
@@ -116,30 +135,39 @@ def main():
     normMean = normMeanStd["normMean"]
     normStd = normMeanStd["normStd"]
 
+    ###########################################################################################################
     # run processor
+    ###########################################################################################################
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
         processor_instance=MainProcessor(sample,sf,model,varSet,normMean,normStd,options.jNVar),
-        executor=processor.dask_executor if options.dask else processor.futures_executor,
+        executor=MainExecutor,
         executor_args=exe_args,
         chunksize=options.chunksize,
         maxchunks=options.maxchunks,
     )
 
+    ###########################################################################################################
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
-    fout = uproot3.recreate(outfile)
+    ###########################################################################################################
+    fout = uproot.recreate(outfile)
     if isinstance(output,tuple): output = output[0]
     output = dict(sorted(output.items()))
     for key,H in output.items():
         if type(H) is hist.Hist: #and H._sumw2 is not None:
-            if H._sumw2 is None:
+            if H.dim() == 0:
+                print("Somethings wrong with this histogram \"{}\" skipping the write out".format(H.label))
+                continue
+            elif H.dim() == 1 and H._sumw2 is None:
                 H.fill(val=np.Inf)
-            fout[key] = hist.export1d(H)
+            fout[key] = H.to_hist()
     fout.close()
 
+    ###########################################################################################################
     # print run time in seconds
+    ###########################################################################################################
     dt = time.time() - tstart
     print("run time: %.2f [sec]" % (dt))
 

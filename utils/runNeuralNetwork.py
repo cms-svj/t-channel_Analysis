@@ -3,11 +3,14 @@ import awkward as ak
 import torch.utils.data as udata
 import torch
 import pandas as pd
-import math
 from .variables import variables
 from torch.nn import functional as f
 from utils import utility as u
 from utils.poibin import PoiBin
+
+import random
+#seed = 12345
+#random.seed(12345)
 
 def normalize(df,normMean,normStd):
     return (df-normMean)/normStd
@@ -17,11 +20,11 @@ def get_all_vars(varsIn,varSet,normMean,normStd):
     dataSet = pd.DataFrame()
     for var in varSet:
         inputArr = varsIn[var]
-        if variables()[var][4] == 2:
+        if variables()[var].npzInfo == 2:
             inputArr = np.repeat(ak.to_numpy(inputArr),ak.to_numpy(varsIn["njetsAK8"]))
-        if variables()[var][5] == 1:
+        if variables()[var].flattenInfo == 1:
             inputArr = ak.flatten(inputArr)
-        elif variables()[var][5] == 2:
+        elif variables()[var].flattenInfo == 2:
             inputArr = ak.flatten(inputArr)
         dataSet[var] = inputArr
     dataSet = normalize(dataSet,normMean,normStd)
@@ -52,50 +55,75 @@ def getNNOutput(dataset, model):
         output_tag = np.nan_to_num(output_tag,nan=-1)
     return output_tag
 
-def extrapolateNTaggedJets(inputArray, nRank):
+def extrapolateNTaggedJets(inputArray, nRank, counts):
     # Extrapolate N+nRank tagged jets from N tagged jets
-    #prediction = None
-    #if nRank == 1:
-    #    prediction = ak.sum(inputArray, axis=1)    
-    #else:
-    #    allCombo = ak.combinations(inputArray, nRank, axis=1)
-    #    uz = ak.unzip(allCombo)
-    #    uzprod = ak.prod(uz, axis=0)
-    #    allComboProducts = math.factorial(nRank)*uzprod
-    #    prediction = ak.sum(allComboProducts, axis=1)
 
     prediction = ak.to_list(ak.zeros_like(inputArray))
     for i, a in enumerate(inputArray):
-        res = [0.0]
+        pNum = [0.0]
+        pDen = [1.0]
+        factor = 1.0
         if len(a) >= nRank: 
+            n = nRank + counts[i]
+            k = counts[i]
+            choose = np.math.factorial(n)/(np.math.factorial(k)*np.math.factorial(n-k))
+            factor = 1.0 / choose
             pb = PoiBin(ak.to_numpy(a))
-            res = pb.pmf([nRank])
-        prediction[i] = res[0]    
+            pNum = pb.pmf([nRank])
+            pDen =  pb.pmf([0])
 
-    return prediction
+        prediction[i] = factor*(pNum[0]/pDen[0])
+    
+    return ak.Array(prediction)
 
-def runNN(model,varsIn,varSet,normMean,normStd):
+def findFakeRate(fakerateHisto, bgroundJetsAK8):
+    pt = bgroundJetsAK8.pt
+    eta = bgroundJetsAK8.eta
+    value = pt
+    x, y = fakerateHisto.values()                
+
+    fakerate = ak.to_list(ak.zeros_like(value))
+    for i, a1 in enumerate(value):
+        for j, v in enumerate(a1):
+            idx = np.absolute(x-v).argmin()
+            fakerate[i][j] = y[idx]
+
+    return ak.Array(fakerate)
+
+def getFlatScore(nnOutput):
+    output = ak.to_list(ak.zeros_like(nnOutput))
+    for i, a in enumerate(nnOutput):
+        output[i] = random.uniform(0, 1)
+    return output
+
+def runNN(model,varsIn,varSet,normMean,normStd,fakerateHisto):
     dataset = RootDataset(varsIn=varsIn,varSet=varSet, normMean=normMean, normStd=normStd)
     nnOutput = getNNOutput(dataset, model)
+    #nnOutput = getFlatScore(nnOutput)
     fjets = varsIn["fjets"]
     counts = ak.num(fjets.pt)
     svjJetsAK8 = ak.unflatten(nnOutput, counts)
 
-    wpt = 0.5
+    wpt = 0.7
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
     bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
-    varsIn['nsvjJetsAK8'] = ak.num(darksvjJetsAK8)
+    nsvjJetsAK8 = ak.num(darksvjJetsAK8)
+    varsIn['nsvjJetsAK8'] = nsvjJetsAK8
     varsIn['nnOutput'] = svjJetsAK8
-    fakerate = 0.65*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
-    #fakerate = 0.47*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+    varsIn['svfjw'] = u.awkwardReshape(darksvjJetsAK8,varsIn['evtw'])
+    varsIn['svjPtAK8'] = darksvjJetsAK8.pt
+    varsIn['svjEtaAK8'] = darksvjJetsAK8.eta
 
     #######################################################
     # Extrapolate number of tag jets from low to high
     #######################################################
-    nsvjJetsAK8_pred1jets = extrapolateNTaggedJets(fakerate, 1)
-    nsvjJetsAK8_pred2jets = extrapolateNTaggedJets(fakerate, 2)
-    nsvjJetsAK8_pred3jets = extrapolateNTaggedJets(fakerate, 3)
-    nsvjJetsAK8_pred4jets = extrapolateNTaggedJets(fakerate, 4)
+    fakerate = findFakeRate(fakerateHisto, bgroundJetsAK8)
+    #fakerate = 0.3*ak.ones_like(svjJetsAK8[svjJetsAK8 < wpt])
+
+    nsvjJetsAK8_pred1jets = extrapolateNTaggedJets(fakerate, 1, nsvjJetsAK8)
+    nsvjJetsAK8_pred2jets = extrapolateNTaggedJets(fakerate, 2, nsvjJetsAK8)
+    nsvjJetsAK8_pred3jets = extrapolateNTaggedJets(fakerate, 3, nsvjJetsAK8)
+    nsvjJetsAK8_pred4jets = extrapolateNTaggedJets(fakerate, 4, nsvjJetsAK8)
 
     varsIn['nsvjJetsAK8_pred1jets'] = nsvjJetsAK8_pred1jets
     varsIn['nsvjJetsAK8_pred2jets'] = nsvjJetsAK8_pred2jets
