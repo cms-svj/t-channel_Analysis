@@ -15,7 +15,7 @@ class Objects:
 
     def goodElectrons(self):
         # # Good Electrons
-        electronQualityCut = (self.electrons.pt > self.leptonPt) & (abs(self.electrons.eta) < self.etaCut) & (self.electrons.iso < 0.1)
+        electronQualityCut = (self.electrons.pt > self.leptonPt) & (abs(self.electrons.eta) < self.etaCut) & (self.electrons.iso < 0.1) # iso is commented out for cut-based study
         return self.electrons[electronQualityCut]
 
     def goodMuons(self):
@@ -25,7 +25,7 @@ class Objects:
 
     def nonIsoMuons(self):
         # # non Iso Muons
-        nonIsomuonQualityCut = (self.muons.pt > 10.0) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso > 0.4) & (self.muons.mediumID == True)
+        nonIsomuonQualityCut = (self.muons.pt > 10.0) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso > 0.4) & (self.muons.mediumID == True) # iso and mediumID are commented out for cut-based study
         return self.muons[nonIsomuonQualityCut]
 
     def goodJets(self):
@@ -35,7 +35,7 @@ class Objects:
 
     def goodFatJets(self):
         # # Good AK8 Jets Cut
-        ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0) & (self.fjets.ID == True)
+        ak8QualityCut = (self.fjets.pt > 50) & (abs(self.fjets.eta) < 5.0) & (self.fjets.ID == True)
         return self.fjets[ak8QualityCut]
 
     # def goodGenFatJets(self):
