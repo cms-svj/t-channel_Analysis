@@ -2,7 +2,7 @@ from os import system, environ
 import json
 import glob
 
-def getFileset(sample,verbose=True,startFile=0,nFiles=-1):
+def getFileset(sample,verbose=True,startFile=0,nFiles=-1,mlTraining=False):
     # find all json files for the sample or sample collection
     f_ = sample.find("_")
     year = sample[:f_]
@@ -21,7 +21,10 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1):
     elif "TTJets_SingleLeptFromT" in sample or "TTJets_DiLept" in detailKey:
         detailKey += "_Tune"
 
-    JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
+    if mlTraining:
+        JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/jetConstTrainingNtuples/' + kind + "/" + year + "/"
+    else:
+        JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
     inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
     if len(inputSamples) == 0:
         print("Error: no json file found with name:", JSONDir)
