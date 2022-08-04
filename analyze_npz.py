@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from coffea import hist, processor
+from coffea import processor
 from processors.npzProcessor import MainProcessor
 import uproot
 import sys,os
