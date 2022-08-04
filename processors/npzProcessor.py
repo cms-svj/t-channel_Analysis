@@ -1,4 +1,4 @@
-from coffea import hist, processor
+from coffea import processor
 import numpy as np
 import awkward1 as ak
 import awkward

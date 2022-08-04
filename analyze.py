@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-from coffea import hist, processor
+from coffea import processor
+import hist as h
 from processors.mainProcessor import MainProcessor
 import uproot
 import sys,os
@@ -156,13 +157,10 @@ def main():
     if isinstance(output,tuple): output = output[0]
     output = dict(sorted(output.items()))
     for key,H in output.items():
-        if type(H) is hist.Hist: #and H._sumw2 is not None:
-            if H.dim() == 0:
-                print("Somethings wrong with this histogram \"{}\" skipping the write out".format(H.label))
-                continue
-            elif H.dim() == 1 and H._sumw2 is None:
-                H.fill(val=np.Inf)
-            fout[key] = H.to_hist()
+        if len(H.axes) == 0:
+            print("Somethings wrong with this histogram \"{}\" skipping the write out".format(H.label))
+            continue
+        fout[key] = H
     fout.close()
 
     ###########################################################################################################
