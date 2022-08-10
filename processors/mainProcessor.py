@@ -19,13 +19,25 @@ class MainProcessor(processor.ProcessorABC):
                 self.normMean = normMean
                 self.normStd = normStd
                 self.jNVar = jNVar
-                self.fakerateFile = uproot.open("fakerate.root")
-                self.fakerateHisto = self.fakerateFile["jPt_Fakerate_SR;1"]
-                #self.fakerateHisto = self.fakerateFile["jEta_Fakerate_CR;1"]
+                self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
 
         @property
         def accumulator(self):
                 return self._accumulator
+
+        def getHistoFromFile(self, fName, hName):
+                try:
+                    f = uproot.open(fName)
+                    h = f[hName]
+                    return h
+                except FileNotFoundError:
+                    print("\n\n\tError: No such file or directory: '{}'".format(fName))                    
+                    print("\tWill use default fakerate of 1.0 for each jet\n\n")
+                    return None
+                except uproot.exceptions.KeyInFileError:
+                    print("\n\n\tError: Histogram '{}' not found in file '{}'".format(hName,fName))
+                    print("\tWill use default fakerate of 1.0 for each jet\n\n")
+                    return None                    
 
         def getSFEvaluator(self, rootFileName, histoName):
                 ext = lookup_tools.extractor()
