@@ -1,4 +1,5 @@
-from coffea import hist, processor
+from coffea import processor
+import hist as h
 import numpy as np
 import awkward as ak
 from utils import utility as utl
@@ -18,13 +19,25 @@ class MainProcessor(processor.ProcessorABC):
                 self.normMean = normMean
                 self.normStd = normStd
                 self.jNVar = jNVar
-                self.fakerateFile = uproot.open("fakerate.root")
-                self.fakerateHisto = self.fakerateFile["jPt_Fakerate_SR;1"]
-                #self.fakerateHisto = self.fakerateFile["jEta_Fakerate_CR;1"]
+                self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
 
         @property
         def accumulator(self):
                 return self._accumulator
+
+        def getHistoFromFile(self, fName, hName):
+                try:
+                    f = uproot.open(fName)
+                    h = f[hName]
+                    return h
+                except FileNotFoundError:
+                    print("\n\n\tError: No such file or directory: '{}'".format(fName))                    
+                    print("\tWill use default fakerate of 1.0 for each jet\n\n")
+                    return None
+                except uproot.exceptions.KeyInFileError:
+                    print("\n\n\tError: Histogram '{}' not found in file '{}'".format(hName,fName))
+                    print("\tWill use default fakerate of 1.0 for each jet\n\n")
+                    return None                    
 
         def getSFEvaluator(self, rootFileName, histoName):
                 ext = lookup_tools.extractor()
@@ -38,11 +51,11 @@ class MainProcessor(processor.ProcessorABC):
                 for cutName,cut in cuts.items():
                     for histName, histDetail in variables(self.jNVar).items():
                         if   histDetail.dim == 1:
-                            histograms['h_{}{}'.format(histName,cutName)] = hist.Hist('h_{}{}'.format(histName,cutName), histDetail.xbins)
+                            histograms['h_{}{}'.format(histName,cutName)] = h.Hist(histDetail.xbins, storage="weight")
                         elif histDetail.dim == 2:                        
-                            histograms['h_{}{}'.format(histName,cutName)] = hist.Hist('h_{}{}'.format(histName,cutName), histDetail.xbins, histDetail.ybins)
+                            histograms['h_{}{}'.format(histName,cutName)] = h.Hist(histDetail.xbins, histDetail.ybins, storage="weight")
 
-                self._accumulator = processor.dict_accumulator(histograms)
+                self._accumulator = histograms
                 self.setupHistos = True
 
         def process(self, events):
@@ -56,7 +69,7 @@ class MainProcessor(processor.ProcessorABC):
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)
-                output = self.accumulator.identity()
+                output = self.accumulator
 
                 # run cut loop
                 for cutName,cut in cuts.items():
@@ -97,10 +110,10 @@ class MainProcessor(processor.ProcessorABC):
                                 hW = weight
 
                             if len(vX) > 0:
-                                if   varDetail.dim == 1:
-                                    output['h_{}{}'.format(histName,cutName)].fill(val=vX, weight=hW)
+                                if   varDetail.dim == 1:                        
+                                    output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)
                                 elif varDetail.dim == 2:
-                                    output['h_{}{}'.format(histName,cutName)].fill(val1=vX, val2=vY, weight=hW)
+                                    output['h_{}{}'.format(histName,cutName)].fill(x=vX, y=vY, weight=hW)
                         
                         ## filling histograms by jet category
                         # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM

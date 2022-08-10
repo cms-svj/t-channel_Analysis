@@ -97,7 +97,7 @@ if [[ "$DEV" -eq 1 ]]; then
 	cd ..
 else
         $ECHO "\nInstalling the 'production' version of Coffea ... "
-	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.7.14
+	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.7.17
 fi
 
 # Clone TreeMaker for its lists of samples and files
