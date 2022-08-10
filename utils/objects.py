@@ -35,7 +35,7 @@ class Objects:
 
     def goodFatJets(self):
         # # Good AK8 Jets Cut
-        ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 5.0) & (self.fjets.ID == True)
+        ak8QualityCut = (self.fjets.pt > 170) & (abs(self.fjets.eta) < 2.4) & (self.fjets.ID == True)# & (self.fjets.muonEnergyFraction < 0.2)
         return self.fjets[ak8QualityCut]
 
     # def goodGenFatJets(self):
