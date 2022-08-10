@@ -80,6 +80,9 @@ def findFakeRate(fakerateHisto, bgroundJetsAK8):
     pt = bgroundJetsAK8.pt
     eta = bgroundJetsAK8.eta
     value = pt
+
+    if fakerateHisto is None:
+        return ak.ones_like(value)
     x, y = fakerateHisto.values()                
 
     fakerate = ak.to_list(ak.zeros_like(value))
