@@ -18,7 +18,7 @@ def checkNumEvents(nEvents, rootFile, sampleCollection, log):
          f = ROOT.TFile.Open(rootFile)
          f.cd()
          try:
-              h = f.Get("EventCounter")
+              h = f.Get("h_eCounter")
               nNeg = h.GetBinContent(1)
               nPos = h.GetBinContent(2)
               diff = nEvents-(nPos-nNeg)
