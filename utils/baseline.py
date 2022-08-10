@@ -119,7 +119,7 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     # cuts to get over trigger plateau
     metCut = met > 266
     htCut = ht > 1280
-    stCut = (ht + met) > 1350
+    stCut = (ht + met) > 1300
     trgPlat = metCut & htCut
 
     # trigger choices
@@ -145,7 +145,7 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
             #"_qual_trg"         : qualityCuts & passTrigger,
             #"_qual_trg_met"     : qualityCuts & passTrigger & metCut,
             #"_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
-            "_qual_trg_st"             : qualityCuts & passTrigger & stCut,        
+            "_qual_trg_st"             : qualityCuts & passTrigger & stCut,
             "_qual_trg_st_0nim"        : qualityCuts & passTrigger & stCut & (nnim == 0),
             "_qual_trg_st_0nim_0SVJ"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 0),
             "_qual_trg_st_0nim_1SVJ"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 1),

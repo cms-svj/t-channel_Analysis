@@ -15,12 +15,34 @@ from utils.variables import variables as vars
 
 mpl.rc("font", family="serif", size=15)
 
+# color definition, needed for python plots for consistent color scheme
+colorDict = {
+    (ROOT.kGray + 1): "#999999",
+    (ROOT.kYellow + 1): "#cccc19",
+    (ROOT.kBlue - 6): "#6666cc",
+    (ROOT.kGreen + 1): "#4bd42d",
+    (ROOT.kMagenta + 1): "#cd2bcc",
+    (ROOT.kOrange+2): "#cc660d",
+    (ROOT.kRed): "#f2231b",
+    (ROOT.kViolet-1): "#9a27cc",
+    (ROOT.kOrange+3): "#663303",
+    (ROOT.kPink+1): "#f69acc",
+    (ROOT.kGray): "#cccccc",
+    (ROOT.kYellow+2): "#999910",
+    (ROOT.kCyan): "#5efdff",
+}
+
 # signal vs. background figure of merit
 def fom(S,B):
     return np.sqrt(2 * ( (S+B) * np.log(1+S/B) - S) )
 
 def signif(S,B):
     return S/(np.sqrt( B + (0.3*B)**2 ))
+
+def getLabel(label):
+    si = label.find("(")
+    sourceLabel = label[:si-1]
+    return sourceLabel
 
 def makeDirs(plotOutDir,cut,plotType):
     if not os.path.exists(plotOutDir+"/"+plotType+"/"+cut[1:]):
@@ -47,8 +69,9 @@ def rebinCalc(nBins,target):
     return find_nearest(allDivs, rebinFloat)
 
 def normHisto(hist, doNorm=False):
-    if doNorm and not hist.Integral() <= 0.0:
-        hist.Scale(1.0/hist.Integral())
+    if doNorm:
+        if hist.Integral() > 0:
+            hist.Scale(1.0/hist.Integral())
 
 def simpleSig(hSig, hBg):
     sig = 0.0
@@ -189,7 +212,7 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
     #set x-axis range
     if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
 
-def makeRocVec(h,reverse=False,ignoreUnderflow=False):    
+def makeRocVec(h,reverse=False,ignoreUnderflow=False):
     if h.Integral() > 0.0:
         h.Scale( 1.0 / h.Integral() );
     v, cuts = [], []
@@ -230,8 +253,7 @@ def drawRocCurve(fType, rocBgVec, rocSigVec, leg, manySigs=False, stList=None, a
                 mBg_f = mBg
                 mSig_f = mSig
             rocValues.loc[len(rocValues.index)] = stList + [lSig,lBg,round(gArea,3),rv,cutSig,cBg,cSig,mBg_f,mSig_f]
-            allRocValues.loc[len(allRocValues.index)] = stList + [lSig,lBg,round(gArea,3),rv]
-
+            allRocValues.loc[len(allRocValues.index)] = stList + [lSig,lBg,round(gArea,3),rv,cutSig,colorDict[cBg],colorDict[cSig],mBg_f,mSig_f]
     if manySigs:
         rocValues = rocValues[rocValues["bkg"] == mainBkg]
         colLabel = "cSig"
@@ -493,7 +515,7 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     for d in data[1]:
         h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=True)
         if (stList != None) and (not normBkg):
-            newEntry = stList + [d.legEntry(),"{:.2f}".format(h.Integral())]
+            newEntry = stList + [getLabel(d.legEntry()),round(h.Integral())]
             yieldValues.loc[len(yieldValues.index)] = newEntry
         if normBkg:
             normHisto(h, True)
@@ -553,7 +575,7 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
         for d in data[2]:
             h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, showEvents=True)
             if (stList != None) and (not normBkg):
-                newEntry = stList + [d.legEntry(),"{:.2f}".format(h.Integral())]
+                newEntry = stList + [getLabel(d.legEntry()),round(h.Integral())]
                 yieldValues.loc[len(yieldValues.index)] = newEntry
             #if(firstPass):
             sig = round(simpleSig(h, hMC),2)
@@ -632,10 +654,10 @@ def main():
     cutsImportant = ["_qual_trg_st","_qual_trg_st_0nim","_qual_trg_st_ge1nim"]
     Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
-    allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir"])
+    allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir","cutSig","cBg","cSig","mBg_f","mSig_f"])
     yieldValues = pd.DataFrame(columns=["cut","var","source","yield"])
     signifValues = pd.DataFrame(columns=["cut","var","source","max signif."])
-    plotOutDir = "output/UL_jetalt2p4_trigger_qual_FlorianCuts_2018_morejN_count"
+    plotOutDir = "output/{}".format(options.dataset)
 
     preVars = {
         "h_njets":False,

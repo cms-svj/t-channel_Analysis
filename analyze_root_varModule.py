@@ -2,7 +2,7 @@
 
 from coffea import processor
 from processors.rootProcessor_varModule import MainProcessor
-import uproot
+import uproot3 as uproot
 import sys,os
 from utils import samples as s
 import time
@@ -76,11 +76,11 @@ def main():
     # set output root file
     sample = options.dataset
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
+    fileset = s.getFileset(sample, True, options.startFile, options.nFiles, mlTraining=True)
     outfile = "MyAnalysis_%s_%d" % (sample, options.startFile) if options.condor or options.dask else "test"
 
     # get processor args
-    exe_args = {'workers': options.workers, 'flatten': False}
+    exe_args = {'workers': options.workers, 'schema': processor.TreeMakerSchema}
     if options.dask:
         exe_args = use_dask(options.condor,options.workers,options.port)
         if options.quiet: exe_args['status'] = False
