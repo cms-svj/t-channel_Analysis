@@ -61,7 +61,8 @@ class MainProcessor(processor.ProcessorABC):
         def process(self, events):
                 # cut loop
                 ## objects used for cuts
-                vars_noCut = utl.varGetter(self.dataset,events,self.scaleFactor,self.jNVar)
+                vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
+                utl.varGetter(self.dataset,events,vars_noCut,self.jNVar)
                 runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd,self.fakerateHisto)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
