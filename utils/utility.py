@@ -152,7 +152,7 @@ def tch_hvCat_decode(hvCat):
 
 def baselineVar(dataset,events,scaleFactor):
     varVal = {}
-    dataKeys = ["HTMHT","JetHT","MET","SingleElectron","SingleMuon","SinglePhoton","EGamma"]
+    dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
     isData = False
     for dKey in dataKeys:
         if dKey in dataset:
