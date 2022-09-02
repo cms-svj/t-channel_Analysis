@@ -10,9 +10,9 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1,mlTraining=False):
     kind = "backgrounds"
     if ("mMed" in detailKey) or ("mZprime" in detailKey):
         kind = "signals"
-    dataKeys = ["HTMHT","JetHT","MET","SingleElectron","SingleMuon","SinglePhoton","EGamma"]
+    dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
     for dKey in dataKeys:
-        if dKey in detailKey:
+        if "{}".format(dKey) in detailKey:
             kind = "data"
             break
     if "Incl" in detailKey:
@@ -86,3 +86,6 @@ def sfGetter(sample):
             sf = item
             break
     return sf
+
+
+
