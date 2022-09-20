@@ -2,7 +2,6 @@ from coffea import hist, processor
 import numpy as np
 import awkward as ak
 from utils import utility as utl
-import utils.objects as ob
 from utils import baseline as bl
 from utils.variables import variables
 
