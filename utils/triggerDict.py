@@ -248,7 +248,6 @@ trgSelections = {
                 'PFJet550',
                 "AK8PFHT800_TrimMass50",
                 "AK8PFJet400_TrimMass30",
-                "PFHT1050",
                 "PFHT500_PFMET100_PFMHT100_IDTight",
                 "PFHT700_PFMET85_PFMHT85_IDTight",
                 "PFHT800_PFMET75_PFMHT75_IDTight",

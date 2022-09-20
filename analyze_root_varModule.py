@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from coffea import processor
-from processors.rootProcessor_varModule import MainProcessor
 import uproot3 as uproot
 import sys,os
 from utils import samples as s
@@ -61,6 +60,7 @@ def main():
     # get options from command line
     parser = OptionParser()
     parser.add_option('-d', '--dataset',   help='dataset',           dest='dataset')
+    parser.add_option(      '--training',  help='For which training should the files be made: NN, PN',           dest='training', default="NN")
     parser.add_option('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, default=-1)
     parser.add_option('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
@@ -75,10 +75,15 @@ def main():
 
     # set output root file
     sample = options.dataset
-    # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
+    # training kind
+    trainingKind = options.training
+    if trainingKind == "NN":
+        from processors.rootProcessor_NN import MainProcessor
+    elif trainingKind == "PN":
+        from processors.rootProcessor_varModule import MainProcessor
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles, mlTraining=True)
-    outfile = "MyAnalysis_%s_%d" % (sample, options.startFile) if options.condor or options.dask else "test"
-
+    # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
+    outfile = "MyAnalysis_%s_%d" % (sample, options.startFile) if options.condor or options.dask else "trainFile"
     # get processor args
     exe_args = {'workers': options.workers, 'schema': processor.TreeMakerSchema}
     if options.dask:

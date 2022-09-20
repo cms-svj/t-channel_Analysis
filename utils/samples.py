@@ -21,13 +21,16 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1,mlTraining=False):
     elif "TTJets_SingleLeptFromT" in sample or "TTJets_DiLept" in detailKey:
         detailKey += "_Tune"
 
-    if mlTraining:
+    JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
+
+    if kind == "backgrounds" and mlTraining:
         JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/jetConstTrainingNtuples/' + kind + "/" + year + "/"
-    else:
-        JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
+
     inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
     if len(inputSamples) == 0:
         print("Error: no json file found with name:", JSONDir)
+    else:
+        print(inputSamples)
 
     # open all json files and dump them into a dictionary
     fileset_all = {}
