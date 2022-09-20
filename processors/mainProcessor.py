@@ -62,7 +62,7 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
-                utl.varGetter(self.dataset,events,vars_noCut,self.jNVar)
+                utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd,self.fakerateHisto)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
@@ -79,6 +79,7 @@ class MainProcessor(processor.ProcessorABC):
                             "evtw" : vars_noCut["evtw"][cut],
                             "jw"   : ak.flatten(vars_noCut["jw"][cut]),
                             "fjw"  : ak.flatten(vars_noCut["fjw"][cut]),
+                            "gfjw" : ak.flatten(vars_noCut["gfjw"][cut]),
                             "ew"   : ak.flatten(vars_noCut["ew"][cut]),
                             "mw"   : ak.flatten(vars_noCut["mw"][cut]),
                             "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
@@ -92,6 +93,7 @@ class MainProcessor(processor.ProcessorABC):
                     if len(events) > 0:
                         ## filling histograms
                         for histName, varDetail in variables(self.jNVar).items():
+                            print()
                             vX = vars_noCut[varDetail.varXName][cut]
                             vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]

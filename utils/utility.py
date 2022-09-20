@@ -214,6 +214,8 @@ def baselineVar(dataset,events,scaleFactor):
     varVal['METrST_pt30'] = met/st
     varVal['dPhiMinjMET'] = dPhiMinj
     varVal['dPhiMinjMETAK8'] = dPhiMinjAK8
+    varVal['GenJetsAK8'] = events.GenJetsAK8
+    varVal['GenParticles'] = events.GenParticles
     return varVal
 
 def jConstVarGetter(dataset,events,varVal,cut):
@@ -222,6 +224,7 @@ def jConstVarGetter(dataset,events,varVal,cut):
     ## GenJetsAK8_hvCategory is only present in the signal samples, not the V17 background
     jetCats = []
     fjw = awkwardReshape(fjets,evtw)
+    GenJetsAK8 = events.GenJetsAK8
     evtNum = events.EvtNum
     fjEvtNum = awkwardReshape(fjets,evtNum)
     bkgKeys = ["QCD","TTJets","WJets","ZJets"]
@@ -232,8 +235,7 @@ def jConstVarGetter(dataset,events,varVal,cut):
         jetsAK8GenInd = fjets.genIndex
         for gji in range(len(jetsAK8GenInd)):
             genInd = jetsAK8GenInd[gji]
-            GenJetsAK8 = events.GenJetsAK8
-            gfjets = GenJetsAK8[GenJetsAK8.pt > 170 & (abs(GenJetsAK8.eta) < 5.0)]
+            gfjets = GenJetsAK8[GenJetsAK8.pt > 50 & (abs(GenJetsAK8.eta) < 5.0)]
             genCat = gfjets.hvCategory[gji]
             if (len(genCat) > 0) and (len(genInd) > 0):
                 if np.max(genInd) < len(genCat):
@@ -263,7 +265,6 @@ def jConstVarGetter(dataset,events,varVal,cut):
     # jCstVar["jCstChHadEFractAK8"] = [fjets.chargedHadronEnergyFraction,[False],np.array([])]
     # jCstVar["jCstChHadMultAK8"] = [fjets.chargedHadronMultiplicity,[False],np.array([])]
     # jCstVar["jCstChMultAK8"] = [fjets.chargedMultiplicity,[False],np.array([])]
-    jCstVar["jCstdoubleBDiscriminatorAK8"] = [fjets.doubleBDiscriminator,[False],np.array([])]
     # jCstVar["jCstecfN2b1AK8"] = [fjets.ecfN2b1,[False],np.array([])]
     # jCstVar["jCstecfN2b2AK8"] = [fjets.ecfN2b2,[False],np.array([])]
     # jCstVar["jCstecfN3b1AK8"] = [fjets.ecfN3b1,[False],np.array([])]
@@ -283,8 +284,6 @@ def jConstVarGetter(dataset,events,varVal,cut):
     jCstVar["jCstTau1AK8"] = [fjets.NsubjettinessTau1,[False],np.array([])]
     jCstVar["jCstTau2AK8"] = [fjets.NsubjettinessTau2,[False],np.array([])]
     jCstVar["jCstTau3AK8"] = [fjets.NsubjettinessTau3,[False],np.array([])]
-    jCstVar["jCstNumBhadronsAK8"] = [fjets.NumBhadrons,[False],np.array([])]
-    jCstVar["jCstNumChadronsAK8"] = [fjets.NumChadrons,[False],np.array([])]
     # jCstVar["jCstPhoEFractAK8"] = [fjets.photonEnergyFraction,[False],np.array([])]
     # jCstVar["jCstPhoMultAK8"] = [fjets.photonMultiplicity,[False],np.array([])]
     jCstVar["jCstPtDAK8"] = [fjets.ptD,[False],np.array([])]
@@ -318,21 +317,23 @@ def jConstVarGetter(dataset,events,varVal,cut):
             jCstVar[key][2] = np.array([])
     return jCst4vec,jCstVar
 
-def varGetter(dataset,events,varVal,jNVar=False):
-    jets = varVal['jets'] 
-    bjets = varVal['bjets'] 
-    fjets = varVal['fjets'] 
-    electrons = varVal['electrons'] 
-    muons = varVal['muons'] 
-    nonIsoMuons = varVal['nonIsoMuons'] 
-    evtw = varVal['evtw'] 
-    nBJets = varVal['nb']
-    met = varVal['met']
-    metPhi = varVal['metPhi']
-    mtAK8 = varVal['mT']
-    ht = varVal['ht']
-    dPhiMinj = varVal['dPhiMinjMET']
-    dPhiMinjAK8 = varVal['dPhiMinjMETAK8']
+def varGetter(dataset,events,varVal,cut,jNVar=False):
+    jets = varVal['jets'][cut] 
+    bjets = varVal['bjets'][cut] 
+    fjets = varVal['fjets'][cut] 
+    electrons = varVal['electrons'][cut] 
+    muons = varVal['muons'][cut] 
+    nonIsoMuons = varVal['nonIsoMuons'][cut] 
+    evtw = varVal['evtw'][cut] 
+    nBJets = varVal['nb'][cut]
+    met = varVal['met'][cut]
+    metPhi = varVal['metPhi'][cut]
+    mtAK8 = varVal['mT'][cut]
+    ht = varVal['ht'][cut]
+    dPhiMinj = varVal['dPhiMinjMET'][cut]
+    dPhiMinjAK8 = varVal['dPhiMinjMETAK8'][cut]
+    GenJetsAK8 = varVal['GenJetsAK8'][cut]
+    GenParticles = varVal['GenParticles'][cut]
 
     eCounter = np.where(evtw >= 0, 1, -1)
     jetAK8Eta = fjets.eta
@@ -341,6 +342,16 @@ def varGetter(dataset,events,varVal,jNVar=False):
     j2_etaAK8 = jetVar_i(jetAK8Eta,1)
     j1_phiAK8 = jetVar_i(jetAK8Phi,0)
     j2_phiAK8 = jetVar_i(jetAK8Phi,1)
+
+    ## Calculating the number of N-med events
+    medIDs = [4900001,4900002,4900003,4900004,4900005,4900006]
+    num_of_med = []
+    for pdgIDList in GenParticles.PdgId:
+        medCount = 0
+        for pdgID in pdgIDList:
+            if abs(pdgID) in medIDs:
+                medCount += 1
+        num_of_med.append(medCount)
 
     ## GenJetsAK8_hvCategory is only present in the signal samples, not the background
     jetCats = []
@@ -352,8 +363,7 @@ def varGetter(dataset,events,varVal,jNVar=False):
         jetsAK8GenInd = fjets.genIndex
         for gji in range(len(jetsAK8GenInd)):
             genInd = jetsAK8GenInd[gji]
-            GenJetsAK8 = events.GenJetsAK8
-            gfjets = GenJetsAK8[GenJetsAK8.pt > 170 & (abs(GenJetsAK8.eta) < 5.0)]
+            gfjets = GenJetsAK8[GenJetsAK8.pt > 50 & (abs(GenJetsAK8.eta) < 5.0)]
             genCat = gfjets.hvCategory[gji]
             if (len(genCat) > 0) and (len(genInd) > 0):
                 if np.max(genInd) < len(genCat):
@@ -363,15 +373,18 @@ def varGetter(dataset,events,varVal,jNVar=False):
             else:
                 jetCats.append([-1]*len(genInd))
         jetCats = ak.Array(jetCats)
-        varVal['JetsAK8_hvCategory'] = jetCats
     else:
-        varVal['JetsAK8_hvCategory'] = awkwardReshape(fjets,np.ones(len(evtw))*-1)
-        
+        jetCats = awkwardReshape(fjets,np.ones(len(evtw))*-1)
+    varVal['JetsAK8_hvCategory'] = jetCats
+    for i in range(4):
+        varVal['J{}_hvCategory'.format(i+1)] = jetVar_i(jetCats,i)
+
     ew = awkwardReshape(electrons,evtw)
     mw = awkwardReshape(muons,evtw)
     nimw = awkwardReshape(nonIsoMuons,evtw)
     jw = awkwardReshape(jets,evtw)
     fjw = awkwardReshape(fjets,evtw)
+    gfjw = awkwardReshape(GenJetsAK8,evtw)
 
     # AK4 Jet Variables
     jetPhi = jets.phi
@@ -416,6 +429,7 @@ def varGetter(dataset,events,varVal,jNVar=False):
     varVal['eCounter'] = eCounter
     varVal['jw'] = jw
     varVal['fjw'] = fjw
+    varVal['gfjw'] = gfjw
     varVal['ew'] = ew
     varVal['mw'] = mw
     varVal['nimw'] = nimw
@@ -436,7 +450,6 @@ def varGetter(dataset,events,varVal,jNVar=False):
     varVal['jChHadEFractAK8'] = fjets.chargedHadronEnergyFraction
     varVal['jChHadMultAK8'] = fjets.chargedHadronMultiplicity
     varVal['jChMultAK8'] = fjets.chargedMultiplicity
-    varVal['jdoubleBDiscriminatorAK8'] = fjets.doubleBDiscriminator
     varVal['jecfN2b1AK8'] = fjets.ecfN2b1
     varVal['jecfN2b2AK8'] = fjets.ecfN2b2
     varVal['jecfN3b1AK8'] = fjets.ecfN3b1
@@ -458,8 +471,6 @@ def varGetter(dataset,events,varVal,jNVar=False):
     varVal['jTau3AK8'] = tau3
     varVal['jTau21AK8'] = J_tau21
     varVal['jTau32AK8'] = J_tau32
-    varVal['jNumBhadronsAK8'] = fjets.NumBhadrons
-    varVal['jNumChadronsAK8'] = fjets.NumChadrons
     varVal['jPhoEFractAK8'] = fjets.photonEnergyFraction
     varVal['jPhoMultAK8'] = fjets.photonMultiplicity
     varVal['jPtDAK8'] = fjets.ptD
@@ -470,9 +481,9 @@ def varGetter(dataset,events,varVal,jNVar=False):
     varVal['dRJ12AK8'] = deltaR12jAK8
     varVal['dPhij1rdPhij2AK8'] = dPhij1rdPhij2AK8
     varVal['electronsIso'] = electrons.iso
-    varVal['muonsIso'] = muons.iso
-    varVal['nonIsoMuonsPt'] = nonIsoMuons.pt
-    varVal['nonIsoMuonsIso'] = nonIsoMuons.iso
+    #varVal['muonsIso'] = muons.iso
+    #varVal['nonIsoMuonsPt'] = nonIsoMuons.pt
+    #varVal['nonIsoMuonsIso'] = nonIsoMuons.iso
     if jNVar:
         # preparing histograms for jN variables
         maxN = 4
@@ -522,7 +533,8 @@ def varGetter(dataset,events,varVal,jNVar=False):
             varVal['dPhij{}{}AK8'.format(j1+1,j2+1)] = deltaPhi(j1_phiAK8,j2_phiAK8)
             varVal['dRj{}{}AK8'.format(j1+1,j2+1)] = delta_R(j1_etaAK8,j2_etaAK8,j1_phiAK8,j2_phiAK8)
             varVal['dPhij{}rdPhij{}AK8'.format(j1+1,j2+1)] = dPhij1AK8/dPhij2AK8
-    # varVal['GenJetsAK8_hvCategory'] = GenJetsAK8_hvCategory.flatten()
+    #varVal['GenJetsAK8_hvCategory'] = GenJetsAK8.hvCategory
+    varVal['nNMedEvent'] = np.array(num_of_med)
     # varVal['mT2_f4_msm'] = f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"")
     # varVal['mT2_f4_msm_dEta'] = f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dEta")
     # varVal['mT2_f4_msm_dPhi'] = f4msmCom_vec(jetAK8pT,jetAK8Eta,jetAK8Phi,jetAK8M,met,metPhi,"dPhi")
