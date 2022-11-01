@@ -259,6 +259,9 @@ def jConstVarGetter(dataset,events,varVal,cut):
     jCst4vec["jCstEnergy"] = jetConstituents.energy
     jCst4vec["jCstPdgId"] = jetConstituents.PdgId
     jCstVar["jCstPtAK8"] = [fjets.pt,[False],np.array([])]
+    jCstVar["jCstEtaAK8"] = [fjets.eta,[False],np.array([])]
+    jCstVar["jCstPhiAK8"] = [fjets.phi,[False],np.array([])]
+    jCstVar["jCstEnergyAK8"] = [fjets.energy,[False],np.array([])]
     jCstVar["jCstAxismajorAK8"] = [fjets.axismajor,[False],np.array([])]
     jCstVar["jCstAxisminorAK8"] = [fjets.axisminor,[False],np.array([])]
     # jCstVar["jCstChEMEFractAK8"] = [fjets.chargedEmEnergyFraction,[False],np.array([])]

@@ -65,7 +65,7 @@ class MainProcessor(processor.ProcessorABC):
                 utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd,self.fakerateHisto)
                 # Our preselection
-                cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=True)
 
                 # setup histograms
                 if self.setupHistos is None:
@@ -93,7 +93,6 @@ class MainProcessor(processor.ProcessorABC):
                     if len(events) > 0:
                         ## filling histograms
                         for histName, varDetail in variables(self.jNVar).items():
-                            print()
                             vX = vars_noCut[varDetail.varXName][cut]
                             vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]

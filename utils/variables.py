@@ -86,7 +86,7 @@ def variables(jNVar=False):
         # 'mT2_f4_msm_dEta':       SVJHistoInfo("mT2_f4_msm_dEta",          h.axis.Regular(name="x", label=r"$m_{T2} (GeV)$",                                bins=500,   start= 0.0,    stop=5000.0),     2,     0,       'evtw'),
         # 'mT2_f4_msm_dPhi':       SVJHistoInfo("mT2_f4_msm_dPhi",          h.axis.Regular(name="x", label=r"$m_{T2} (GeV)$",                                bins=500,   start= 0.0,    stop=5000.0),     2,     0,       'evtw'),
         # 'mT2_f4_msm_dR':         SVJHistoInfo("mT2_f4_msm_dR",            h.axis.Regular(name="x", label=r"$m_{T2} (GeV)$",                                bins=500,   start= 0.0,    stop=5000.0),     2,     0,       'evtw'),
-        "GenJetsAK8_hvCategory":   SVJHistoInfo("GenJetsAK8_hvCategory",    h.axis.Regular(name="x", label="GenJetAK8 hvCategory",                           bins=32,    start= 0.0,    stop=32.0  ),     0,     1,        'gfjw'),
+        #"GenJetsAK8_hvCategory":   SVJHistoInfo("GenJetsAK8_hvCategory",    h.axis.Regular(name="x", label="GenJetAK8 hvCategory",                           bins=32,    start= 0.0,    stop=32.0  ),     0,     1,        'gfjw'),
         "nNMedEvent":              SVJHistoInfo("nNMedEvent",               h.axis.Regular(name="x", label="N-Med Event",                                    bins=4,    start= 0.0,     stop=4.0  ),      0,     0,        'evtw'),
         "JetsAK8_hvCategory":      SVJHistoInfo("JetsAK8_hvCategory",       h.axis.Regular(name="x", label="JetAK8 hvCategory",                              bins=32,    start= 0.0,    stop=32.0  ),     1,     2,        'fjw'),
         # "GenMT2_AK8":            SVJHistoInfo("GenMT2_AK8",               h.axis.Regular(name="x", label=r"$m_{T2} (GeV)$",                                bins=500,   start= 0.0,    stop=5000.0),     0,     0,,      'evtw'),
@@ -97,8 +97,8 @@ def variables(jNVar=False):
         'nsvjJetsAK8Plus3':        SVJHistoInfo("nsvjJetsAK8Plus3",         h.axis.Regular(name="x", label="Number of SVJ AK8Jets pred3Jets",                bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'pred3_evtw'),
         'nsvjJetsAK8Plus4':        SVJHistoInfo("nsvjJetsAK8Plus4",         h.axis.Regular(name="x", label="Number of SVJ AK8Jets pred4Jets",                bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'pred4_evtw'),
         'nnOutput':                SVJHistoInfo("nnOutput",                 h.axis.Regular(name="x", label="nnOutput",                                       bins=100,   start= 0.0,    stop=1.0   ),     0,     1, 'fjw'       ),
-        'svjPtAK8':                SVJHistoInfo("svjPtAK8",                 h.axis.Regular(name="x", label=r"$p_{T}$ [GeV]",                                 bins=280,   start= 0.0,    stop=2800.0),     0,     1, 'svfjw'     ),
-        'svjEtaAK8':               SVJHistoInfo("svjEtaAK8",                h.axis.Regular(name="x", label=r"$\eta$",                                        bins=200,   start=-6.0,    stop=6.0   ),     0,     1, 'svfjw'     ),
+        #'svjPtAK8':                SVJHistoInfo("svjPtAK8",                 h.axis.Regular(name="x", label=r"$p_{T}$ [GeV]",                                 bins=280,   start= 0.0,    stop=2800.0),     0,     1, 'svfjw'     ),
+        #'svjEtaAK8':               SVJHistoInfo("svjEtaAK8",                h.axis.Regular(name="x", label=r"$\eta$",                                        bins=200,   start=-6.0,    stop=6.0   ),     0,     1, 'svfjw'     ),
     }
     if jNVar:
         # preparing histograms for jN variables
