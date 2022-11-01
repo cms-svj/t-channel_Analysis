@@ -60,7 +60,7 @@ def main():
     # get options from command line
     parser = OptionParser()
     parser.add_option('-d', '--dataset',   help='dataset',           dest='dataset')
-    parser.add_option(      '--training',  help='For which training should the files be made: NN, PN',           dest='training', default="NN")
+    parser.add_option(      '--training',  help='For which training should the files be made: NN, PN',           dest='training', default="PN")
     parser.add_option('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, default=-1)
     parser.add_option('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
@@ -116,9 +116,10 @@ def main():
     branchdict = {}
     for v in output.keys():
         if len(output[v].value) > 0:
-            branchdict[v] = uproot.newbranch("f4")
+            branchdict[v] = uproot.newbranch("f8") # f4 would create problems for evtNumber variable
             values_dict[v] = output[v].value
     tree = uproot.newtree(branchdict)
+    
     if values_dict != {}:
         print("saving root files...")
         with uproot.recreate("{}.root".format(outfile)) as f:
