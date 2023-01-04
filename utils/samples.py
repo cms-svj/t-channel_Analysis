@@ -23,8 +23,10 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1,mlTraining=False):
 
     JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
 
-    if kind == "backgrounds" and mlTraining:
-        JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/jetConstTrainingNtuples/' + kind + "/" + year + "/"
+    #if kind == "backgrounds" and mlTraining:
+    #    JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/jetConstTrainingNtuples/' + kind + "/" + year + "/"
+    #JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/jetConstTrainingNtuples/' + kind + "/" + year + "/"
+
 
     inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
     if len(inputSamples) == 0:
@@ -67,27 +69,40 @@ def getAllFilesets():
     fBG.update(fSG2)
     return fBG
 
-def sfGetter(sample):
-    scaleFactor = {
-        "2018_mQCDmini_Pt_80to120":      29535000./3565000., # 29535000./575000.
-        "2018_mQCDmini_Pt_120to170":     25255000./3940000.,
-        "2018_mQCDmini_Pt_170to300":     29710000./3175000.,
-        "2018_mQCDmini_Pt_300to470":     41744000./3600000.,
-        "2018_mQCDmini_Pt_470to600":     42459973./3712000., # only the second half of the mini samples
-        "2018_mQCDmini_Pt_600to800":     64061000./1848000.,
-        "2018_mQCDmini_Pt_800to1000":    37598000./1902000.,
-        "2018_mQCDmini_Pt_1000to1400":   18485000./2037000.,
-        "2018_mQCDmini_Pt_1400to1800":   6928000./1972000.,
-        "2018_mQCDmini_Pt_1800to2400":   4017800./1445800.,
-        "2018_mQCDmini_Pt_2400to3200":   2394000./1440000.,
-        "2018_mQCDmini_Pt_3200toInf":    800000./800000.,
-        "2018_mTTJetsmini_Incl":         10244307./841560.
-    }
-    sf = 1
-    for key,item in scaleFactor.items():
-        if key == sample:
-            sf = item
-            break
+def sfGetter(sample,on=False):
+    # scaleFactor for particleNet training files
+    if on:
+        print("Yes")
+        scaleFactor = {
+                "2018_QCD_Pt_1000to1400": 19730000.0/48000,
+                "2018_QCD_Pt_1400to1800": 10982000.0/21000,
+                "2018_QCD_Pt_1800to2400": 5491000.0/48000,
+                "2018_QCD_Pt_2400to3200": 2997000.0/30000,
+                "2018_QCD_Pt_300to470": 57910000.0/9423000,
+                "2018_QCD_Pt_3200toInf": 1000000.0/51000,
+                "2018_QCD_Pt_470to600": 52448000.0/447000,
+                "2018_QCD_Pt_600to800": 67508000.0/96000,
+                "2018_QCD_Pt_800to1000": 37160000.0/48000,
+                "2018_TTJets_DiLept": 29290487.0/8532037,
+                "2018_TTJets_DiLept_genMET-150": 10592111.0/103384,
+                "2018_TTJets_HT-1200to2500": 2009331.0/29630,
+                "2018_TTJets_HT-2500toInf": 1001084.0/78961,
+                "2018_TTJets_HT-600to800": 15258099.0/83062,
+                "2018_TTJets_HT-800to1200": 9201990.0/69470,
+                "2018_TTJets_SingleLeptFromT": 58237254.0/2572246,
+                "2018_TTJets_SingleLeptFromT_genMET-150": 13337428.0/414361,
+                "2018_TTJets_SingleLeptFromTbar": 58510607.0/3589663,
+                "2018_TTJets_SingleLeptFromTbar_genMET-150": 12597052.0/503985,
+                "2018_TTJets_Incl": 10494353.0/10339641,
+        }
+        sf = 1
+        for key,item in scaleFactor.items():
+            if key == sample:
+                print("Yes")
+                sf = item
+                break
+    else:
+        sf = 1
     return sf
 
 

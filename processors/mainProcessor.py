@@ -79,7 +79,6 @@ class MainProcessor(processor.ProcessorABC):
                             "evtw" : vars_noCut["evtw"][cut],
                             "jw"   : ak.flatten(vars_noCut["jw"][cut]),
                             "fjw"  : ak.flatten(vars_noCut["fjw"][cut]),
-                            "gfjw" : ak.flatten(vars_noCut["gfjw"][cut]),
                             "ew"   : ak.flatten(vars_noCut["ew"][cut]),
                             "mw"   : ak.flatten(vars_noCut["mw"][cut]),
                             "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
