@@ -96,7 +96,7 @@ def main():
             print('Dask client info ->', client)
             time.sleep(10)
 
-    sf = s.sfGetter(sample)
+    sf = s.sfGetter(sample,True)
     print("scaleFactor = {}".format(sf))
 
     # run processor
