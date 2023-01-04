@@ -1,5 +1,5 @@
 {
-    "2016_MET": [
+    "2016_METData": [
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2016B-UL2016_HIPM-ver2-v2/MET/0_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2016B-UL2016_HIPM-ver2-v2/MET/100_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2016B-UL2016_HIPM-ver2-v2/MET/101_RA2AnalysisTree.root", 

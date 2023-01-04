@@ -1,5 +1,5 @@
 {
-    "2017_SinglePhoton": [
+    "2017_SinglePhotonData": [
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2017B-UL2017-v1/SinglePhoton/0_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2017B-UL2017-v1/SinglePhoton/100_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2017B-UL2017-v1/SinglePhoton/101_RA2AnalysisTree.root", 

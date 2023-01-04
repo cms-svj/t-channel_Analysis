@@ -1,5 +1,5 @@
 {
-    "2017_SingleMuon": [
+    "2017_SingleMuonData": [
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2017B-UL2017-v1/SingleMuon/0_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2017B-UL2017-v1/SingleMuon/1000_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Run2017B-UL2017-v1/SingleMuon/1001_RA2AnalysisTree.root", 
