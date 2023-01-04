@@ -258,6 +258,11 @@ def jConstVarGetter(dataset,events,varVal,cut):
     jCst4vec["jCstPhi"] = jetConstituents.phi
     jCst4vec["jCstEnergy"] = jetConstituents.energy
     jCst4vec["jCstPdgId"] = jetConstituents.PdgId
+    jCst4vec["jCstdxy"] = jetConstituents.dxy
+    jCst4vec["jCstdxysig"] = jetConstituents.dxysig
+    jCst4vec["jCstdz"] = jetConstituents.dz
+    jCst4vec["jCstdzsig"] = jetConstituents.dzsig
+    jCst4vec["jCstPuppiWeight"] = jetConstituents.PuppiWeight
     jCstVar["jCstPtAK8"] = [fjets.pt,[False],np.array([])]
     jCstVar["jCstEtaAK8"] = [fjets.eta,[False],np.array([])]
     jCstVar["jCstPhiAK8"] = [fjets.phi,[False],np.array([])]
@@ -358,6 +363,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
 
     ## GenJetsAK8_hvCategory is only present in the signal samples, not the background
     jetCats = []
+    jetDarkPtFracs = []
     bkgKeys = ["QCD","TTJets","WJets","ZJets"]
     isSignal = False
     if "mMed" in dataset:
@@ -368,20 +374,27 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
             genInd = jetsAK8GenInd[gji]
             gfjets = GenJetsAK8[GenJetsAK8.pt > 50 & (abs(GenJetsAK8.eta) < 5.0)]
             genCat = gfjets.hvCategory[gji]
+            genDarkPtFrac = gfjets.darkPtFrac[gji]
             if (len(genCat) > 0) and (len(genInd) > 0):
                 if np.max(genInd) < len(genCat):
                     jetCats.append(list(genCat[genInd]))
+                    jetDarkPtFracs.append(list(genDarkPtFrac[genInd]))
                 else:
                     jetCats.append([-1]*len(genInd))
+                    jetDarkPtFracs.append([-1]*len(genInd))
             else:
                 jetCats.append([-1]*len(genInd))
+                jetDarkPtFracs.append([-1]*len(genInd))
         jetCats = ak.Array(jetCats)
+        jetDarkPtFracs = ak.Array(jetDarkPtFracs)
     else:
         jetCats = awkwardReshape(fjets,np.ones(len(evtw))*-1)
+        jetDarkPtFracs = awkwardReshape(fjets,np.ones(len(evtw))*-1)
     varVal['JetsAK8_hvCategory'] = jetCats
+    varVal['JetsAK8_darkPtFrac'] = jetDarkPtFracs
     for i in range(4):
         varVal['J{}_hvCategory'.format(i+1)] = jetVar_i(jetCats,i)
-
+        varVal['J{}_darkPtFrac'.format(i+1)] = jetVar_i(jetDarkPtFracs,i)
     ew = awkwardReshape(electrons,evtw)
     mw = awkwardReshape(muons,evtw)
     nimw = awkwardReshape(nonIsoMuons,evtw)
