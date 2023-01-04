@@ -113,7 +113,7 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     ttStitch = TTStitch(dataset,events)
     metFilters = METFilters(events)
     # psFilter = PhiSpikeFilter(dataset,vars_noCut['jets'])
-    qualityCuts = metFilters & (nl == 0) #& ttStitch # no ttStitch when making training files
+    qualityCuts = metFilters & (nl == 0) & ttStitch
     # qualityCuts = metFilters & psFilter # NN training files
     # preselection = Preselection(qualityCuts,nl)
     # cuts to get over trigger plateau
