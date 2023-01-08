@@ -98,7 +98,7 @@ def PassTrigger(triggerPass,indices):
 def cutList(dataset,events,vars_noCut,SVJCut=True):
     evtw = vars_noCut["evtw"]
     nl = vars_noCut["nl"]
-    nnim = vars_noCut["nnim"]
+    nnim = vars_noCut["nnim"] # no of Isolated Muons
     njets = vars_noCut["njets"]
     njetsAK8 = vars_noCut["njetsAK8"]
     nb = vars_noCut["nb"]
@@ -117,10 +117,10 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     # qualityCuts = metFilters & psFilter # NN training files
     # preselection = Preselection(qualityCuts,nl)
     # cuts to get over trigger plateau
-    metCut = met > 266
-    htCut = ht > 1280
+    # metCut = met > 266
+    # htCut = ht > 1280
     stCut = st > 1300
-    trgPlat = metCut & htCut
+    # trgPlat = metCut & htCut
 
     # trigger choices
     years = ["2016","2017","2018"]

@@ -11,6 +11,7 @@ class SVJHistoInfo:
         self.varYName = varYName
         self.ybins = ybins
         self.dim = 2 if varYName else 1
+        
 
 def variables(jNVar=False):
     # [xlabel,number of bins,xmin,xmax,whether to keep it in npz for training (0=do not keep, 1=keep as is, 2=keep but make sure the length is the same as AK8 variables), whether to flatten the array or not when filling histogram (2 = ak.flatten(), 1 = .flatten(), 0 = do not flatten)]
