@@ -5,19 +5,15 @@ import awkward as ak
 from utils import utility as utl
 from utils import baseline as bl
 from utils.variables import variables
-from utils.runNeuralNetwork import runNN
+from utils.inferenceParticleNet import runNN
 import uproot
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf,model,varSet,normMean,normStd,jNVar):
+        def __init__(self,dataset,sf,jNVar):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
                 self.dataset = dataset
                 self.scaleFactor = sf
-                self.model = model
-                self.varSet = varSet
-                self.normMean = normMean
-                self.normStd = normStd
                 self.jNVar = jNVar
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
 
@@ -63,7 +59,7 @@ class MainProcessor(processor.ProcessorABC):
                 ## objects used for cuts
                 vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
                 utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                runNN(self.model,vars_noCut,self.varSet,self.normMean,self.normStd,self.fakerateHisto)
+                runNN(events,vars_noCut,self.fakerateHisto)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=True)
 
@@ -88,7 +84,6 @@ class MainProcessor(processor.ProcessorABC):
                             "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
                             "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
                     }
-
                     if len(events) > 0:
                         ## filling histograms
                         for histName, varDetail in variables(self.jNVar).items():
@@ -115,7 +110,6 @@ class MainProcessor(processor.ProcessorABC):
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)
                                 elif varDetail.dim == 2:
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, y=vY, weight=hW)
-                        
                         ## filling histograms by jet category
                         # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM
                         # for varName,varDetail in varValDict.items():
