@@ -227,11 +227,17 @@ def jConstVarGetter(dataset,events,varVal,cut):
     evtNum = events.EvtNum
     fjEvtNum = awkwardReshape(fjets,evtNum)
     bkgKeys = ["QCD","TTJets","WJets","ZJets"]
-    isSignal = False
+    isSignal = 0
     if "mMed" in dataset:
-        isSignal = True
-    if isSignal:
-        ## GenJetsAK8_hvCategory is only present in the signal samples
+        if "s-channel" in dataset:
+            isSignal = 1
+        else:
+            isSignal = 2
+    # getting jet category for each jet
+    if isSignal == 1:
+        print(np.unique(ak.flatten(fjets.isHV)))
+        jetCats = ak.where(fjets.isHV,9,0) # treating SVJ from s-channel as QM jets and non-SVJ as SM jets
+    elif isSignal == 2:
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
         for gji in range(len(jetsAK8GenInd)):
@@ -270,31 +276,9 @@ def jConstVarGetter(dataset,events,varVal,cut):
     jCstVar["jCstEnergyAK8"] = [fjets.energy,[False],np.array([])]
     jCstVar["jCstAxismajorAK8"] = [fjets.axismajor,[False],np.array([])]
     jCstVar["jCstAxisminorAK8"] = [fjets.axisminor,[False],np.array([])]
-    # jCstVar["jCstChEMEFractAK8"] = [fjets.chargedEmEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstChHadEFractAK8"] = [fjets.chargedHadronEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstChHadMultAK8"] = [fjets.chargedHadronMultiplicity,[False],np.array([])]
-    # jCstVar["jCstChMultAK8"] = [fjets.chargedMultiplicity,[False],np.array([])]
-    # jCstVar["jCstecfN2b1AK8"] = [fjets.ecfN2b1,[False],np.array([])]
-    # jCstVar["jCstecfN2b2AK8"] = [fjets.ecfN2b2,[False],np.array([])]
-    # jCstVar["jCstecfN3b1AK8"] = [fjets.ecfN3b1,[False],np.array([])]
-    # jCstVar["jCstecfN3b2AK8"] = [fjets.ecfN3b2,[False],np.array([])]
-    # jCstVar["jCstEleEFractAK8"] = [fjets.electronEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstEleMultAK8"] = [fjets.electronMultiplicity,[False],np.array([])]
-    # jCstVar["jCstGirthAK8"] = [fjets.girth,[False],np.array([])]
-    # jCstVar["jCstHfEMEFractAK8"] = [fjets.hfEMEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstHfHadEFractAK8"] = [fjets.hfHadronEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstMultAK8"] = [fjets.multiplicity,[False],np.array([])]
-    # jCstVar["jCstMuEFractAK8"] = [fjets.muonEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstMuMultAK8"] = [fjets.muonMultiplicity,[False],np.array([])]
-    # jCstVar["jCstNeuEmEFractAK8"] = [fjets.neutralEmEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstNeuHadEFractAK8"] = [fjets.neutralHadronEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstNeuHadMultAK8"] = [fjets.neutralHadronMultiplicity,[False],np.array([])]
-    # jCstVar["jCstNeuMultAK8"] = [fjets.neutralMultiplicity,[False],np.array([])]
     jCstVar["jCstTau1AK8"] = [fjets.NsubjettinessTau1,[False],np.array([])]
     jCstVar["jCstTau2AK8"] = [fjets.NsubjettinessTau2,[False],np.array([])]
     jCstVar["jCstTau3AK8"] = [fjets.NsubjettinessTau3,[False],np.array([])]
-    # jCstVar["jCstPhoEFractAK8"] = [fjets.photonEnergyFraction,[False],np.array([])]
-    # jCstVar["jCstPhoMultAK8"] = [fjets.photonMultiplicity,[False],np.array([])]
     jCstVar["jCstPtDAK8"] = [fjets.ptD,[False],np.array([])]
     jCstVar["jCstSoftDropMassAK8"] = [fjets.softDropMass,[False],np.array([])]
     jCstVar["jCsthvCategory"] = [jetCats,[False],np.array([])]
@@ -302,6 +286,7 @@ def jConstVarGetter(dataset,events,varVal,cut):
     jCstVar["jCstEvtNum"] = [fjEvtNum,[False],np.array([])]
     jCstVar["jCstJNum"] = [ak.local_index(fjw),[False],np.array([])]
 
+    # each jet constituent in a jet shares the same jet variables as the other jet constituents in the same jet.
     # looping over events
     for i in range(len(JetsAK8_constituentsIndex)):
         jcPt = jCstPt[i]
@@ -362,6 +347,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
         ## Calculating the number of N-med events
         GenParticles = varVal['GenParticles'][cut]
         medIDs = [4900001,4900002,4900003,4900004,4900005,4900006]
+        num_of_med = []
         for pdgIDList in GenParticles.PdgId:
             medCount = 0
             for pdgID in pdgIDList:
@@ -389,7 +375,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
         jetCats = ak.Array(jetCats)
         jetDarkPtFracs = ak.Array(jetDarkPtFracs)
     else:
-        num_of_med = np.zeros(len(events))
+        num_of_med = np.zeros(len(events)) 
         jetCats = awkwardReshape(fjets,np.ones(len(evtw))*-1)
         jetDarkPtFracs = awkwardReshape(fjets,np.ones(len(evtw))*-1)
     varVal['JetsAK8_hvCategory'] = jetCats
