@@ -96,7 +96,7 @@ def findFakeRate(fakerateHisto, bgroundJetsAK8):
 def getFlatScore(nnOutput):
     output = ak.to_list(ak.zeros_like(nnOutput))
     for i, a in enumerate(nnOutput):
-        output[i] = random.uniform(0.5, 1)
+        output[i] = random.uniform(0, 1)
     return output
 
 def runNN(model,varsIn,varSet,normMean,normStd,fakerateHisto):
@@ -106,7 +106,6 @@ def runNN(model,varsIn,varSet,normMean,normStd,fakerateHisto):
     fjets = varsIn["fjets"]
     counts = ak.num(fjets.pt)
     svjJetsAK8 = ak.unflatten(nnOutput, counts)
-    #svjJetsAK8 = np.exp(-fjets.pt/5000.0)*svjJetsAK8    
 
     wpt = 0.7
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
