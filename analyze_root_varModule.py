@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from coffea import processor
-import uproot3 as uproot
+import uproot as up
 import sys,os
 from utils import samples as s
 import time
@@ -80,7 +80,8 @@ def main():
     if trainingKind == "NN":
         from processors.rootProcessor_NN import MainProcessor
     elif trainingKind == "PN":
-        from processors.rootProcessor_varModule import MainProcessor
+        # from processors.rootProcessor_varModule import MainProcessor
+        from processors.trainFileProcessor import MainProcessor
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles, mlTraining=True)
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
     outfile = "MyAnalysis_%s_%d" % (sample, options.startFile) if options.condor or options.dask else "trainFile"
@@ -96,9 +97,9 @@ def main():
             print('Dask client info ->', client)
             time.sleep(10)
 
+    print("sample",sample)
     sf = s.sfGetter(sample,True)
     print("scaleFactor = {}".format(sf))
-
     # run processor
     output = processor.run_uproot_job(
         fileset,
@@ -110,22 +111,29 @@ def main():
         maxchunks=options.maxchunks,
     )
 
-    # export the histograms to root files
-    ## the loop makes sure we are only saving the histograms that are filled
-    values_dict = {}
-    branchdict = {}
-    for v in output.keys():
-        if len(output[v].value) > 0:
-            branchdict[v] = uproot.newbranch("f8") # f4 would create problems for evtNumber variable
-            values_dict[v] = output[v].value
-    tree = uproot.newtree(branchdict)
-    
-    if values_dict != {}:
-        print("saving root files...")
-        with uproot.recreate("{}.root".format(outfile)) as f:
-            f["tree"] = tree
-            f["tree"].extend(values_dict)
-    # print run time in seconds
+    # saving input to root files.
+    # When inputs are too large, saving the inputs could return an error. That's why we need to save them in batches.
+    haddCommand = "hadd -f trainFile.root "
+    rmCommand = "rm "
+    maxNumOfJets = 100000
+    numOfJets = len(output["pT"].value)
+    print("numOfJets",numOfJets)
+    for i in range(0,numOfJets,maxNumOfJets):
+        outputNPZ = {}
+        fileName = "trainFile_{}.root".format(i)
+        file = up.recreate(fileName)
+        for v in output.keys():
+            try:
+                outputNPZ[v] = output[v].value[i:i+maxNumOfJets]
+            except:
+                outputNPZ[v] = output[v].value[i:-1]
+        file["tree"] = outputNPZ
+        file["tree"].show()
+        haddCommand += "{} ".format(fileName)
+        rmCommand += "{} ".format(fileName)
+    print(haddCommand)
+    os.system(haddCommand)
+    os.system(rmCommand)
     dt = time.time() - tstart
     print("run time: %.2f [sec]" % (dt))
 
