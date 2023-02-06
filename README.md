@@ -66,6 +66,18 @@ It's a good idea to get/renew a voms ticket if you're going to be working with X
 voms-proxy-init -voms cms --valid 192:00
 ```
 
+### Uploading New ParticleNet Model
+To upload a new particleNet model, you need to copy and paste the trained model (name the model as `particleNetModel.pth`) to the `t-channel_Analysis` directory. You may need to update `utils/data/GNNTagger/svj.yaml`.
+1. Convert the particleNet model with jit:
+```
+python makeJitModel.py
+```
+The jitted model is called `model.pt`.
+
+2. Upload `model.pt` to `triton/svj_tch_gnn/1` in [this container](https://test-burt-3.okddev.fnal.gov/buckets/triton-models/browse). You will need to connect to [Fermilab VPN](https://redtop.fnal.gov/guide-to-vpn-connections-to-fermilab/) before accessing the container.
+
+You may also need to ask [Burt Holzman](https://computing.fnal.gov/burt-holzman/) for permission to access the container. 
+
 ### Running the Analysis
 Currently the default setup does not work for the neural network. So instead of doing `source init.sh` while you are in `t-channel_Analysis`,
 you should follow the steps in https://github.com/cms-svj/t-channel_Analysis/issues/22 to set up the environment.
@@ -76,15 +88,15 @@ For now you can do the following:
 ln -s /uscms/home/keanet/nobackup/SVJ/Tagger/SVJTaggerNN/logs/test_tch_normMeanStd/net.pth net.pth
 ln -s /uscms/home/keanet/nobackup/SVJ/Tagger/SVJTaggerNN/logs/test_tch_normMeanStd/normMeanStd.npz normMeanStd.npz
 ```
-To make histograms locally using the signal and background ntuples, make sure you are in `t-channel_Analysis`
+To make histograms locally using the signal and background ntuples, make sure you are in `t-channel_Analysis`.
 ```bash
 python analyze.py -d <sample label> -N <number of files>
 ```
-To make neural network training files locally using the signal and background ntuples, make sure you are in `t-channel_Analysis`
+To make neural network training files locally using the signal and background ntuples, make sure you are using the LCG coffea environment. The way the code is set up now, we need to `hadd` the training root files together, but the singularity environment does not support `hadd`
 ```bash
 python analyze_root_varModule.py -d <sample label> -N <number of files>
 ```
-In both cases, the output files are called `test.root`.
+The output files are called `test.root` and `trainFile.root` respectively.
 <sample label> can be anything in the `input/sampleLabels.txt`, but be careful with the t-channel signals, because the JSON files contain both the pair production and full t-channel files. So for example, `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1` alone will probably make the code run over the pair production sample. We need to update `utils/samples.py` to make it smarter, but now just use <sample label> that are more specific. For example, `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM` will grab the full t-channel samples, while `2018_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-pythia8` will grab the pair production samples.
 
 Running things locally is usually done for debugging and testing purposes.

@@ -72,23 +72,19 @@ def runNN(events,varsIn,fakerateHisto):
         gnn_triton.initialize_model()
     #nnOutput = getFlatScore(nnOutput)
     fjets = varsIn["fjets"]
-
     jets_in = ju.run_jet_constituent_matching(events, fjets)
     jets_in = ak.flatten(jets_in)
     batch_size = 1024
     nnOutput = np.array([])
     for ii in range(0,len(jets_in),batch_size):
-        print('%i/%i jets processed, processing next %i jets'%(ii,ak.count(jets_in.pt),batch_size))
         try:
             jets_eval = jets_in[ii:ii+batch_size]
         except:
             jets_eval = jets_in[ii:-1]
-
         # put data in proper format
         feature_map = gnn_triton.get_feature_map(jets_eval)
         X = gnn_triton.structure_X(jets_eval,feature_map)
-
-        #inference with triton
+        #inference with triton 
         outputs = gnn_triton.model(X)
         nnOutput = np.append(nnOutput,softmax(outputs, axis=-1)[:, 2]) # 2 is the label for SVJ_Dark, 0 = QCD, 1 = TTJets
     counts = ak.num(fjets.pt)

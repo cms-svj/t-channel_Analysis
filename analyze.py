@@ -88,7 +88,6 @@ def main():
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
-    print("input files:",fileset)
     sf = s.sfGetter(sample,False)
     print("scaleFactor = {}".format(sf))
 

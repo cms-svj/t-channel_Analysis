@@ -60,7 +60,6 @@ class MainProcessor(processor.ProcessorABC):
                 vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
                 utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 runNN(events,vars_noCut,self.fakerateHisto)
-                # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=True)
 
                 # setup histograms
@@ -106,7 +105,7 @@ class MainProcessor(processor.ProcessorABC):
                                 hW = weight
 
                             if len(vX) > 0:
-                                if   varDetail.dim == 1:                        
+                                if   varDetail.dim == 1:  
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)
                                 elif varDetail.dim == 2:
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, y=vY, weight=hW)
