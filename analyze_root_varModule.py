@@ -116,7 +116,10 @@ def main():
     haddCommand = "hadd -f trainFile.root "
     rmCommand = "rm "
     maxNumOfJets = 100000
-    numOfJets = len(output["pT"].value)
+    jVarName = "njetsAK8"
+    if trainingKind == "PN":
+        jVarName = "pT"
+    numOfJets = len(output[jVarName].value)
     print("numOfJets",numOfJets)
     for i in range(0,numOfJets,maxNumOfJets):
         outputNPZ = {}

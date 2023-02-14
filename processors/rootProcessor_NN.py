@@ -19,10 +19,12 @@ class MainProcessor(processor.ProcessorABC):
         def accumulator(self):
                 return self._accumulator
 
-        def setupNPArray(self,variables):
+        def setupNPArray(self,variables,maxNJets):
             varDict = {}
             for v,d in variables.items():
-                if d.npzInfo > 0:
+                if d.npzInfo == 1:
+                    varDict[v] = processor.column_accumulator(np.empty((0,maxNJets)))
+                elif d.npzInfo == 2:
                     varDict[v] = processor.column_accumulator(np.zeros(shape=(0)))
             self._accumulator = processor.dict_accumulator(varDict)
             self.setupNPArr = True
@@ -32,25 +34,29 @@ class MainProcessor(processor.ProcessorABC):
                 vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
-                
+                maxNJets = 20
                 if self.setupNPArr is None:
-                    self.setupNPArray(variables())
+                    self.setupNPArray(variables(),maxNJets)
                 output = self.accumulator.identity()
 
                 # run cut loop
                 cut = cuts["_qual_trg_st_1PJ"]
                 if (len(events) > 0) and (np.any(cut)):
                     eventsCut = events[cut]
-                    utl.varGetter(self.dataset,eventsCut,vars_noCut,cut,False)
+                    print("len(eventsCut)",len(eventsCut))
                     if (len(eventsCut) > 0):
+                        utl.varGetter(self.dataset,eventsCut,vars_noCut,cut,False)
                         for varName,varDetail in variables().items():
                             # only store jetAK8 variables
                             if varDetail.npzInfo == 1:
                                 hIn = vars_noCut[varName]
-                                # properly flatten certain inputs
-                                hIn = ak.flatten(hIn)
+                                hIn = ak.to_numpy(ak.fill_none(
+                                ak.pad_none(hIn, maxNJets, axis=-1, clip=True),
+                                0))
                                 output['{}'.format(varName)] += col_accumulator(hIn)
-
+                            elif varDetail.npzInfo == 2:
+                                hIn = vars_noCut[varName]
+                                output['{}'.format(varName)] += col_accumulator(hIn)
                 return output
 
         def postprocess(self, accumulator):

@@ -3,7 +3,7 @@ import awkward as ak
 # from mt2 import mt2
 from . import objects as ob
 from itertools import combinations
-
+import time
 def awkwardReshape(akArray,npArray):
     if len(akArray) == 0:
         return ak.Array([])
@@ -338,6 +338,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     metPhi = varVal['metPhi'][cut]
     mtAK8 = varVal['mT'][cut]
     ht = varVal['ht'][cut]
+    st = varVal['st'][cut]
     dPhiMinj = varVal['dPhiMinjMET'][cut]
     dPhiMinjAK8 = varVal['dPhiMinjMETAK8'][cut]
 
@@ -359,15 +360,12 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
 
     if isSignal:
         ## Calculating the number of N-med events
-        GenParticles = varVal['GenParticles'][cut]
+        GenParticlesPdgId = abs(varVal['GenParticles'][cut].PdgId)
+        hvCond = ak.zeros_like(GenParticlesPdgId,dtype=bool)
         medIDs = [4900001,4900002,4900003,4900004,4900005,4900006]
-        num_of_med = []
-        for pdgIDList in GenParticles.PdgId:
-            medCount = 0
-            for pdgID in pdgIDList:
-                if abs(pdgID) in medIDs:
-                    medCount += 1
-            num_of_med.append(medCount)
+        for medID in medIDs:
+            hvCond = hvCond | (GenParticlesPdgId == medID)
+        num_of_med = ak.sum(hvCond,axis=1)
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
         genHVCategory = GenJetsAK8.hvCategory
@@ -437,6 +435,20 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['ew'] = ew
     varVal['mw'] = mw
     varVal['nimw'] = nimw
+    varVal['njets'] = ak.num(jets)
+    varVal['njetsAK8'] = ak.num(fjets)
+    varVal['nb'] = ak.num(bjets)
+    varVal['nl'] = varVal['nl'][cut]
+    varVal['nnim'] = varVal['nnim'][cut]
+    varVal['met'] = met
+    varVal['metPhi'] = metPhi
+    varVal['mT'] = mtAK8
+    varVal['ht'] = ht
+    varVal['st'] = st
+    varVal['METrHT_pt30'] = varVal['METrHT_pt30'][cut]
+    varVal['METrST_pt30'] = varVal['METrST_pt30'][cut]
+    varVal['dPhiMinjMET'] = dPhiMinj
+    varVal['dPhiMinjMETAK8'] = dPhiMinjAK8
     # varVal['madHT'] = madHT
     varVal['jPt'] = jets.pt
     varVal['jEta'] = jetEta
