@@ -209,6 +209,7 @@ def baselineVar(dataset,events,scaleFactor):
     elif isSignal == 2:
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
+        fjets = fjets[jetsAK8GenInd != -1]
         jetsAK8GenInd = jetsAK8GenInd[jetsAK8GenInd != -1]
         genHVCategory = GenJetsAK8.hvCategory
         jetCats = genHVCategory[jetsAK8GenInd]
@@ -274,6 +275,7 @@ def jConstVarGetter(dataset,events,varVal,cut):
     elif isSignal == 2:
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
+        fjets = fjets[jetsAK8GenInd != -1]
         jetsAK8GenInd = jetsAK8GenInd[jetsAK8GenInd != -1]
         genHVCategory = GenJetsAK8.hvCategory
         jetCats = genHVCategory[jetsAK8GenInd]
@@ -368,6 +370,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
         num_of_med = ak.sum(hvCond,axis=1)
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
+        fjets = fjets[jetsAK8GenInd != -1]
         genHVCategory = GenJetsAK8.hvCategory
         genDarkPtFrac = GenJetsAK8.darkPtFrac
         jetsAK8GenInd = jetsAK8GenInd[jetsAK8GenInd != -1]
