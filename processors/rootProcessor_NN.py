@@ -67,7 +67,10 @@ class MainProcessor(processor.ProcessorABC):
                         for varName,varDetail in variables().items():
                             # only store jetAK8 variables
                             if varDetail.npzInfo == 1:
-                                hIn = vars_noCut[varName]
+                                if varName == "nnOutput":
+                                    hIn = vars_noCut[varName][cut]
+                                else:
+                                    hIn = vars_noCut[varName]
                                 hIn = ak.to_numpy(ak.fill_none(
                                 ak.pad_none(hIn, maxNJets, axis=-1, clip=True),
                                 0))
