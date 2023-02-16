@@ -98,7 +98,7 @@ def main():
             time.sleep(10)
 
     print("sample",sample)
-    sf = s.sfGetter(sample,True)
+    sf = s.sfGetter(sample,False)
     print("scaleFactor = {}".format(sf))
     # run processor
     output = processor.run_uproot_job(

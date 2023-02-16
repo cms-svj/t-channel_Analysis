@@ -5,6 +5,8 @@ from utils import utility as utl
 import utils.objects as ob
 from utils import baseline as bl
 from utils.variables import variables
+from utils.inferenceParticleNet import runNN
+import uproot
 
 def col_accumulator(a):
     return processor.column_accumulator(np.array(a))
@@ -15,9 +17,24 @@ class MainProcessor(processor.ProcessorABC):
             self.dataset = dataset
             self.setupNPArr = None
             self.scaleFactor = sf
+            self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
         @property
         def accumulator(self):
                 return self._accumulator
+
+        def getHistoFromFile(self, fName, hName):
+                try:
+                    f = uproot.open(fName)
+                    h = f[hName]
+                    return h
+                except FileNotFoundError:
+                    print("\n\n\tError: No such file or directory: '{}'".format(fName))                    
+                    print("\tWill use default fakerate of 1.0 for each jet\n\n")
+                    return None
+                except uproot.exceptions.KeyInFileError:
+                    print("\n\n\tError: Histogram '{}' not found in file '{}'".format(hName,fName))
+                    print("\tWill use default fakerate of 1.0 for each jet\n\n")
+                    return None   
 
         def setupNPArray(self,variables,maxNJets):
             varDict = {}
@@ -32,6 +49,7 @@ class MainProcessor(processor.ProcessorABC):
         def process(self, events):
                 ## objects used for cuts
                 vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
+                runNN(events,vars_noCut,self.fakerateHisto)
                 # Our preselection
                 cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
                 maxNJets = 20
