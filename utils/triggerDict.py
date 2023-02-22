@@ -305,7 +305,7 @@ trgJetHT = {
                 'PFJet500',
                 'PFJet550',
                 'PFJetFwd400',
-             ],
+             ], 
     "2018" : [
                 'AK8PFHT800_TrimMass50',
                 'AK8PFHT850_TrimMass50',
