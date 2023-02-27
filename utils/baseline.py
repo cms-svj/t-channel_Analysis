@@ -1,7 +1,8 @@
 import numpy as np
 import awkward as ak
 from . import triggerDict as tD
-
+# dataset here is just a string that is the input of -d
+# events are the tree in the ntuple
 def TTStitch(dataset,events):
     # # TT Stiching mask
     ttStitchMask = None
@@ -20,7 +21,7 @@ def TTStitch(dataset,events):
         elif ("TTJets_DiLept" in dataset and "genMET" in dataset) or ("TTJets_SingleLeptFromT" in dataset and "genMET" in dataset):
             ttStitchMask = (madHT < 600) & (genMET >= 150)
     else:
-        ttStitchMask = np.ones(len(events),dtype=bool)
+        ttStitchMask = np.ones(len(events),dtype=bool) # passes all true
 
     return ttStitchMask
 
@@ -80,6 +81,32 @@ def METFilters(events):
     return ((gSTH == 1) & (HBHEN == 1) & (HBHEIN == 1) & (BPFM == 1) &
     (EBCR == 1) & (eeBS == 1) & (nV > 0))
 
+#TODO define a function to remove overlap, make sure I am looking in to the data, add flags for the type of dataset, isMETHT, is  
+def RemoveOverlap(dataset, events, yr):
+    
+    passMetTrg = PassTrigger(events.TriggerPass, trgListtoInd(tD.trigDicts[yr],tD.trgMET[yr]))
+    passHTMHTTrg = PassTrigger(events.TriggerPass, trgListtoInd(tD.trigDicts[yr],tD.trgHTMHT[yr]))
+    passJetHTTrg = PassTrigger(events.TriggerPass, trgListtoInd(tD.trigDicts[yr],tD.trgJetHT[yr]))
+
+    OverlapDataMask = None
+    # if "JetHTData" in dataset:
+    #     OverlapDataMask = np.bitwise_not(passMetTrg)
+    if "METData" in dataset:
+        OverlapDataMask = np.bitwise_not(passJetHTTrg)
+    elif "HTMHTData" in dataset:
+        OverlapDataMask = np.bitwise_not(passJetHTTrg + passMetTrg) 
+    else:
+        OverlapDataMask = np.ones(len(events),dtype=bool)
+    
+    #Preliminary checks
+    for i in range(0,len(events)):
+        if passMetTrg[i] and passJetHTTrg[i]:
+            print("Event no = {} | Lumi no = {} | Run no. = {} | PassMetTrg = {} | PassJetHTTrg = {} | PassHTMHT = {} | Mask = {} --- ".format(i,events.EvtNum[i], events.LumiBlockNum[i], events.RunNum[i],passMetTrg[i],passJetHTTrg[i],passHTMHTTrg[i],OverlapDataMask[i]))
+   
+    return OverlapDataMask
+    
+    
+
 def Preselection(qualityCuts,nl):
     return (qualityCuts & (nl == 0))
 
@@ -95,10 +122,11 @@ def PassTrigger(triggerPass,indices):
     mult = triggerPass*trigReq
     return np.any(mult==1,axis=1)
 
+
 def cutList(dataset,events,vars_noCut,SVJCut=True):
     evtw = vars_noCut["evtw"]
     nl = vars_noCut["nl"]
-    nnim = vars_noCut["nnim"]
+    nnim = vars_noCut["nnim"] # no of Isolated Muons
     njets = vars_noCut["njets"]
     njetsAK8 = vars_noCut["njetsAK8"]
     nb = vars_noCut["nb"]
@@ -111,33 +139,41 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
     jetID = events.JetID
     jetIDAK8 = events.JetIDAK8
     ttStitch = TTStitch(dataset,events)
-    metFilters = METFilters(events)
-    # psFilter = PhiSpikeFilter(dataset,vars_noCut['jets'])
-    qualityCuts = metFilters & (nl == 0) & ttStitch
-    # qualityCuts = metFilters & psFilter # NN training files
-    # preselection = Preselection(qualityCuts,nl)
-    # cuts to get over trigger plateau
-    metCut = met > 266
-    htCut = ht > 1280
-    stCut = st > 1300
-    trgPlat = metCut & htCut
 
-    # trigger choices
     years = ["2016","2017","2018"]
     yr = 0
     for year in years:
         if year in dataset:
             yr = year
+
+    if "Data" in dataset:
+        DataMask = RemoveOverlap(dataset, events,yr)
+    else: 
+        DataMask = np.ones(len(events),dtype=bool)
+    metFilters = METFilters(events)
+    # psFilter = PhiSpikeFilter(dataset,vars_noCut['jets'])
+    qualityCuts = metFilters & (nl == 0) & ttStitch & DataMask
+    # print("qualityCuts  = ",qualityCuts)
+    # qualityCuts = metFilters & psFilter # NN training files
+    # preselection = Preselection(qualityCuts,nl)
+    # cuts to get over trigger plateau
+    # metCut = met > 266
+    # htCut = ht > 1280
+    stCut = st > 1300
+    # trgPlat = metCut & htCut
+
+    # trigger choices
+    
     trigDict = tD.trigDicts[yr]
     trgSelection = tD.trgSelections[yr]
     trgSelectionsQCDCR = tD.trgSelectionsQCDCR[yr]
     tch_trgs =  trgListtoInd(trigDict,trgSelection)
     tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
     passTrigger = PassTrigger(triggerPass,tch_trgs)
-
     # Define all cuts for histo making
     cuts = {
                 ""                          : np.ones(len(evtw),dtype=bool),
+                "_data_mask"            : DataMask,
                 "_st"                : stCut,
                 "_trg"               : passTrigger,
                 "_qual"             : qualityCuts,
@@ -151,6 +187,7 @@ def cutList(dataset,events,vars_noCut,SVJCut=True):
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
         cuts = {
                 ""                  : np.ones(len(evtw),dtype=bool),
+                "_data_mask"            : DataMask,
                 "_qual_trg_st"        : qualityCuts & passTrigger & stCut,
                 "_qual_trg_st_0SVJ"   : qualityCuts & passTrigger & stCut & (nsvjJetsAK8 == 0),
                 "_qual_trg_st_1SVJ"   : qualityCuts & passTrigger & stCut & (nsvjJetsAK8 == 1),

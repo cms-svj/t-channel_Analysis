@@ -45,7 +45,9 @@ def main():
         analyzeFile = "analyze_root_varModule.py"
     # prepare the list of hardcoded files to transfer
     filestoTransfer = [
-      environ["TCHANNEL_BASE"]+"/fakerate.root"
+      environ["TCHANNEL_BASE"]+"/fakerate.root",
+      environ["TCHANNEL_BASE"]+"/net.pth",
+      environ["TCHANNEL_BASE"]+"/normMeanStd.npz",
     ]
 
     # add top of jdl file

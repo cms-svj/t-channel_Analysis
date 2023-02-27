@@ -11,7 +11,8 @@ import utils.CMS_lumi as CMS_lumi
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
-from utils.variables import variables as vars
+# from utils.var import var as vars
+# from utils.variables import variables as vars
 
 mpl.rc("font", family="serif", size=15)
 
@@ -113,14 +114,14 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_TTX.root",             label="ttX",                     scale=scale, color=(ROOT.kCyan + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_ST.root",              label="Single top",              scale=scale, color=(ROOT.kRed + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",           label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),
-        # info.DataSetInfo(basedir=path, fileName=year+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
+        info.DataSetInfo(basedir=path, fileName=year+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
         # info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
         # full bkg sample
         # info.DataSetInfo(basedir=path, fileName=year+"_mTTJetsmini_Inc_noEtaCut_pT50.root",     label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
         info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",             label="Z#rightarrow#nu#nu+jets",    scale=scale, color=(ROOT.kGray + 1)),
         info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",              label="W+jets",                    scale=scale, color=(ROOT.kYellow + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_TT.root",              label="t#bar{t} (pow)",             scale=scale, color=(ROOT.kBlue - 6)),
+        # info.DataSetInfo(basedir=path, fileName=year+"_TT.root",              label="t#bar{t} (pow)",             scale=scale, color=(ROOT.kBlue - 6)),
         info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",               label="QCD",                        scale=scale, color=(ROOT.kGreen + 1)),
     ]
     #
@@ -133,24 +134,24 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
         ## varying mMed
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 500",  scale=scale, color=ROOT.kMagenta + 1),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 600",  scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 1000", scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 600",  scale=scale, color=ROOT.kMagenta + 1),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kRed),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 1000", scale=scale, color=ROOT.kBlack),
         info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="baseline", scale=scale, color=ROOT.kOrange+2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kCyan),
-        # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="mMed 4000", scale=scale, color=ROOT.kRed),
-        ## varying mDark
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-2000_mD-1",scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-50_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_mD-50",scale=scale, color=ROOT.kRed),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-100_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-2000_mD-100",scale=scale, color=ROOT.kViolet-1),
-        ## varying rinv
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="M-2000_r-0p1",scale=scale, color=ROOT.kOrange+3),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_r-0p3",scale=scale, color=ROOT.kGreen+2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-2000_r-0p7",scale=scale, color=ROOT.kPink+1),
-        ## varying alpha
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kCyan),
+        # # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="mMed 4000", scale=scale, color=ROOT.kRed),
+        # ## varying mDark
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-1_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-2000_mD-1",scale=scale, color=ROOT.kRed),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_mD-20",scale=scale, color=ROOT.kGreen+2),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-50_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_mD-50",scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-100_rinv-0p3_alpha-peak_yukawa-1.root",    label="M-2000_mD-100",scale=scale, color=ROOT.kViolet-1),
+        # ## varying rinv
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="M-2000_r-0p1",scale=scale, color=ROOT.kOrange+3),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_r-0p3",scale=scale, color=ROOT.kGreen+2),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p5_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_r-0p5",scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="M-2000_r-0p7",scale=scale, color=ROOT.kPink+1),
+        # ## varying alpha
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-low_yukawa-1.root",    label="M-2000_a-low",scale=scale, color=ROOT.kGray),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="M-3000_a-peak",scale=scale, color=ROOT.kGreen+2),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-high_yukawa-1.root",    label="M-2000_a-high",scale=scale, color=ROOT.kYellow+2),
@@ -169,6 +170,7 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed1000.root",    label="mMed 1000 QdM", scale=scale, color=ROOT.kMagenta + 1),
         # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed1000.root",    label="mMed 1000 QsM", scale=scale, color=ROOT.kBlack),
     ]
+    print(sgData, bgData)
     return Data, sgData, bgData
 
 def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel):
@@ -653,6 +655,7 @@ def main():
     #cuts = ["_ge2AK8j"]
     cutsImportant = ["_qual_trg_st","_qual_trg_st_0nim","_qual_trg_st_ge1nim"]
     Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
+    # print(sgData)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
     allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir","cutSig","cBg","cSig","mBg_f","mSig_f"])
     yieldValues = pd.DataFrame(columns=["cut","var","source","yield"])
@@ -661,30 +664,30 @@ def main():
 
     preVars = {
         "h_njets":False,
-        "h_njetsAK8":False,
-        "h_nb":False,
-        "h_ht":False,
-        "h_st":False,
-        "h_met":False,
-        "h_mT":True,
-        "h_METrHT_pt30":False,
-        "h_METrST_pt30":False,
-        "h_dEtaj12AK8":True,
-        "h_dRJ12AK8":True,
-        "h_dPhij1METAK8":False,
-        "h_dPhij2METAK8":False,
-        "h_dPhij1rdPhij2AK8":False,
-        "h_dPhiMinjMETAK8":False,
-        "h_dEtaj12":True,
-        "h_dRJ12":True,
-        "h_dPhij1MET":False,
-        "h_dPhij2MET":False,
-        "h_dPhij1rdPhij2":True,
-        "h_dPhiMinjMET":True,
-        "h_mT2_f4_msm":False,
-        "h_mT2_f4_msm_dEta":False,
-        "h_mT2_f4_msm_dPhi":False,
-        "h_mT2_f4_msm_dR":False,
+        # "h_njetsAK8":False,
+        # "h_nb":False,
+        # "h_ht":False,
+        # "h_st":False,
+        # "h_met":False,
+        # "h_mT":True,
+        # "h_METrHT_pt30":False,
+        # "h_METrST_pt30":False,
+        # "h_dEtaj12AK8":True,
+        # "h_dRJ12AK8":True,
+        # "h_dPhij1METAK8":False,
+        # "h_dPhij2METAK8":False,
+        # "h_dPhij1rdPhij2AK8":False,
+        # "h_dPhiMinjMETAK8":False,
+        # "h_dEtaj12":True,
+        # "h_dRJ12":True,
+        # "h_dPhij1MET":False,
+        # "h_dPhij2MET":False,
+        # "h_dPhij1rdPhij2":True,
+        # "h_dPhiMinjMET":True,
+        # "h_mT2_f4_msm":False,
+        # "h_mT2_f4_msm_dEta":False,
+        # "h_mT2_f4_msm_dPhi":False,
+        # "h_mT2_f4_msm_dR":False,
     }
     varsSkip = [
     "eCounter",
@@ -693,7 +696,99 @@ def main():
     "fjw"
     ]
 
-    for histName,details in vars(options.jNVar).items():
+# myvars = key : ["xlabel", no. of bins, xmin,xmax, npzinfo, flattenInfo, weightName]
+    myVars = {
+        'eCounter':  ["h_eCounter", 2, -1.1, 1.1   ,     0,     0,       'w1'  ],
+        'evtw':      [ "h_evtw",   2, -1.1, 1.1   ,     0,     0,       'evtw'],
+        'jw':        [ "h_jw",     2, -1.1, 1.1   ,     0,     2,       'jw'  ],
+        'fjw':       ["h_fjw",    2, -1.1, 1.1   ,     1,     2,       'fjw' ],
+        'njets':          [ "Number of Jets", 20, 0.0, 20.0, 2, 0, 'evtw'],
+        'njetsAK8':       [ "Number of AK8Jets", 20, 0.0, 20.0, 2, 0, 'evtw'],
+        'nb':             [ "Number of b",10, 0.0, 10.0, 2, 0, 'evtw'],
+        'nl':             [ "Number of Leptons",  10, 0.0, 10.0, 2, 0, 'evtw'],
+        'nnim':           [ "Number of NonIsoMuons", 10, 0.0, 10.0, 2, 0, 'evtw'],
+        'ht':             [ r"$H_{T}$ (GeV)", 500, 0.0, 5000.0, 2, 0,'evtw'],
+        'st':             [ r"$S_{T}$ (GeV)", 500, 0.0, 5000.0, 2, 0, 'evtw'],
+        'met':            [ "MET [GeV]", 500, 0.0, 2000.0, 2, 0, 'evtw'],
+        'metPhi':         [ r"MET $\phi$ [GeV]", 40, -4.0, 4.0, 0, 0, 'evtw'],
+        # 'madHT':                 [ r"$H_{T}$ (GeV)",        500, 0.0,   5000.0,     2,     0,       'evtw'],
+        'jPt':                     [r"$p_{T}$ [GeV]",        200, 0.0,   2500.0,     0,     1,       'jw'  ],
+        'jEta':                    [r"$\eta$",               200, -6.0,   6.0   ,     0,     1,       'jw'  ],
+        'jPhi':                    [ r"$\phi$",               200, -4.0,   4.0   ,     0,     1,       'jw'  ],
+        'jAxismajor':              [ r"$\sigma_{major}(j)$",  40,  0.0,   0.5   ,     0,     1,       'jw'  ],
+        'jAxisminor':              [ r"$\sigma_{minor}(j)$",  40,  0.0,   0.3   ,     0,     1,       'jw'  ],
+        'jPtD':                    [  "ptD",                   40,  0.0,   1.2   ,     0,     1,       'jw'  ],
+        'dPhiMinjMET':             [ r"$\Delta\phi_{min}(j,MET)$", 100, 0.0,   4.0   ,     0,     0,       'evtw'],
+        'jPtAK8':                  [ r"$p_{T}$ [GeV]",        280, 0.0,   2800.0,     1,     1,       'fjw' ],
+        'jEtaAK8':                 [ r"$\eta$",               200, -6.0,   6.0   ,     1,     1,       'fjw' ],
+        'jPhiAK8':                 [ r"$\phi$",               200,  -4.0,   4.0   ,     1,     1,       'fjw' ],
+        'jAxismajorAK8':           [ r"$\sigma_{major}(J)$",  40,  0.0,   0.6   ,     1,     1,       'fjw' ],
+        'jAxisminorAK8':           [ r"$\sigma_{minor}(J)$",  40,  0.0,   0.4   ,     1,     1,       'fjw' ],
+        'jChEMEFractAK8':          [ "fChEM(J)",              50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jChHadEFractAK8':         [ "fChHad(J)",             50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jChHadMultAK8':           [ "nChHad(J)",             145, 0.0,   145.0 ,     1,     1,       'fjw' ],
+        'jChMultAK8':              [ "nCh(J)",                145, 0.0,   145.0 ,     1,     1,       'fjw' ],
+        'jecfN2b1AK8':             [ "ecfN2b1(J)",            50,  0.0,   0.6   ,     1,     1,       'fjw' ],
+        'jecfN2b2AK8':             [ "ecfN2b2(J)",            50,  0.0,   0.4   ,     1,     1,       'fjw' ],
+        'jecfN3b1AK8':             [ "ecfN3b1(J)",            50,  0.0,   6.0   ,     1,     1,       'fjw' ],
+        'jecfN3b2AK8':             [ "ecfN3b2(J)",            50,  0.0,   5.0   ,     1,     1,       'fjw' ],
+        'jEleEFractAK8':           [ "fEle(J)",               50,  0.0,   1.0  ,     1,     1,       'fjw' ],
+        'jEleMultAK8':             [ "nEle(J)",               8,   0.0,   8.0   ,     1,     1,       'fjw' ],
+        'jGirthAK8':               [ "girth(J)",              40,  0.0,   0.7  ,     1,     1,       'fjw' ],
+        'jHfEMEFractAK8':          [ "fHFEM(J)",              50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jHfHadEFractAK8':         [ "fHFHad(J)",             50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jMultAK8':                [ "mult(J)",               250, 0.0,   250.0 ,     1,     1,       'fjw' ],
+        'jMuEFractAK8':            [ "fMu(J)",                50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jMuMultAK8':              [ "nMu(J)",                8,   0.0,   10.0  ,     1,     1,       'fjw' ],
+        'jNeuEmEFractAK8':         [ "fNeuEM(J)",             50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jNeuHadEFractAK8':        [ "fNeuHad(J)",            50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jNeuHadMultAK8':          [ "nNeuHad(J)",            25,  0.0,   25.0  ,     1,     1,       'fjw' ],
+        'jNeuMultAK8':             [ "nNeu(J)",               120, 0.0,   120.0 ,     1,     1,       'fjw' ],
+        'jTau1AK8':                [ r"$\tau_{1}(J)$",        40,  0.0,   0.8   ,     1,     1,       'fjw' ],
+        'jTau2AK8':                [ r"$\tau_{2}(J)$",        40,  0.0,   0.65  ,     1,     1,       'fjw' ],
+        'jTau3AK8':                [ r"$\tau_{3}(J)$",        40,  0.0,   0.35  ,     1,     1,       'fjw' ],
+        'jTau21AK8':               [ r"$\tau_{21}(J)$",       40,  0.0,   1.3   ,     1,     2,       'fjw' ],
+        'jTau32AK8':               [ r"$\tau_{32}(J)$",       40,  0.0,   1.3   ,     1,     2,       'fjw' ],
+        'jPhoEFractAK8':           [ "fPho(J)",               50,  0.0,   1.0   ,     1,     1,       'fjw' ],
+        'jPhoMultAK8':             [ "nPho(J)",               110, 0.0,   110.0 ,     1,     1,       'fjw' ],
+        'jPtDAK8':                 [ "ptD",                   40,  0.0,   1.2  ,     1,     1,       'fjw' ],
+        'jSoftDropMassAK8':        [ r"$m_{SD}(J)$",          200, 0.0,   900   ,     1,     1,       'fjw' ],
+        'dPhijMETAK8':             [ r"$\Delta\phi(J,MET)$",  100, 0.0,   4.0   ,     1,     1,       'fjw' ],
+        'dEtaj12AK8':              [ r"$\Delta\eta(J_{1},J_{2})$", 200, 0.0,   10.0  ,     2,     0,       'evtw'],
+        'dRJ12AK8':                [ r"$\Delta R(J_{1},J_{2})$", 100, 0.0,   10.0  ,     2,     0,       'evtw'],
+        'dPhiMinjMETAK8':          [ r"$\Delta\phi_{min}(j,MET)$", 100, 0.0,   4.0   ,     2,     0,       'evtw'],
+        'mT':                      [ r"$m_{T} (GeV)$",        500, 0.0,   6000.0,     2,     0,       'evtw'],
+        'METrHT_pt30':             [ r"$MET/H_{T}$",          100, 0.0,   3.0   ,     2,     0,       'evtw'],
+        'METrST_pt30':             [ r"$MET/S_{T}",           100, 0.0,   1.0   ,     2,     0,       'evtw'],
+        'dPhij1rdPhij2AK8':        [ r"$\Delta\phi(J_{1},MET)/\Delta\phi(J_{2},MET)$", 100, 0.0,   100.0 ,     2,     0,       'evtw'],
+        'electronsIso':            [ "electrons iso",         100, 0.0,   1.0   ,     0,     1,         'ew'],
+        #'muonsIso':                [ "muons iso",             100, 0.0,   1.0   ,     0,     1,         'mw'],
+        #'nonIsoMuonsIso':          [ "NonIsoMuons iso",       200, 0.0,   10.0  ,     0,     1,       'nimw'],
+        #'nonIsoMuonsPt':           [ "NonIsoMuons $p_{T}$ [GeV]", 500, 0.0,   2500.0,     0,     1,       'nimw'],
+        # 'mT2_f4_msm':            [ r"$m_{T2} (GeV)$",       500, 0.0,   5000.0,     2,     0,       'evtw'],
+        # 'mT2_f4_msm_dEta':       [ r"$m_{T2} (GeV)$",       500, 0.0,   5000.0,     2,     0,       'evtw'],
+        # 'mT2_f4_msm_dPhi':       [ r"$m_{T2} (GeV)$",       500, 0.0,   5000.0,     2,     0,       'evtw'],
+        # 'mT2_f4_msm_dR':         [ r"$m_{T2} (GeV)$",       500, 0.0,   5000.0,     2,     0,       'evtw'],
+        #"GenJetsAK8_hvCategory":   [ "GenJetAK8 hvCategory",  32,  0.0,   32.0  ,     0,     1,        'gfjw'],
+        "nNMedEvent":              [ "N-Med Event",           4,  0.0,    4.0  ,      0,     0,        'evtw'],
+        "JetsAK8_hvCategory":      [ "JetAK8 hvCategory",     32,  0.0,   32.0  ,     1,     2,        'fjw'],
+        # "GenMT2_AK8":            [ r"$m_{T2} (GeV)$",       500, 0.0,   5000.0,     0,     0,,      'evtw'],
+        # "GenJetsAK8_darkPtFrac": [ "GenJetAK8 Dark pT Fraction", 100, 0.0,   1.0   ,     0,     1,        'fjw'],
+        'nsvjJetsAK8':             [ "Number of SVJ AK8Jets", 20,  0.0,   20.0  ,     0,     0, 'evtw'      ],
+        'nsvjJetsAK8Plus1':        [ "Number of SVJ AK8Jets pred1Jets",  20,  0.0,   20.0  ,     0,     0, 'pred1_evtw'],
+        'nsvjJetsAK8Plus2':        [ "Number of SVJ AK8Jets pred2Jets",  20,  0.0,   20.0  ,     0,     0, 'pred2_evtw'],
+        'nsvjJetsAK8Plus3':        [ "Number of SVJ AK8Jets pred3Jets",  20,  0.0,   20.0  ,     0,     0, 'pred3_evtw'],
+        'nsvjJetsAK8Plus4':        [ "Number of SVJ AK8Jets pred4Jets",  20,  0.0,   20.0  ,     0,     0, 'pred4_evtw'],
+        'nnOutput':                [ "nnOutput",              100, 0.0,   1.0   ,     0,     1, 'fjw'       ],
+        #'svjPtAK8':                [ r"$p_{T}$ [GeV]",        280, 0.0,   2800.0,     0,     1, 'svfjw'     ],
+        #'svjEtaAK8':               [ r"$\eta$",               200, -6.0,   6.0   ,     0,     1, 'svfjw'     ],
+
+     }
+    
+    # for histName,details in vars(options.jNVar).items():
+    for histName, details in myVars.items():
+        print(histName)
+        print(details)
         isNorm = options.isNorm
         isNormBkg = options.isNormBkg
         onlySig = options.onlySig
@@ -709,7 +804,7 @@ def main():
             makeDirs(plotOutDir,cut,"NormedStacked")
             stList = [cut,histName]
             print("histName",histName)
-            plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:],                         isLogY=False,   manySigs=manySigs, stList=stList, allRocValues=allRocValues)
+            plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:], isLogY=False,   manySigs=manySigs, stList=stList, allRocValues=allRocValues)
             plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
             plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/NormedStacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=True, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
             # if histName in preVars.keys():
