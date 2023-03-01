@@ -11,31 +11,33 @@ from optparse import OptionParser
 from glob import glob
 import numpy as np
 
-def use_dask(condor,njobs,port):
+def use_dask(condor,jobs,port):
     from dask.distributed import Client
-    from lpc_dask.lpc_dask import HTCondorCluster
+    from lpcjobqueue import LPCCondorCluster
     import socket
-
-    # make list of local package directories (absolute paths) that should be sent to jobs
-    initpylist = [os.path.abspath(os.path.dirname(x)) for x in glob('*/__init__.py')]
-    initpylist.append("patch.sh")
-    job_extra = {'transfer_input_files': ','.join(initpylist)}
-
-    extra = ['--worker-port 10002:10100']
-    hostname = socket.gethostname()
+    import dask
 
     if condor:
-        cluster = HTCondorCluster(
-            scheduler_options = {'host': f'{hostname}:10000', 'dashboard_address': ':{}'.format(port)},
+        proxyfile = '{0}/x509up_u{1}'.format(os.environ['HOME'], os.getuid())
+        dask.config.set({
+            'distributed.worker.profile.interval': '1d',
+            'distributed.worker.profile.cycle': '2d',
+            'distributed.worker.profile.low-level': False,
+        })
+        cluster = LPCCondorCluster(
             cores=1,
             memory="2GB",
             disk="2GB",
-            python='python',
-            nanny=False,
-            extra=extra,
-            job_extra=job_extra,
+            transfer_input_files=[f'{os.getenv("TCHANNEL_BASE")}/utils',f'{os.getenv("TCHANNEL_BASE")}/processors'],
+            ship_env=True,
+            log_directory=None,
+            job_extra_directives={'x509userproxy': proxyfile},
+            death_timeout=180
         )
-        cluster.scale(jobs=njobs)
+        if jobs < 20:
+            cluster.scale(jobs=jobs)
+        else:
+            cluster.adapt(minimum=50,maximum=150)
 
         client = Client(cluster,
             timeout=100
@@ -46,7 +48,7 @@ def use_dask(condor,njobs,port):
     exe_args = {
         'client': client,
         'savemetrics': True,
-        'schema': None,
+        'schema': processor.TreeMakerSchema,
         #'nano': False,
         'align_clusters': True
     }

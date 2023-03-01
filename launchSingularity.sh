@@ -8,4 +8,6 @@ if [ -z "$SINGULARITY_BIND" ]; then
 	fi
 fi
 
-singularity run --nv --bind /cvmfs $TCHANNEL_SC $@
+singularity exec -p -B ${PWD}:/srv -B /uscmst1b_scratch --pwd /srv \
+    /cvmfs/unpacked.cern.ch/registry.hub.docker.com/${TCHANNEL_SC} \
+    /bin/bash $@

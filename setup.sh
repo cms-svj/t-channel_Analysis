@@ -77,17 +77,17 @@ siteprefix=${pypath}/${pypackages}
 export PYTHONPATH=""
 ln -sf ${siteprefix}/pyxrootd ${NAME}/${pypackages}/pyxrootd
 ln -sf ${siteprefix}/XRootD   ${NAME}/${pypackages}/XRootD
-git clone git@github.com:cms-svj/lpc_dask
 
 # pip installing extra python packages
 $ECHO "\nInstalling 'pip' packages ... \n"
 python -m pip install --no-cache-dir pip --upgrade
-python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
-python -m pip install --no-cache-dir magiconfig
-python -m pip install --no-cache-dir tritonclient[grpc]
-python -m pip install --no-cache-dir tritonclient[http]
+python -m pip install --no-cache-dir git+https://github.com/CoffeaTeam/lpcjobqueue.git@v0.2.7
 if [[ "$useLCG" -eq 1 ]]; then
         python -m pip install --no-cache-dir torch==1.9 --upgrade
+	python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
+	python -m pip install --no-cache-dir magiconfig
+	python -m pip install --no-cache-dir tritonclient[grpc]
+	python -m pip install --no-cache-dir tritonclient[http]
 fi
 python -m pip install --no-cache-dir mt2
 if [[ "$DEV" -eq 1 ]]; then
