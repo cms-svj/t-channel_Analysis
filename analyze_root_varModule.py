@@ -121,9 +121,12 @@ def main():
         jVarName = "pT"
     numOfJets = len(output[jVarName].value)
     print("numOfJets",numOfJets)
+    sampleName = sample.replace("_TuneCP5_13TeV-madgraphMLM-pythia8","")
+    partNumber = 0
     for i in range(0,numOfJets,maxNumOfJets):
         outputNPZ = {}
-        fileName = "trainFile_{}.root".format(i)
+        fileName = "tree_{}_M{}_{}.root".format(sampleName,options.startFile,partNumber)
+        partNumber += 1
         file = up.recreate(fileName)
         for v in output.keys():
             try:
@@ -132,11 +135,6 @@ def main():
                 outputNPZ[v] = output[v].value[i:-1]
         file["tree"] = outputNPZ
         file["tree"].show()
-        haddCommand += "{} ".format(fileName)
-        rmCommand += "{} ".format(fileName)
-    print(haddCommand)
-    os.system(haddCommand)
-    os.system(rmCommand)
     dt = time.time() - tstart
     print("run time: %.2f [sec]" % (dt))
 

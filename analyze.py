@@ -41,13 +41,11 @@ def use_dask(condor,jobs,port):
         #     cluster.scale(jobs=jobs)
         # else:
         #     cluster.adapt(minimum=100,maximum=jobs)
-
         client = Client(cluster,
             timeout=100
         )
     else:
         client = Client()
-
     return client
 
 def restart_client(client):
