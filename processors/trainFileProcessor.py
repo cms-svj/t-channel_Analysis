@@ -11,11 +11,12 @@ def col_accumulator(a):
     return processor.column_accumulator(np.array(a))
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf):
+        def __init__(self,dataset,sf,*args):
             self._accumulator = processor.dict_accumulator({})
             self.dataset = dataset
             self.setupNPArr = None
             self.scaleFactor = sf
+            self.hemPeriod = ""
         @property
         def accumulator(self):
                 return self._accumulator
@@ -33,14 +34,14 @@ class MainProcessor(processor.ProcessorABC):
 
         def process(self, events):
                 ## objects used for cuts
-                vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
+                vars_noCut = utl.baselineVar(self.dataset,events,self.hemPeriod,self.scaleFactor)
                 gnn = SVJGNNTagger( model_structure='utils.data.GNNTagger.SVJTagger',
                                     model_inputs='./utils/data/GNNTagger/svj.yaml')
                 inputVars = gnn.data_config.input_names
                 inputShapes = gnn.data_config.input_shapes
                 numOfJetClasses = len(gnn.data_config.label_value)
                 # Our preselection
-                cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=False)
                 if self.setupNPArr is None:                 
                     self.setupNPArray(inputVars,inputShapes,numOfJetClasses)
                 output = self.accumulator.identity()
