@@ -1,5 +1,5 @@
 {
-    "2018_ST_s-channel_hadronicDecays": [
+    "2018_ST_s-channel_4f_hadronicDecays": [
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Summer20UL18/ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-amcatnlo-pythia8/0_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Summer20UL18/ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-amcatnlo-pythia8/100_RA2AnalysisTree.root", 
         "root://cmseos.fnal.gov//store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20/Summer20UL18/ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-amcatnlo-pythia8/101_RA2AnalysisTree.root", 
