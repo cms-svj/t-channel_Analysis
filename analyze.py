@@ -3,6 +3,7 @@
 from coffea import processor
 import hist as h
 from processors.mainProcessor import MainProcessor
+import processors.dataTestProcessor as testProcessor
 import uproot
 import sys,os
 from utils import samples as s
@@ -78,6 +79,7 @@ def main():
     parser.add_option('-w', '--workers',   help='Number of workers to use for multi-worker executors (e.g. futures or condor)', dest='workers', type=int, default=8)
     parser.add_option('-s', '--chunksize', help='Chunk size',        dest='chunksize', type=int, default=10000)
     parser.add_option('-m', '--maxchunks', help='Max number of chunks (for testing)',        dest='maxchunks', type=int, default=None)
+    parser.add_option('-i', '--issues',    help='Run the dataTestProcessor', dest='issue', default=False, action='store_true')
     options, args = parser.parse_args()
 
     ###########################################################################################################
@@ -111,14 +113,24 @@ def main():
             time.sleep(10)
 
         MainExecutor = processor.dask_executor
+    
+    if options.issue:
+        Processor = testProcessor.MainProcessor(sample,sf,options.jNVar)
+        print("The testProcessor is being used")
+    else:
+        Processor = MainProcessor(sample,sf,options.jNVar)
 
+    if 'Skim' in sample:
+        treename = 'PreSelection'
+    else:
+        treename = 'TreeMaker2/PreSelection'
     ###########################################################################################################
     # run processor
     ###########################################################################################################
     output = processor.run_uproot_job(
         fileset,
-        treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(sample,sf,options.jNVar),
+        treename=treename,
+        processor_instance=Processor,
         executor=MainExecutor,
         executor_args=exe_args,
         chunksize=options.chunksize,
