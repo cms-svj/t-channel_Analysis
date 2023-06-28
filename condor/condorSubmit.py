@@ -29,6 +29,7 @@ def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
     parser.add_option ('-n',              dest='numfile',  type='int',                         default = 10,            help="number of files per job")
     parser.add_option ('-d',              dest='datasets', type='string',                      default = '',            help="List of datasets, comma separated")
+    parser.add_option ('-f',              dest='totalfiles',type='int',                        default = -1,            help="Total number of files to be submitted")
     parser.add_option ('-c',              dest='noSubmit',                action='store_true', default = False,         help="Do not submit jobs.  Only create condor_submit.txt.")
     parser.add_option ('-p',              dest='makeROOT',                action='store_true', default = False,         help="Make root tree instead of histograms.")
     parser.add_option ('-l',              dest='useLCG',                  action='store_true', default = False,         help="Run using the LCG environment")
@@ -39,6 +40,7 @@ def main():
     options, args = parser.parse_args()
 
     analyzeFile = "analyze.py"
+    
     if options.makeROOT:
         if options.NNTrainOut == "":
             raise Exception("Please specify the output directory for the NN training files using --pout.")
@@ -58,9 +60,9 @@ def main():
     fileParts.append("Transfer_Input_Files = %s/%s.tar.gz, %s/exestuff.tar.gz\n" % (options.outPath,"tchannel",options.outPath))
     fileParts.append("Should_Transfer_Files = YES\n")
     fileParts.append("WhenToTransferOutput = ON_EXIT\n")
-    fileParts.append("request_disk = 1000000\n")
-    fileParts.append("request_memory = 4000\n")
-    fileParts.append("request_cpus = 4\n")
+    # fileParts.append("request_disk = 1000000\n")
+    # fileParts.append("request_memory = 4000\n")
+    # fileParts.append("request_cpus = 4\n")
     fileParts.append("Requirements = $(requirements:True) && (TARGET.has_avx)\n")
     fileParts.append("x509userproxy = $ENV(X509_USER_PROXY)\n\n")
 
@@ -78,7 +80,7 @@ def main():
             os.makedirs("%s/output-files/%s" % (options.outPath, sc))
 
         # loop over all samples in the sample collection
-        samples = s.getFileset(sc, False)
+        samples = s.getFileset(sc, False,nFiles=options.totalfiles)
         for n, rFiles in samples.items():
             count = len(rFiles)
             print("    %-40s %d" % (n, count))
