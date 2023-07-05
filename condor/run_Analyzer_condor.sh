@@ -43,7 +43,7 @@ echo ${dataset_longname}
 echo ${nfiles}
 echo ${startfile}
 echo ${workers}
-python ${analyzeFile} --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile} -w ${workers} -s ${chunksize} -j
+python ${analyzeFile} --condor -d ${dataset_longname} -N ${nfiles} -M ${startfile} -w ${workers} -s ${chunksize}
 
 echo "\n\n ls output\n"
 ls -l
