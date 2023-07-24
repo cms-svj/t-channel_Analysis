@@ -4,6 +4,7 @@ import awkward as ak
 from . import objects as ob
 from itertools import combinations
 import time
+
 def awkwardReshape(akArray,npArray):
     if len(akArray) == 0:
         return ak.Array([])
@@ -18,8 +19,8 @@ def arrayConcatenate(array1,array2):
 
 # the two functions below return infinity when the event doesn't have the required
 # number of jets or return the correct value for the jet variable
-def jetVar_i(var,i):
-    paddedVar = ak.fill_none(ak.pad_none(var,i+1),np.Inf)
+def jetVar_i(var,i,padValue=np.Inf):
+    paddedVar = ak.fill_none(ak.pad_none(var,i+1),padValue)
     return paddedVar[:,i]
 
 # convert phi values into spherical coordinate?
@@ -150,7 +151,7 @@ def tch_hvCat_decode(hvCat):
     hvCat = decode(hvCat,1,"stableD",catList)
     return catList
 
-def baselineVar(dataset,events,scaleFactor):
+def baselineVar(dataset,events,hemPeriod,scaleFactor):
     varVal = {}
     dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
     isData = False
@@ -160,11 +161,18 @@ def baselineVar(dataset,events,scaleFactor):
             break
     evtw = np.ones(len(events))
     if not isData:
-        luminosity = 59692.692 # 2018 lumi
+         # 2018 lumi
         if "2016" in dataset:
             luminosity = 35921.036
         elif "2017" in dataset:
             luminosity = 41521.331
+        elif "2018" in dataset:
+            if hemPeriod == "PreHEM":
+                luminosity = 21071.460
+            elif hemPeriod == "PostHEM":
+                luminosity = 38621.232
+            else:
+                luminosity = 59692.692
         evtw = luminosity*events.Weight*scaleFactor
     eCounter = np.where(evtw >= 0, 1, -1)
     obj = ob.Objects(events)
@@ -193,17 +201,16 @@ def baselineVar(dataset,events,scaleFactor):
     else:
         nBJets = np.zeros(len(evtw))
 
-    ############## keeping only certain jets for training ##############
-    # getting jet category for each jet
-    jetCats = []
     isSignal = 0
     if "mMed" in dataset:
         if "s-channel" in dataset:
             isSignal = 1
         else:
             isSignal = 2
+    varVal["isSignal"] = isSignal
+    ## getting jet category for each jet
+    jetCats = []
     if isSignal == 1:
-        print(np.unique(ak.flatten(fjets.isHV)))
         jetCats = ak.where(fjets.isHV,9,0) # treating SVJ from s-channel as QM jets and non-SVJ as SM jets
 
     elif isSignal == 2:
@@ -216,6 +223,7 @@ def baselineVar(dataset,events,scaleFactor):
     else:
         jetCats = awkwardReshape(fjets,np.ones(len(events))*-1)
 
+    ############## keeping only certain jets for training ##############
     # hvCond = ak.zeros_like(jetCats,dtype=bool)
     # jetCatsUsed = [-1]
     # if isSignal == 1:
@@ -225,14 +233,51 @@ def baselineVar(dataset,events,scaleFactor):
     # for jetCat in jetCatsUsed:
     #     hvCond = hvCond | (jetCats == jetCat)
     # fjets = fjets[hvCond]
-    varVal['fjets'] = fjets
+    # varVal['fjets'] = fjets
     ########################################################################
-    varVal["isSignal"] = isSignal
+
+    ##### HLT muon matching for trigger study ####
+    # hltMuons = obj.hltMuons
+    triggerOfflineMuons = obj.triggerOfflineMuons()
+    # offMuonPhi = triggerOfflineMuons.phi
+    # offMuonEta = triggerOfflineMuons.eta
+    # hltMuonPhi = hltMuons.phi
+    # hltMuonEta = hltMuons.eta
+
+    # anum = ak.num(offMuonEta,axis=1)
+    # bnum = ak.num(hltMuonEta,axis=1)
+    # maxNum = ak.max(ak.concatenate([anum,bnum]))
+    # numEvent = len(hltMuonEta)
+    # if maxNum == 0:
+    #     nHLTMatchedMuons = np.zeros(numEvent)
+    # else:
+    #     offMuonPhi = ak.fill_none(ak.pad_none(offMuonPhi,maxNum),np.Inf)
+    #     offMuonEta = ak.fill_none(ak.pad_none(offMuonEta,maxNum),np.Inf)
+    #     hltMuonPhi = ak.fill_none(ak.pad_none(hltMuonPhi,maxNum),np.Inf)
+    #     hltMuonEta = ak.fill_none(ak.pad_none(hltMuonEta,maxNum),np.Inf)
+
+    #     matchedList = []
+    #     # for the single muon dataset, maxNum = 1, so this loop is not going to take that long to run
+    #     for i in range(maxNum):
+    #         matched = np.zeros(numEvent,dtype=bool)
+    #         for j in range(maxNum):
+    #             deltaRMatch = delta_R(hltMuonEta[:,i],offMuonEta[:,j],hltMuonPhi[:,i],offMuonPhi[:,j])
+    #             cond = (deltaRMatch<0.2) & np.isfinite(deltaRMatch)
+    #             matched = matched | cond
+    #         matchedList.append(matched)
+    #     matchedList = np.transpose(matchedList)
+    #     nHLTMatchedMuons = np.sum(matchedList,axis=1)
+    varVal['nOffMuons'] = ak.num(triggerOfflineMuons)
+    # varVal['nHLTMatchedMuons'] = nHLTMatchedMuons
+    ############################################
+
+    varVal['fjets'] = fjets
     varVal['jets'] = jets
     varVal['bjets'] = bjets
     varVal['electrons'] = electrons
     varVal['muons'] = muons
     varVal['nonIsoMuons'] = nonIsoMuons
+    varVal['eCounter'] = eCounter
     varVal['evtw'] = evtw
     varVal['nl'] = (ak.num(electrons) + ak.num(muons))
     varVal['nnim'] = ak.num(nonIsoMuons)
@@ -270,7 +315,6 @@ def jConstVarGetter(dataset,events,varVal,cut):
             isSignal = 2
     # getting jet category for each jet
     if isSignal == 1:
-        print(np.unique(ak.flatten(fjets.isHV)))
         jetCats = ak.where(fjets.isHV,9,0) # treating SVJ from s-channel as QM jets and non-SVJ as SM jets
 
     elif isSignal == 2:
@@ -336,6 +380,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     muons = varVal['muons'][cut] 
     nonIsoMuons = varVal['nonIsoMuons'][cut] 
     evtw = varVal['evtw'][cut] 
+    eCounter = varVal['eCounter'][cut] 
     nBJets = varVal['nb'][cut]
     met = varVal['met'][cut]
     metPhi = varVal['metPhi'][cut]
@@ -345,7 +390,6 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     dPhiMinj = varVal['dPhiMinjMET'][cut]
     dPhiMinjAK8 = varVal['dPhiMinjMETAK8'][cut]
 
-    eCounter = np.where(evtw >= 0, 1, -1)
     jetAK8Eta = fjets.eta
     jetAK8Phi = fjets.phi
     j1_etaAK8 = jetVar_i(jetAK8Eta,0)
@@ -434,6 +478,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     J2_tau32 = tauRatio(tau3,tau2,1)
 
     varVal['eCounter'] = eCounter
+    varVal['evtw'] = evtw
     varVal['jw'] = jw
     varVal['fjw'] = fjw
     varVal['ew'] = ew
@@ -457,6 +502,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['jPt'] = jets.pt
     varVal['jEta'] = jetEta
     varVal['jPhi'] = jetPhi
+    varVal['jE'] = jets.energy
     varVal['jAxismajor'] = jets.axismajor
     varVal['jAxisminor'] = jets.axisminor
     varVal['jPtD'] = jets.ptD
@@ -464,6 +510,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['jPtAK8'] = fjets.pt
     varVal['jEtaAK8'] = jetAK8Eta
     varVal['jPhiAK8'] = jetAK8Phi
+    varVal['jEAK8'] = fjets.energy
     varVal['jAxismajorAK8'] = fjets.axismajor
     varVal['jAxisminorAK8'] = fjets.axisminor
     varVal['jChEMEFractAK8'] = fjets.chargedEmEnergyFraction

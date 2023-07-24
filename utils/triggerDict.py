@@ -257,6 +257,18 @@ trgSelections = {
             ]
 }
 
+trgSelectionsCR = {
+    "2016" : [
+        "Mu50", 
+    ],
+    "2017" : [
+        "Mu50",
+    ],
+    "2018" : [
+        "Mu50",
+    ],
+}
+
 trgSelectionsQCDCR = {
     "2016" : [
         "Mu50", 

@@ -8,6 +8,7 @@ class Objects:
         self.muons = events.Muons
         self.jets = events.Jets
         self.fjets = events.JetsAK8
+        # self.hltMuons = events.HLTMuonObjects
         # self.gfjets = events.GenJetsAK8
         # Quality cut
         self.etaCut = 2.4
@@ -18,6 +19,11 @@ class Objects:
         # # Good Electrons
         electronQualityCut = (self.electrons.pt > self.leptonPt) & (abs(self.electrons.eta) < self.etaCut) & (self.electrons.iso < 0.1)
         return self.electrons[electronQualityCut]
+
+    def triggerOfflineMuons(self):
+        # # Good Muons
+        muonQualityCut = (self.muons.pt > 50) & (self.muons.iso < 0.2) & (self.muons.mediumID)
+        return self.muons[muonQualityCut]
 
     def goodMuons(self):
         # # Good Muons
@@ -36,7 +42,6 @@ class Objects:
 
     def goodFatJets(self):
         # # Good AK8 Jets Cut
-        # ak8QualityCut = (self.fjets.pt > 50) & (abs(self.fjets.eta) < 5.0) & (self.fjets.ID == True)
         ak8QualityCut = (self.fjets.pt > 50) & (abs(self.fjets.eta) < 2.4) & (self.fjets.ID == True)
         return self.fjets[ak8QualityCut]
     

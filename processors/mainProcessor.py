@@ -5,23 +5,24 @@ import awkward as ak
 from utils import utility as utl
 from utils import baseline as bl
 from utils.variables import variables
-from utils.inferenceParticleNet import runNN
+from utils.inferenceParticleNet import runJetTagger
+from utils.runEventTagger import runEventTagger
 import uproot
-
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf,jNVar):
+        def __init__(self,dataset,sf,jNVar,hemPeriod,evtTaggerDict):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
                 self.dataset = dataset
                 self.scaleFactor = sf
                 self.jNVar = jNVar
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
+                self.hemPeriod = hemPeriod
+                self.evtTaggerDict = evtTaggerDict
                 # self.cutflow_hist = hist.Hist(
                 #                                 "Cutflow",
                 #                                 hist.Cat("cut", "Cuts"),
                 #                                 hist.Bin("events", "Events", 1, 0, 1),
                 #                             )
-
         @property
         def accumulator(self):
                 return self._accumulator
@@ -62,11 +63,11 @@ class MainProcessor(processor.ProcessorABC):
         def process(self, events):
                 # cut loop
                 ## objects used for cuts
-                vars_noCut = utl.baselineVar(self.dataset,events,self.scaleFactor)
+                vars_noCut = utl.baselineVar(self.dataset,events,self.hemPeriod,self.scaleFactor)
+                runJetTagger(events,vars_noCut,self.fakerateHisto)
                 utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                # runNN(events,vars_noCut,self.fakerateHisto)
-                cuts = bl.cutList(self.dataset,events,vars_noCut,SVJCut=False)
-                # print("cuts = ",cuts)
+                data = runEventTagger(vars_noCut,self.evtTaggerDict)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=False)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)
@@ -91,8 +92,7 @@ class MainProcessor(processor.ProcessorABC):
                     }
                     if len(events) > 0:
                         ## filling histograms
-                        for histName, varDetail in variables(self.jNVar).items():
-                            # print("histname - ",histName)
+                        for histName, varDetail in variables(self.jNVar).items():                            
                             vX = vars_noCut[varDetail.varXName][cut]
                             vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]
@@ -121,6 +121,7 @@ class MainProcessor(processor.ProcessorABC):
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)
                                 elif varDetail.dim == 2:
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, y=vY, weight=hW)
+
                         ## filling histograms by jet category
                         # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM
                         # for varName,varDetail in varValDict.items():

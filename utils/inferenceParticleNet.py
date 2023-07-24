@@ -59,8 +59,7 @@ def getFlatScore(nnOutput):
         output[i] = random.uniform(0, 1)
     return output
 
-import time
-def runNN(events,varsIn,fakerateHisto):
+def runJetTagger(events,varsIn,fakerateHisto):
     gnn_triton = SVJGNNTagger(score_tag='score',
             triton_path='triton+grpc://triton.apps.okddev.fnal.gov:443/svj_tch_gnn/1',
             model_structure='utils.data.GNNTagger.SVJTagger',
@@ -90,7 +89,7 @@ def runNN(events,varsIn,fakerateHisto):
     counts = ak.num(fjets.pt)
     svjJetsAK8 = ak.unflatten(nnOutput, counts)
 
-    wpt = 0.7
+    wpt = 0.4
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
     bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     nsvjJetsAK8 = ak.num(darksvjJetsAK8)
