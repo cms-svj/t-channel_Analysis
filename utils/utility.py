@@ -233,6 +233,7 @@ def baselineVar(dataset,events,hemPeriod,scaleFactor):
     # for jetCat in jetCatsUsed:
     #     hvCond = hvCond | (jetCats == jetCat)
     # fjets = fjets[hvCond]
+    # varVal['fjets'] = fjets
     ########################################################################
 
     ##### HLT muon matching for trigger study ####
@@ -292,6 +293,7 @@ def baselineVar(dataset,events,hemPeriod,scaleFactor):
     varVal['METrST_pt30'] = met/st
     varVal['dPhiMinjMET'] = dPhiMinj
     varVal['dPhiMinjMETAK8'] = dPhiMinjAK8
+    varVal['J1AK8Pt'] = jetVar_i(fjets.pt,0)
     if isData == False:
         varVal['GenJetsAK8'] = events.GenJetsAK8
         varVal['GenParticles'] = events.GenParticles
@@ -546,13 +548,32 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['dRJ12AK8'] = deltaR12jAK8
     varVal['dPhij1rdPhij2AK8'] = dPhij1rdPhij2AK8
     varVal['electronsIso'] = electrons.iso
+
+
+    # Variable for the Control region cut
+    varVal['electronPT'] = electrons.pt
+    varVal['electronPhi'] = electrons.phi
+    varVal['electronEta'] = electrons.eta
+    varVal['muonPT'] = muons.pt
+    varVal['muonPhi'] = muons.phi
+    varVal['muonEta'] = muons.eta
+
+
     #varVal['muonsIso'] = muons.iso
     #varVal['nonIsoMuonsPt'] = nonIsoMuons.pt
     #varVal['nonIsoMuonsIso'] = nonIsoMuons.iso
+    ## Save first AK8 jet info 
+    
+
+
     if jNVar:
         # preparing histograms for jN variables
+        # print("jetVar_i(fjets.pt,0) ",jetVar_i(fjets.pt,1))
+        # maxN = len(fjets) if len(fjets) < 3 else 3
         maxN = 4
+        # print("len(fjets) = ",len(fjets))
         for i in range(maxN):
+            # i_th_mask = fjets
             varVal['j{}Pt'.format(i+1)] = jetVar_i(jets.pt,i)
             varVal['j{}Eta'.format(i+1)] = jetVar_i(jetEta,i)
             varVal['j{}Phi'.format(i+1)] = jetVar_i(jetPhi,i)

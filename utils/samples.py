@@ -23,7 +23,8 @@ def getFileset(sample,verbose=True,startFile=0,nFiles=-1,mlTraining=False):
 
     JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/' + kind + "/" + year + "/"
 
-    inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
+    # inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
+    inputSamples = glob.glob(JSONDir+year+"_"+detailKey+"*.json")
     if len(inputSamples) == 0:
         print("Error: no json file found with name:", JSONDir)
     else:

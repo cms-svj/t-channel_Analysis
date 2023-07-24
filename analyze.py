@@ -36,6 +36,7 @@ def main():
     parser.add_option(      '--hemPeriod', help='HEM period (PreHEM or PostHEM), default includes entire sample',            dest='hemPeriod', type=str, default="")
     parser.add_option(      '--hemStudy',  help='HEM study',         dest='hemStudy',             default=False, action='store_true')
     parser.add_option(      '--slimProc',  help='Slimmed processor for fasting processing',       dest='slimProc',             default=False, action='store_true')   
+    parser.add_option('-i', '--issues',    help='Run the dataTestProcessor', dest='issue', default=False, action='store_true')
     options, args = parser.parse_args()
 
     ###########################################################################################################
@@ -87,6 +88,8 @@ def main():
         from processors.hemPhiSpikeProcessor import MainProcessor
     elif options.slimProc:
         from processors.slimProcessor import MainProcessor
+    elif options.issue:
+        from processors.dataTestProcessor import MainProcessor
     else:
         from processors.mainProcessor import MainProcessor
 
