@@ -66,8 +66,8 @@ class MainProcessor(processor.ProcessorABC):
                 vars_noCut = utl.baselineVar(self.dataset,events,self.hemPeriod,self.scaleFactor)
                 runJetTagger(events,vars_noCut,self.fakerateHisto)
                 utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                data = runEventTagger(vars_noCut,self.evtTaggerDict)
-                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=False)
+                # data = runEventTagger(vars_noCut,self.evtTaggerDict)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)
@@ -83,12 +83,14 @@ class MainProcessor(processor.ProcessorABC):
                             "fjw"  : ak.flatten(vars_noCut["fjw"][cut]),
                             "ew"   : ak.flatten(vars_noCut["ew"][cut]),
                             "mw"   : ak.flatten(vars_noCut["mw"][cut]),
-                            # "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
-                            # "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
-                            # "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
-                            # "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
-                            # "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
-                            # "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
+                            "crew" : ak.flatten(vars_noCut["crew"][cut]),
+                            "crmw" : ak.flatten(vars_noCut["crmw"][cut]),
+                            "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
+                            "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
+                            "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
+                            "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
+                            "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
+                            "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
                     }
                     if len(events) > 0:
                         ## filling histograms
@@ -115,7 +117,7 @@ class MainProcessor(processor.ProcessorABC):
                                 finiteMask = np.isfinite(vX)
                                 vX = vX[finiteMask]
                                 hW = hW[finiteMask]
-                                
+                            # print("the histName ----  {}, cutName ---- {} ".format(histName,cutName))    
                             if len(vX) > 0:
                                 if   varDetail.dim == 1:  
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)

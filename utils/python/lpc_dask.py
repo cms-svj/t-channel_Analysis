@@ -49,9 +49,15 @@ def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evt
     ###########################################################################################################
     # run processor
     ###########################################################################################################
+    print(sample)
+    if 'Skim' in sample:
+        treename = 'PreSelection'
+    else:
+        treename = 'TreeMaker2/PreSelection'
+    # print(treename)
     output = processor.run_uproot_job(
         fileset,
-        treename='TreeMaker2/PreSelection',
+        treename=treename,
         processor_instance=MainProcessor(sample,sf,args.jNVar,args.hemPeriod,evtTaggerDict),
         executor=MainExecutor,
         executor_args=exe_args,

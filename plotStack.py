@@ -856,12 +856,14 @@ def main():
     # cutsImportant = ["","_2PJ","_2PJ_nl","_qual_trg_2PJ","_qual_trg_st_2PJ","_qual_trg_st_ht_2PJ_dphimin"]
     # cutsImportant = ["_cr"]
     # cutsImportant = ["issue_ht","_issue_met"]
-    cutsImportant = ["_cr_muon","_cr_electron"]
-    
+    # cutsImportant = ["_cr_muon","_cr_electron"]
+    cutsImportant = ["_qual_trg_st_2PJ","_qual_trg_st_2PJ_dphimin","_cr_muon","_cr_electron","_cr_muon_dphimin","_cr_electron_dphimin","_cr_highdphimin"]
 
 
-    Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
-   
+    # Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
+    Data, sgData, bgData = getData("daskHadd/" + options.dataset + "/", 1.0, year)
+
+
     # print(sgData)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
     allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir","cutSig","cBg","cSig","mBg_f","mSig_f"])

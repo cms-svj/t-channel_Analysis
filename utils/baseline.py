@@ -108,12 +108,16 @@ def METFilters(events):
 
 def RemoveOverlap(dataset, events, yr):
     """Function to remove overlap between different dataset by removing the events with overlapping triggers. Currently the preferred dataset is JetHT.""" 
-    passMetTrg = PassTrigger(events.TriggerPass, trgListtoInd(tD.trigDicts[yr],tD.trgMET[yr]))
-    passHTMHTTrg = PassTrigger(events.TriggerPass, trgListtoInd(tD.trigDicts[yr],tD.trgHTMHT[yr]))
-    passJetHTTrg = PassTrigger(events.TriggerPass, trgListtoInd(tD.trigDicts[yr],tD.trgJetHT[yr]))
+    trgDict = tD.trigDicts[yr]
+    trgListMet = trgListtoInd(trgDict,tD.trgMET[yr])
+    trgListJetHT = trgListtoInd(trgDict,tD.trgJetHT[yr])
+    trgListHTMHT = trgListtoInd(trgDict,tD.trgHTMHT[yr])
+    passMetTrg = PassTrigger(events.TriggerPass, trgListMet)
+    passHTMHTTrg = PassTrigger(events.TriggerPass, trgListHTMHT)
+    passJetHTTrg = PassTrigger(events.TriggerPass, trgListJetHT)
     # For single lepton control region - Main dataset is Single Muon, removing overlap from the Single Electron
-    passSingleM = PassTrigger(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleM[yr]))
-    passSingleE = PassTrigger(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleE[yr])) 
+    # passSingleM = PassTrigger(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleM[yr]))
+    # passSingleE = PassTrigger(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleE[yr])) 
 
     OverlapDataMask = None
     # if "JetHTData" in dataset:
@@ -123,12 +127,12 @@ def RemoveOverlap(dataset, events, yr):
     elif "HTMHTData" in dataset:
         OverlapDataMask = np.bitwise_not(passJetHTTrg + passMetTrg)
     # Adding single lepton control region overlap removal
-    elif "SingleElectronData" in dataset:
-        OverlapDataMask = np.bitwise_not(passSingleM)
-    elif "EGammaData" in dataset:
-        OverlapDataMask = np.bitwise_not(passSingleM)    
-    elif "SinglePhotonData" in dataset:
-        OverlapDataMask = np.bitwise_not(passSingleM + passSingleE)
+    # elif "SingleElectronData" in dataset:
+    #     OverlapDataMask = np.bitwise_not(passSingleM)
+    # elif "EGammaData" in dataset:
+    #     OverlapDataMask = np.bitwise_not(passSingleM)    
+    # elif "SinglePhotonData" in dataset:
+    #     OverlapDataMask = np.bitwise_not(passSingleM + passSingleE)
     else:
         OverlapDataMask = np.ones(len(events),dtype=bool)
     #Preliminary checks
@@ -172,13 +176,15 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
     met = vars_noCut["met"]
     ht = vars_noCut["ht"]
     st = vars_noCut["st"]
-    JAK8Pt = vars_noCut["J1AK8Pt"]
+    # JAK8Pt = vars_noCut["J1AK8Pt"]
     # dPhiMinj = vars_noCut["dPhiMinjMET"]
     dPhiMinjAK8 = vars_noCut["dPhiMinjMETAK8"]
     nelectron = ak.num(vars_noCut["electrons"])
     nmuon = ak.num(vars_noCut["muons"])
-    electronPT = util.jetVar_i(vars_noCut["electronPT"], 0)
-    muonPT = util.jetVar_i(vars_noCut["muonPT"], 0)
+    ncrMuons = ak.num(vars_noCut["crMuons"])
+    ncrElectrons = ak.num(vars_noCut["crElectrons"])
+    mtMetCRMuon = vars_noCut["mtMETCRMuon"]
+    mtMetCRElectron = vars_noCut["mtMETCRElectron"]
 
     # crElectrons = (electronPT > 25.0)
     # print("electronPT =  {} \n muonPT = {}".format(electronPT,muonPT))
@@ -267,9 +273,9 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
         # print("No problem before this")
         # Define all cuts for histo making
         cuts = {
-                    ""                          : np.ones(len(evtw),dtype=bool),
-                    "_2PJ"                      : (njetsAK8 >= 2),
-                    "_2PJ_nl"            : (njetsAK8 >= 2) & (nl == 0),
+                    ""                  : np.ones(len(evtw),dtype=bool),
+                    # "_2PJ"                     : (njetsAK8 >= 2),
+                    # "_2PJ_nl"                  : (njetsAK8 >= 2) & (nl == 0),
                     # "_data_mask"            : DataMask,
                     # "_st"                : stCut,
                     # "_ht"               : htCut,
@@ -278,44 +284,43 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
                     # "_qual_ht"              : qualityCuts & htCut,
                     # "_qual_trg"             : qualityCuts & passTrigger,
                     # "_qual_st"             : qualityCuts & stCut,
-                    "_qual_trg_2PJ"                  : qualityCuts & passTrigger & (nl == 0) & (njetsAK8 >= 2),
-                    "_qual_trg_st_2PJ"              : qualityCuts & passTrigger & (nl == 0) & stCut & (njetsAK8 >= 2),
-                    "_qual_trg_st_ht_2PJ_dphimin"    : qualityCuts & passTrigger & (nl == 0) & stCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut,
-                    "_issue_met"                : qualityCuts & passTrigger & (nl == 0) & stCut & metcut,
-                    "_issue_ht"                 : qualityCuts & passTrigger & (nl == 0) & stCut & (ht < 500),
-                    "_cr_nl1"                   : qualityCuts & (nl == 1) & stCut & (njetsAK8 >= 2) ,
-                    "_cr_muon"                  : qualityCuts & (nl == 1) & (nmuon == 1) & stCut & (njetsAK8 >= 2), 
-                    "_cr_muon_pt25"             : qualityCuts & (nl == 1) & (nmuon == 1) & (muonPT >= 25) & stCut & (njetsAK8 >= 2),
-                    "_cr_electron"              : qualityCuts & (nl == 1) & (nelectron == 1) & stCut & (njetsAK8 >= 2),
-                    "_cr_electron_pt25"         : qualityCuts & (nl == 1) & (nelectron == 1) & (electronPT >= 25) & stCut & (njetsAK8 >= 2),
-
-                    # "_qual_trg_st"              : qualityCuts & passTrigger & stCut,
-                    # "_qual_trg_st_dphimin"      : qualityCuts & passTrigger & stCut & dPhiMinjAK8Cut,
-                    # "_qual_trg_st_ht"           : qualityCuts & passTrigger & stCut & htCut,
-                    # "_qual_trg_st_1PJ"          : qualityCuts & passTrigger & stCut & (njetsAK8 >= 1),
-                    # "_qual_trg_st_2PJ"          : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2),
-                    # "_qual_trg_st_ht_2PJ"          : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2),
-                    # "_qual_trg_st_ht_2PJ_dphimin"          : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut,
-                    # "_all_cuts_ptd"    : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (ptdAk8 == 0),
-                    # "_all_cuts_girth"  : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (girthAK8 > 0.5),
-                    # "_all_cuts_met"    : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (met > 1200)
-                    # "_qual_st"             : qualityCuts & stCut,
-
+                    # "_qual_trg_2PJ"             : qualityCuts & passTrigger &         (njetsAK8 >= 2),
+                    "_qual_trg_st_2PJ"          : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2),
+                    "_qual_trg_st_2PJ_dphimin"  : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2)   & dPhiMinjAK8Cut,
+                    # "_issue_met"                : qualityCuts & passTrigger & stCut & metcut,
+                    # "_issue_ht"                 : qualityCuts & passTrigger & stCut & (ht < 500),
+                    "_cr_muon"                  : qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2), 
+                    "_cr_electron"              : qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2),
+                    # "_cr_muon_dphimin"          : qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut, 
+                    # "_cr_electron_dphimin"      : qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut,
+                    "_cr_highdphimin"           : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2)   & (dPhiMinjAK8 > 1.8), 
+                    # "_cr_2electron"             : qualityWithLepton & passTrigger & (ncrElectrons == 2) & (nmuon == 0) & stCut & (njetsAK8 >= 2),
+                    # "_cr_2muon"                 : qualityWithLepton & passTrigger & (ncrMuons == 2)     & (nelectron == 0) & stCut & (njetsAK8 >= 2), 
+                       
+                }
     
     if SVJCut == True:
-        # nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
+        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
         cuts = {
                 ""            : np.ones(len(evtw),dtype=bool),
-                "_pre"        : preselection,
-                "_pre_2J"     : preselection & (njetsAK8 == 2),
-                "_pre_3J"     : preselection & (njetsAK8 == 3),
-                "_pre_4J"     : preselection & (njetsAK8 == 4),
-                "_pre_5PJ"    : preselection & (njetsAK8 >= 5),
+                # "_pre"        : preselection,
+                # "_pre_2J"     : preselection & (njetsAK8 == 2),
+                # "_pre_3J"     : preselection & (njetsAK8 == 3),
+                # "_pre_4J"     : preselection & (njetsAK8 == 4),
+                # "_pre_5PJ"    : preselection & (njetsAK8 >= 5),
                 "_pre_0SVJ"   : preselection & (nsvjJetsAK8 == 0),
                 "_pre_1SVJ"   : preselection & (nsvjJetsAK8 == 1),
                 "_pre_2SVJ"   : preselection & (nsvjJetsAK8 == 2),
                 "_pre_3SVJ"   : preselection & (nsvjJetsAK8 == 3),
                 "_pre_4SVJ"   : preselection & (nsvjJetsAK8 == 4),
+                "_qual_trg_st_2PJ"          : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2),
+                "_qual_trg_st_2PJ_dphimin"  : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2)   & dPhiMinjAK8Cut,
+                "_cr_muon"                  : qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2), 
+                "_cr_electron"              : qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2),
+                "_cr_highdphimin"           : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2)   & (dPhiMinjAK8 > 1.8), 
+                "_cr_muon_mtcut"                  : qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2) & (mtMetCRMuon >= 70), 
+                "_cr_electron_mtcut"              : qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2) & (mtMetCRElectron >= 70),
+                
                 # ""                  : np.ones(len(evtw),dtype=bool),
                 # "_data_mask"            : DataMask,
                 #"_qual"             : qualityCuts,
