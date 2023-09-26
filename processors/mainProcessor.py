@@ -21,6 +21,7 @@ class MainProcessor(processor.ProcessorABC):
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
                 self.hemPeriod = kwargs["hemPeriod"]
                 self.evtTaggerDict = kwargs["evtTaggerDict"]
+
         @property
         def accumulator(self):
                 return self._accumulator
@@ -72,6 +73,7 @@ class MainProcessor(processor.ProcessorABC):
                 output = self.accumulator
                 # run cut loop
                 for cutName,cut in cuts.items():
+                    # print("cutName = {} \n cut = {}".format(cutName,cut))
                     # defining objects
                     weights = {
                             "evtw" : vars_noCut["evtw"][cut],
@@ -79,12 +81,12 @@ class MainProcessor(processor.ProcessorABC):
                             "fjw"  : ak.flatten(vars_noCut["fjw"][cut]),
                             "ew"   : ak.flatten(vars_noCut["ew"][cut]),
                             "mw"   : ak.flatten(vars_noCut["mw"][cut]),
-                            "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
-                            "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
-                            "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
-                            "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
-                            "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
-                            "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
+                            # "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
+                            # "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
+                            # "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
+                            # "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
+                            # "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
+                            # "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
                     }
                     if len(events) > 0:
                         ## filling histograms
@@ -98,7 +100,7 @@ class MainProcessor(processor.ProcessorABC):
                             if varDetail.flattenInfo >= 1:
                                 vX = ak.flatten(vX)
                                 vY = ak.flatten(vY) if varDetail.dim == 2 else None
-
+                
                             # make sure the correct weights are applied
                             if wKey in weights.keys():
                                 hW = weights[wKey]
@@ -107,6 +109,11 @@ class MainProcessor(processor.ProcessorABC):
                             else:
                                 hW = weight
 
+                            if self.jNVar:
+                                finiteMask = np.isfinite(vX)
+                                vX = vX[finiteMask]
+                                hW = hW[finiteMask]
+                                
                             if len(vX) > 0:
                                 if   varDetail.dim == 1:  
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)

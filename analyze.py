@@ -40,6 +40,8 @@ def main():
     parser.add_argument(      '--hemStudy',  help='HEM study',         dest='hemStudy',             default=False, action='store_true')
     parser.add_argument(      '--slimProc',  help='Slimmed processor for fasting processing',       dest='slimProc',             default=False, action='store_true')  
     parser.add_argument(      '--tcut',      help='Cut for training files: _pre, _pre_1PSVJ',  dest='tcut', type=str, default="_pre")    
+    parser.add_argument('-i', '--issues',    help='Run the dataTestProcessor', dest='issue', default=False, action='store_true')
+
     for arg in c.config_schema:
         parser.add_config_argument(arg)
     options = parser.parse_args()
@@ -70,6 +72,8 @@ def main():
         from processors.hemPhiSpikeProcessor import MainProcessor
     elif options.slimProc:
         from processors.slimProcessor import MainProcessor
+    elif options.issue:
+        from processors.dataTestProcessor import MainProcessor
     else:
         from processors.mainProcessor import MainProcessor
 
