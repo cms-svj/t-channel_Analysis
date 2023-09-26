@@ -2,7 +2,6 @@ import dask.distributed
 from coffea import processor
 import uproot
 import os 
-import magiconfig
 
 def use_dask(condor,jobs,port):
     from dask.distributed import Client
@@ -18,7 +17,7 @@ def use_dask(condor,jobs,port):
             cores=1,
             memory="4GB",
             disk="2GB",
-            transfer_input_files=[f'{os.getenv("TCHANNEL_BASE")}/utils',f'{os.getenv("TCHANNEL_BASE")}/processors'],
+            transfer_input_files=[f'{os.getenv("TCHANNEL_BASE")}/utils',f'{os.getenv("TCHANNEL_BASE")}/processors',f'{os.getenv("TCHANNEL_BASE")}/coffeaenv/lib64/python3.8/site-packages/magiconfig.py'], # for some reason magiconfig cannot be imported properly when running dask condor
             log_directory=None,
             death_timeout=180
         )
@@ -52,12 +51,14 @@ def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evt
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(sample,sf,args.jNVar,args.hemPeriod,evtTaggerDict),
+        processor_instance=MainProcessor(dataset=sample,sf=sf,jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut),
         executor=MainExecutor,
         executor_args=exe_args,
         chunksize=args.chunksize,
         maxchunks=args.maxchunks,
     )
+    outHistF = args.outHistF
+    os.makedirs(outHistF,exist_ok=True)
 
     if trainFileProduction:
         # saving input to root files.
@@ -74,7 +75,7 @@ def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evt
         partNumber = 0
         for i in range(0,numOfJets,maxNumOfJets):
             outputNPZ = {}
-            fileName = "tree_{}_M{}_{}.root".format(sampleName,args.startFile,partNumber)
+            fileName = "{}/tree_{}_M{}_{}.root".format(outHistF,sampleName,args.startFile,partNumber)
             partNumber += 1
             file = uproot.recreate(fileName)
             for v in output.keys():
@@ -89,7 +90,7 @@ def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evt
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
     ###########################################################################################################
-        outfile = "MyAnalysis_%s_%s_%d.root" % (sample, args.hemPeriod, args.startFile) if args.condor or args.dask else "test.root"
+        outfile = f"{outHistF}/MyAnalysis_{sample}_{args.hemPeriod}_{args.startFile}.root" if args.condor or args.dask else f"{outHistF}/test.root"
         fout = uproot.recreate(outfile)
         if isinstance(output,tuple): output = output[0]
         output = dict(sorted(output.items()))
