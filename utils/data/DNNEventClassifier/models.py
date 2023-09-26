@@ -4,7 +4,6 @@ import torch.nn.functional as f
 from torch.autograd import Variable
 from utils.data.DNNEventClassifier.GradientReversal import GradientReversalFunction
 from utils.data.DNNEventClassifier.GradientReversal import GradientReversal as GR
-from . import configs as c
 #from torchsummary import summary
 
 class DNN(nn.Module):

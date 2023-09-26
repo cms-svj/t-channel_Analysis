@@ -224,16 +224,15 @@ def baselineVar(dataset,events,hemPeriod,scaleFactor):
         jetCats = awkwardReshape(fjets,np.ones(len(events))*-1)
 
     ############## keeping only certain jets for training ##############
-    # hvCond = ak.zeros_like(jetCats,dtype=bool)
-    # jetCatsUsed = [-1]
-    # if isSignal == 1:
-    #     jetCatsUsed = [9] # s-channel SVJs
-    # elif isSignal == 2:
-    #     jetCatsUsed = [3,9,11,5,7,13] # t-channel, all dark jets
-    # for jetCat in jetCatsUsed:
-    #     hvCond = hvCond | (jetCats == jetCat)
-    # fjets = fjets[hvCond]
-    # varVal['fjets'] = fjets
+    hvCond = ak.zeros_like(jetCats,dtype=bool)
+    jetCatsUsed = [-1]
+    if isSignal == 1:
+        jetCatsUsed = [9] # s-channel SVJs
+    elif isSignal == 2:
+        jetCatsUsed = [3,9,11,5,7,13] # t-channel, all dark jets
+    for jetCat in jetCatsUsed:
+        hvCond = hvCond | (jetCats == jetCat)
+    djets = fjets[hvCond]
     ########################################################################
 
     ##### HLT muon matching for trigger study ####
@@ -271,6 +270,7 @@ def baselineVar(dataset,events,hemPeriod,scaleFactor):
     # varVal['nHLTMatchedMuons'] = nHLTMatchedMuons
     ############################################
 
+    varVal['djets'] = djets
     varVal['fjets'] = fjets
     varVal['jets'] = jets
     varVal['bjets'] = bjets
@@ -376,6 +376,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     jets = varVal['jets'][cut] 
     bjets = varVal['bjets'][cut] 
     fjets = varVal['fjets'][cut] 
+    djets = varVal['djets'][cut] 
     electrons = varVal['electrons'][cut] 
     muons = varVal['muons'][cut] 
     nonIsoMuons = varVal['nonIsoMuons'][cut] 
@@ -486,11 +487,15 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['nimw'] = nimw
     varVal['njets'] = ak.num(jets)
     varVal['njetsAK8'] = ak.num(fjets)
+    varVal['nTruthSVJ'] = ak.num(djets)
     varVal['nb'] = ak.num(bjets)
     varVal['nl'] = varVal['nl'][cut]
     varVal['nnim'] = varVal['nnim'][cut]
     varVal['met'] = met
+    varVal['logMET'] = np.log(met)
     varVal['metPhi'] = metPhi
+    varVal['metSig'] = events.METSignificance
+    varVal['logMETSig'] = np.log(varVal['metSig'])
     varVal['mT'] = mtAK8
     varVal['ht'] = ht
     varVal['st'] = st

@@ -8,21 +8,20 @@ from utils.variables import variables
 from utils.inferenceParticleNet import runJetTagger
 from utils.runEventTagger import runEventTagger
 import uproot
+import torch
+from datetime import datetime
+
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf,jNVar,hemPeriod,evtTaggerDict):
+        def __init__(self,**kwargs):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
-                self.dataset = dataset
-                self.scaleFactor = sf
-                self.jNVar = jNVar
+                self.dataset = kwargs["dataset"]
+                self.scaleFactor = kwargs["sf"]
+                self.jNVar = kwargs["jNVar"]
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
-                self.hemPeriod = hemPeriod
-                self.evtTaggerDict = evtTaggerDict
-                # self.cutflow_hist = hist.Hist(
-                #                                 "Cutflow",
-                #                                 hist.Cat("cut", "Cuts"),
-                #                                 hist.Bin("events", "Events", 1, 0, 1),
-                #                             )
+                self.hemPeriod = kwargs["hemPeriod"]
+                self.evtTaggerDict = kwargs["evtTaggerDict"]
+
         @property
         def accumulator(self):
                 return self._accumulator
@@ -67,12 +66,11 @@ class MainProcessor(processor.ProcessorABC):
                 runJetTagger(events,vars_noCut,self.fakerateHisto)
                 utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 data = runEventTagger(vars_noCut,self.evtTaggerDict)
-                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=False)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)
                 output = self.accumulator
-
                 # run cut loop
                 for cutName,cut in cuts.items():
                     # print("cutName = {} \n cut = {}".format(cutName,cut))

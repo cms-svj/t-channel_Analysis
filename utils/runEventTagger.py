@@ -22,7 +22,7 @@ def get_all_vars(varsIn,eventVar,jetVar,numOfJetsToUse):
     ########### Normalization ###############
     for evar in eventVar:
         inputArr = np.array(varsIn[evar])
-        if evar == "mT":
+        if evar in ["njetsAK8","mT"]:
             dataSet[evar] = np.log(inputArr)
         else:
             dataSet[evar] = inputArr
@@ -68,16 +68,18 @@ def runEventTagger(varsIn,evtTaggerDict):
     hyper = evtTaggerDict["hyper"]
     features = evtTaggerDict["features"]
     evtTaggerLocation = evtTaggerDict["evtTaggerLocation"]
-    numOfJetsToUse = features["numOfJetsToUse"]
-    eventVariables = features["eventVariables"]
-    jetVariables = features["jetVariables"]
-    num_classes = hyper["num_classes"]
+    numOfJetsToUse = features.numOfJetsToKeep
+    eventVariables = features.eventVariables
+    jetVariables = features.jetVariables
+    num_classes = hyper.num_classes
     device = torch.device('cpu')
-    evtTagger = DNN(n_var=len(eventVariables)+len(jetVariables)*numOfJetsToUse, n_layers=hyper["num_of_layers"], n_nodes=hyper["num_of_nodes"], n_outputs=hyper["num_classes"], drop_out_p=hyper["dropout"]).to(device=device)
+    evtTagger = DNN(n_var=len(eventVariables)+len(jetVariables)*numOfJetsToUse, n_layers=hyper.num_of_layers, n_nodes=hyper.num_of_nodes, n_outputs=hyper.num_classes, drop_out_p=hyper.dropout).to(device=device)
     evtTagger.load_state_dict(torch.load("{}/model.pth".format(evtTaggerLocation),map_location=device))
     evtTagger.eval()
     evtTagger.to('cpu')
     dataset = RootDataset(varsIn=varsIn,eventVar=eventVariables, jetVar=jetVariables, numOfJetsToUse=numOfJetsToUse)
     nnOutput,data = getNNOutput(dataset, evtTagger, num_classes)    
     varsIn['nnEventOutput'] = nnOutput
+    varsIn['nnEventOutputrMET'] = nnOutput/varsIn["met"]
+    varsIn['nnEventOutputrST'] = nnOutput/varsIn["st"]
     return data

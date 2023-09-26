@@ -231,7 +231,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
     tch_trgs_CR =  trgListtoInd(trigDict,trgSelectionsCR)
     tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
     passTrigger = PassTrigger(triggerPass,tch_trgs)
-    preselection = qualityCuts & passTrigger & stCut & (njetsAK8 >= 2)
+    preselection = qualityCuts & passTrigger & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5)
     # trigger study for MCs
     nOffMuons = vars_noCut['nOffMuons']
     passTrigger_muon = PassTrigger(triggerPass,tch_trgs_CR)
@@ -300,13 +300,15 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
                     # "_all_cuts_girth"  : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (girthAK8 > 0.5),
                     # "_all_cuts_met"    : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (met > 1200)
                     # "_qual_st"             : qualityCuts & stCut,
+                }
 
     
     if SVJCut == True:
-        # nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
+        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
         cuts = {
                 ""            : np.ones(len(evtw),dtype=bool),
                 "_pre"        : preselection,
+                "_pre_1PSVJ"  : preselection & (nsvjJetsAK8 >= 1),
                 "_pre_2J"     : preselection & (njetsAK8 == 2),
                 "_pre_3J"     : preselection & (njetsAK8 == 3),
                 "_pre_4J"     : preselection & (njetsAK8 == 4),
@@ -315,9 +317,11 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
                 "_pre_1SVJ"   : preselection & (nsvjJetsAK8 == 1),
                 "_pre_2SVJ"   : preselection & (nsvjJetsAK8 == 2),
                 "_pre_3SVJ"   : preselection & (nsvjJetsAK8 == 3),
-                "_pre_4SVJ"   : preselection & (nsvjJetsAK8 == 4),
-                # ""                  : np.ones(len(evtw),dtype=bool),
-                # "_data_mask"            : DataMask,
+                "_pre_4PSVJ"   : preselection & (nsvjJetsAK8 >= 4),
+                "_pre_2J_1PSVJ"     : preselection & (njetsAK8 == 2) & (nsvjJetsAK8 >= 1),
+                "_pre_3J_1PSVJ"     : preselection & (njetsAK8 == 3) & (nsvjJetsAK8 >= 1),
+                "_pre_4J_1PSVJ"     : preselection & (njetsAK8 == 4) & (nsvjJetsAK8 >= 1),
+                "_pre_5PJ_1PSVJ"    : preselection & (njetsAK8 >= 5) & (nsvjJetsAK8 >= 1),   
                 #"_qual"             : qualityCuts,
                 #"_qual_met"         : qualityCuts & metCut,
                 #"_qual_ht"          : qualityCuts & htCut,

@@ -5,8 +5,8 @@ def make_schema(config_schema_dict):
 
 # define schema of config parameters
 config_schema_dict = {
-    "dataset":  ["path","signal","background","sample_fractions"],
-    "features": ["jetConst","jetVariables","num_const","spectator","eventVariables"],
+    "dataset":  ["path","signal","background","sample_fractions","flatMET"],
+    "features": ["jetConst","jetVariables","num_const","spectator","eventVariables","dcorrVar","numOfJetsToKeep"],
     "training": ["size","signal_id_method","signal_weight_method","weights","algorithms"],
     "hyper":    ["num_classes","learning_rate","batchSize","num_of_k_nearest","num_of_edgeConv_dim","num_of_edgeConv_convLayers","num_of_fc_layers",
                 "num_of_layers","num_of_nodes","dropout",
