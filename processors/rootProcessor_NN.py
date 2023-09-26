@@ -12,11 +12,12 @@ def col_accumulator(a):
     return processor.column_accumulator(np.array(a))
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf,*args):
+        def __init__(self,**kwargs):
             self._accumulator = processor.dict_accumulator({})
-            self.dataset = dataset
+            self.dataset = kwargs["dataset"]
             self.setupNPArr = None
-            self.scaleFactor = sf
+            self.scaleFactor = kwargs["sf"]
+            self.tcut = kwargs["tcut"]
             self.hemPeriod = ""
             self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
         @property
@@ -52,14 +53,14 @@ class MainProcessor(processor.ProcessorABC):
                 vars_noCut = utl.baselineVar(self.dataset,events,self.hemPeriod,self.scaleFactor)
                 runJetTagger(events,vars_noCut,self.fakerateHisto)
                 # Our preselection
-                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=False)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
                 maxNJets = 10
                 if self.setupNPArr is None:
                     self.setupNPArray(variables(),maxNJets)
                 output = self.accumulator.identity()
 
                 # run cut loop
-                cut = cuts["_preselec"]
+                cut = cuts[self.tcut]
                 # saving the number of events before any cut for consistency check
                 if (len(events) > 0) and (np.any(cut)):
                     eventsCut = events[cut]

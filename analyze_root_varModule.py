@@ -31,6 +31,8 @@ def main():
     parser.add_option('-j', '--jNVar',     help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
     parser.add_option('-b', '--jobs',      help='Number of workers to use for condor dask', dest='jobs', type=int, default=1)
     parser.add_option(      '--hemPeriod', help='HEM period (PreHEM or PostHEM), default includes entire sample',            dest='hemPeriod', type=str, default="")
+    parser.add_option(      '--outHistF',  help='Output directory for histogram files',      dest='outHistF', type=str, default="./")
+    parser.add_option(      '--tcut',      help='Cut for training files: _pre, _pre_1PSVJ',  dest='tcut', type=str, default="_pre")    
     options, args = parser.parse_args()
 
     # set output root file
@@ -44,7 +46,7 @@ def main():
         from processors.trainFileProcessor import MainProcessor
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles, mlTraining=True)
-    sf = s.sfGetter(sample,True)
+    sf = s.sfGetter(sample,True,options.tcut)
     print("scaleFactor = {}".format(sf))
     # run processor
     MainExecutor = processor.futures_executor

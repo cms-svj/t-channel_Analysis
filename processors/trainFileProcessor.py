@@ -11,11 +11,11 @@ def col_accumulator(a):
     return processor.column_accumulator(np.array(a))
 
 class MainProcessor(processor.ProcessorABC):
-        def __init__(self,dataset,sf,*args):
+        def __init__(self,**kwargs):
             self._accumulator = processor.dict_accumulator({})
-            self.dataset = dataset
+            self.dataset = kwargs["dataset"]
             self.setupNPArr = None
-            self.scaleFactor = sf
+            self.scaleFactor = kwargs["sf"]
             self.hemPeriod = ""
         @property
         def accumulator(self):
