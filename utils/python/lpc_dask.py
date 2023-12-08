@@ -107,9 +107,9 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
         for i in range(len(sampleList)):
             details += f"{sampleList[i]}_N{nFilesList[i]}_M{startFileList[i]}_"
         if args.condor or args.dask:
-            outfile = f"{outHistF}/MyAnalysis_{details}{hemPeriod}.root"
+            outfile = f"{outHistF}/MyAnalysis_{details}{args.hemPeriod}.root"
         else:
-            outfile = f"{outHistF}/local_{details}{hemPeriod}.root"    
+            outfile = f"{outHistF}/local_{details}{args.hemPeriod}.root"    
         fout = uproot.recreate(outfile)
         if isinstance(output,tuple): output = output[0]
         output = dict(sorted(output.items()))
