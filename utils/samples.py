@@ -26,7 +26,7 @@ def getFileset(sample,verbose=False,startFile=0,nFiles=-1,mlTraining=False):
     # inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
     inputSamples = glob.glob(JSONDir+year+"_"+detailKey+"*.json")
     if len(inputSamples) == 0:
-        print("Error: no json file found with name:", JSONDir)
+        raise Exception("Error: no json file found with name:", JSONDir)
     # else:
     #     print(inputSamples)
 
@@ -57,6 +57,16 @@ def getFileset(sample,verbose=False,startFile=0,nFiles=-1,mlTraining=False):
 
     return fileset
 
+def getFilesetFromList(sampleList,verbose=False,startFileList=[0],nFilesList=[-1],mlTraining=False):
+    allFileset = {}
+    for i in range(len(sampleList)):
+        sample = sampleList[i]
+        startFile = startFileList[i]
+        nFiles = nFilesList[i]
+        fileset = getFileset(sample,verbose,startFile,nFiles,mlTraining)
+        allFileset.update(fileset)
+    return allFileset
+
 def getAllFilesets():
     fBG = getFileset("*_*", False)
     fSG1 = getFileset("*_mMed", False)
@@ -65,31 +75,43 @@ def getAllFilesets():
     fBG.update(fSG2)
     return fBG
 
-def sfGetter(sample,on=False,tcut=""):
-    if on:
+def sfGetter(sample,scaleOn=False,tcut=""):
+    if scaleOn:
         # scaleFactor for particleNet/event tagger training files (pre)
-        if tcut == "_pre":
+        # if tcut == "_pre":
+            # scaleFactor = {
+            #     "2018_QCD_Pt_1000to1400": 19730000/48000.,
+            #     "2018_QCD_Pt_1400to1800": 10982000/21000.,
+            #     "2018_QCD_Pt_1800to2400": 5491000/48000.,
+            #     "2018_QCD_Pt_2400to3200": 2997000/30000.,
+            #     "2018_QCD_Pt_300to470": 57910000/9423000.,
+            #     "2018_QCD_Pt_3200toInf": 1000000/3000.,
+            #     "2018_QCD_Pt_470to600": 52448000/447000.,
+            #     "2018_QCD_Pt_600to800": 67508000/96000.,
+            #     "2018_QCD_Pt_800to1000": 37160000/48000.,
+            #     "2018_TTJets_DiLept": 29290487/16993527.,
+            #     "2018_TTJets_DiLept_genMET-150": 10592111/195331.,
+            #     "2018_TTJets_HT-600to800": 15258099/179188.,
+            #     "2018_TTJets_HT-800to1200": 9201990/135827.,
+            #     "2018_TTJets_HT-1200to2500": 2009331/70237.,
+            #     "2018_TTJets_HT-2500toInf": 1001084/40694.,
+            #     "2018_TTJets_Incl": 10494353/10339641.,
+            #     "2018_TTJets_SingleLeptFromT": 58237254/5080853.,
+            #     "2018_TTJets_SingleLeptFromT_genMET-150": 13337428/845757.,
+            #     "2018_TTJets_SingleLeptFromTbar": 58510607/6941755.,
+            #     "2018_TTJets_SingleLeptFromTbar_genMET-150": 12597052/968711.,
+            #     }
+        if tcut == "_pre": # this version increases the number of high MET qcd samples
             scaleFactor = {
-                "2018_QCD_Pt_1000to1400": 19730000/48000.,
-                "2018_QCD_Pt_1400to1800": 10982000/21000.,
-                "2018_QCD_Pt_1800to2400": 5491000/48000.,
-                "2018_QCD_Pt_2400to3200": 2997000/30000.,
                 "2018_QCD_Pt_300to470": 57910000/9423000.,
-                "2018_QCD_Pt_3200toInf": 1000000/3000.,
-                "2018_QCD_Pt_470to600": 52448000/447000.,
-                "2018_QCD_Pt_600to800": 67508000/96000.,
-                "2018_QCD_Pt_800to1000": 37160000/48000.,
-                "2018_TTJets_DiLept": 29290487/16993527.,
-                "2018_TTJets_DiLept_genMET-150": 10592111/195331.,
-                "2018_TTJets_HT-600to800": 15258099/179188.,
-                "2018_TTJets_HT-800to1200": 9201990/135827.,
-                "2018_TTJets_HT-1200to2500": 2009331/70237.,
-                "2018_TTJets_HT-2500toInf": 1001084/40694.,
-                "2018_TTJets_Incl": 10494353/10339641.,
-                "2018_TTJets_SingleLeptFromT": 58237254/5080853.,
-                "2018_TTJets_SingleLeptFromT_genMET-150": 13337428/845757.,
-                "2018_TTJets_SingleLeptFromTbar": 58510607/6941755.,
-                "2018_TTJets_SingleLeptFromTbar_genMET-150": 12597052/968711.,
+                "2018_QCD_Pt_470to600": 52448000/927000.,
+                "2018_QCD_Pt_600to800": 67508000/960000.,
+                "2018_QCD_Pt_800to1000": 37160000/906000.,
+                "2018_QCD_Pt_1000to1400": 19730000/936000.,
+                "2018_QCD_Pt_1400to1800": 10982000/843000.,
+                "2018_QCD_Pt_1800to2400": 5491000/654000.,
+                "2018_QCD_Pt_2400to3200": 2997000/786000.,
+                "2018_QCD_Pt_3200toInf": 1000000/484000.,
                 }
         # scaleFactor for particleNet/event tagger training files (pre)
         elif tcut == "_pre_1PSVJ":
@@ -115,21 +137,77 @@ def sfGetter(sample,on=False,tcut=""):
                 "2018_TTJets_SingleLeptFromTbar_genMET-150": 12597052/4489650.,
                 "2018_TTJets_Incl": 10494353/10339641.,
                 }
+        elif tcut == "_pre_MET50":
+            scaleFactor = {
+                "2018_QCD_Pt_300to470": 57910000/7023000.,
+                "2018_QCD_Pt_470to600": 52448000/591000.,
+                "2018_QCD_Pt_600to800": 67508000/192000.,
+                "2018_QCD_Pt_800to1000": 37160000/48000.,
+                "2018_QCD_Pt_1000to1400": 19730000/48000.,
+                "2018_QCD_Pt_1400to1800": 10982000/21000.,
+                "2018_QCD_Pt_1800to2400": 5491000/48000.,
+                "2018_QCD_Pt_2400to3200": 2997000/30000.,
+                }
+        elif tcut == "_pre_MET75":
+            scaleFactor = {
+                "2018_QCD_Pt_300to470": 57910000/11749000.,
+                "2018_QCD_Pt_470to600": 52448000/1023000.,
+                "2018_QCD_Pt_600to800": 67508000/288000.,
+                "2018_QCD_Pt_800to1000": 37160000/48000.,
+                "2018_QCD_Pt_1000to1400": 19730000/48000.,
+                "2018_QCD_Pt_1400to1800": 10982000/21000.,
+                "2018_QCD_Pt_1800to2400": 5491000/48000.,
+                "2018_QCD_Pt_2400to3200": 2997000/30000.,
+                }
+        elif tcut == "_pre_MET100":
+            scaleFactor = {
+                "2018_QCD_Pt_300to470": 57910000/21457000.,
+                "2018_QCD_Pt_470to600": 52448000/1860000.,
+                "2018_QCD_Pt_600to800": 67508000/528000.,
+                "2018_QCD_Pt_800to1000": 37160000/96000.,
+                "2018_QCD_Pt_1000to1400": 19730000/48000.,
+                "2018_QCD_Pt_1400to1800": 10982000/21000.,
+                "2018_QCD_Pt_1800to2400": 5491000/48000.,
+                "2018_QCD_Pt_2400to3200": 2997000/30000.,
+                }
+        elif tcut == "_pre_MET125":
+            scaleFactor = {
+                "2018_QCD_Pt_300to470": 57910000/39730000.,
+                "2018_QCD_Pt_470to600": 52448000/3444000.,
+                "2018_QCD_Pt_600to800": 67508000/912000.,
+                "2018_QCD_Pt_800to1000": 37160000/159000.,
+                "2018_QCD_Pt_1000to1400": 19730000/48000.,
+                "2018_QCD_Pt_1400to1800": 10982000/21000.,
+                "2018_QCD_Pt_1800to2400": 5491000/48000.,
+                "2018_QCD_Pt_2400to3200": 2997000/30000.,
+                }
+        elif tcut == "_pre_MET200":
+            scaleFactor = {
+                "2018_QCD_Pt_300to470": 57910000/57910000.,
+                "2018_QCD_Pt_470to600": 52448000/12885000.,
+                "2018_QCD_Pt_600to800": 67508000/3624000.,
+                "2018_QCD_Pt_800to1000": 37160000/591000.,
+                "2018_QCD_Pt_1000to1400": 19730000/177000.,
+                "2018_QCD_Pt_1400to1800": 10982000/21000.,
+                "2018_QCD_Pt_1800to2400": 5491000/48000.,
+                "2018_QCD_Pt_2400to3200": 2997000/30000.,
+                }
+
         # for 20 files per sample, used for small subset of samples to make histograms
-        else:
+        elif tcut == "":
             scaleFactor = {
                 "2018_QCD_Pt_80to120": 29685000/1899000.,
                 "2018_QCD_Pt_120to170": 29949000/1824000.,
                 "2018_QCD_Pt_170to300": 29676000/960000.,
+                "2018_QCD_Pt_300to470": 57910000/870000.,
+                "2018_QCD_Pt_470to600": 52448000/927000.,
+                "2018_QCD_Pt_600to800": 67508000/960000.,
+                "2018_QCD_Pt_800to1000": 37160000/906000.,
                 "2018_QCD_Pt_1000to1400": 19730000/936000.,
                 "2018_QCD_Pt_1400to1800": 10982000/843000.,
                 "2018_QCD_Pt_1800to2400": 5491000/654000.,
                 "2018_QCD_Pt_2400to3200": 2997000/786000.,
-                "2018_QCD_Pt_300to470": 57910000/870000.,
                 "2018_QCD_Pt_3200toInf": 1000000/484000.,
-                "2018_QCD_Pt_470to600": 52448000/927000.,
-                "2018_QCD_Pt_600to800": 67508000/960000.,
-                "2018_QCD_Pt_800to1000": 37160000/906000.,
                 "2018_TTJets_DiLept": 29290487/871719.,
                 "2018_TTJets_DiLept_genMET-150": 10592111/195331.,
                 "2018_TTJets_HT-1200to2500": 2009331/591459.,

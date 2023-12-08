@@ -15,13 +15,12 @@ class MainProcessor(processor.ProcessorABC):
         def __init__(self,**kwargs):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
-                self.dataset = kwargs["dataset"]
-                self.scaleFactor = kwargs["sf"]
                 self.jNVar = kwargs["jNVar"]
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
                 self.hemPeriod = kwargs["hemPeriod"]
                 self.evtTaggerDict = kwargs["evtTaggerDict"]
-
+                self.eth = kwargs["eth"]
+                self.sFactor = kwargs["sFactor"]
         @property
         def accumulator(self):
                 return self._accumulator
@@ -62,11 +61,12 @@ class MainProcessor(processor.ProcessorABC):
         def process(self, events):
                 # cut loop
                 ## objects used for cuts
-                vars_noCut = utl.baselineVar(self.dataset,events,self.hemPeriod,self.scaleFactor)
+                dataset = events.metadata['dataset']
+                vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
                 runJetTagger(events,vars_noCut,self.fakerateHisto)
-                utl.varGetter(self.dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                data = runEventTagger(vars_noCut,self.evtTaggerDict)
-                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
+                utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
+                data = runEventTagger(vars_noCut,self.evtTaggerDict,self.eth)
+                cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)

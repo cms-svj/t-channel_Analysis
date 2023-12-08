@@ -44,14 +44,14 @@ def restart_client(client):
         time.sleep(10)
         pass
 
-def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict={},trainingKind="",trainFileProduction=False):
+def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict={},trainingKind="",trainFileProduction=False):
     ###########################################################################################################
     # run processor
     ###########################################################################################################
     output = processor.run_uproot_job(
         fileset,
         treename='TreeMaker2/PreSelection',
-        processor_instance=MainProcessor(dataset=sample,sf=sf,jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut),
+        processor_instance=MainProcessor(jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,eth=args.eth,sFactor=args.sFactor),
         executor=MainExecutor,
         executor_args=exe_args,
         chunksize=args.chunksize,
@@ -79,10 +79,20 @@ def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evt
             partNumber += 1
             file = uproot.recreate(fileName)
             for v in output.keys():
-                try:
-                    outputNPZ[v] = output[v].value[i:i+maxNumOfJets]
-                except:
-                    outputNPZ[v] = output[v].value[i:-1]
+                outShape = (output[v].value).shape
+                if (len(outShape) > 1) and (trainingKind == "NN"):
+                    print(v)
+                    print(outShape)
+                    for j in range(outShape[1]):
+                        try:
+                            outputNPZ[f"{v}_{j}"] = output[v].value[:,j][i:i+maxNumOfJets]
+                        except:
+                            outputNPZ[f"{v}_{j}"] = output[v].value[:,j][i:]
+                else:
+                    try:
+                        outputNPZ[v] = output[v].value[i:i+maxNumOfJets]
+                    except:
+                        outputNPZ[v] = output[v].value[i:]
             file["tree"] = outputNPZ
             file["tree"].show()
     else:
@@ -90,7 +100,16 @@ def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evt
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
     ###########################################################################################################
-        outfile = f"{outHistF}/MyAnalysis_{sample}_{args.hemPeriod}_{args.startFile}.root" if args.condor or args.dask else f"{outHistF}/test.root"
+        details = ""
+        sampleList = args.dataset
+        nFilesList = args.nFiles
+        startFileList = args.startFile
+        for i in range(len(sampleList)):
+            details += f"{sampleList[i]}_N{nFilesList[i]}_M{startFileList[i]}_"
+        if args.condor or args.dask:
+            outfile = f"{outHistF}/MyAnalysis_{details}{hemPeriod}.root"
+        else:
+            outfile = f"{outHistF}/local_{details}{hemPeriod}.root"    
         fout = uproot.recreate(outfile)
         if isinstance(output,tuple): output = output[0]
         output = dict(sorted(output.items()))
@@ -101,7 +120,7 @@ def run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evt
             fout[key] = H
         fout.close()
 
-def runProcessWithErrorHandling(fileset,sample,sf,MainExecutor,MainProcessor,args,evtTaggerDict={},trainingKind="",trainFileProduction=False):
+def runProcessWithErrorHandling(fileset,sample,MainExecutor,MainProcessor,args,evtTaggerDict={},trainingKind="",trainFileProduction=False):
     import dask.distributed
     from distributed import CancelledError
     from distributed.scheduler import KilledWorker
@@ -119,26 +138,26 @@ def runProcessWithErrorHandling(fileset,sample,sf,MainExecutor,MainProcessor,arg
     MainExecutor = processor.dask_executor
     # error handling
     try:
-      run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
+      run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
     except (CancelledError, CommClosedError) as err:
       print(
       err, "Cluster communication error, restart workers and trying again.")
       restart_client(client)
-      run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
+      run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
     except KilledWorker as err:
       print(
       err, """Some job consistently got worker nodes killed. Assuming dirty
       worker state, restarting client and and trying just once. If issue
       persists this should be a true error that needs to be looked at.""")
       restart_client(client)
-      run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
+      run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
     except TimeoutError as err:
       print(
       err, """Connection time out error, this is is typically a worker node
       start up issue, retrying indefinitely. Make sure all grid
       requirements are met if issue persists.""")
       restart_client(client)
-      run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
+      run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
     except OSError as err:
       err_str = str(err)
       if 'XRootD' in err_str and 'Operation expired' in err_str:
@@ -148,7 +167,7 @@ def runProcessWithErrorHandling(fileset,sample,sf,MainExecutor,MainProcessor,arg
           than 3 times.""")
           bad_file = err_str.split()[-1]  # Getting the bad file.
           print("bad_file",bad_file)
-          run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
+          run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
 
       if 'XRootD' in err_str:
       # Note, missing files would be FileNotFound error, not an OSError.
@@ -157,7 +176,7 @@ def runProcessWithErrorHandling(fileset,sample,sf,MainExecutor,MainProcessor,arg
           restarted, but make sure all xrootd requirements are met if issue
           persists (grid certificates validity session).""")
           restart_client(client)
-          run_processor(fileset,sample,sf,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
+          run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict,trainingKind,trainFileProduction)
       else:
           raise err
     except Exception as err:

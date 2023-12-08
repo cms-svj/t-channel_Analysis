@@ -1,4 +1,4 @@
-# UL2018 Ntuples Good triggers 
+# UL Good triggers 
 # (Name of the trigger : Index in the TriggerPass )
 trigDicts = {
     "2016": {

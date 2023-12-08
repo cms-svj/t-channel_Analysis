@@ -2,6 +2,7 @@ import numpy as np
 import awkward as ak
 # from mt2 import mt2
 from . import objects as ob
+from . import samples as s
 from itertools import combinations
 import time
 
@@ -151,9 +152,10 @@ def tch_hvCat_decode(hvCat):
     hvCat = decode(hvCat,1,"stableD",catList)
     return catList
 
-def baselineVar(dataset,events,hemPeriod,scaleFactor):
+def baselineVar(dataset,events,hemPeriod,sFactor):
     varVal = {}
     dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
+    scaleFactor = s.sfGetter(dataset,scaleOn=sFactor,tcut="")
     isData = False
     for dKey in dataKeys:
         if dKey in dataset:
@@ -237,7 +239,7 @@ def baselineVar(dataset,events,hemPeriod,scaleFactor):
 
     ##### HLT muon matching for trigger study ####
     # hltMuons = obj.hltMuons
-    triggerOfflineMuons = obj.triggerOfflineMuons()
+    # triggerOfflineMuons = obj.triggerOfflineMuons()
     # offMuonPhi = triggerOfflineMuons.phi
     # offMuonEta = triggerOfflineMuons.eta
     # hltMuonPhi = hltMuons.phi
@@ -266,7 +268,7 @@ def baselineVar(dataset,events,hemPeriod,scaleFactor):
     #         matchedList.append(matched)
     #     matchedList = np.transpose(matchedList)
     #     nHLTMatchedMuons = np.sum(matchedList,axis=1)
-    varVal['nOffMuons'] = ak.num(triggerOfflineMuons)
+    # varVal['nOffMuons'] = ak.num(triggerOfflineMuons)
     # varVal['nHLTMatchedMuons'] = nHLTMatchedMuons
     ############################################
 
@@ -286,6 +288,9 @@ def baselineVar(dataset,events,hemPeriod,scaleFactor):
     varVal['nb'] = nBJets
     varVal['met'] = met
     varVal['metPhi'] = metPhi
+    ##### TTStitch ######
+    # varVal['madHT'] = events.madHT
+    #####################
     varVal['mT'] = mtAK8
     varVal['ht'] = ht
     varVal['st'] = st
@@ -383,6 +388,9 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     evtw = varVal['evtw'][cut] 
     eCounter = varVal['eCounter'][cut] 
     nBJets = varVal['nb'][cut]
+    ##### TTStitch ######
+    # madHT= varVal['madHT'][cut]
+    #####################
     met = varVal['met'][cut]
     metPhi = varVal['metPhi'][cut]
     mtAK8 = varVal['mT'][cut]
@@ -503,7 +511,9 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['METrST_pt30'] = varVal['METrST_pt30'][cut]
     varVal['dPhiMinjMET'] = dPhiMinj
     varVal['dPhiMinjMETAK8'] = dPhiMinjAK8
+    ##### TTStitch ######
     # varVal['madHT'] = madHT
+    #####################
     varVal['jPt'] = jets.pt
     varVal['jEta'] = jetEta
     varVal['jPhi'] = jetPhi
@@ -582,6 +592,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
             varVal['j{}Pt'.format(i+1)] = jetVar_i(jets.pt,i)
             varVal['j{}Eta'.format(i+1)] = jetVar_i(jetEta,i)
             varVal['j{}Phi'.format(i+1)] = jetVar_i(jetPhi,i)
+            varVal['j{}E'.format(i+1)] = jetVar_i(jets.energy,i)
             varVal['j{}Axismajor'.format(i+1)] = jetVar_i(jets.axismajor,i)
             varVal['j{}Axisminor'.format(i+1)] = jetVar_i(jets.axisminor,i)
             varVal['j{}PtD'.format(i+1)] = jetVar_i(jets.ptD,i)
@@ -589,6 +600,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
             varVal['j{}PtAK8'.format(i+1)] = jetVar_i(fjets.pt,i)
             varVal['j{}EtaAK8'.format(i+1)] = jetVar_i(jetAK8Eta,i)
             varVal['j{}PhiAK8'.format(i+1)] = jetVar_i(jetAK8Phi,i)
+            varVal['j{}EAK8'.format(i+1)] = jetVar_i(fjets.energy,i)
             varVal['j{}AxismajorAK8'.format(i+1)] = jetVar_i(fjets.axismajor,i)
             varVal['j{}AxisminorAK8'.format(i+1)] = jetVar_i(fjets.axisminor,i)
             varVal['j{}GirthAK8'.format(i+1)] = jetVar_i(fjets.girth,i)

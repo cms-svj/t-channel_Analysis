@@ -21,10 +21,10 @@ def main():
     # get options from command line
     ###########################################################################################################
     parser = ArgumentParser(config_options=MagiConfigOptions(strict = False, default="utils/data/DNNEventClassifier/pre_nnOutput_v2/config_out.py"),formatter_class=ArgumentDefaultsRawHelpFormatter)
-    parser.add_argument('-d', '--dataset',   help='dataset', dest='dataset', type=str, default="2018_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1")
+    parser.add_argument('-d', '--dataset',   help='dataset', dest='dataset', nargs="+", default=["2018_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1"])
     parser.add_argument('-j', '--jNVar',     help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
-    parser.add_argument('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, default=-1)
-    parser.add_argument('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
+    parser.add_argument('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, nargs="+", default=[-1])
+    parser.add_argument('-M', '--startFile', help='startFile',         dest='startFile', type=int, nargs="+", default=[0])
     parser.add_argument(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
     parser.add_argument(      '--dask',      help='run w/ dask', dest='dask',              default=False, action='store_true')
     parser.add_argument(      '--port',      help='port for dask status dashboard (localhost:port)', dest='port', type=int, default=8787)
@@ -41,6 +41,8 @@ def main():
     parser.add_argument(      '--slimProc',  help='Slimmed processor for fasting processing',       dest='slimProc',             default=False, action='store_true')  
     parser.add_argument(      '--tcut',      help='Cut for training files: _pre, _pre_1PSVJ',  dest='tcut', type=str, default="_pre")    
     parser.add_argument('-i', '--issues',    help='Run the dataTestProcessor', dest='issue', default=False, action='store_true')
+    parser.add_argument('-z', '--eth',       help='Use trained model from eth', dest='eth',  default=False, action='store_true')
+    parser.add_argument('-f', '--sFactor',   help='Scale factor', dest='sFactor',  default=False, action='store_true')
 
     for arg in c.config_schema:
         parser.add_config_argument(arg)
@@ -51,9 +53,7 @@ def main():
     sample = options.dataset
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s.getFileset(sample, True, options.startFile, options.nFiles)
-    sf = s.sfGetter(sample,True)
-    print("scaleFactor = {}".format(sf))
+    fileset = s.getFilesetFromList(sample, True, options.startFile, options.nFiles)
 
     ###########################################################################################################
     # get event level NN information
@@ -80,13 +80,13 @@ def main():
     MainExecutor = processor.futures_executor
 
     if options.dask:
-        runProcessWithErrorHandling(fileset,sample,sf,MainExecutor,MainProcessor,options,evtTaggerDict)
+        runProcessWithErrorHandling(fileset,sample,MainExecutor,MainProcessor,options,evtTaggerDict)
     else:
         exe_args = {
             'workers': options.workers, 
             'schema': processor.TreeMakerSchema
         }
-        run_processor(fileset,sample,sf,MainExecutor,MainProcessor,options,exe_args,evtTaggerDict)
+        run_processor(fileset,sample,MainExecutor,MainProcessor,options,exe_args,evtTaggerDict)
 
     ###########################################################################################################
     # print run time in seconds
