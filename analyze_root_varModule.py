@@ -17,7 +17,7 @@ def main():
     # get options from command line
     parser = OptionParser()
     parser.add_option('-d', '--dataset',   help='dataset',           dest='dataset')
-    parser.add_option(      '--training',  help='For which training should the files be made: NN, PN',           dest='training', default="PN")
+    parser.add_option('-j', '--jNVar',     help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
     parser.add_option('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, default=-1)
     parser.add_option('-M', '--startFile', help='startFile',         dest='startFile', type=int, default=0)
     parser.add_option(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
@@ -28,11 +28,13 @@ def main():
     parser.add_option('-w', '--workers',   help='Number of workers to use for multi-worker executors (e.g. futures or condor)', dest='workers', type=int, default=8)
     parser.add_option('-s', '--chunksize', help='Chunk size',        dest='chunksize', type=int, default=10000)
     parser.add_option('-m', '--maxchunks', help='Max number of chunks (for testing)',        dest='maxchunks', type=int, default=None)
-    parser.add_option('-j', '--jNVar',     help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
     parser.add_option('-b', '--jobs',      help='Number of workers to use for condor dask', dest='jobs', type=int, default=1)
-    parser.add_option(      '--hemPeriod', help='HEM period (PreHEM or PostHEM), default includes entire sample',            dest='hemPeriod', type=str, default="")
     parser.add_option(      '--outHistF',  help='Output directory for histogram files',      dest='outHistF', type=str, default="./")
+    parser.add_option(      '--hemPeriod', help='HEM period (PreHEM or PostHEM), default includes entire sample',            dest='hemPeriod', type=str, default="")
     parser.add_option(      '--tcut',      help='Cut for training files: _pre, _pre_1PSVJ',  dest='tcut', type=str, default="_pre")    
+    parser.add_option('-z', '--eth',       help='Use trained model from eth', dest='eth',  default=False, action='store_true')
+    parser.add_option('-f', '--sFactor',   help='Scale factor', dest='sFactor',  default=False, action='store_true')
+    parser.add_option(      '--training',  help='For which training should the files be made: NN, PN',           dest='training', default="PN")
     options, args = parser.parse_args()
 
     # set output root file
@@ -46,18 +48,17 @@ def main():
         from processors.trainFileProcessor import MainProcessor
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
     fileset = s.getFileset(sample, True, options.startFile, options.nFiles, mlTraining=True)
-    sf = s.sfGetter(sample,True,options.tcut)
-    print("scaleFactor = {}".format(sf))
+
     # run processor
     MainExecutor = processor.futures_executor
     if options.dask:
-        runProcessWithErrorHandling(fileset,sample,sf,MainExecutor,MainProcessor,options,trainingKind=trainingKind,trainFileProduction=True)
+        runProcessWithErrorHandling(fileset,sample,MainExecutor,MainProcessor,options,trainingKind=trainingKind,trainFileProduction=True)
     else:
         exe_args = {
             'workers': options.workers, 
             'schema': processor.TreeMakerSchema
         }
-        run_processor(fileset,sample,sf,MainExecutor,MainProcessor,options,exe_args,trainingKind=trainingKind,trainFileProduction=True)
+        run_processor(fileset,sample,MainExecutor,MainProcessor,options,exe_args,trainingKind=trainingKind,trainFileProduction=True)
 
     dt = time.time() - tstart
     print("run time: %.2f [sec]" % (dt))
