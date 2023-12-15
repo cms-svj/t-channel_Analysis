@@ -4,10 +4,9 @@ import uproot
 import os 
 
 def use_dask(condor,jobs,port):
-    from dask.distributed import Client
+    from dask.distributed import Client, LocalCluster
     from lpcjobqueue import LPCCondorCluster
     import socket
-    import dask
 
     hostname = socket.gethostname()
 
@@ -30,7 +29,9 @@ def use_dask(condor,jobs,port):
             timeout=100
         )
     else:
-        client = Client()
+        cluster = LocalCluster(memory_limit="4GiB",scheduler_port=0)
+        cluster.scale(4)
+        client = Client(cluster)
     return client
 
 def restart_client(client):
@@ -81,8 +82,6 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
             for v in output.keys():
                 outShape = (output[v].value).shape
                 if (len(outShape) > 1) and (trainingKind == "NN"):
-                    print(v)
-                    print(outShape)
                     for j in range(outShape[1]):
                         try:
                             outputNPZ[f"{v}_{j}"] = output[v].value[:,j][i:i+maxNumOfJets]
