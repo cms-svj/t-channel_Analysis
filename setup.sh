@@ -100,9 +100,9 @@ if [[ "$DEV" -eq 1 ]]; then
 	cd ..
 else
         $ECHO "\nInstalling the 'production' version of Coffea ... "
-	python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.7.17
+	# python -m pip install --no-cache-dir coffea[dask,spark,parsl]==0.7.17
 fi
-python -m pip install --no-cache-dir numpy==1.24 # older numpy version can cause error
+# python -m pip install --no-cache-dir numpy==1.24 # older numpy version can cause error
 # Clone TreeMaker for its lists of samples and files
 $ECHO "\nCloning the TreeMaker repository ..."
 git clone https://github.com/TreeMaker/TreeMaker.git TreeMaker
