@@ -7,10 +7,10 @@ from utils import baseline as bl
 from utils.variables import variables
 from utils.inferenceParticleNet import runJetTagger
 from utils.runEventTagger import runEventTagger
+from utils.eventTaggerVars import evtTaggerVars
 import uproot
 import torch
 from datetime import datetime
-from utils import cutList as cl
 
 class MainProcessor(processor.ProcessorABC):
         def __init__(self,**kwargs):
@@ -49,7 +49,7 @@ class MainProcessor(processor.ProcessorABC):
 
         def setupHistogram(self,cuts):
                 histograms = {}
-                for cutName in cuts:
+                for cutName,cut in cuts.items():
                     for histName, histDetail in variables(self.jNVar).items():
                         if   histDetail.dim == 1:
                             histograms['h_{}{}'.format(histName,cutName)] = h.Hist(histDetail.xbins, storage="weight")
@@ -63,76 +63,75 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 dataset = events.metadata['dataset']
+                vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
+                runJetTagger(events,vars_noCut,self.fakerateHisto)
+                utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
+                evtTaggerVars(events, vars_noCut)
+                # print(vars_noCut.keys())
+                # data = runEventTagger(vars_noCut,self.evtTaggerDict,self.eth)
+                cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
-                    self.setupHistogram(cl.cuts)
+                    self.setupHistogram(cuts)
                 output = self.accumulator
-                vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
-                preCut = bl.preCut(dataset,events,vars_noCut,self.hemPeriod) # preselection cut
-                events = events[preCut]
-                if len(events) > 0:
-                    vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
-                    runJetTagger(events,vars_noCut,self.fakerateHisto)
-                    utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                    data = runEventTagger(vars_noCut,self.evtTaggerDict,self.eth)
-                    cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
-                    cutEvents = events[cuts["_pre"]]
-                    # run cut loop
-                    for cutName,cut in cuts.items():
-                        # print("cutName = {} \n cut = {}".format(cutName,cut))
-                        # defining objects
-                        weights = {
-                                "evtw" : vars_noCut["evtw"][cut],
-                                "jw"   : ak.flatten(vars_noCut["jw"][cut]),
-                                "fjw"  : ak.flatten(vars_noCut["fjw"][cut]),
-                                "ew"   : ak.flatten(vars_noCut["ew"][cut]),
-                                "mw"   : ak.flatten(vars_noCut["mw"][cut]),
-                                # "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
-                                # "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
-                                # "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
-                                # "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
-                                # "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
-                                # "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
-                        }
-                        if len(events) > 0:
-                            ## filling histograms
-                            for histName, varDetail in variables(self.jNVar).items():                            
-                                vX = vars_noCut[varDetail.varXName][cut]
-                                vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
-                                weight = weights["evtw"]
-                                wKey = varDetail.weightName
+                # run cut loop
+                for cutName,cut in cuts.items():
+                    # print("cutName = {} \n cut = {}".format(cutName,cut))
+                    # defining objects
+                    weights = {
+                            "evtw" : vars_noCut["evtw"][cut],
+                            "jw"   : ak.flatten(vars_noCut["jw"][cut]),
+                            "fjw"  : ak.flatten(vars_noCut["fjw"][cut]),
+                            "ew"   : ak.flatten(vars_noCut["ew"][cut]),
+                            "mw"   : ak.flatten(vars_noCut["mw"][cut]),
+                            "crew" : ak.flatten(vars_noCut["crew"][cut]),
+                            "crmw" : ak.flatten(vars_noCut["crmw"][cut]),
+                            "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
+                            "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
+                            # "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
+                            # "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
+                            # "pred3_evtw" : vars_noCut["pred3_evtw"][cut],
+                            # "pred4_evtw" : vars_noCut["pred4_evtw"][cut],
+                    }
+                    if len(events) > 0:
+                        ## filling histograms
+                        for histName, varDetail in variables(self.jNVar).items():                            
+                            vX = vars_noCut[varDetail.varXName][cut]
+                            vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
+                            weight = weights["evtw"]
+                            wKey = varDetail.weightName
 
-                                # properly flatten certain inputs
-                                if varDetail.flattenInfo >= 1:
-                                    vX = ak.flatten(vX)
-                                    vY = ak.flatten(vY) if varDetail.dim == 2 else None
-                    
-                                # make sure the correct weights are applied
-                                if wKey in weights.keys():
-                                    hW = weights[wKey]
-                                elif wKey == "w1":
-                                    hW = np.ones(len(weight))
-                                else:
-                                    hW = weight
+                            # properly flatten certain inputs
+                            if varDetail.flattenInfo >= 1:
+                                vX = ak.flatten(vX)
+                                vY = ak.flatten(vY) if varDetail.dim == 2 else None
+                
+                            # make sure the correct weights are applied
+                            if wKey in weights.keys():
+                                hW = weights[wKey]
+                            elif wKey == "w1":
+                                hW = np.ones(len(weight))
+                            else:
+                                hW = weight
 
-                                if self.jNVar:
-                                    finiteMask = np.isfinite(vX)
-                                    vX = vX[finiteMask]
-                                    hW = hW[finiteMask]
-                                    
-                                if len(vX) > 0:
-                                    if   varDetail.dim == 1:  
-                                        output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)
-                                    elif varDetail.dim == 2:
-                                        output['h_{}{}'.format(histName,cutName)].fill(x=vX, y=vY, weight=hW)
+                            if self.jNVar:
+                                finiteMask = np.isfinite(vX)
+                                vX = vX[finiteMask]
+                                hW = hW[finiteMask]
+                                
+                            if len(vX) > 0:
+                                if   varDetail.dim == 1:  
+                                    output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)
+                                elif varDetail.dim == 2:
+                                    output['h_{}{}'.format(histName,cutName)].fill(x=vX, y=vY, weight=hW)
 
-                            ## filling histograms by jet category
-                            # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM
-                            # for varName,varDetail in varValDict.items():
-                            #     if variables(self.jNVar)[varName][4] == 1:
-                            #         output['h_{}{}'.format(varName,cutName)].fill(val=varDetail[0][jetCat],weight=varDetail[1][jetCat])
-                            #     else:
-                            #         output['h_{}{}'.format(varName,cutName)].fill(val=varDetail[0],weight=varDetail[1])
+                        ## filling histograms by jet category
+                        # jetCat = ak.flatten(inpObj["JetsAK8_hvCategory"]) == 17 # 9 = QdM, 17 = QsM
+                        # for varName,varDetail in varValDict.items():
+                        #     if variables(self.jNVar)[varName][4] == 1:
+                        #         output['h_{}{}'.format(varName,cutName)].fill(val=varDetail[0][jetCat],weight=varDetail[1][jetCat])
+                        #     else:
+                        #         output['h_{}{}'.format(varName,cutName)].fill(val=varDetail[0],weight=varDetail[1])
                 return output
 
         def postprocess(self, accumulator):
