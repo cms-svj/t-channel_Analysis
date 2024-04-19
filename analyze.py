@@ -7,6 +7,7 @@ import numpy as np
 from utils.python.lpc_dask import *
 from magiconfig import ArgumentParser, MagiConfigOptions, ArgumentDefaultsRawHelpFormatter
 from utils.data.DNNEventClassifier import configs as c
+from utils.coffea.n_tree_maker_schema import NTreeMakerSchema
 
 def main():
     ###########################################################################################################
@@ -27,7 +28,7 @@ def main():
     parser.add_argument('-M', '--startFile', help='startFile',         dest='startFile', type=int, nargs="+", default=[0])
     parser.add_argument(      '--condor',    help='running on condor', dest='condor',              default=False, action='store_true')
     parser.add_argument(      '--dask',      help='run w/ dask', dest='dask',              default=False, action='store_true')
-    parser.add_argument(      '--port',      help='port for dask status dashboard (localhost:port)', dest='port', type=int, default=8787)
+    parser.add_argument(      '--port',      help='port for dask status dashboard (localhost:port)', dest='port', type=int, default=2542)
     parser.add_argument(      '--mincores',  help='dask waits for min # cores', dest='mincores', type=int, default=4)
     parser.add_argument(      '--quiet',     help='suppress status printouts', dest='quiet',              default=False, action='store_true')
     parser.add_argument('-w', '--workers',   help='Number of workers to use for multi-worker executors (e.g. futures or condor)', dest='workers', type=int, default=8)
@@ -43,6 +44,8 @@ def main():
     parser.add_argument('-i', '--issues',    help='Run the dataTestProcessor', dest='issue', default=False, action='store_true')
     parser.add_argument('-z', '--eth',       help='Use trained model from eth', dest='eth',  default=False, action='store_true')
     parser.add_argument('-f', '--sFactor',   help='Scale factor', dest='sFactor',  default=False, action='store_true')
+    parser.add_argument('-o', '--outputFile',help='Output file name ', dest='outputFile', default=False, type=str)
+    parser.add_argument(      '--skimSource',help='Use skim files instead of TreeMaker ntuples ', dest='skimSource', default=False, action='store_true')
 
     for arg in c.config_schema:
         parser.add_config_argument(arg)
@@ -53,7 +56,9 @@ def main():
     sample = options.dataset
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s.getFilesetFromList(sample, True, options.startFile, options.nFiles)
+    fileset = s.getFilesetFromList(sample, options, True)
+    # sf = s.sfGetter(sample,True)
+    # print("scaleFactor = {}".format(sf))
 
     ###########################################################################################################
     # get event level NN information
@@ -82,9 +87,12 @@ def main():
     if options.dask:
         runProcessWithErrorHandling(fileset,sample,MainExecutor,MainProcessor,options,evtTaggerDict)
     else:
+        schema = processor.TreeMakerSchema
+        if options.skimSource:
+            schema = NTreeMakerSchema
         exe_args = {
             'workers': options.workers, 
-            'schema': processor.TreeMakerSchema
+            'schema': schema
         }
         run_processor(fileset,sample,MainExecutor,MainProcessor,options,exe_args,evtTaggerDict)
 

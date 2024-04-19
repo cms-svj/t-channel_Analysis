@@ -2,6 +2,7 @@ import dask.distributed
 from coffea import processor
 import uproot
 import os 
+from utils.coffea.n_tree_maker_schema import NTreeMakerSchema
 
 def use_dask(condor,jobs,port):
     from dask.distributed import Client, LocalCluster
@@ -49,9 +50,13 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
     ###########################################################################################################
     # run processor
     ###########################################################################################################
+    if args.skimSource:
+        treename='Events'
+    else:
+        treename='TreeMaker2/PreSelection'
     output = processor.run_uproot_job(
         fileset,
-        treename='TreeMaker2/PreSelection',
+        treename=treename,
         processor_instance=MainProcessor(jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,eth=args.eth,sFactor=args.sFactor),
         executor=MainExecutor,
         executor_args=exe_args,
@@ -127,10 +132,13 @@ def runProcessWithErrorHandling(fileset,sample,MainExecutor,MainProcessor,args,e
     client = use_dask(args.condor,args.jobs,args.port)
     print("Waiting for at least one worker...")
     client.wait_for_workers(1)
+    schema = processor.TreeMakerSchema
+    if args.skimSource:
+        schema = NTreeMakerSchema
     exe_args = {
         'client': client,
         'savemetrics': True,
-        'schema': processor.TreeMakerSchema,
+        'schema': schema,
         #'nano': False,
         'align_clusters': True
     }

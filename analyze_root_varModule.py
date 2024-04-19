@@ -35,6 +35,7 @@ def main():
     parser.add_option('-z', '--eth',       help='Use trained model from eth', dest='eth',  default=False, action='store_true')
     parser.add_option('-f', '--sFactor',   help='Scale factor', dest='sFactor',  default=False, action='store_true')
     parser.add_option(      '--training',  help='For which training should the files be made: NN, PN',           dest='training', default="PN")
+    parser.add_option(      '--skimSource',help='Use skim files instead of TreeMaker ntuples ', dest='skimSource', default=False, action='store_true')
     options, args = parser.parse_args()
 
     # set output root file
@@ -47,7 +48,7 @@ def main():
         # from processors.rootProcessor_varModule import MainProcessor
         from processors.trainFileProcessor import MainProcessor
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s.getFileset(sample, True, options.startFile, options.nFiles, mlTraining=True)
+    fileset = s.getFileset(sample, options.startFile, options.nFiles, options.skimSource, True, mlTraining=True)
 
     # run processor
     MainExecutor = processor.futures_executor
