@@ -52,6 +52,14 @@ def tauRatio(tau_a,tau_b,i):
     Ji_tau_ab = Ji_tau_a/Ji_tau_b
     return Ji_tau_ab
 
+def mtMETLepton(met, metPhi, lepton):
+    """Calculate the transverse mass of the MET and the leading Lepton"""
+    leptonPhi = jetVar_i(lepton.phi,0)
+    leptonPt = jetVar_i(lepton.pt,0)
+    dphi = deltaPhi(leptonPhi,metPhi)
+    mt = np.sqrt(2 * leptonPhi * met * (1 - np.cos(dphi)))
+    return mt
+
 ## Need to update mt2 code.
 # def lorentzVector(pt,eta,phi,mass,i):
 #     px = pt[i]*np.cos(phi[i])
@@ -155,7 +163,8 @@ def tch_hvCat_decode(hvCat):
 def baselineVar(dataset,events,hemPeriod,sFactor):
     varVal = {}
     dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
-    scaleFactor = s.sfGetter(dataset,scaleOn=sFactor,tcut="")
+    scaleFactor = s.sfGetter(dataset,scaleOn=sFactor)
+    print("dataset = {} scaleon = {} scaleFactor = {}".format(dataset, sFactor, scaleFactor))
     isData = False
     for dKey in dataKeys:
         if dKey in dataset:
@@ -197,6 +206,9 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
     jetAK8Phi = fjets.phi
     dPhijAK8 = deltaPhi(jetAK8Phi,metPhi)
     dPhiMinjAK8 = ak.min(dPhijAK8,axis=1,mask_identity=False)
+    # cr region 
+    crElectrons = obj.crElectrons()
+    crMuons     = obj.crMuons()
 
     if len(bjets) > 0:
         nBJets = ak.num(bjets)
@@ -232,6 +244,7 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
         jetCatsUsed = [9] # s-channel SVJs
     elif isSignal == 2:
         jetCatsUsed = [3,9,11,5,7,13] # t-channel, all dark jets
+        # jetCatsUsed = [3,9]
     for jetCat in jetCatsUsed:
         hvCond = hvCond | (jetCats == jetCat)
     djets = fjets[hvCond]
@@ -286,14 +299,14 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
     varVal['njets'] = ak.num(jets)
     varVal['njetsAK8'] = ak.num(fjets)
     varVal['nb'] = nBJets
-    varVal['met'] = met
-    varVal['metPhi'] = metPhi
+    varVal['MET'] = met
+    varVal['METPhi'] = metPhi
     ##### TTStitch ######
     # varVal['madHT'] = events.madHT
     #####################
     varVal['mT'] = mtAK8
-    varVal['ht'] = ht
-    varVal['st'] = st
+    varVal['HT'] = ht
+    varVal['ST'] = st
     varVal['METrHT_pt30'] = met/ht
     varVal['METrST_pt30'] = met/st
     varVal['dPhiMinjMET'] = dPhiMinj
@@ -302,6 +315,10 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
     if isData == False:
         varVal['GenJetsAK8'] = events.GenJetsAK8
         varVal['GenParticles'] = events.GenParticles
+    # cr variables to be stored
+    varVal['crElectrons']   = crElectrons
+    varVal['crMuons']       = crMuons
+
     return varVal
 
 def jConstVarGetter(dataset,events,varVal,cut):
@@ -391,13 +408,16 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     ##### TTStitch ######
     # madHT= varVal['madHT'][cut]
     #####################
-    met = varVal['met'][cut]
-    metPhi = varVal['metPhi'][cut]
+    met = varVal['MET'][cut]
+    metPhi = varVal['METPhi'][cut]
     mtAK8 = varVal['mT'][cut]
-    ht = varVal['ht'][cut]
-    st = varVal['st'][cut]
+    ht = varVal['HT'][cut]
+    st = varVal['ST'][cut]
     dPhiMinj = varVal['dPhiMinjMET'][cut]
     dPhiMinjAK8 = varVal['dPhiMinjMETAK8'][cut]
+    # cr leptons 
+    crElectrons = varVal['crElectrons'][cut]
+    crMuons     = varVal['crMuons'][cut]
 
     jetAK8Eta = fjets.eta
     jetAK8Phi = fjets.phi
@@ -434,8 +454,11 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
         num_of_med = np.zeros(len(events)) 
         jetCats = awkwardReshape(fjets,np.ones(len(evtw))*-1)
         jetDarkPtFracs = awkwardReshape(fjets,np.ones(len(evtw))*-1)
+        # GenJetsAK8 = np.ones(len(events))
+
     varVal['JetsAK8_hvCategory'] = jetCats
     varVal['JetsAK8_darkPtFrac'] = jetDarkPtFracs
+    # varVal['GenJetsAK8'] = ak.num(GenJetsAK8)
 
     for i in range(4):
         varVal['J{}_hvCategory'.format(i+1)] = jetVar_i(varVal['JetsAK8_hvCategory'],i)
@@ -445,6 +468,8 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     nimw = awkwardReshape(nonIsoMuons,evtw)
     jw = awkwardReshape(jets,evtw)
     fjw = awkwardReshape(fjets,evtw)
+    crew = awkwardReshape(crElectrons,evtw)
+    crmw = awkwardReshape(crMuons,evtw)
 
     # AK4 Jet Variables
     jetPhi = jets.phi
@@ -499,14 +524,14 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['nb'] = ak.num(bjets)
     varVal['nl'] = varVal['nl'][cut]
     varVal['nnim'] = varVal['nnim'][cut]
-    varVal['met'] = met
+    varVal['MET'] = met
     varVal['logMET'] = np.log(met)
-    varVal['metPhi'] = metPhi
+    varVal['METPhi'] = metPhi
     varVal['metSig'] = events.METSignificance
     varVal['logMETSig'] = np.log(varVal['metSig'])
     varVal['mT'] = mtAK8
-    varVal['ht'] = ht
-    varVal['st'] = st
+    varVal['HT'] = ht
+    varVal['ST'] = st
     varVal['METrHT_pt30'] = varVal['METrHT_pt30'][cut]
     varVal['METrST_pt30'] = varVal['METrST_pt30'][cut]
     varVal['dPhiMinjMET'] = dPhiMinj
@@ -573,6 +598,25 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['muonPhi'] = muons.phi
     varVal['muonEta'] = muons.eta
 
+    varVal['crew']          = crew
+    varVal['crmw']          = crmw
+    varVal['crElectronPT']  = crElectrons.pt
+    varVal['crElectronPhi'] = crElectrons.phi
+    varVal['crElectronEta'] = crElectrons.eta
+    varVal['crMuonPT']     = crMuons.pt
+    varVal['crMuonPhi']     = crMuons.phi
+    varVal['crMuonEta']     = crMuons.eta
+    varVal['dPhiMinJAK8crElectron1'] = ak.min(deltaPhi(jetAK8Phi,jetVar_i(crElectrons.phi,0)),axis=1,mask_identity=False)
+    varVal['dPhiMinJAK8crMuon1']     = ak.min(deltaPhi(jetAK8Phi,jetVar_i(crMuons.phi,0)),axis=1,mask_identity=False)
+    mtMETCRMuon = mtMETLepton(met,metPhi,crMuons)
+    mtMETCRElectron = mtMETLepton(met,metPhi,crElectrons)
+    # print(mtMETCRMuon)
+    # print(mtMETCRElectron)
+    varVal['mtMETCRMuon'] = mtMETCRMuon
+    varVal['mtMETCRElectron'] = mtMETCRElectron
+
+
+
 
     #varVal['muonsIso'] = muons.iso
     #varVal['nonIsoMuonsPt'] = nonIsoMuons.pt
@@ -612,6 +656,9 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
             varVal['j{}Tau32AK8'.format(i+1)] = tauRatio(tau3,tau2,i)
             varVal['j{}SoftDropMassAK8'.format(i+1)] = jetVar_i(fjets.softDropMass,i)
             varVal['dPhij{}METAK8'.format(i+1)] = deltaPhi(jetVar_i(jetAK8Phi,i),metPhi)
+            varVal['dRj{}AK8crMuon1'.format(i+1)]= delta_R(jetVar_i(jetAK8Eta,i),jetVar_i(crMuons.eta,0),jetVar_i(jetAK8Phi,i),jetVar_i(crMuons.phi,0))
+            varVal['dRj{}AK8crElectron1'.format(i+1)]= delta_R(jetVar_i(jetAK8Eta,i),jetVar_i(crElectrons.eta,0),jetVar_i(jetAK8Phi,i),jetVar_i(crElectrons.phi,0))
+        
         allComs = list(combinations(range(maxN),2))
         for com in allComs:
             j1 = com[0]
