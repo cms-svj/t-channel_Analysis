@@ -1,0 +1,6 @@
+{
+    "2018_TTJets_SingleLeptFromT": [
+        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/TTJets_SingleLeptFromT/part-0.root",
+        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/TTJets_SingleLeptFromT/part-1.root"
+    ]
+}
