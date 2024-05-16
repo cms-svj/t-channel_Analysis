@@ -7,7 +7,6 @@ from utils import baseline as bl
 from utils.variables import variables
 from utils.inferenceParticleNet import runJetTagger
 from utils.runEventTagger import runEventTagger
-from utils.eventTaggerVars import evtTaggerVars
 import uproot
 import torch
 from datetime import datetime
@@ -20,8 +19,8 @@ class MainProcessor(processor.ProcessorABC):
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
                 self.hemPeriod = kwargs["hemPeriod"]
                 self.evtTaggerDict = kwargs["evtTaggerDict"]
-                self.eth = kwargs["eth"]
                 self.sFactor = kwargs["sFactor"]
+                self.skimSource = kwargs["skimSource"]
         @property
         def accumulator(self):
                 return self._accumulator
@@ -66,9 +65,7 @@ class MainProcessor(processor.ProcessorABC):
                 vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
                 runJetTagger(events,vars_noCut,self.fakerateHisto)
                 utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                evtTaggerVars(events, vars_noCut)
-                # print(vars_noCut.keys())
-                # data = runEventTagger(vars_noCut,self.evtTaggerDict,self.eth)
+                runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
                 cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:

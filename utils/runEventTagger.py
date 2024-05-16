@@ -1,98 +1,147 @@
-import numpy as np
 import awkward as ak
-import torch.utils.data as udata
+from utils.eventTaggerComputation import event_variables, jet_variables, skimmer_utils
+from . import objects as ob
+from pydoc import locate
+import numpy as np 
+import pandas as pd  
 import torch
-import pandas as pd
-from .variables import variables
-from torch.nn import functional as f
-from utils import utility as u
-from utils.poibin import PoiBin
-import random
-from utils.data.DNNEventClassifier.models import DNN
 
-#seed = 12345
-#random.seed(12345)
+def calculate_skim_variables_from_ntuples(events, varVal):
+    # Jets AK8 variables
+    new_branches = {}
+    obj = ob.Objects(events)
+    jets_ak8 = obj.goodFatJets()
+    jets_ak8_lv = skimmer_utils.make_pt_eta_phi_mass_lorentz_vector(
+        pt=jets_ak8.pt,
+        eta=jets_ak8.eta,
+        phi=jets_ak8.phi,
+        mass=jets_ak8.mass,
+    )
+    met_lv = skimmer_utils.make_pt_eta_phi_mass_lorentz_vector(
+        pt=events.MET,
+        phi=events.METPhi,
+    )
 
-def normalize(df,normMean,normStd):
-    return (df-normMean)/normStd
+    # Kinematics
+    varVal["JetsAK8_isGood"] = ak.ones_like(jets_ak8.pt,dtype=bool) # we only use good jets
+    varVal["JetsAK8_mass"] = jets_ak8_lv.mass
+    varVal["JetsAK8_deltaPhiMET"] = jet_variables.calculate_delta_phi_with_met(jets_ak8_lv, met_lv)
+    varVal["JetsAK8_LundJetPlaneZ"] = jet_variables.calculate_lund_jet_plane_z_with_met(jets_ak8_lv, met_lv)
+    varVal["JetsAK8_MTMET"] = jet_variables.calculate_invariant_mass_with_met(jets_ak8_lv, met_lv)
+    
+    # Event variables
+    nan_value = 0.  # Natural choice for missing values for LJP variables and delat eta / phi!
+    n_jets_max = 4
+    for index_0 in range(n_jets_max):
+        for index_1 in range(index_0+1, n_jets_max):
+            delta_eta = event_variables.calculate_delta_eta(
+                physics_objects=jets_ak8_lv,
+                indices=(index_0, index_1),
+                absolute_value=False,
+                nan_value=None,
+            )
+            delta_phi = event_variables.calculate_delta_phi(
+                physics_objects=jets_ak8_lv,
+                indices=(index_0, index_1),
+                absolute_value=False,
+                nan_value=None,
+            )
+            delta_r = event_variables.calculate_delta_r(
+                physics_objects=jets_ak8_lv,
+                indices=(index_0, index_1),
+                nan_value=nan_value,
+            )
+            dijet_mass = event_variables.calculate_invariant_mass(
+                physics_objects=jets_ak8_lv,
+                indices=(index_0, index_1),
+                nan_value=nan_value,
+            )
+            lund_jet_plane_z = event_variables.calculate_lund_jet_plane_z(
+                physics_objects=jets_ak8_lv,
+                indices=(index_0, index_1),
+                nan_value=nan_value,
+            )
+            delta_eta_abs = abs(delta_eta)
+            delta_phi_abs = abs(delta_phi)
+            delta_eta = ak.fill_none(delta_eta, nan_value)
+            delta_phi = ak.fill_none(delta_eta, nan_value)
+            delta_eta_abs = ak.fill_none(delta_eta, nan_value)
+            delta_phi_abs = ak.fill_none(delta_eta, nan_value)
 
-def get_all_vars(varsIn,eventVar,jetVar,numOfJetsToUse,eth):
-    dSets = []
-    dataSet = pd.DataFrame()
-    ########### Normalization ###############
-    for evar in eventVar:
-        inputArr = np.array(varsIn[evar])
-        if evar in ["njetsAK8","mT"]:
-            dataSet[evar] = np.log(inputArr)
-        else:
-            dataSet[evar] = inputArr
-    for jvar in jetVar:
-        inputArr = varsIn[jvar]
-        for i in range(numOfJetsToUse):
-            jetiInput = np.array(u.jetVar_i(inputArr,i,padValue=0))
-            if jvar in ["jPtAK8","jEAK8"]:
-                dataSet["{}_{}".format(jvar,i)] = np.log(jetiInput)
-            elif jvar == "jEtaAK8":
-                dataSet["{}_{}".format(jvar,i)] = abs(jetiInput)
-            else:
-                dataSet["{}_{}".format(jvar,i)] = jetiInput
-    ###########################################
-    if eth:
-        from training_options import features_training
-        dataSet = dataSet[features_training]
-    return dataSet
+            varVal[f"DeltaEta{index_0}{index_1}GoodJetsAK8"] = delta_eta
+            varVal[f"DeltaPhi{index_0}{index_1}GoodJetsAK8"] = delta_phi
+            varVal[f"DeltaR{index_0}{index_1}GoodJetsAK8"] = delta_r
+            varVal[f"DeltaEtaAbs{index_0}{index_1}GoodJetsAK8"] = delta_eta_abs
+            varVal[f"DeltaPhiAbs{index_0}{index_1}GoodJetsAK8"] = delta_phi_abs
+            varVal[f"DijetMass{index_0}{index_1}GoodJetsAK8"] = dijet_mass
+            varVal[f"LundJetPlaneZ{index_0}{index_1}GoodJetsAK8"] = lund_jet_plane_z
+   
+    varVal["DeltaPhiMinGoodJetsAK8"] = ak.min(abs(varVal["JetsAK8_deltaPhiMET"]), axis=1)
+    varVal["ATLASDeltaPhiMinMax"] = event_variables.calculate_atlas_delta_phi_max_min(
+        jets=jets_ak8_lv,
+        met=met_lv,
+        nan_value=nan_value,
+    )
+    varVal["ATLASPtBalance"] = event_variables.calculate_atlas_momentum_balance(
+        jets=jets_ak8_lv,
+        met=met_lv,
+        nan_value=nan_value,
+    )
 
-class RootDataset(udata.Dataset):
-    def __init__(self, varsIn, eventVar, jetVar, numOfJetsToUse, eth):
-        dataSet = get_all_vars(varsIn, eventVar, jetVar, numOfJetsToUse, eth)
-        self.vars = dataSet.astype(float).values
-    def __len__(self):
-        return len(self.vars)
+def get_skim_variables_from_skims(events, varVal):
+    # Kinematics
+    varVal["JetsAK8_isGood"] = events.JetsAK8.isGood
+    varVal["JetsAK8_mass"] = events.JetsAK8.mass
+    varVal["JetsAK8_deltaPhiMET"] = events.JetsAK8.deltaPhiMET
+    varVal["JetsAK8_LundJetPlaneZ"] = events.JetsAK8.LundJetPlaneZ
+    varVal["JetsAK8_MTMET"] = events.JetsAK8.MTMET
+    # Event variables
+    n_jets_max = 4
+    for index_0 in range(n_jets_max):
+        for index_1 in range(index_0+1, n_jets_max):
+            varVal[f"DeltaEta{index_0}{index_1}GoodJetsAK8"] = events[f"DeltaEta{index_0}{index_1}GoodJetsAK8"]
+            varVal[f"DeltaPhi{index_0}{index_1}GoodJetsAK8"] = events[f"DeltaPhi{index_0}{index_1}GoodJetsAK8"]
+            varVal[f"DeltaR{index_0}{index_1}GoodJetsAK8"] = events[f"DeltaR{index_0}{index_1}GoodJetsAK8"]
+            varVal[f"DeltaEtaAbs{index_0}{index_1}GoodJetsAK8"] = events[f"DeltaEtaAbs{index_0}{index_1}GoodJetsAK8"]
+            varVal[f"DeltaPhiAbs{index_0}{index_1}GoodJetsAK8"] = events[f"DeltaPhiAbs{index_0}{index_1}GoodJetsAK8"]
+            varVal[f"DijetMass{index_0}{index_1}GoodJetsAK8"] = events[f"DijetMass{index_0}{index_1}GoodJetsAK8"]
+            varVal[f"LundJetPlaneZ{index_0}{index_1}GoodJetsAK8"] = events[f"LundJetPlaneZ{index_0}{index_1}GoodJetsAK8"]
+    varVal["DeltaPhiMinGoodJetsAK8"] = events.DeltaPhiMinGoodJetsAK8
+    varVal["ATLASDeltaPhiMinMax"] = events.ATLASDeltaPhiMinMax
+    varVal["ATLASPtBalance"] = events.ATLASPtBalance
 
-    def __getitem__(self, idx):
-        data_np = self.vars[idx].copy()
-        data  = torch.from_numpy(data_np)
-        return data
-
-def getNNOutput(dataset, model, num_classes, eth):
-    output_tag = np.array([])
-    if dataset.__len__() > 0:
-        loader = udata.DataLoader(dataset=dataset, batch_size=dataset.__len__(), num_workers=0)
-        d = next(iter(loader))
-        data = d.float()
-        out_tag = model(data)
-        signalIndex = num_classes - 1
-        if eth:
-            output_tag = out_tag.detach().numpy().flatten() # since the eth setup uses binaryCrossEntropy
-        else:
-            output_tag = f.softmax(out_tag,dim=1)[:,signalIndex].detach().numpy()
-        output_tag = np.nan_to_num(output_tag,nan=-1)
-    return output_tag,data
-
-def runEventTagger(varsIn,evtTaggerDict,eth):
-    hyper = evtTaggerDict["hyper"]
-    features = evtTaggerDict["features"]
-    evtTaggerLocation = evtTaggerDict["evtTaggerLocation"]
-    numOfJetsToUse = features.numOfJetsToKeep
-    eventVariables = features.eventVariables
-    jetVariables = features.jetVariables
-    num_classes = hyper.num_classes
-    device = torch.device('cpu')
-    if eth:
-        import sys
-        sys.path.append(evtTaggerLocation)
-        from training_model import SimpleNet
-        evtTagger = SimpleNet()
-        checkpoint = torch.load("{}/model.pth".format(evtTaggerLocation), map_location=device)
-        evtTagger.load_state_dict(checkpoint['model_state_dict'])
+# add variables used for training the event classifier
+def evtTaggerVars(events, varVal, skimSource, evtTaggerDict):
+    if skimSource:
+        get_skim_variables_from_skims(events, varVal)
     else:
-        evtTagger = DNN(n_var=len(eventVariables)+len(jetVariables)*numOfJetsToUse, n_layers=hyper.num_of_layers, n_nodes=hyper.num_of_nodes, n_outputs=hyper.num_classes, drop_out_p=hyper.dropout).to(device=device)
-        evtTagger.load_state_dict(torch.load("{}/model.pth".format(evtTaggerLocation),map_location=device))
-    evtTagger.eval()
-    evtTagger.to('cpu')
-    dataset = RootDataset(varsIn=varsIn,eventVar=eventVariables, jetVar=jetVariables, numOfJetsToUse=numOfJetsToUse, eth=eth)
-    nnOutput,data = getNNOutput(dataset, evtTagger, num_classes, eth)    
-    varsIn['nnEventOutput'] = nnOutput
-    varsIn['nnEventOutputrMET'] = nnOutput/varsIn["met"]
-    varsIn['nnEventOutputrST'] = nnOutput/varsIn["st"]
-    return data
+        calculate_skim_variables_from_ntuples(events, varVal)
+    # adding variables used in event tagger training
+    # config_prepare_files_options = "utils.data.DNNEventClassifier.damp_1_0p001_closure_0p06_net_64_32_16_8_LJP_1EvtABCD_fixedSkimBugs.files_preparation_options"
+    config_prepare_files_options = f"{evtTaggerDict['location']}.files_preparation_options"
+    opt_prepare_files_options = locate(config_prepare_files_options)
+    opt_prepare_files_options.add_variables(varVal)
+
+# normalizing variables (code modeled after ABCD_Disco_framework/evaluate_DNN_ABCD_Disco.py)
+def normalize(evtTaggerDict, varVal):
+    scaler = evtTaggerDict["scaler"]
+    branches_for_norm = scaler.feature_names_in_
+    branches_to_keep = branches_for_norm
+    df_target = {var: np.array(varVal[var]) for var in branches_for_norm}
+    df_target = pd.DataFrame(df_target)
+    df_target_std = scaler.transform(df_target)
+    #convert to dataframe
+    df_target_std = pd.DataFrame(df_target_std, columns=branches_to_keep)
+    return df_target_std
+
+# inferencing model
+def runEventTagger(events, varVal, skimSource, evtTaggerDict):
+    evtTaggerVars(events, varVal, skimSource, evtTaggerDict)
+    df_target_std = normalize(evtTaggerDict, varVal)
+    model = evtTaggerDict["model"]
+    # config_training_options = "utils.data.DNNEventClassifier.sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn.training_options"
+    config_training_options = f"{evtTaggerDict['location']}.training_options"
+    opt_training_options = locate(config_training_options)
+    features = opt_training_options.features_training
+    event_tagger_score = model(torch.tensor(df_target_std[features].values, dtype=torch.float32))
+    varVal["nnEventOutput"] = event_tagger_score.detach().numpy().flatten()

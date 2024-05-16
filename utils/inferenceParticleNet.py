@@ -95,6 +95,7 @@ def runJetTagger(events,varsIn,fakerateHisto):
     nsvjJetsAK8 = ak.num(darksvjJetsAK8)
     varsIn['nsvjJetsAK8'] = nsvjJetsAK8
     varsIn['nnOutput'] = svjJetsAK8
+    varsIn['JetsAK8_pNetJetTaggerScore'] = svjJetsAK8 # needed for event classifier part to work properly; should probably unify the naming conventions
     varsIn['svfjw'] = u.awkwardReshape(darksvjJetsAK8,varsIn['evtw'])
     varsIn['svjPtAK8'] = darksvjJetsAK8.pt
     varsIn['svjEtaAK8'] = darksvjJetsAK8.eta

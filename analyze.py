@@ -5,9 +5,13 @@ from utils import samples as s
 import time
 import numpy as np
 from utils.python.lpc_dask import *
-from magiconfig import ArgumentParser, MagiConfigOptions, ArgumentDefaultsRawHelpFormatter
+from magiconfig import ArgumentParser
 from utils.data.DNNEventClassifier import configs as c
 from utils.coffea.n_tree_maker_schema import NTreeMakerSchema
+import joblib
+import json
+import torch
+from pydoc import locate
 
 def main():
     ###########################################################################################################
@@ -21,7 +25,7 @@ def main():
     ###########################################################################################################
     # get options from command line
     ###########################################################################################################
-    parser = ArgumentParser(config_options=MagiConfigOptions(strict = False, default="utils/data/DNNEventClassifier/pre_nnOutput_v2/config_out.py"),formatter_class=ArgumentDefaultsRawHelpFormatter)
+    parser = ArgumentParser()
     parser.add_argument('-d', '--dataset',   help='dataset', dest='dataset', nargs="+", default=["2018_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1"])
     parser.add_argument('-j', '--jNVar',     help='make histograms for nth jet variables', dest='jNVar', default=False, action='store_true')
     parser.add_argument('-N', '--nFiles',    help='nFiles',            dest='nFiles',    type=int, nargs="+", default=[-1])
@@ -35,20 +39,18 @@ def main():
     parser.add_argument('-b', '--jobs',      help='Number of workers to use for condor dask', dest='jobs', type=int, default=1)
     parser.add_argument('-s', '--chunksize', help='Chunk size',        dest='chunksize', type=int, default=10000)
     parser.add_argument('-m', '--maxchunks', help='Max number of chunks (for testing)',        dest='maxchunks', type=int, default=None)
-    parser.add_argument('-t', '--eTagLoc',   help='Location of the event tagger model',        dest='eTagLoc', type=str, default="utils/data/DNNEventClassifier/pre_nnOutput_v2")
+    parser.add_argument('-t', '--eTagLoc',   help='Location of the event tagger model',        dest='eTagLoc', type=str, default="utils/data/DNNEventClassifier/sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn")
     parser.add_argument(      '--outHistF',  help='Output directory for histogram files',      dest='outHistF', type=str, default="./")
     parser.add_argument(      '--hemPeriod', help='HEM period (PreHEM or PostHEM), default includes entire sample',            dest='hemPeriod', type=str, default="")
     parser.add_argument(      '--hemStudy',  help='HEM study',         dest='hemStudy',             default=False, action='store_true')
     parser.add_argument(      '--slimProc',  help='Slimmed processor for fasting processing',       dest='slimProc',             default=False, action='store_true')  
     parser.add_argument(      '--tcut',      help='Cut for training files: _pre, _pre_1PSVJ',  dest='tcut', type=str, default="_pre")    
     parser.add_argument('-i', '--issues',    help='Run the dataTestProcessor', dest='issue', default=False, action='store_true')
-    parser.add_argument('-z', '--eth',       help='Use trained model from eth', dest='eth',  default=False, action='store_true')
     parser.add_argument('-f', '--sFactor',   help='Scale factor', dest='sFactor',  default=False, action='store_true')
     parser.add_argument('-o', '--outputFile',help='Output file name ', dest='outputFile', default=False, type=str)
     parser.add_argument(      '--skimSource',help='Use skim files instead of TreeMaker ntuples ', dest='skimSource', default=False, action='store_true')
 
-    for arg in c.config_schema:
-        parser.add_config_argument(arg)
+
     options = parser.parse_args()
     ###########################################################################################################
     # set output root file
@@ -61,14 +63,26 @@ def main():
     # print("scaleFactor = {}".format(sf))
 
     ###########################################################################################################
-    # get event level NN information
+    # get event level DNN information
     ###########################################################################################################
-    hyper = options.hyper
-    features = options.features
+    eTagLoc = options.eTagLoc
+    with open(f"{eTagLoc}/order_of_variables.py", "r") as fp:
+        order_of_variables = json.load(fp)
+    # load event classifier
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    checkpoint = torch.load(f"{eTagLoc}/model.pt", map_location=device )
+    config_training_model = f"{eTagLoc}/training_model".replace("/",".")
+    print("config_training_model")
+    print(config_training_model)
+    # utils.data.DNNEventClassifier.damp_1_0p001_closure_0p06_net_64_32_16_8_LJP_1EvtABCD_fixedSkimBugs.files_preparation_options
+    opt_training_model = locate(config_training_model)
+    model = opt_training_model.model 
+    model.load_state_dict(checkpoint['model_state_dict'])
+    model.eval()
     evtTaggerDict = {
-        "hyper":hyper,
-        "features":features,
-        "evtTaggerLocation":options.eTagLoc
+        "location":eTagLoc.replace("/","."),
+        "scaler":joblib.load(f"{eTagLoc}/scaler.joblib"),
+        "model": model,
     }
     ###########################################################################################################
     # get executor/processor args
