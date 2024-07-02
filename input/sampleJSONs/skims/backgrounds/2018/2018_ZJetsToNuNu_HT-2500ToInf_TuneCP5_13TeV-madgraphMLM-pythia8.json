@@ -1,11 +1,11 @@
 {
     "2018_ZJetsToNuNu_HT-2500ToInf": [
-        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-0.root",
-        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-1.root",
-        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-2.root",
-        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-3.root",
-        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-4.root",
-        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-5.root",
-        "root://cmseos.fnal.gov//store/user/feble/SVJ/tChannel/analysisSkims/dataset6/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-6.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection/ZJetsToNuNu_HT-2500ToInf/part-6.root"
     ]
 }
