@@ -10,7 +10,7 @@ def calculate_skim_variables_from_ntuples(events, varVal):
     # Jets AK8 variables
     new_branches = {}
     obj = ob.Objects(events)
-    jets_ak8 = obj.goodFatJets()
+    jets_ak8 = varVal["fjets"]
     jets_ak8_lv = skimmer_utils.make_pt_eta_phi_mass_lorentz_vector(
         pt=jets_ak8.pt,
         eta=jets_ak8.eta,
@@ -23,7 +23,7 @@ def calculate_skim_variables_from_ntuples(events, varVal):
     )
 
     # Kinematics
-    varVal["JetsAK8_isGood"] = ak.ones_like(jets_ak8.pt,dtype=bool) # we only use good jets
+    varVal["JetsAK8_isGood"] = ak.ones_like(jets_ak8.pt,dtype=bool) # we only use good jets here
     varVal["JetsAK8_mass"] = jets_ak8_lv.mass
     varVal["JetsAK8_deltaPhiMET"] = jet_variables.calculate_delta_phi_with_met(jets_ak8_lv, met_lv)
     varVal["JetsAK8_LundJetPlaneZ"] = jet_variables.calculate_lund_jet_plane_z_with_met(jets_ak8_lv, met_lv)
@@ -95,6 +95,7 @@ def get_skim_variables_from_skims(events, varVal):
     varVal["JetsAK8_deltaPhiMET"] = events.JetsAK8.deltaPhiMET
     varVal["JetsAK8_LundJetPlaneZ"] = events.JetsAK8.LundJetPlaneZ
     varVal["JetsAK8_MTMET"] = events.JetsAK8.MTMET
+    varVal["JetsAK8_pNetJetTaggerScore"] = events.JetsAK8.pNetJetTaggerScore
     # Event variables
     n_jets_max = 4
     for index_0 in range(n_jets_max):

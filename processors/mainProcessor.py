@@ -5,7 +5,7 @@ import awkward as ak
 from utils import utility as utl
 from utils import baseline as bl
 from utils.variables import variables
-from utils.inferenceParticleNet import runJetTagger
+from utils.inferenceParticleNet import runJetTagger, create_pn_related_variables
 from utils.runEventTagger import runEventTagger
 import uproot
 import torch
@@ -63,9 +63,12 @@ class MainProcessor(processor.ProcessorABC):
                 ## objects used for cuts
                 dataset = events.metadata['dataset']
                 vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
-                runJetTagger(events,vars_noCut,self.fakerateHisto)
+                if not self.skimSource:
+                    runJetTagger(events,vars_noCut,self.fakerateHisto)
                 utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
+                if self.skimSource:
+                    create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
                 cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
