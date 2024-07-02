@@ -26,6 +26,12 @@ cd t-channel_Analysis
 ```
 Remember to replace `<working_directory>` with the directory where you want your files/folders to appear. You can change the name of the virtual environment by using the `-n` option and you can use the development version of coffea by using the `-d` option. These commands only need to be run during the initial setup. When doing your day-to-day tasks, you can skip these. The LCG method can be setup by skipping the Singularity launching step and by adding a `-l` flag to the setup.sh script.
 
+By default, the script is set up to inference a trained event classifier produced in the [ABCDiscoTec Framework](https://github.com/cesarecazzaniga/ABCD_Disco_framework/tree/main). If you are on the lpc, an event classifier trained using only QCD events as background can be copied over using the following command:
+```bash
+cd <working_directory>/t-channel_Analysis
+cp -r /uscms/home/keanet/nobackup/SVJ/t-channel_temp/t-channel_Analysis/utils/data/DNNEventClassifier/sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn utils/data/DNNEventClassifier/sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn
+```
+
 To activate the `coffeaenv` environment and set the Jupyter paths, run the command (every time):
 ```bash
 cd <working_directory>/t-channel_Analysis
@@ -104,7 +110,8 @@ Running things locally is usually done for debugging and testing purposes.
 * `-N`: number of files from the sample to run over. Default is -1.
 * `-M`: index of the first file to run over.
 * `-w`: number of workers.
-* `-s`: chunksize; an input for the coffea processor. It determines how many events to process at the same time.  
+* `-s`: chunksize; an input for the coffea processor. It determines how many events to process at the same time.
+* `--skimSource`: run the analysis using the skim files produced in [this framework](https://github.com/fleble/SVJProcessing/tree/main) instead of TreeMaker ntuples.  
 Sometimes it is helpful to use `-w 1 -s 2` for debugging.
 
 Dask can be used to run `analyze.py` in parallel, either locally or on Condor. The relevant options are:
@@ -115,7 +122,11 @@ Dask can be used to run `analyze.py` in parallel, either locally or on Condor. T
 To view the status dashboard, specify `--port 8NNN` (using the forwarded port from the earlier ssh command)
 and navigate to `localhost:8NNN` in a web browser.
 
-To run jobs on condor, cd into the `condor` directory and run
+
+#### Running analysis using dask condor
+To run jobs using dask condor, add `--dask --condor` at the end of the command to run the analysis locally.
+
+[Obsolete] To run jobs on condor, cd into the `condor` directory and run
 ```bash
 source initCondor.sh
 python condorSubmit.py -d 2018_QCD,2018_mMed,2018_TTJets,2018_WJets,2018_ZJets -n 5 -w 1 --output [output directory] -p --pout [eos output directory for storing the training files]
