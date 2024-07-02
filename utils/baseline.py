@@ -189,7 +189,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
 
     triggerPass = events.TriggerPass
     jetID = events.JetID
-    jetIDAK8 = events.JetIDAK8
+    jetIDAK8 = vars_noCut["fJetsID"]
     ttStitch = TTStitch(dataset,events)
 
     # ConditionMask(ptdAk8,0)
@@ -229,7 +229,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
     tch_trgs_CR =  trgListtoInd(trigDict,trgSelectionsCR)
     tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
     passTrigger = PassTrigger(triggerPass,tch_trgs)
-    preselection = qualityCuts & passTrigger & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5)
+    preselection = qualityCuts & jetIDAK8 & passTrigger & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) 
     # trigger study for MCs
     # nOffMuons = vars_noCut['nOffMuons']
     passTrigger_muon = PassTrigger(triggerPass,tch_trgs_CR)

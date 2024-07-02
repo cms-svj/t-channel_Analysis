@@ -40,6 +40,11 @@ class Objects:
         ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < 2.4) & (self.jets.ID == True)
         return self.jets[ak4QualityCut]
 
+    def fatJetsID(self):
+        ak8AnalysisCut = (self.fjets.pt > 50) & (abs(self.fjets.eta) < 2.4)
+        analysisFJets = self.fjets[ak8AnalysisCut]
+        return analysisFJets.ID
+
     def goodFatJets(self):
         # # Good AK8 Jets Cut
         ak8QualityCut = (self.fjets.pt > 50) & (abs(self.fjets.eta) < 2.4) & (self.fjets.ID == True)

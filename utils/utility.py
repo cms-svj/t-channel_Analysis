@@ -164,7 +164,6 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
     varVal = {}
     dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
     scaleFactor = s.sfGetter(dataset,scaleOn=sFactor)
-    print("dataset = {} scaleon = {} scaleFactor = {}".format(dataset, sFactor, scaleFactor))
     isData = False
     for dKey in dataKeys:
         if dKey in dataset:
@@ -190,13 +189,14 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
     jets = obj.goodJets()
     bjets = obj.goodBJets(dataset,jets)
     fjets = obj.goodFatJets()
+    fJetsID = ak.all(obj.fatJetsID(), axis=1)
     electrons = obj.goodElectrons()
     muons = obj.goodMuons()
     nonIsoMuons = obj.nonIsoMuons()
     met = events.MET
     metPhi = events.METPhi
     mtAK8 = events.MT_AK8
-    ht = ak.sum(jets.pt,axis=1)
+    ht = events.HT
     st = ht + met
     # AK4 Jet Variables
     jetPhi = jets.phi
@@ -230,7 +230,7 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
     elif isSignal == 2:
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
-        fjets = fjets[jetsAK8GenInd != -1]
+        fjets = fjets[jetsAK8GenInd != -1] # makes sure each reco AK8 jet has a corresponding gen jet, since hv category is only defined for the gen jets
         jetsAK8GenInd = jetsAK8GenInd[jetsAK8GenInd != -1]
         genHVCategory = GenJetsAK8.hvCategory
         jetCats = genHVCategory[jetsAK8GenInd]
@@ -287,6 +287,7 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
 
     varVal['djets'] = djets
     varVal['fjets'] = fjets
+    varVal['fJetsID'] = fJetsID
     varVal['jets'] = jets
     varVal['bjets'] = bjets
     varVal['electrons'] = electrons
