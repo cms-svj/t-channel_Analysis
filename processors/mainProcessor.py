@@ -69,7 +69,7 @@ class MainProcessor(processor.ProcessorABC):
                 runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
                 if self.skimSource:
                     create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
-                cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,SVJCut=True)
+                cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,self.skimSource,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)

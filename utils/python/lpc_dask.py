@@ -17,7 +17,7 @@ def use_dask(condor,jobs,port):
             cores=1,
             memory="4GB",
             disk="2GB",
-            transfer_input_files=[f'{os.getenv("TCHANNEL_BASE")}/utils',f'{os.getenv("TCHANNEL_BASE")}/processors',f'{os.getenv("TCHANNEL_BASE")}/coffeaenv/lib64/python3.8/site-packages/magiconfig.py'], # for some reason magiconfig cannot be imported properly when running dask condor
+            transfer_input_files=[f'{os.getenv("TCHANNEL_BASE")}/input',f'{os.getenv("TCHANNEL_BASE")}/utils',f'{os.getenv("TCHANNEL_BASE")}/processors',f'{os.getenv("TCHANNEL_BASE")}/coffeaenv/lib64/python3.8/site-packages/magiconfig.py'], # for some reason magiconfig cannot be imported properly when running dask condor
             log_directory=None,
             death_timeout=180
         )
