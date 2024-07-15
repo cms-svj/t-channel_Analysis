@@ -4,7 +4,7 @@ import sys
 import numpy as np
 
 nFilesPerJob = 5 # usually 5
-maxFilesPerSample = 20 # use -1 to run over all the samples
+maxFilesPerSample = -1 # use -1 to run over all the samples
 maxJobs = 50
 submissionMode = 1 # 0 = submit jobs without mixing different samples together (the old way), 1 = submit jobs while mixing samples together (lower the number of submissions)
 skimSource = False
@@ -62,14 +62,14 @@ for sampleToRun in listOfSamplesToRun:
             else:
                 command = f"{preCommand} -d {sample} -b 20 --outHistF {outHistF} -t {evtTaggerLoc} -j -s 1000 --condor --dask"
             print(command)
-            # os.system(command)
+            os.system(command)
     else:
         if (submissionMode == 0):
             for job in jobDetails:
                 sample, mVal, nVal = job
                 command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s 1000 --condor --dask"
                 print(command)
-                # os.system(command)
+                os.system(command)
         else:
             # group different runs together such that the total number of files are always maxFiles
             sampleGroupList = []
@@ -129,4 +129,4 @@ for sampleToRun in listOfSamplesToRun:
                     nValList += f"{nValGroup[i]} "
                 command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s 1000 --condor --dask"
                 print(command)
-                # os.system(command)
+                os.system(command)
