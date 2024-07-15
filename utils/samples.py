@@ -1,37 +1,44 @@
-from os import system, environ
+import os
 import json
-import glob
+from glob import glob
 
-def getFileset(sample,startFile=0,nFiles=-1,skimSource=False,verbose=False,mlTraining=False):
-    # find all json files for the sample or sample collection
-    f_ = sample.find("_")
-    year = sample[:f_]
-    detailKey = sample[f_+1:]
-    kind = "backgrounds"
-    if ("mMed" in detailKey) or ("mZprime" in detailKey):
-        kind = "signals"
-    dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
-    for dKey in dataKeys:
-        if "{}".format(dKey) in detailKey:
-            kind = "data"
-            break
-    if "Incl" in detailKey:
-        ii = detailKey.find("Incl")
-        detailKey = detailKey[:ii] + "Tune"
-    elif "TTJets_SingleLeptFromT" in sample or "TTJets_DiLept" in detailKey:
-        detailKey += "_Tune"
-    # print(f"year == {year}")
+def getSamplesFromGroup(sampleGroup,skimSource=False):
+    ntupleKind = "treeMakerNtuples"
     if skimSource:
-        JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/skims/' + kind + "/" + year + "/"
-    else:
-        JSONDir = environ['TCHANNEL_BASE'] + '/input/sampleJSONs/treeMakerNtuples/' + kind + "/" + year + "/"
+        ntupleKind = "skims"
+    sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/{sampleGroup}"
+    return [sample.replace(".json","") for sample in os.listdir(sampleInputFolder)]    
 
-    # inputSamples = glob.glob(JSONDir+"*"+detailKey+"*.json")
-    inputSamples = glob.glob(JSONDir+year+"_"+detailKey+"*.json")
+def getGroupFromSample(sample,skimSource=False):
+    ntupleKind = "treeMakerNtuples"
+    if skimSource:
+        ntupleKind = "skims"
+    inputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/"
+    allSampleGroups = os.listdir(inputFolder)
+    for sampleGroup in allSampleGroups:
+        allSamples = os.listdir(f"{inputFolder}/{sampleGroup}")
+        if f"{sample}.json" in allSamples:
+            return sampleGroup
+    raise Exception(f"{sample} does not belong to any existing sample group.")
+
+def getFileset(sample,startFile=0,nFiles=-1,skimSource=False,verbose=False):
+    # find all json files for the sample or sample collection
+    ntupleKind = "treeMakerNtuples"
+    if skimSource:
+        ntupleKind = "skims"
+    sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/"
+    allSampleGroups = os.listdir(sampleInputFolder)
+    inputSamples = []
+    if sample in allSampleGroups:
+        inputSamples = glob(f"{sampleInputFolder}/{sample}/*.json")
+    else:
+        allFiles = glob(f"{sampleInputFolder}/**/*.json",recursive=True)
+        for f in allFiles:
+            if f"{sample}.json" in f:
+                inputSamples.append(f)
+                break
     if len(inputSamples) == 0:
-        raise Exception("Error: no json file found with name:", JSONDir)
-    # else:
-    #     print(inputSamples)
+        raise Exception(f"{sample} does not exist.")
 
     # open all json files and dump them into a dictionary
     fileset_all = {}
@@ -60,7 +67,7 @@ def getFileset(sample,startFile=0,nFiles=-1,skimSource=False,verbose=False,mlTra
 
     return fileset
 
-def getFilesetFromList(sampleList,options,verbose=False,mlTraining=False):
+def getFilesetFromList(sampleList,options,verbose=False):
     startFileList = options.startFile 
     nFilesList = options.nFiles
     skimSource = options.skimSource
@@ -69,7 +76,7 @@ def getFilesetFromList(sampleList,options,verbose=False,mlTraining=False):
         sample = sampleList[i]
         startFile = startFileList[i]
         nFiles = nFilesList[i]
-        fileset = getFileset(sample,startFile,nFiles,skimSource,verbose,mlTraining)
+        fileset = getFileset(sample,startFile,nFiles,skimSource,verbose)
         allFileset.update(fileset)
     return allFileset
 
