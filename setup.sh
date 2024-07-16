@@ -60,7 +60,7 @@ else
 fi
 
 # Finding path to env
-pypath=`which python | sed 's/bin\/python//g'`
+pypath=`/usr/bin/which python | sed 's/bin\/python//g'`
 
 # Install most of the needed software in a virtual environment
 # following https://aarongorka.com/blog/portable-virtualenv/, an alternative is https://github.com/pantsbuild/pex
