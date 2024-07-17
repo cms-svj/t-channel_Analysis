@@ -40,20 +40,25 @@ class Objects:
         ak4QualityCut = (self.jets.pt > 30) & (abs(self.jets.eta) < 2.4) & (self.jets.ID == True)
         return self.jets[ak4QualityCut]
 
+    def fatJetsID(self):
+        ak8AnalysisCut = (self.fjets.pt > 50) & (abs(self.fjets.eta) < 2.4)
+        analysisFJets = self.fjets[ak8AnalysisCut]
+        return analysisFJets.ID
+
     def goodFatJets(self):
         # # Good AK8 Jets Cut
         ak8QualityCut = (self.fjets.pt > 50) & (abs(self.fjets.eta) < 2.4) & (self.fjets.ID == True)
         return self.fjets[ak8QualityCut]
     
-    # def crMuons(self):
-    #     """Control region muons"""
-    #     muonQualityCut = (self.muons.pt > self.crleptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso < 0.4)
-    #     return self.muons[muonQualityCut]
+    def crMuons(self):
+        """Control region muons"""
+        muonQualityCut = (self.muons.pt > self.crleptonPt) & (abs(self.muons.eta) < self.etaCut) & (self.muons.iso < 0.4)
+        return self.muons[muonQualityCut]
     
-    # def crElectrons(self):
-    #     """Control region Electrons, different pt cut that goodleptons used for the veto"""
-    #     electronQualityCut = (self.electrons.pt > self.crleptonPt) & (abs(self.electrons.eta) < self.etaCut) & (self.electrons.iso < 0.1)
-    #     return self.electrons[electronQualityCut]
+    def crElectrons(self):
+        """Control region Electrons, different pt cut that goodleptons used for the veto"""
+        electronQualityCut = (self.electrons.pt > self.crleptonPt) & (abs(self.electrons.eta) < self.etaCut) & (self.electrons.iso < 0.1)
+        return self.electrons[electronQualityCut]
 
 
     # def goodGenFatJets(self):

@@ -59,36 +59,7 @@ def getFlatScore(nnOutput):
         output[i] = random.uniform(0, 1)
     return output
 
-def runJetTagger(events,varsIn,fakerateHisto):
-    gnn_triton = SVJGNNTagger(score_tag='score',
-            triton_path='triton+grpc://triton.fnal.gov:443/svj_tch_gnn/1',
-            model_structure='utils.data.GNNTagger.SVJTagger',
-            model_inputs='./utils/data/GNNTagger/svj.yaml',
-            dec_thresh=0.999)
-    # initialize model if not already done
-    gnn_triton.use_triton = True
-    if gnn_triton.model == None:
-        gnn_triton.initialize_model()
-    #nnOutput = getFlatScore(nnOutput)
-    fjets = varsIn["fjets"]
-    jets_in = ju.run_jet_constituent_matching(events, fjets)
-    jets_in = ak.flatten(jets_in)
-    batch_size = 1024
-    nnOutput = np.array([])
-    for ii in range(0,len(jets_in),batch_size):
-        try:
-            jets_eval = jets_in[ii:ii+batch_size]
-        except:
-            jets_eval = jets_in[ii:-1]
-        # put data in proper format
-        feature_map = gnn_triton.get_feature_map(jets_eval)
-        X = gnn_triton.structure_X(jets_eval,feature_map)
-        #inference with triton 
-        outputs = gnn_triton.model(X)
-        nnOutput = np.append(nnOutput,softmax(outputs, axis=-1)[:, 2]) # 2 is the label for SVJ_Dark, 0 = QCD, 1 = TTJets
-    counts = ak.num(fjets.pt)
-    svjJetsAK8 = ak.unflatten(nnOutput, counts)
-
+def create_pn_related_variables(varsIn, fakerateHisto, fjets, svjJetsAK8):
     wpt = 0.7 # wpt 0.8, 0.045 fakerate
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
     bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
@@ -124,3 +95,54 @@ def runJetTagger(events,varsIn,fakerateHisto):
     varsIn['nsvjJetsAK8Plus3'] = ak.num(darksvjJetsAK8) + 3.0
     varsIn['nsvjJetsAK8Plus4'] = ak.num(darksvjJetsAK8) + 4.0
 
+def runJetTagger(events,varsIn,fakerateHisto):
+    gnn_triton = SVJGNNTagger(score_tag='score',
+            triton_path='triton+grpc://triton.fnal.gov:443/svj_tch_gnn/1',
+            model_structure='utils.data.GNNTagger.SVJTagger',
+            model_inputs='./utils/data/GNNTagger/svj.yaml',
+            dec_thresh=0.999)
+    # initialize model if not already done
+    gnn_triton.use_triton = True
+    if gnn_triton.model == None:
+        gnn_triton.initialize_model()
+    #nnOutput = getFlatScore(nnOutput)
+    fjets = varsIn["fjets"]
+    jets_in = ju.run_jet_constituent_matching(events, fjets)
+    jets_in = ak.flatten(jets_in)
+    batch_size = 1024
+    nnOutput = np.array([])
+    for ii in range(0,len(jets_in),batch_size):
+        try:
+            jets_eval = jets_in[ii:ii+batch_size]
+        except:
+            jets_eval = jets_in[ii:-1]
+        # put data in proper format
+        feature_map = gnn_triton.get_feature_map(jets_eval)
+        X = gnn_triton.structure_X(jets_eval,feature_map)
+        #inference with triton 
+        outputs = gnn_triton.model(X)
+        nnOutput = np.append(nnOutput,softmax(outputs, axis=-1)[:, 2]) # 2 is the label for SVJ_Dark, 0 = QCD, 1 = TTJets
+    counts = ak.num(fjets.pt)
+    svjJetsAK8 = ak.unflatten(nnOutput, counts)
+
+    # count_pt = ak.count(fjets.pt,axis=-1) 
+    # print('fjets.pt')
+    # print(count_pt)
+    # print(ak.sum(count_pt))
+    # count_pn = ak.count(svjJetsAK8,axis=-1)
+    # print('nnOutput')
+    # print(count_pn)
+    # print(ak.sum(count_pn))
+    # print()
+    # if len(count_pt) != len(count_pn):
+    #     print("Different lengths")
+    # else:
+    #     for i in range(len(count_pt)):
+    #         if count_pt[i] != count_pn[i]:
+    #             print("Different counts:")
+    #             print(fjets.pt[i])
+    #             print(svjJetsAK8[i])
+    # print("End of pt vs nnOut")
+    # print()
+
+    create_pn_related_variables(varsIn, fakerateHisto, fjets, svjJetsAK8)

@@ -1,0 +1,315 @@
+yearDict = {
+            "2016":{
+                    "background":["Summer20UL16"],
+                    "data": [
+                                "Run2016B-UL2016_HIPM-ver2-v1",
+                                "Run2016B-UL2016_HIPM-ver2-v2",
+                                "Run2016B-UL2016_HIPM-ver2-v3",
+                                "Run2016C-UL2016_HIPM-v1",
+                                "Run2016C-UL2016_HIPM-v2",
+                                "Run2016C-UL2016_HIPM-v4",
+                                "Run2016D-UL2016_HIPM-v1",
+                                "Run2016D-UL2016_HIPM-v2",
+                                "Run2016E-UL2016_HIPM-v1",
+                                "Run2016E-UL2016_HIPM-v2",
+                                "Run2016E-UL2016_HIPM-v5",
+                                "Run2016F-UL2016-v1",
+                                "Run2016F-UL2016-v2",
+                                "Run2016F-UL2016_HIPM-v1",
+                                "Run2016F-UL2016_HIPM-v2",
+                                "Run2016G-UL2016-v1",
+                                "Run2016G-UL2016-v2",
+                                "Run2016G-UL2016-v3",
+                                "Run2016H-UL2016-v1",
+                                "Run2016H-UL2016-v2",
+                    ]
+            }, 
+            "2017":{
+                    "background":["Summer20UL17"],
+                    "data": [
+                                "Run2017B-UL2017-v1",
+                                "Run2017C-UL2017-v1",
+                                "Run2017D-UL2017-v1",
+                                "Run2017D-UL2017-v2",
+                                "Run2017E-UL2017-v1",
+                                "Run2017F-UL2017-v1",
+                                "Run2017F-UL2017-v2",
+                    ]
+
+            }, 
+            "2018":{
+                    "background":["Summer20UL18"],
+                    "data": [
+                                "Run2018A-UL2018-v1",
+                                "Run2018A-UL2018-v2",
+                                "Run2018A-UL2018-v3",
+                                "Run2018B-UL2018-v1",
+                                "Run2018B-UL2018-v2",
+                                "Run2018C-UL2018-v1",
+                                "Run2018C-UL2018-v2",
+                                "Run2018D-UL2018-v1",
+                                "Run2018D-UL2018-v2",
+                                "Run2018D-UL2018-v3",
+                    ]
+            }
+        }
+
+backgrounds = {
+    "2016_QCD":  [
+                    "QCD_Pt_80to120_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_120to170_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_170to300_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_300to470_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_470to600_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_600to800_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_800to1000_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_1000to1400_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_1800to2400_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_2400to3200_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8",
+    ],
+    "2016_TTJets": [
+                    "TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_DiLept_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromT_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromTbar_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2016_ST": [
+                    "ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+                    "ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+                    "ST_t-channel_antitop_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_t-channel_top_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8",
+    ],
+    "2016_WJets": [
+                    "WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2016_ZJets": [
+                    "ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2017_QCD": [
+                    "QCD_Pt_1000to1400_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_120to170_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_170to300_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_1800to2400_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_2400to3200_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_300to470_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_470to600_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_600to800_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_800to1000_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_80to120_TuneCP5_13TeV_pythia8",
+    ],
+    "2017_ST": [
+                    "ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+                    "ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+                    "ST_t-channel_antitop_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_t-channel_top_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8",
+    ],
+    "2017_TTJets": [
+                    "TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_DiLept_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromT_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromTbar_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2017_WJets": [
+                    "WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2017_ZJets": [
+                    "ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2018_QCD": [
+                    "QCD_Pt_1000to1400_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_120to170_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_1400to1800_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_170to300_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_1800to2400_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_2400to3200_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_300to470_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_3200toInf_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_470to600_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_600to800_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_800to1000_TuneCP5_13TeV_pythia8",
+                    "QCD_Pt_80to120_TuneCP5_13TeV_pythia8",
+    ],
+    "2018_ST": [
+                    "ST_s-channel_4f_hadronicDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+                    "ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8",
+                    "ST_t-channel_antitop_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_t-channel_top_5f_InclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_tW_antitop_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "ST_tW_top_5f_inclusiveDecays_TuneCP5_13TeV-powheg-pythia8",
+                    "tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8",
+    ],
+    "2018_TTJets": [
+                    "TTJets_DiLept_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_DiLept_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-1200to2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-2500toInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-600to800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_HT-800to1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromT_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromT_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromTbar_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_SingleLeptFromTbar_genMET-150_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "TTJets_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2018_WJets": [
+                    "WJetsToLNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "WJetsToLNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+    "2018_ZJets": [
+                    "ZJetsToNuNu_HT-100To200_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-1200To2500_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-200To400_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-2500ToInf_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-400To600_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-600To800_TuneCP5_13TeV-madgraphMLM-pythia8",
+                    "ZJetsToNuNu_HT-800To1200_TuneCP5_13TeV-madgraphMLM-pythia8",
+    ],
+
+}
+
+signals = {
+    "2016_SVJ_t": [
+                    "SVJ_UL2016_t-channel_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-1500_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-2000_mDark-100_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-2000_mDark-1_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-2000_mDark-20_rinv-0p5_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-2000_mDark-50_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2016_t-channel_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+    ],
+    "2017_SVJ_t": [
+                    "SVJ_UL2017_t-channel_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-1500_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-2000_mDark-100_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-2000_mDark-1_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-2000_mDark-20_rinv-0p5_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-2000_mDark-50_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2017_t-channel_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+    ],
+    "2018_SVJ_t": [
+                    "SVJ_UL2018_t-channel_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-1500_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-2000_mDark-100_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-2000_mDark-1_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-2000_mDark-20_rinv-0p5_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-2000_mDark-50_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+                    "SVJ_UL2018_t-channel_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1_13TeV-madgraphMLM-pythia8_n-1000",
+    ],
+}
+
+data = {
+    "2016_Data":[
+                    "HTMHT",
+                    "JetHT",
+                    "MET",     
+    ],
+    "2016_Data_CR":[
+                    "SingleElectron",
+                    "SingleMuon",
+                    "SinglePhoton",    
+    ],
+    "2017_Data":[
+                    "HTMHT",
+                    "JetHT",
+                    "MET",
+
+    ],
+    "2017_Data_CR":[
+                    "SingleElectron",
+                    "SingleMuon",
+                    "SinglePhoton",
+    ],
+    "2018_Data":[
+                    "JetHT",
+                    "MET",
+    ],
+    "2018_Data_CR":[
+                    "EGamma",
+                    "SingleMuon",
+
+    ],
+}
+
+# get postpends to remove for shorter, clearer naming
+import numpy as np
+postpendList = []
+for bkg, bkgList in backgrounds.items():
+    for bkgName in bkgList:
+        postpendList.append(bkgName[bkgName.find("_Tune"):])
+for sig, sigList in signals.items():
+    for sigName in sigList:
+        postpendList.append(sigName[sigName.find("_13TeV"):])
+postpendToRemove = np.unique(postpendList)
+extraPostpends = ["SVJ_UL2016_t-channel_","SVJ_UL2017_t-channel_","SVJ_UL2018_t-channel_"]
+postpendToRemove = list(postpendToRemove) + extraPostpends

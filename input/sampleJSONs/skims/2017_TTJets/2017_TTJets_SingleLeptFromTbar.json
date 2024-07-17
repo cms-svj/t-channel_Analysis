@@ -1,0 +1,6 @@
+{
+    "2017_TTJets_SingleLeptFromTbar": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection/TTJets_SingleLeptFromTbar/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection/TTJets_SingleLeptFromTbar/part-1.root"
+    ]
+}
