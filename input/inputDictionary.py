@@ -311,3 +311,5 @@ for sig, sigList in signals.items():
     for sigName in sigList:
         postpendList.append(sigName[sigName.find("_13TeV"):])
 postpendToRemove = np.unique(postpendList)
+extraPostpends = ["SVJ_UL2016_t-channel_","SVJ_UL2017_t-channel_","SVJ_UL2018_t-channel_"]
+postpendToRemove = list(postpendToRemove) + extraPostpends

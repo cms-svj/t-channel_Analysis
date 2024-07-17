@@ -32,12 +32,17 @@ def removePostpend(sampleName,sampleGroup):
         newSampleName += "Data"
     return newSampleName
 
-def makeJSONFiles(sampleDict, yearDict):
+def makeJSONFiles(sampleDict):
+    sampleGroupLabelList = []
+    sampleLabelList = []
     for sampleGroup, sampleList in sampleDict.items():
         year = sampleGroup[:sampleGroup.find("_")]
         print(year)
+        sampleGroupLabelList.append(sampleGroup)
         if "Data" in sampleGroup:
             yearAliasList = yearDict[year]["data"]
+        elif "SVJ" in sampleGroup: # signal
+            yearAliasList = [year]
         else:
             yearAliasList = yearDict[year]["background"]
         outputDir = f"sampleJSONs/{ntupleKind}/{sampleGroup}"
@@ -47,17 +52,23 @@ def makeJSONFiles(sampleDict, yearDict):
             sampleFileName = f"{year}_{removePostpend(sampleName,sampleGroup)}"
             allSampleLocationList = []
             for yearAlias in yearAliasList:
-                sampleNameList = getEosContent(f"{tmNtpLocation}/{yearAlias}")
+                if "SVJ" in sampleGroup: # signal
+                    sampleGroupLocation = f"{tmSigLocation}/{yearAlias}/Full/PrivateSamples"
+                else:
+                    sampleGroupLocation = f"{tmNtpLocation}/{yearAlias}"
+                sampleNameList = getEosContent(sampleGroupLocation)
                 if sampleName in sampleNameList:
-                    sampleFileList = getEosContent(f"{tmNtpLocation}/{yearAlias}/{sampleName}")
+                    sampleFileList = getEosContent(f"{sampleGroupLocation}/{sampleName}")
                     print(f"{len(sampleFileList)} files")
                     sampleLocationList = [f"root://cmseos.fnal.gov/{tmNtpLocation}/{yearAlias}/{sampleName}/{sampleFile}" for sampleFile in sampleFileList]
                     allSampleLocationList += sampleLocationList
-                    print()
+            print(f"{outputDir}/{sampleFileName}.json")
+            sampleLabelList.append(sampleFileName)
+            print()
 
             with open(f"{outputDir}/{sampleFileName}.json","w") as fp:
                 json.dump({sampleFileName:allSampleLocationList}, fp, indent=4)
 
-makeJSONFiles(backgrounds, yearDict)
-makeJSONFiles(data, yearDict)
-
+makeJSONFiles(backgrounds)
+makeJSONFiles(data)
+makeJSONFiles(signals)
