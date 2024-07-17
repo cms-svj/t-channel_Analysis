@@ -433,63 +433,48 @@ trgDoubleMoun = {
 
 trgSingleE = {
     "2016" : [
-                'Ele105_CaloIdVT_GsfTrkIdT',
-                'Ele115_CaloIdVT_GsfTrkIdT',
-                'Ele25_eta2p1_WPTight_Gsf',
-                'Ele27_WPTight_Gsf',
-                'Ele45_WPLoose_Gsf',
+                "Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "Ele25_eta2p1_WPTight_Gsf",
+                "Ele27_WPTight_Gsf",
             ],
     "2017" : [
-                'Ele35_WPTight',
-                'Ele115_CaloIdVT_GsfTrkIdT', 
-                'Photon200',
+                "Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "Ele35_WPTight_Gsf",
             ],
     "2018" : [
-                'Ele35_WPTight',
-                'Ele115_CaloIdVT_GsfTrkIdT', 
-                'Photon200',
+                "Ele23_Ele12_CaloIdL_TrackIdL_IsoVL",
+                "Ele28_eta2p1_WPTight_Gsf_HT150",
             ]
 
 }
 
 trgSingleM = {
     "2016" : [
-                'IsoMu16_eta2p1_MET30',
-                'IsoMu22_eta2p1',
-                'IsoMu22',
-                'IsoMu24',
-                'IsoMu27',
-                'IsoTkMu22',
-                'IsoTkMu24',
-                'Mu45_eta2p1',
-                'Mu50',
-                'Mu55',
-                'TkMu50',
+                "IsoMu24",
+                "IsoTkMu24",
+                "Mu50",
             ],
     "2017" : [
-                'IsoMu24',
-                'IsoMu27',
-                'Mu50' ,
+                "IsoMu24",
+                "IsoMu27",
+                "Mu50",
             ],
     "2018" : [
-                'IsoMu24',
-                'IsoMu27',
-                'Mu50',
+                "IsoMu24",
+                "Mu50",
             ]
 }
 
 trgSinglePhoton = {
     "2016" : [
-                'Photon135_PFMET100',
                 'Photon165_HE10',
-                'Photon165_R9Id90_HE10_IsoM',
-                'Photon175',
-                'Photon300_NoHE',
-                'Photon90_CaloIdL_PFHT600',
             ],
     "2017" : [
-                'Photon175',
+                'Photon200',
             ],
+    "2018" : [
+                "Photon200",
+    ]
 }
 
 trgDisplacedJet = {
