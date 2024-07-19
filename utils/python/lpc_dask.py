@@ -46,6 +46,19 @@ def restart_client(client):
         time.sleep(10)
         pass
 
+def out_file_name_creator(outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod):
+    details = ""
+    sampleList = dataset
+    nFilesList = nFiles
+    startFileList = startFile
+    for i in range(len(sampleList)):
+        details += f"{sampleList[i]}_N{nFilesList[i]}_M{startFileList[i]}_"
+    if condor or dask:
+        outfile = f"{outHistF}/MyAnalysis_{details}{hemPeriod}.root"
+    else:
+        outfile = f"{outHistF}/local_{details}{hemPeriod}.root"    
+    return outfile
+
 def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict={},trainingKind="",trainFileProduction=False):
     ###########################################################################################################
     # run processor
@@ -104,16 +117,7 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
     ###########################################################################################################
-        details = ""
-        sampleList = args.dataset
-        nFilesList = args.nFiles
-        startFileList = args.startFile
-        for i in range(len(sampleList)):
-            details += f"{sampleList[i]}_N{nFilesList[i]}_M{startFileList[i]}_"
-        if args.condor or args.dask:
-            outfile = f"{outHistF}/MyAnalysis_{details}{args.hemPeriod}.root"
-        else:
-            outfile = f"{outHistF}/local_{details}{args.hemPeriod}.root"    
+        outfile = out_file_name_creator(outHistF,args.dataset,args.nFiles,args.startFile,args.condor,args.dask,args.hemPeriod)
         fout = uproot.recreate(outfile)
         if isinstance(output,tuple): output = output[0]
         output = dict(sorted(output.items()))
