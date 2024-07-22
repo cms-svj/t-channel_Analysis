@@ -63,10 +63,10 @@ class MainProcessor(processor.ProcessorABC):
                 ## objects used for cuts
                 dataset = events.metadata['dataset']
                 vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
-                if not self.skimSource:
-                    runJetTagger(events,vars_noCut,self.fakerateHisto)
+                # if not self.skimSource:
+                #     runJetTagger(events,vars_noCut,self.fakerateHisto)
                 utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
+                # runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
                 if self.skimSource:
                     create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
                 cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,self.skimSource,SVJCut=True)
@@ -87,7 +87,7 @@ class MainProcessor(processor.ProcessorABC):
                             "crew" : ak.flatten(vars_noCut["crew"][cut]),
                             "crmw" : ak.flatten(vars_noCut["crmw"][cut]),
                             "nimw" : ak.flatten(vars_noCut["nimw"][cut]),
-                            "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
+                            # "svfjw" : ak.flatten(vars_noCut["svfjw"][cut]),
                             # "pred1_evtw" : vars_noCut["pred1_evtw"][cut],
                             # "pred2_evtw" : vars_noCut["pred2_evtw"][cut],
                             # "pred3_evtw" : vars_noCut["pred3_evtw"][cut],

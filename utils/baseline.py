@@ -301,7 +301,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimSource,SVJCut=True):
 
     
     if SVJCut:
-        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
+        # nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
         cuts = {
                 "_nocut" :          np.ones(len(evtw),dtype=bool), 
                 "_qual" :           qualityWithLepton,
@@ -313,33 +313,33 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimSource,SVJCut=True):
                 "_qual_2PJ_st_dphimin_ll" : qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 1),
 
                 "_pre":       preselection,
-                "_pre_0SVJ":  preselection & (nsvjJetsAK8 == 0),
-                "_pre_1SVJ":  preselection & (nsvjJetsAK8 == 1),
-                "_pre_2SVJ":  preselection & (nsvjJetsAK8 == 2),
-                "_pre_3SVJ":  preselection & (nsvjJetsAK8 == 3),
-                "_pre_4PSVJ": preselection & (nsvjJetsAK8 >= 4),
+                # "_pre_0SVJ":  preselection & (nsvjJetsAK8 == 0),
+                # "_pre_1SVJ":  preselection & (nsvjJetsAK8 == 1),
+                # "_pre_2SVJ":  preselection & (nsvjJetsAK8 == 2),
+                # "_pre_3SVJ":  preselection & (nsvjJetsAK8 == 3),
+                # "_pre_4PSVJ": preselection & (nsvjJetsAK8 >= 4),
 
                 # lost lepton control region
                 "_lcr_pre":       preselection,
-                "_lcr_pre_0SVJ":  preselection & (nsvjJetsAK8 == 0),
-                "_lcr_pre_1SVJ":  preselection & (nsvjJetsAK8 == 1),
-                "_lcr_pre_2SVJ":  preselection & (nsvjJetsAK8 == 2),
-                "_lcr_pre_3SVJ":  preselection & (nsvjJetsAK8 == 3),
-                "_lcr_pre_4PSVJ": preselection & (nsvjJetsAK8 >= 4),
+                # "_lcr_pre_0SVJ":  preselection & (nsvjJetsAK8 == 0),
+                # "_lcr_pre_1SVJ":  preselection & (nsvjJetsAK8 == 1),
+                # "_lcr_pre_2SVJ":  preselection & (nsvjJetsAK8 == 2),
+                # "_lcr_pre_3SVJ":  preselection & (nsvjJetsAK8 == 3),
+                # "_lcr_pre_4PSVJ": preselection & (nsvjJetsAK8 >= 4),
 
             
                 "_cr_muon_"                  : cr_muon_cut, 
                 "_cr_electron_"              : cr_electron_cut,
-                "_cr_muon_0SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 0), 
-                "_cr_electron_0SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 0),
-                "_cr_muon_1SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 1), 
-                "_cr_electron_1SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 1),
-                "_cr_muon_2SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 2), 
-                "_cr_electron_2SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 2),
-                "_cr_muon_3SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 3), 
-                "_cr_electron_3SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 3),
-                "_cr_muon_4PSVJ"                 : cr_muon_cut & (nsvjJetsAK8 >= 4), 
-                "_cr_electron_4PSVJ"             : cr_electron_cut & (nsvjJetsAK8 >= 4),
+                # "_cr_muon_0SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 0), 
+                # "_cr_electron_0SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 0),
+                # "_cr_muon_1SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 1), 
+                # "_cr_electron_1SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 1),
+                # "_cr_muon_2SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 2), 
+                # "_cr_electron_2SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 2),
+                # "_cr_muon_3SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 3), 
+                # "_cr_electron_3SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 3),
+                # "_cr_muon_4PSVJ"                 : cr_muon_cut & (nsvjJetsAK8 >= 4), 
+                # "_cr_electron_4PSVJ"             : cr_electron_cut & (nsvjJetsAK8 >= 4),
 
                 # ""            : np.ones(len(evtw),dtype=bool),
                 # "_pre"        : preselection,
