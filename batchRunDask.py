@@ -17,6 +17,7 @@ parser.add_argument("--runSignalLocal",     action="store_true", help="Run over 
 parser.add_argument("--printOnly",          action="store_true", help="Print the commands without running them.")
 parser.add_argument("--rerunMissingFiles",  action="store_true", help="Rerun the jobs based on missing files.")
 parser.add_argument("--haddAll",            action="store_true", help="Hadd all the output files by their sample group. (This has to be run outside of the coffeaenv. Try running in `source /cvmfs/sft.cern.ch/lcg/views/LCG_106_cuda/x86_64-el9-gcc11-opt/setup.sh`)")
+parser.add_argument("--runNNs",             action="store_true", help="Inference on all the NNs (both particleNet and DNN).")
 
 args = parser.parse_args()
 
@@ -47,6 +48,8 @@ if maxFilesPerSample != -1: # if not all the files are used, then turn the scale
     preCommand += " -f" 
 if skimSource:
     preCommand += " --skimSource" 
+if args.runNNs:
+    preCommand += " --runNNs" 
 maxFiles = nFilesPerJob*maxJobs
 expectedFilesDict = {}
 
