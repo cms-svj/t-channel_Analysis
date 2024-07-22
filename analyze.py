@@ -49,6 +49,7 @@ def main():
     parser.add_argument('-f', '--sFactor',   help='Scale factor', dest='sFactor',  default=False, action='store_true')
     parser.add_argument('-o', '--outputFile',help='Output file name ', dest='outputFile', default=False, type=str)
     parser.add_argument(      '--skimSource',help='Use skim files instead of TreeMaker ntuples ', dest='skimSource', default=False, action='store_true')
+    parser.add_argument(      '--runNNs',    help='Run all NN inferencing (both jet tagger and event classifier).', dest='runNNs',  default=False, action='store_true')
 
 
     options = parser.parse_args()

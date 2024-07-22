@@ -74,7 +74,7 @@ class MainProcessor(processor.ProcessorABC):
                             for varName,varDetail in variables(self.jNVar).items():
                                 # only store jetAK8 variables
                                 if varDetail.npzInfo == 1:
-                                    if varName == "nnOutput":
+                                    if varName == "pNetJetTaggerScore":
                                         hIn = vars_noCut[varName][cut]
                                     else:
                                         hIn = vars_noCut[varName]

@@ -53,9 +53,9 @@ def findFakeRate(fakerateHisto, bgroundJetsAK8):
 
     return ak.Array(fakerate)
 
-def getFlatScore(nnOutput):
-    output = ak.to_list(ak.zeros_like(nnOutput))
-    for i, a in enumerate(nnOutput):
+def getFlatScore(pNetJetTaggerScore): 
+    output = ak.to_list(ak.zeros_like(pNetJetTaggerScore))
+    for i, a in enumerate(pNetJetTaggerScore):
         output[i] = random.uniform(0, 1)
     return output
 
@@ -65,7 +65,7 @@ def create_pn_related_variables(varsIn, fakerateHisto, fjets, svjJetsAK8):
     bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     nsvjJetsAK8 = ak.num(darksvjJetsAK8)
     varsIn['nsvjJetsAK8'] = nsvjJetsAK8
-    varsIn['nnOutput'] = svjJetsAK8
+    varsIn['pNetJetTaggerScore'] = svjJetsAK8
     varsIn['JetsAK8_pNetJetTaggerScore'] = svjJetsAK8 # needed for event classifier part to work properly; should probably unify the naming conventions
     varsIn['svfjw'] = u.awkwardReshape(darksvjJetsAK8,varsIn['evtw'])
     varsIn['svjPtAK8'] = darksvjJetsAK8.pt
@@ -105,12 +105,12 @@ def runJetTagger(events,varsIn,fakerateHisto):
     gnn_triton.use_triton = True
     if gnn_triton.model == None:
         gnn_triton.initialize_model()
-    #nnOutput = getFlatScore(nnOutput)
+    #pNetJetTaggerScore = getFlatScore(pNetJetTaggerScore)
     fjets = varsIn["fjets"]
     jets_in = ju.run_jet_constituent_matching(events, fjets)
     jets_in = ak.flatten(jets_in)
     batch_size = 1024
-    nnOutput = np.array([])
+    pNetJetTaggerScore = np.array([])
     for ii in range(0,len(jets_in),batch_size):
         try:
             jets_eval = jets_in[ii:ii+batch_size]
@@ -121,16 +121,16 @@ def runJetTagger(events,varsIn,fakerateHisto):
         X = gnn_triton.structure_X(jets_eval,feature_map)
         #inference with triton 
         outputs = gnn_triton.model(X)
-        nnOutput = np.append(nnOutput,softmax(outputs, axis=-1)[:, 2]) # 2 is the label for SVJ_Dark, 0 = QCD, 1 = TTJets
+        pNetJetTaggerScore = np.append(pNetJetTaggerScore,softmax(outputs, axis=-1)[:, 2]) # 2 is the label for SVJ_Dark, 0 = QCD, 1 = TTJets
     counts = ak.num(fjets.pt)
-    svjJetsAK8 = ak.unflatten(nnOutput, counts)
+    svjJetsAK8 = ak.unflatten(pNetJetTaggerScore, counts)
 
     # count_pt = ak.count(fjets.pt,axis=-1) 
     # print('fjets.pt')
     # print(count_pt)
     # print(ak.sum(count_pt))
     # count_pn = ak.count(svjJetsAK8,axis=-1)
-    # print('nnOutput')
+    # print('pNetJetTaggerScore')
     # print(count_pn)
     # print(ak.sum(count_pn))
     # print()
