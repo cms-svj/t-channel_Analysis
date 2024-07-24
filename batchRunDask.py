@@ -66,7 +66,7 @@ def runMissingFile(command,outHistF,dataset,nFiles,startFile,condor,dask,hemPeri
     outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
     if outFile not in os.listdir(outHistF):
         print("Rerunning:")
-        runOrPrintCommand(command,haddAll,haddAll,printOnly)
+        runOrPrintCommand(command,haddAll,printOnly)
 
 def addExpectedFile(outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod,expectedFilesDict,sampleGroupToRun):
     outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
@@ -217,6 +217,5 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                     runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"")
                 else:
                     runOrPrintCommand(command,haddAll,printOnly)
-
 if haddAll:
     runHadd(expectedFilesDict,outHistF)
