@@ -13,7 +13,7 @@ class Objects:
         # Quality cut
         self.etaCut = 2.4
         self.leptonPt = 10.0
-        self.crleptonPt = 25.0
+        self.crleptonPt = 10.0
 
     def goodElectrons(self):
         # # Good Electrons

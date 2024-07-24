@@ -216,7 +216,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
     # htCut = ht > 1280
     htCut = ht > 500
     stCut = st > 1300
-    # metcut = met > 1200
+    metcut = met > 150
 
     # trgPlat = metCut & htCut
 
@@ -229,14 +229,14 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
     tch_trgs_CR =  trgListtoInd(trigDict,trgSelectionsCR)
     tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
     passTrigger = PassTrigger(triggerPass,tch_trgs)
-    preselection = qualityCuts & jetIDAK8 & passTrigger & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) 
+    preselection = qualityCuts & jetIDAK8 & passTrigger & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
     # trigger study for MCs
     # nOffMuons = vars_noCut['nOffMuons']
     passTrigger_muon = PassTrigger(triggerPass,tch_trgs_CR)
     # preselection_offLineMuons = metFilters & ttStitch & DataMask & hemMask & passTrigger_muon & (njetsAK8 >= 2) & (nOffMuons >= 1)
     # preselection_offLineMuons_tchTrg = preselection_offLineMuons & passTrigger
-    cr_muon_cut                  = qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5)
-    cr_electron_cut              = qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5)
+    cr_muon_cut                  = qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
+    cr_electron_cut              = qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
     # cr_dphimin                   = preselection & (dPhiMinjAK8 > 1.5)
     # cuts = {
     #             ""                                          : np.ones(len(evtw),dtype=bool),
@@ -305,9 +305,9 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
                 "_qual_2PJ_st_nl" : qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (nl == 0),
                 
                 "_pre_dphimin_":      preselection,
-                # "_pre_dphimin_0SVJ":  preselection & (nsvjJetsAK8 == 0),
-                # "_pre_dphimin_1SVJ":  preselection & (nsvjJetsAK8 == 1),
-                # "_pre_dphimin_2SVJ":  preselection & (nsvjJetsAK8 == 2),
+                "_pre_dphimin_0SVJ":  preselection & (nsvjJetsAK8 == 0),
+                "_pre_dphimin_1SVJ":  preselection & (nsvjJetsAK8 == 1),
+                "_pre_dphimin_2PSVJ":  preselection & (nsvjJetsAK8 >= 2),
                 # "_pre_dphimin_3SVJ":  preselection & (nsvjJetsAK8 == 3),
                 # "_pre_dphimin_4PSVJ": preselection & (nsvjJetsAK8 >= 4),
             
@@ -317,12 +317,12 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
                 "_cr_electron_0SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 0),
                 "_cr_muon_1SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 1), 
                 "_cr_electron_1SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 1),
-                "_cr_muon_2SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 2), 
-                "_cr_electron_2SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 2),
-                "_cr_muon_3SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 3), 
-                "_cr_electron_3SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 3),
-                "_cr_muon_4PSVJ"                 : cr_muon_cut & (nsvjJetsAK8 >= 4), 
-                "_cr_electron_4PSVJ"             : cr_electron_cut & (nsvjJetsAK8 >= 4),
+                "_cr_muon_2PSVJ"                  : cr_muon_cut & (nsvjJetsAK8 >= 2), 
+                "_cr_electron_2PSVJ"              : cr_electron_cut & (nsvjJetsAK8 >= 2),
+                # "_cr_muon_3SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 3), 
+                # "_cr_electron_3SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 3),
+                # "_cr_muon_4PSVJ"                 : cr_muon_cut & (nsvjJetsAK8 >= 4), 
+                # "_cr_electron_4PSVJ"             : cr_electron_cut & (nsvjJetsAK8 >= 4),
 
                 # ""            : np.ones(len(evtw),dtype=bool),
                 # "_pre"        : preselection,
