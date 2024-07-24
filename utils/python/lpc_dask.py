@@ -17,7 +17,7 @@ def use_dask(condor,jobs,port):
             cores=1,
             memory="4GB",
             disk="2GB",
-            transfer_input_files=[f'{os.getenv("TCHANNEL_BASE")}/utils',f'{os.getenv("TCHANNEL_BASE")}/processors',f'{os.getenv("TCHANNEL_BASE")}/coffeaenv/lib64/python3.8/site-packages/magiconfig.py'], # for some reason magiconfig cannot be imported properly when running dask condor
+            transfer_input_files=[f'{os.getenv("TCHANNEL_BASE")}/input',f'{os.getenv("TCHANNEL_BASE")}/utils',f'{os.getenv("TCHANNEL_BASE")}/processors',f'{os.getenv("TCHANNEL_BASE")}/coffeaenv/lib64/python3.8/site-packages/magiconfig.py'], # for some reason magiconfig cannot be imported properly when running dask condor
             log_directory=None,
             death_timeout=180
         )
@@ -46,6 +46,19 @@ def restart_client(client):
         time.sleep(10)
         pass
 
+def out_file_name_creator(outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod):
+    details = ""
+    sampleList = dataset
+    nFilesList = nFiles
+    startFileList = startFile
+    for i in range(len(sampleList)):
+        details += f"{sampleList[i]}_N{nFilesList[i]}_M{startFileList[i]}_"
+    if condor or dask:
+        outfile = f"{outHistF}/MyAnalysis_{details}{hemPeriod}.root"
+    else:
+        outfile = f"{outHistF}/local_{details}{hemPeriod}.root"    
+    return outfile
+
 def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict={},trainingKind="",trainFileProduction=False):
     ###########################################################################################################
     # run processor
@@ -57,7 +70,7 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
     output = processor.run_uproot_job(
         fileset,
         treename=treename,
-        processor_instance=MainProcessor(jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,sFactor=args.sFactor,skimSource=args.skimSource),
+        processor_instance=MainProcessor(jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,sFactor=args.sFactor,skimSource=args.skimSource,runNNs=args.runNNs),
         executor=MainExecutor,
         executor_args=exe_args,
         chunksize=args.chunksize,
@@ -104,16 +117,7 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
     # export the histograms to root files
     ## the loop makes sure we are only saving the histograms that are filled
     ###########################################################################################################
-        details = ""
-        sampleList = args.dataset
-        nFilesList = args.nFiles
-        startFileList = args.startFile
-        for i in range(len(sampleList)):
-            details += f"{sampleList[i]}_N{nFilesList[i]}_M{startFileList[i]}_"
-        if args.condor or args.dask:
-            outfile = f"{outHistF}/MyAnalysis_{details}{args.hemPeriod}.root"
-        else:
-            outfile = f"{outHistF}/local_{details}{args.hemPeriod}.root"    
+        outfile = out_file_name_creator(outHistF,args.dataset,args.nFiles,args.startFile,args.condor,args.dask,args.hemPeriod)
         fout = uproot.recreate(outfile)
         if isinstance(output,tuple): output = output[0]
         output = dict(sorted(output.items()))

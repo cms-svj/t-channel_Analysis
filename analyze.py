@@ -49,6 +49,7 @@ def main():
     parser.add_argument('-f', '--sFactor',   help='Scale factor', dest='sFactor',  default=False, action='store_true')
     parser.add_argument('-o', '--outputFile',help='Output file name ', dest='outputFile', default=False, type=str)
     parser.add_argument(      '--skimSource',help='Use skim files instead of TreeMaker ntuples ', dest='skimSource', default=False, action='store_true')
+    parser.add_argument(      '--runNNs',    help='Run all NN inferencing (both jet tagger and event classifier).', dest='runNNs',  default=False, action='store_true')
 
 
     options = parser.parse_args()
@@ -58,7 +59,7 @@ def main():
     sample = options.dataset
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s.getFilesetFromList(sample, options, True)
+    fileset = s.getFilesetFromList(sample, options, False)
     # sf = s.sfGetter(sample,True)
     # print("scaleFactor = {}".format(sf))
 
@@ -72,8 +73,6 @@ def main():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     checkpoint = torch.load(f"{eTagLoc}/model.pt", map_location=device )
     config_training_model = f"{eTagLoc}/training_model".replace("/",".")
-    print("config_training_model")
-    print(config_training_model)
     # utils.data.DNNEventClassifier.damp_1_0p001_closure_0p06_net_64_32_16_8_LJP_1EvtABCD_fixedSkimBugs.files_preparation_options
     opt_training_model = locate(config_training_model)
     model = opt_training_model.model 

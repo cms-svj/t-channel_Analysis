@@ -145,4 +145,4 @@ def runEventTagger(events, varVal, skimSource, evtTaggerDict):
     opt_training_options = locate(config_training_options)
     features = opt_training_options.features_training
     event_tagger_score = model(torch.tensor(df_target_std[features].values, dtype=torch.float32))
-    varVal["nnEventOutput"] = event_tagger_score.detach().numpy().flatten()
+    varVal["dnnEventClassScore"] = event_tagger_score.detach().numpy().flatten()

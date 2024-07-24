@@ -2,6 +2,7 @@ import numpy as np
 import awkward as ak
 from . import triggerDict as tD
 from . import utility as util
+from . import samples as s
 # dataset here is just a string that is the input of -d
 # events are the tree in the ntuple
 
@@ -28,7 +29,7 @@ def hemPeriodMask(dataset,events,ak4Jets,electrons,muons,hemPeriod):
     else:
         return np.ones(len(events),dtype=bool)
 
-def TTStitch(dataset,events):
+def ttStitchMask(dataset,events):
     # # TT Stiching mask
     ttStitchMask = None
     if "TTJets" in dataset:
@@ -63,7 +64,7 @@ def vetoPhiSpike(etaLead,phiLead,etaSub,phiSub,rad,eta,phi):
                 break
     return veto
 
-def PhiSpikeFilter(dataset,Jets):
+def phiSpikeFilter(dataset,Jets):
     # phi spike filters
     rad = 0.028816 # half the length of the diagonal of the eta-phi rectangular cell
     rad *= 0.35 # the factor of 0.35 was optimized from the signal vs. background sensitivity study
@@ -93,7 +94,7 @@ def PhiSpikeFilter(dataset,Jets):
     vfunc = np.vectorize(lambda eta,phi: vetoPhiSpike(etalead,philead,etasub,phisub,rad,eta,phi))
     return vfunc(Jets.eta,Jets.phi)
 
-def METFilters(events):
+def metFilterMask(events):
     # MET filters
     BPFM = events.BadPFMuonFilter
     EBCR = events.ecalBadCalibFilter
@@ -106,34 +107,19 @@ def METFilters(events):
     return ((gSTH == 1) & (HBHEN == 1) & (HBHEIN == 1) & (BPFM == 1) &
     (EBCR == 1) & (eeBS == 1) & (nV > 0))
 
-def RemoveOverlap(dataset, events, yr):
+def removeOverlap(dataset, events, yr):
     """Function to remove overlap between different dataset by removing the events with overlapping triggers. Currently the preferred dataset is JetHT.""" 
     trgDict = tD.trigDicts[yr]
     trgListMet = trgListtoInd(trgDict,tD.trgMET[yr])
     trgListJetHT = trgListtoInd(trgDict,tD.trgJetHT[yr])
-    # trgListHTMHT = trgListtoInd(trgDict,tD.trgHTMHT[yr])
-    passMetTrg = PassTrigger(events.TriggerPass, trgListMet)
-    # passHTMHTTrg = PassTrigger(events.TriggerPass, trgListHTMHT)
-    passJetHTTrg = PassTrigger(events.TriggerPass, trgListJetHT)
+    passMetTrg = passTriggerMask(events.TriggerPass, trgListMet)
+    passJetHTTrg = passTriggerMask(events.TriggerPass, trgListJetHT)
     
-    # For single lepton control region - Main dataset is Single Muon, removing overlap from the Single Electron
-    # passSingleM = PassTrigger(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleM[yr]))
-    # passSingleE = PassTrigger(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleE[yr])) 
-
     OverlapDataMask = None
-    # if "JetHTData" in dataset:
-    #     OverlapDataMask = np.bitwise_not(passMetTrg)
     if "METData" in dataset:
         OverlapDataMask = np.bitwise_not(passJetHTTrg)
     elif "HTMHTData" in dataset:
         OverlapDataMask = np.bitwise_not(passJetHTTrg + passMetTrg)
-    # Adding single lepton control region overlap removal
-    # elif "SingleElectronData" in dataset:
-    #     OverlapDataMask = np.bitwise_not(passSingleM)
-    # elif "EGammaData" in dataset:
-    #     OverlapDataMask = np.bitwise_not(passSingleM)    
-    # elif "SinglePhotonData" in dataset:
-    #     OverlapDataMask = np.bitwise_not(passSingleM + passSingleE)
     else:
         OverlapDataMask = np.ones(len(events),dtype=bool)
     #Preliminary checks
@@ -143,13 +129,34 @@ def RemoveOverlap(dataset, events, yr):
   
     return OverlapDataMask
 
-def Preselection(qualityCuts,nl):
-    return (qualityCuts & (nl == 0))
+def removeOverlapCR(dataset, events, yr):
+    """Function to remove overlap between different dataset by removing the events with overlapping triggers."""     
+    # For single lepton control region - Main dataset is Single Muon, removing overlap from the Single Electron
+    passSingleM = passTriggerMask(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleM[yr]))
+    passSingleE = passTriggerMask(events.TriggerPass,trgListtoInd(tD.trigDicts[yr],tD.trgSingleE[yr])) 
+
+    OverlapDataMask = None
+    # Adding single lepton control region overlap removal
+    if yr == 2018:
+        if "EGammaData" in dataset:
+            OverlapDataMask = np.bitwise_not(passSingleM)
+        else:
+            OverlapDataMask = np.ones(len(events),dtype=bool)
+    else:
+        if "SingleElectronData" in dataset:
+            OverlapDataMask = np.bitwise_not(passSingleM)
+            
+        elif "SinglePhotonData" in dataset:
+            OverlapDataMask = np.bitwise_not(passSingleM + passSingleE)
+        else:
+            OverlapDataMask = np.ones(len(events),dtype=bool)
+  
+    return OverlapDataMask
 
 def trgListtoInd(trigDict,trgList):
     return [trigDict.get("HLT_{}_v".format(trg)) for trg in trgList]
 
-def PassTrigger(triggerPass,indices):
+def passTriggerMask(triggerPass,indices):
     triggerPass = ak.to_numpy(triggerPass)
     nTrigs= len(triggerPass[0])
     trigReq = []
@@ -158,7 +165,7 @@ def PassTrigger(triggerPass,indices):
     mult = triggerPass*trigReq
     return np.any(mult==1,axis=1)
 
-def ConditionMask(var, condition):
+def conditionMask(var, condition):
     FullMask = []
     for val in var:
         Mask = None
@@ -167,7 +174,7 @@ def ConditionMask(var, condition):
         print(val)
     print("Mask = ",FullMask)
 
-def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
+def cutList(dataset,events,vars_noCut,hemPeriod,skimSource,runNNs=True,SVJCut=True):
     evtw = vars_noCut["evtw"]
     nl = vars_noCut["nl"]
     # nnim = vars_noCut["nnim"] # no of Isolated Muons
@@ -190,9 +197,9 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
     triggerPass = events.TriggerPass
     jetID = events.JetID
     jetIDAK8 = vars_noCut["fJetsID"]
-    ttStitch = TTStitch(dataset,events)
+    ttStitch = ttStitchMask(dataset,events)
 
-    # ConditionMask(ptdAk8,0)
+    # conditionMask(ptdAk8,0)
 
     years = ["2016","2017","2018"]
     yr = 0
@@ -200,17 +207,16 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
         if year in dataset:
             yr = year
 
-    if "Data" in dataset:
-        DataMask = RemoveOverlap(dataset, events,yr)
+    if f"{yr}_Data" == s.getGroupFromSample(dataset,skimSource=skimSource):
+        DataMask = removeOverlap(dataset, events, yr)
     else: 
         DataMask = np.ones(len(events),dtype=bool)
-    metFilters = METFilters(events)
+    metFilters = metFilterMask(events)
     hemMask = hemPeriodMask(dataset,events,vars_noCut["jets"],vars_noCut["electrons"],vars_noCut["muons"],hemPeriod)
-    # psFilter = PhiSpikeFilter(dataset,vars_noCut['jets'])
+    # psFilter = phiSpikeFilter(dataset,vars_noCut['jets'])
     qualityCuts = metFilters & (nl == 0) & ttStitch & DataMask & hemMask
     qualityWithLepton = metFilters & ttStitch & DataMask & hemMask
     # qualityCuts = metFilters & psFilter # NN training files
-    # preselection = Preselection(qualityCuts,nl)
     # cuts to get over trigger plateau
     # metCut = met > 266
     # htCut = ht > 1280
@@ -228,15 +234,17 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
     tch_trgs =  trgListtoInd(trigDict,trgSelection)
     tch_trgs_CR =  trgListtoInd(trigDict,trgSelectionsCR)
     tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
-    passTrigger = PassTrigger(triggerPass,tch_trgs)
+    passTrigger = passTriggerMask(triggerPass,tch_trgs)
     preselection = qualityCuts & jetIDAK8 & passTrigger & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
     # trigger study for MCs
     # nOffMuons = vars_noCut['nOffMuons']
-    passTrigger_muon = PassTrigger(triggerPass,tch_trgs_CR)
+    passTrigger_muon = passTriggerMask(triggerPass,tch_trgs_CR)
     # preselection_offLineMuons = metFilters & ttStitch & DataMask & hemMask & passTrigger_muon & (njetsAK8 >= 2) & (nOffMuons >= 1)
     # preselection_offLineMuons_tchTrg = preselection_offLineMuons & passTrigger
     cr_muon_cut                  = qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
     cr_electron_cut              = qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
+    lcr_preselection = qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & metcut & (nl == 1)
+    lcr_preselection_noMETCut = qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 1)
     # cr_dphimin                   = preselection & (dPhiMinjAK8 > 1.5)
     # cuts = {
     #             ""                                          : np.ones(len(evtw),dtype=bool),
@@ -268,118 +276,106 @@ def cutList(dataset,events,vars_noCut,hemPeriod,SVJCut=True):
         # print("No problem before this")
         # Define all cuts for histo making
         cuts = {
-                    # ""                          : np.ones(len(evtw),dtype=bool),
-                    # "_2PJ"                      : (njetsAK8 >= 2),
-                    # "_2PJ_nl"            : (njetsAK8 >= 2) & (nl == 0),
-                    # # "_data_mask"            : DataMask,
-                    # "_st"                : stCut,
-                    # "_ht"               : htCut,
-                    # "_trg"               : passTrigger,
-                    # "_qual"             : qualityCuts,
-                    # "_qual_ht"              : qualityCuts & htCut,
-                    # "_qual_trg"             : qualityCuts & passTrigger,
-                    # "_qual_st"             : qualityCuts & stCut,
+                    # ""                            : np.ones(len(evtw),dtype=bool),
+                    # "_2PJ"                        : (njetsAK8 >= 2),
+                    # "_2PJ_nl"                     : (njetsAK8 >= 2) & (nl == 0),
+                    # # "_data_mask"                : DataMask,
+                    # "_st"                         : stCut,
+                    # "_ht"                         : htCut,
+                    # "_trg"                        : passTrigger,
+                    # "_qual"                       : qualityCuts,
+                    # "_qual_ht"                    : qualityCuts & htCut,
+                    # "_qual_trg"                   : qualityCuts & passTrigger,
+                    # "_qual_st"                    : qualityCuts & stCut,
                     
-                    # "_qual_trg_st"              : qualityCuts & passTrigger & stCut,
-                    # "_qual_trg_st_dphimin"      : qualityCuts & passTrigger & stCut & dPhiMinjAK8Cut,
-                    # "_qual_trg_st_ht"           : qualityCuts & passTrigger & stCut & htCut,
-                    # "_qual_trg_st_1PJ"          : qualityCuts & passTrigger & stCut & (njetsAK8 >= 1),
-                    # "_qual_trg_st_2PJ"          : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2),
-                    # "_qual_trg_st_ht_2PJ"          : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2),
-                    # "_qual_trg_st_ht_2PJ_dphimin"          : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut,
-                    # "_all_cuts_ptd"    : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (ptdAk8 == 0),
-                    # "_all_cuts_girth"  : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (girthAK8 > 0.5),
-                    # "_all_cuts_met"    : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (met > 1200)
-                    # "_qual_st"             : qualityCuts & stCut,
+                    # "_qual_trg_st"                : qualityCuts & passTrigger & stCut,
+                    # "_qual_trg_st_dphimin"        : qualityCuts & passTrigger & stCut & dPhiMinjAK8Cut,
+                    # "_qual_trg_st_ht"             : qualityCuts & passTrigger & stCut & htCut,
+                    # "_qual_trg_st_1PJ"            : qualityCuts & passTrigger & stCut & (njetsAK8 >= 1),
+                    # "_qual_trg_st_2PJ"            : qualityCuts & passTrigger & stCut & (njetsAK8 >= 2),
+                    # "_qual_trg_st_ht_2PJ"         : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2),
+                    # "_qual_trg_st_ht_2PJ_dphimin" : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut,
+                    # "_all_cuts_ptd"               : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (ptdAk8 == 0),
+                    # "_all_cuts_girth"             : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (girthAK8 > 0.5),
+                    # "_all_cuts_met"               : qualityCuts & passTrigger & stCut & htCut & (njetsAK8 >= 2) & dPhiMinjAK8Cut & (met > 1200)
+                    # "_qual_st"                    : qualityCuts & stCut,
                 }
 
     
-    if SVJCut == True:
-        nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
+    if SVJCut:
         cuts = {
-                "_nocut" : np.ones(len(evtw),dtype=bool), 
-                "_qual" : qualityWithLepton,
-                "_qual_passTrig" : qualityWithLepton & passTrigger,
-                "_qual_2PJ" : qualityWithLepton & passTrigger & (njetsAK8 >=2),
-                "_qual_2PJ_st" : qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut,
-                "_qual_2PJ_st_nl" : qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (nl == 0),
-                
-                "_pre_dphimin_":      preselection,
-                "_pre_dphimin_0SVJ":  preselection & (nsvjJetsAK8 == 0),
-                "_pre_dphimin_1SVJ":  preselection & (nsvjJetsAK8 == 1),
-                "_pre_dphimin_2PSVJ":  preselection & (nsvjJetsAK8 >= 2),
-                # "_pre_dphimin_3SVJ":  preselection & (nsvjJetsAK8 == 3),
-                # "_pre_dphimin_4PSVJ": preselection & (nsvjJetsAK8 >= 4),
-            
-                "_cr_muon_"                  : cr_muon_cut, 
-                "_cr_electron_"              : cr_electron_cut,
-                "_cr_muon_0SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 0), 
-                "_cr_electron_0SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 0),
-                "_cr_muon_1SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 1), 
-                "_cr_electron_1SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 1),
-                "_cr_muon_2PSVJ"                  : cr_muon_cut & (nsvjJetsAK8 >= 2), 
-                "_cr_electron_2PSVJ"              : cr_electron_cut & (nsvjJetsAK8 >= 2),
-                # "_cr_muon_3SVJ"                  : cr_muon_cut & (nsvjJetsAK8 == 3), 
-                # "_cr_electron_3SVJ"              : cr_electron_cut & (nsvjJetsAK8 == 3),
-                # "_cr_muon_4PSVJ"                 : cr_muon_cut & (nsvjJetsAK8 >= 4), 
-                # "_cr_electron_4PSVJ"             : cr_electron_cut & (nsvjJetsAK8 >= 4),
-
-                # ""            : np.ones(len(evtw),dtype=bool),
-                # "_pre"        : preselection,
-                # "_pre_1PSVJ"  : preselection & (nsvjJetsAK8 >= 1),
-                # "_pre_2J"     : preselection & (njetsAK8 == 2),
-                # "_pre_3J"     : preselection & (njetsAK8 == 3),
-                # "_pre_4J"     : preselection & (njetsAK8 == 4),
-                # "_pre_5PJ"    : preselection & (njetsAK8 >= 5),
-                # "_pre_0SVJ"   : preselection & (nsvjJetsAK8 == 0),
-                # "_pre_1SVJ"   : preselection & (nsvjJetsAK8 == 1),
-                # "_pre_2SVJ"   : preselection & (nsvjJetsAK8 == 2),
-                # "_pre_3SVJ"   : preselection & (nsvjJetsAK8 == 3),
-                # "_pre_4PSVJ"   : preselection & (nsvjJetsAK8 >= 4),
-                # "_pre_2J_1PSVJ"     : preselection & (njetsAK8 == 2) & (nsvjJetsAK8 >= 1),
-                # "_pre_3J_1PSVJ"     : preselection & (njetsAK8 == 3) & (nsvjJetsAK8 >= 1),
-                # "_pre_4J_1PSVJ"     : preselection & (njetsAK8 == 4) & (nsvjJetsAK8 >= 1),
-                # "_pre_5PJ_1PSVJ"    : preselection & (njetsAK8 >= 5) & (nsvjJetsAK8 >= 1),   
-                # #"_qual"             : qualityCuts,
-                #"_qual_met"         : qualityCuts & metCut,
-                #"_qual_ht"          : qualityCuts & htCut,
-                #"_qual_st"          : qualityCuts & stCut,
-                #"_qual_trg"         : qualityCuts & passTrigger,
-                #"_qual_trg_met"     : qualityCuts & passTrigger & metCut,
-                #"_qual_trg_ht"      : qualityCuts & passTrigger & htCut,
-                # "_qual_trg_st"             : qualityCuts & passTrigger & stCut,
-                # "_qual_trg_st_0nim"        : qualityCuts & passTrigger & stCut & (nnim == 0),
-                # "_qual_trg_st_0nim_0SVJ"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 0),
-                # "_qual_trg_st_0nim_1SVJ"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 1),
-                # "_qual_trg_st_0nim_2SVJ"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 2),
-                # "_qual_trg_st_0nim_ge1SVJ" : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 1),
-                # "_qual_trg_st_0nim_ge2SVJ" : qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 2),
-                # "_qual_trg_st_0nim_0J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 0),
-                # "_qual_trg_st_0nim_1J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 1),
-                # "_qual_trg_st_0nim_2J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 2),
-
-                # "_qual_trg_st_0nim_4J"     : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4),
-                # "_qual_trg_st_0nim_4J_0SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 0),
-                # "_qual_trg_st_0nim_4J_1SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 1),
-                # "_qual_trg_st_0nim_4J_2SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 2),
-                # "_qual_trg_st_0nim_4J_3SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 3),
-                # "_qual_trg_st_0nim_4J_4SVJ": qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 4),
-
-                # "_qual_trg_st_0nim_ge1J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 >= 1),
-                # "_qual_trg_st_0nim_ge2J"   : qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 >= 2),
-
-                # "_qual_trg_st_ge1nim"        : qualityCuts & passTrigger & stCut & (nnim >= 1),
-                # "_qual_trg_st_ge1nim_0SVJ"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 0),
-                # "_qual_trg_st_ge1nim_1SVJ"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 1),
-                # "_qual_trg_st_ge1nim_2SVJ"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 2),
-                # "_qual_trg_st_ge1nim_ge1SVJ" : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 1),
-                # "_qual_trg_st_ge1nim_ge2SVJ" : qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 2),
-                # "_qual_trg_st_ge1nim_0J"     : qualityCuts & passTrigger & stCut & (nnim >= 1) & (njetsAK8 == 0),
-                # "_qual_trg_st_ge1nim_1J"     : qualityCuts & passTrigger & stCut & (nnim >= 1) & (njetsAK8 == 1),
-                # "_qual_trg_st_ge1nim_2J"     : qualityCuts & passTrigger & stCut & (nnim >= 1) & (njetsAK8 == 2),
-                # "_qual_trg_st_ge1nim_ge1J"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (njetsAK8 >= 1),
-                # "_qual_trg_st_ge1nim_ge2J"   : qualityCuts & passTrigger & stCut & (nnim >= 1) & (njetsAK8 >= 2),
-                #"_metfilter_0l_1nim_trgQCDCR" : metFilters & (nl == 0) & (nnim == 1) & PassTrigger(triggerPass,tch_trgs_QCDCR),
+                "_nocut":                       np.ones(len(evtw),dtype=bool), 
+                "_qual":                        qualityWithLepton,
+                "_qual_passTrig":               qualityWithLepton & passTrigger,
+                "_qual_2PJ":                    qualityWithLepton & passTrigger & (njetsAK8 >=2),
+                "_qual_2PJ_st":                 qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut,
+                "_qual_2PJ_st_dphimin":         qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5),
+                "_qual_2PJ_st_dphimin_nl":      qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 0),
+                "_qual_2PJ_st_dphimin_ll":      qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 1),
+                "_pre":                         preselection,
+                # lost lepton control region
+                "_lcr_pre":                     lcr_preselection,
+                "_lcr_pre_noMet":               lcr_preselection_noMETCut,
+                "_cr_muon_":                    cr_muon_cut, 
+                "_cr_electron_":                cr_electron_cut,
         }
-
+        if runNNs:
+            nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
+            cutsWithNSVJ = {
+                "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),
+                "_pre_1SVJ":                        preselection & (nsvjJetsAK8 == 1),
+                "_pre_2SVJ":                        preselection & (nsvjJetsAK8 == 2),
+                "_pre_3SVJ":                        preselection & (nsvjJetsAK8 == 3),
+                "_pre_4PSVJ":                       preselection & (nsvjJetsAK8 >= 4),
+                "_lcr_pre_0SVJ":                    lcr_preselection & (nsvjJetsAK8 == 0),
+                "_lcr_pre_1SVJ":                    lcr_preselection & (nsvjJetsAK8 == 1),
+                "_lcr_pre_2SVJ":                    lcr_preselection & (nsvjJetsAK8 == 2),
+                "_lcr_pre_2PSVJ":                   lcr_preselection & (nsvjJetsAK8 >= 2),
+                "_lcr_pre_3SVJ":                    lcr_preselection & (nsvjJetsAK8 == 3),
+                "_lcr_pre_4PSVJ":                   lcr_preselection & (nsvjJetsAK8 >= 4),
+                "_lcr_pre_noMet_0SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 0),
+                "_lcr_pre_noMet_1SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 1),
+                "_lcr_pre_noMet_2SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 2),
+                "_lcr_pre_noMet_2PSVJ":             lcr_preselection_noMETCut & (nsvjJetsAK8 >= 2),
+                "_lcr_pre_noMet_3SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 3),
+                "_lcr_pre_noMet_4PSVJ":             lcr_preselection_noMETCut & (nsvjJetsAK8 >= 4),
+                "_cr_muon_0SVJ":                    cr_muon_cut & (nsvjJetsAK8 == 0), 
+                "_cr_muon_1SVJ":                    cr_muon_cut & (nsvjJetsAK8 == 1), 
+                "_cr_muon_2SVJ":                    cr_muon_cut & (nsvjJetsAK8 == 2), 
+                "_cr_muon_2PSVJ":                   cr_muon_cut & (nsvjJetsAK8 >= 2), 
+                "_cr_muon_3SVJ":                    cr_muon_cut & (nsvjJetsAK8 == 3), 
+                "_cr_muon_4PSVJ":                   cr_muon_cut & (nsvjJetsAK8 >= 4), 
+                "_cr_electron_0SVJ":                cr_electron_cut & (nsvjJetsAK8 == 0),
+                "_cr_electron_1SVJ":                cr_electron_cut & (nsvjJetsAK8 == 1),
+                "_cr_electron_2SVJ":                cr_electron_cut & (nsvjJetsAK8 == 2),
+                "_cr_electron_2PSVJ":               cr_electron_cut & (nsvjJetsAK8 >= 2),
+                "_cr_electron_3SVJ":                cr_electron_cut & (nsvjJetsAK8 == 3),
+                "_cr_electron_4PSVJ":               cr_electron_cut & (nsvjJetsAK8 >= 4),
+                "_pre_1PSVJ":                       preselection & (nsvjJetsAK8 >= 1),
+                "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),
+                "_pre_1SVJ":                        preselection & (nsvjJetsAK8 == 1),
+                "_pre_2SVJ":                        preselection & (nsvjJetsAK8 == 2),
+                "_pre_3SVJ":                        preselection & (nsvjJetsAK8 == 3),
+                "_pre_4PSVJ":                       preselection & (nsvjJetsAK8 >= 4),
+                "_pre_2J_1PSVJ":                    preselection & (njetsAK8 == 2) & (nsvjJetsAK8 >= 1),
+                "_pre_3J_1PSVJ":                    preselection & (njetsAK8 == 3) & (nsvjJetsAK8 >= 1),
+                "_pre_4J_1PSVJ":                    preselection & (njetsAK8 == 4) & (nsvjJetsAK8 >= 1),
+                "_pre_5PJ_1PSVJ":                   preselection & (njetsAK8 >= 5) & (nsvjJetsAK8 >= 1), 
+                # "_qual_trg_st_0nim_0SVJ":           qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 0),
+                # "_qual_trg_st_0nim_1SVJ":           qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 1),
+                # "_qual_trg_st_0nim_2SVJ":           qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 2),
+                # "_qual_trg_st_0nim_ge1SVJ" :        qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 1),
+                # "_qual_trg_st_0nim_ge2SVJ" :        qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 2),
+                # "_qual_trg_st_0nim_4J_0SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 0),
+                # "_qual_trg_st_0nim_4J_1SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 1),
+                # "_qual_trg_st_0nim_4J_2SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 2),
+                # "_qual_trg_st_0nim_4J_3SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 3),
+                # "_qual_trg_st_0nim_4J_4SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 4),
+                # "_qual_trg_st_ge1nim_0SVJ":         qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 0),
+                # "_qual_trg_st_ge1nim_1SVJ":         qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 1),
+                # "_qual_trg_st_ge1nim_2SVJ":         qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 2),
+                # "_qual_trg_st_ge1nim_ge1SVJ":       qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 1),
+                # "_qual_trg_st_ge1nim_ge2SVJ":       qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 2),
+            }
+            cuts.update(cutsWithNSVJ)
     return cuts

@@ -20,6 +20,7 @@ class MainProcessor(processor.ProcessorABC):
             self.hemPeriod = ""
             self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
             self.sFactor = kwargs["sFactor"]
+            self.skimSource = kwargs["skimSource"]
         @property
         def accumulator(self):
                 return self._accumulator
@@ -62,7 +63,7 @@ class MainProcessor(processor.ProcessorABC):
                     vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
                     runJetTagger(events,vars_noCut,self.fakerateHisto)
                     # Our preselection
-                    cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,SVJCut=False)
+                    cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,skimSource=False,SVJCut=False)
                     # run cut loop
                     cut = cuts[self.tcut]
                     # saving the number of events before any cut for consistency check
@@ -73,7 +74,7 @@ class MainProcessor(processor.ProcessorABC):
                             for varName,varDetail in variables(self.jNVar).items():
                                 # only store jetAK8 variables
                                 if varDetail.npzInfo == 1:
-                                    if varName == "nnOutput":
+                                    if varName == "pNetJetTaggerScore":
                                         hIn = vars_noCut[varName][cut]
                                     else:
                                         hIn = vars_noCut[varName]

@@ -17,6 +17,7 @@ class MainProcessor(processor.ProcessorABC):
             self.setupNPArr = None
             self.scaleFactor = kwargs["sf"]
             self.hemPeriod = ""
+            self.skimSource = kwargs["skimSource"]
         @property
         def accumulator(self):
                 return self._accumulator
@@ -41,7 +42,7 @@ class MainProcessor(processor.ProcessorABC):
                 inputShapes = gnn.data_config.input_shapes
                 numOfJetClasses = len(gnn.data_config.label_value)
                 # Our preselection
-                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,SVJCut=False)
+                cuts = bl.cutList(self.dataset,events,vars_noCut,self.hemPeriod,skimSource=False,SVJCut=False)
                 if self.setupNPArr is None:                 
                     self.setupNPArray(inputVars,inputShapes,numOfJetClasses)
                 output = self.accumulator.identity()

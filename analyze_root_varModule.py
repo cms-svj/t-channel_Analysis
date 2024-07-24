@@ -48,7 +48,7 @@ def main():
         # from processors.rootProcessor_varModule import MainProcessor
         from processors.trainFileProcessor import MainProcessor
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s.getFileset(sample, options.startFile, options.nFiles, options.skimSource, True, mlTraining=True)
+    fileset = s.getFileset(sample, options.startFile, options.nFiles, options.skimSource, True)
 
     # run processor
     MainExecutor = processor.futures_executor
