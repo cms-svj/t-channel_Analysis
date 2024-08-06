@@ -160,9 +160,9 @@ def tch_hvCat_decode(hvCat):
     hvCat = decode(hvCat,1,"stableD",catList)
     return catList
 
-def baselineVar(dataset,events,hemPeriod,sFactor):
+def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
     varVal = {}
-    dataKeys = ["HTMHTData","JetHTData","METData","SingleElectronData","SingleMuonData","SinglePhotonData","EGammaData"]
+    dataKeys = ["HTMHT","JetHT","MET","SingleElectron","SingleMuon","SinglePhoton","EGamma"]
     scaleFactor = s.sfGetter(dataset,scaleOn=sFactor)
     isData = False
     for dKey in dataKeys:
@@ -319,7 +319,9 @@ def baselineVar(dataset,events,hemPeriod,sFactor):
     # cr variables to be stored
     varVal['crElectrons']   = crElectrons
     varVal['crMuons']       = crMuons
-
+    if skimSource:
+        varVal['JetsAK8_pNetJetTaggerScore'] = events.JetsAK8.pNetJetTaggerScore
+        varVal['JetsAK8_isGood'] = events.JetsAK8.isGood
     return varVal
 
 def jConstVarGetter(dataset,events,varVal,cut):
