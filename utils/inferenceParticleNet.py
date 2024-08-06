@@ -124,25 +124,4 @@ def runJetTagger(events,varsIn,fakerateHisto):
         pNetJetTaggerScore = np.append(pNetJetTaggerScore,softmax(outputs, axis=-1)[:, 2]) # 2 is the label for SVJ_Dark, 0 = QCD, 1 = TTJets
     counts = ak.num(fjets.pt)
     svjJetsAK8 = ak.unflatten(pNetJetTaggerScore, counts)
-
-    # count_pt = ak.count(fjets.pt,axis=-1) 
-    # print('fjets.pt')
-    # print(count_pt)
-    # print(ak.sum(count_pt))
-    # count_pn = ak.count(svjJetsAK8,axis=-1)
-    # print('pNetJetTaggerScore')
-    # print(count_pn)
-    # print(ak.sum(count_pn))
-    # print()
-    # if len(count_pt) != len(count_pn):
-    #     print("Different lengths")
-    # else:
-    #     for i in range(len(count_pt)):
-    #         if count_pt[i] != count_pn[i]:
-    #             print("Different counts:")
-    #             print(fjets.pt[i])
-    #             print(svjJetsAK8[i])
-    # print("End of pt vs nnOut")
-    # print()
-
     create_pn_related_variables(varsIn, fakerateHisto, fjets, svjJetsAK8)
