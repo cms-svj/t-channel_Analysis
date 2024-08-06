@@ -52,7 +52,7 @@ class MainProcessor(processor.ProcessorABC):
         def setupHistogram(self,cuts):
                 histograms = {}
                 for cutName,cut in cuts.items():
-                    for histName, histDetail in variables(self.jNVar,runJetTag=self.runJetTag).items():
+                    for histName, histDetail in variables(self.jNVar,skimSource=self.skimSource,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():
                         if   histDetail.dim == 1:
                             histograms['h_{}{}'.format(histName,cutName)] = h.Hist(histDetail.xbins, storage="weight")
                         elif histDetail.dim == 2:                        
@@ -66,13 +66,15 @@ class MainProcessor(processor.ProcessorABC):
                 ## objects used for cuts
                 dataset = events.metadata['dataset']
                 vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor,self.skimSource)
-                if not self.skimSource or self.runJetTag:
-                    runJetTagger(events,vars_noCut,self.fakerateHisto)
-                utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                if self.runEvtClass:
-                    runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
                 if self.skimSource:
                     create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
+                else:
+                    if self.runJetTag:
+                        runJetTagger(events,vars_noCut,self.fakerateHisto)
+
+                utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
+                if self.runEvtClass:
+                    runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)                    
                 cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,self.skimCut,self.skimSource,self.runJetTag,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
@@ -99,7 +101,7 @@ class MainProcessor(processor.ProcessorABC):
                     }
                     if len(events) > 0:
                         ## filling histograms
-                        for histName, varDetail in variables(self.jNVar,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():                            
+                        for histName, varDetail in variables(self.jNVar,skimSource=self.skimSource,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():                            
                             vX = vars_noCut[varDetail.varXName][cut]
                             vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]

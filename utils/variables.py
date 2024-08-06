@@ -13,7 +13,7 @@ class SVJHistoInfo:
         self.dim = 2 if varYName else 1
         
 
-def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
+def variables(jNVar=False, maxN = 3, skimSource=False, runJetTag=True, runEvtClass=True):
     # [xlabel,number of bins,xmin,xmax,whether to keep it in npz for training (0=do not keep, 1=keep as is, 2=keep but make sure the length is the same as AK8 variables), whether to flatten the array or not when filling histogram (2 = ak.flatten(), 1 = .flatten(), 0 = do not flatten)]
     allVars = {
         # 'cutflow' :                SVJHistoInfo("cutflow",                  h.),
@@ -194,7 +194,7 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
     }
     allVars.update(histos2D)
 
-    if runJetTag:
+    if runJetTag or skimSource:
         jetTagVars = {
                     'nsvjJetsAK8':             SVJHistoInfo("nsvjJetsAK8",              h.axis.Regular(name="x", label="Number of SVJ AK8Jets",                          bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'evtw'      ),
                     'nsvjJetsAK8Plus1':        SVJHistoInfo("nsvjJetsAK8Plus1",         h.axis.Regular(name="x", label="Number of SVJ AK8Jets pred1Jets",                bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'pred1_evtw'),
