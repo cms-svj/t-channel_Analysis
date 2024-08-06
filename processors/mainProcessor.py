@@ -21,7 +21,9 @@ class MainProcessor(processor.ProcessorABC):
                 self.evtTaggerDict = kwargs["evtTaggerDict"]
                 self.sFactor = kwargs["sFactor"]
                 self.skimSource = kwargs["skimSource"]
-                self.runNNs = kwargs["runNNs"]
+                self.skimCut = kwargs["skimCut"]
+                self.runJetTag = kwargs["runJetTag"]
+                self.runEvtClass = kwargs["runEvtClass"]
         @property
         def accumulator(self):
                 return self._accumulator
@@ -50,7 +52,7 @@ class MainProcessor(processor.ProcessorABC):
         def setupHistogram(self,cuts):
                 histograms = {}
                 for cutName,cut in cuts.items():
-                    for histName, histDetail in variables(self.jNVar,runNNs=self.runNNs).items():
+                    for histName, histDetail in variables(self.jNVar,runJetTag=self.runJetTag).items():
                         if   histDetail.dim == 1:
                             histograms['h_{}{}'.format(histName,cutName)] = h.Hist(histDetail.xbins, storage="weight")
                         elif histDetail.dim == 2:                        
@@ -63,15 +65,15 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 dataset = events.metadata['dataset']
-                vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor)
-                if not self.skimSource or not self.runNNs:
+                vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor,self.skimSource)
+                if not self.skimSource or self.runJetTag:
                     runJetTagger(events,vars_noCut,self.fakerateHisto)
                 utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
-                if self.runNNs:
+                if self.runEvtClass:
                     runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
                 if self.skimSource:
                     create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
-                cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,self.skimSource,self.runNNs,SVJCut=True)
+                cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,self.skimCut,self.skimSource,self.runJetTag,SVJCut=True)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)
@@ -97,7 +99,7 @@ class MainProcessor(processor.ProcessorABC):
                     }
                     if len(events) > 0:
                         ## filling histograms
-                        for histName, varDetail in variables(self.jNVar,runNNs=self.runNNs).items():                            
+                        for histName, varDetail in variables(self.jNVar,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():                            
                             vX = vars_noCut[varDetail.varXName][cut]
                             vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]

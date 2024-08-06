@@ -1,0 +1,7 @@
+{
+    "2016_TTJets_HT-1200to2500": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_pre_selection//TTJets_HT-1200to2500/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_pre_selection//TTJets_HT-1200to2500/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_pre_selection//TTJets_HT-1200to2500/part-2.root"
+    ]
+}

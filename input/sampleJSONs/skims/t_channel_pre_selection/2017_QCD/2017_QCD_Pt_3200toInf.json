@@ -1,0 +1,11 @@
+{
+    "2017_QCD_Pt_3200toInf": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//QCD_Pt_3200toInf/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//QCD_Pt_3200toInf/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//QCD_Pt_3200toInf/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//QCD_Pt_3200toInf/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//QCD_Pt_3200toInf/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//QCD_Pt_3200toInf/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//QCD_Pt_3200toInf/part-6.root"
+    ]
+}
