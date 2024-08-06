@@ -221,6 +221,5 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                     runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"")
                 else:
                     runOrPrintCommand(command,haddAll,printOnly)
-
 if haddAll:
     runHadd(expectedFilesDict,outHistF)
