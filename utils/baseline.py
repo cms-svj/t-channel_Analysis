@@ -174,7 +174,7 @@ def conditionMask(var, condition):
         print(val)
     print("Mask = ",FullMask)
 
-def cutList(dataset,events,vars_noCut,hemPeriod,skimSource,runNNs=True,SVJCut=True):
+def cutList(dataset,events,vars_noCut,hemPeriod,skimCut,skimSource,runJetTag=True,SVJCut=True):
     evtw = vars_noCut["evtw"]
     nl = vars_noCut["nl"]
     # nnim = vars_noCut["nnim"] # no of Isolated Muons
@@ -207,7 +207,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimSource,runNNs=True,SVJCut=Tr
         if year in dataset:
             yr = year
 
-    if f"{yr}_Data" == s.getGroupFromSample(dataset,skimSource=skimSource):
+    if f"{yr}_Data" == s.getGroupFromSample(dataset,skimCut,skimSource=skimSource):
         DataMask = removeOverlap(dataset, events, yr)
     else: 
         DataMask = np.ones(len(events),dtype=bool)
@@ -344,7 +344,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimSource,runNNs=True,SVJCut=Tr
                 # "_qual_trg_st_ge1nim_ge2J":     qualityCuts & passTrigger & stCut & (nnim >= 1) & (njetsAK8 >= 2),
                 # "_metfilter_0l_1nim_trgQCDCR":  metFilters & (nl == 0) & (nnim == 1) & passTriggerMask(triggerPass,tch_trgs_QCDCR),
         }
-        if runNNs:
+        if runJetTag:
             nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
             cutsWithNSVJ = {
                 "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),

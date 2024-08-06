@@ -17,7 +17,9 @@ parser.add_argument("--runSignalLocal",     action="store_true", help="Run over 
 parser.add_argument("--printOnly",          action="store_true", help="Print the commands without running them.")
 parser.add_argument("--rerunMissingFiles",  action="store_true", help="Rerun the jobs based on missing files.")
 parser.add_argument("--haddAll",            action="store_true", help="Hadd all the output files by their sample group. (This has to be run outside of the coffeaenv. Try running in `source /cvmfs/sft.cern.ch/lcg/views/LCG_106_cuda/x86_64-el9-gcc11-opt/setup.sh`)")
-parser.add_argument("--runNNs",             action="store_true", help="Inference on all the NNs (both particleNet and DNN).")
+parser.add_argument('--runJetTag',          action='store_true', help='Run jet tagger.', )
+parser.add_argument('--runEvtClass',        action='store_true', help='Run event classifier.')
+parser.add_argument("--skimCut",            type=str, default="t_channel_pre_selection", help='The selection of cuts that have been applied to the TM ntuples when making the skims: t_channel_pre_selection, t_channel_lost_lepton_control_region, etc.')
 
 args = parser.parse_args()
 
@@ -47,9 +49,11 @@ preCommand = "python analyze.py"
 if maxFilesPerSample != -1: # if not all the files are used, then turn the scale factor flag on
     preCommand += " -f" 
 if skimSource:
-    preCommand += " --skimSource" 
-if args.runNNs:
-    preCommand += " --runNNs" 
+    preCommand += f" --skimSource --skimCut {args.skimCut}" 
+if args.runJetTag:
+    preCommand += " --runJetTag" 
+if args.runEvtClass:
+    preCommand += " --runEvtClass" 
 maxFiles = nFilesPerJob*maxJobs
 expectedFilesDict = {}
 
@@ -66,7 +70,7 @@ def runMissingFile(command,outHistF,dataset,nFiles,startFile,condor,dask,hemPeri
     outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
     if outFile not in os.listdir(outHistF):
         print("Rerunning:")
-        runOrPrintCommand(command,haddAll,haddAll,printOnly)
+        runOrPrintCommand(command,haddAll,printOnly)
 
 def addExpectedFile(outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod,expectedFilesDict,sampleGroupToRun):
     outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
@@ -101,7 +105,7 @@ def runHadd(expectedFilesDict,outHistF):
 
 for sampleGroupToRun in listOfSampleGroupsToRun:
     expectedFilesDict[sampleGroupToRun] = []
-    runDetail = s.getSamplesFromGroup(sampleGroupToRun,skimSource=skimSource)
+    runDetail = s.getSamplesFromGroup(sampleGroupToRun,args.skimCut,skimSource=skimSource)
     # figuring out how many files each subsample has for the given constraints
     jobDetails = []
     # since signal samples are much smaller than the background and data samples, we can always process all of them
@@ -125,7 +129,7 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 runOrPrintCommand(command,haddAll,printOnly)
     else:
         for sample in runDetail:
-            fileset = s.getFileset(sample, False)
+            fileset = s.getFileset(sample,skimCut=args.skimCut,startFile=0,nFiles=-1,skimSource=args.skimSource,verbose=False)
             if maxFilesPerSample == -1:
                 totalNumberOfFiles = len(list(fileset.items())[0][1]) # run over all the MC samples
             else:

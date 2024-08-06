@@ -2,18 +2,22 @@ import os
 import json
 from glob import glob
 
-def getSamplesFromGroup(sampleGroup,skimSource=False):
-    ntupleKind = "treeMakerNtuples"
+def getSamplesFromGroup(sampleGroup,skimCut,skimSource=False):
     if skimSource:
         ntupleKind = "skims"
-    sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/{sampleGroup}"
+        sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/{skimCut}/{sampleGroup}"
+    else:
+        ntupleKind = "treeMakerNtuples"
+        sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/{sampleGroup}"
     return [sample.replace(".json","") for sample in os.listdir(sampleInputFolder)]    
 
-def getGroupFromSample(sample,skimSource=False):
-    ntupleKind = "treeMakerNtuples"
+def getGroupFromSample(sample,skimCut,skimSource=False):
     if skimSource:
         ntupleKind = "skims"
-    inputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/"
+        inputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/{skimCut}/"
+    else:
+        ntupleKind = "treeMakerNtuples"
+        inputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/"
     allSampleGroups = os.listdir(inputFolder)
     for sampleGroup in allSampleGroups:
         allSamples = os.listdir(f"{inputFolder}/{sampleGroup}")
@@ -21,12 +25,13 @@ def getGroupFromSample(sample,skimSource=False):
             return sampleGroup
     raise Exception(f"{sample} does not belong to any existing sample group.")
 
-def getFileset(sample,startFile=0,nFiles=-1,skimSource=False,verbose=False):
+def getFileset(sample,skimCut,startFile=0,nFiles=-1,skimSource=False,verbose=False):
     # find all json files for the sample or sample collection
     ntupleKind = "treeMakerNtuples"
     if skimSource:
-        ntupleKind = "skims"
-    sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/{ntupleKind}/"
+        sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/skims/{skimCut}/"
+    else:
+        sampleInputFolder = f"{os.getcwd()}/input/sampleJSONs/treeMakerNtuples/"
     allSampleGroups = os.listdir(sampleInputFolder)
     inputSamples = []
     if sample in allSampleGroups:
@@ -71,12 +76,13 @@ def getFilesetFromList(sampleList,options,verbose=False):
     startFileList = options.startFile 
     nFilesList = options.nFiles
     skimSource = options.skimSource
+    skimCut = options.skimCut
     allFileset = {}
     for i in range(len(sampleList)):
         sample = sampleList[i]
         startFile = startFileList[i]
         nFiles = nFilesList[i]
-        fileset = getFileset(sample,startFile,nFiles,skimSource,verbose)
+        fileset = getFileset(sample,skimCut,startFile,nFiles,skimSource,verbose)
         allFileset.update(fileset)
     return allFileset
 
