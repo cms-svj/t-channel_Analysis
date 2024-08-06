@@ -1,0 +1,15 @@
+{
+    "2018_TTJets_HT-600to800": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-10.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-6.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-7.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-8.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//TTJets_HT-600to800/part-9.root"
+    ]
+}
