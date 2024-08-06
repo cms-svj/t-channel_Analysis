@@ -3,6 +3,7 @@ from coffea import processor
 import uproot
 import os 
 from utils.coffea.n_tree_maker_schema import NTreeMakerSchema
+from utils.shortNameDict import shortNameDict
 
 def use_dask(condor,jobs,port):
     from dask.distributed import Client, LocalCluster
@@ -51,12 +52,11 @@ def out_file_name_creator(outHistF,dataset,nFiles,startFile,condor,dask,hemPerio
     sampleList = dataset
     nFilesList = nFiles
     startFileList = startFile
+    year = sampleList[0][:sampleList[0].find("_")]
     for i in range(len(sampleList)):
-        details += f"{sampleList[i]}_N{nFilesList[i]}_M{startFileList[i]}_"
-    if condor or dask:
-        outfile = f"{outHistF}/MyAnalysis_{details}{hemPeriod}.root"
-    else:
-        outfile = f"{outHistF}/local_{details}{hemPeriod}.root"    
+        shortName = shortNameDict[sampleList[i].replace(f"{year}_","")]
+        details += f"{shortName}_N{nFilesList[i]}_M{startFileList[i]}_"
+    outfile = f"{outHistF}/{year}_{details}{hemPeriod}.root" 
     return outfile
 
 def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTaggerDict={},trainingKind="",trainFileProduction=False):
@@ -70,7 +70,7 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
     output = processor.run_uproot_job(
         fileset,
         treename=treename,
-        processor_instance=MainProcessor(jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,sFactor=args.sFactor,skimSource=args.skimSource,runNNs=args.runNNs),
+        processor_instance=MainProcessor(jNVar=args.jNVar,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,sFactor=args.sFactor,skimSource=args.skimSource,skimCut=args.skimCut,runJetTag=args.runJetTag,runEvtClass=args.runEvtClass),
         executor=MainExecutor,
         executor_args=exe_args,
         chunksize=args.chunksize,
