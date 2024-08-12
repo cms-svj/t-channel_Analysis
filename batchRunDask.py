@@ -9,6 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--nFilesPerJob",       type=int, default=5, help="Number of files to run per job. Higher number can cause memory issue.")
 parser.add_argument("--maxFilesPerSample",  type=int, default=-1, help="The number of files to run over per sample group. -1 = all available files.")
 parser.add_argument("--maxJobs",            type=int, default=50, help="Maximum number of jobs to run on condor at a time. If inferencing on particleNet (not the case for skims), higher number than 100 can cause instability.")
+parser.add_argument("--chunkSize",          type=int, default=1000, help='Chunk size.')
 parser.add_argument("--submissionMode",     type=int, default=1, help="0 = submit jobs without mixing different samples together, 1 = submit jobs while mixing samples together (faster since lower number of submissions)")
 parser.add_argument("--outHistF",           type=str, default="output/QCD_cl0p02_net64", help="Location to save all the output histograms")
 parser.add_argument("--eTagName",           type=str, default="sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn", help="Name of the event classifier.")
@@ -26,6 +27,7 @@ args = parser.parse_args()
 nFilesPerJob = args.nFilesPerJob 
 maxFilesPerSample = args.maxFilesPerSample 
 maxJobs = args.maxJobs
+chunkSize = args.chunkSize
 submissionMode = args.submissionMode 
 skimSource = args.skimSource
 printOnly = args.printOnly 
@@ -116,12 +118,12 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
             sample, mVal, nVal = job
             # since the signal samples are smaller, it is possible to process them offline, or process them with less workers on condor.
             if runSignalLocal:
-                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -w 4 --outHistF {outHistF} -t {evtTaggerLoc} -j -s 1000"
+                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -w 4 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize}"
                 addExpectedFile(outHistF,sample,nVal,mVal,False,False,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sample,nVal,mVal,False,False,"")
             else:
-                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b 20 --outHistF {outHistF} -t {evtTaggerLoc} -j -s 1000 --condor --dask"
+                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b 20 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
                 addExpectedFile(outHistF,sample,nVal,mVal,True,True,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"")
@@ -152,7 +154,7 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 sample, mVal, nVal = job
                 mVal = str(mVal)
                 nVal = str(nVal)
-                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s 1000 --condor --dask"
+                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
                 addExpectedFile(outHistF,sample,nVal,mVal,True,True,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"")
@@ -215,7 +217,7 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                     sampleList += f"{sampleGroup[i]} "
                     mValList += f"{mValGroup[i]} "
                     nValList += f"{nValGroup[i]} "
-                command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s 1000 --condor --dask"
+                command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
                 addExpectedFile(outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"")
