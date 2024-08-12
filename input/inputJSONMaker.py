@@ -61,6 +61,8 @@ def makeJSONFiles(sampleDict):
                     sampleFileName += "_Incl"
                 elif "SVJ" in sampleGroup:
                     sampleFileName = sampleFileName.replace("t-channel_","")
+                elif "Data" in sampleGroup:
+                    sampleFileName += "Data"
                 sampleFileList = getEosContent(f"{skimLocation}/{sampleName}")
                 sampleLocationList = [f"root://cmseos.fnal.gov/{skimLocation}/{sampleName}/{sampleFile}" for sampleFile in sampleFileList]
                 print(f"{outputDir}/{sampleFileName}.json")
