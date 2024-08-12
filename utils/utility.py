@@ -284,7 +284,11 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
     # varVal['nOffMuons'] = ak.num(triggerOfflineMuons)
     # varVal['nHLTMatchedMuons'] = nHLTMatchedMuons
     ############################################
-
+    ##### For TTStitch sanity check ######
+    if "TTJets" in dataset:
+        varVal['madHT'] = events.madHT
+    else:
+        varVal['madHT'] = np.ones(len(events))
     varVal['djets'] = djets
     varVal['fjets'] = fjets
     varVal['fJetsID'] = fJetsID
@@ -302,9 +306,6 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
     varVal['nb'] = nBJets
     varVal['MET'] = met
     varVal['METPhi'] = metPhi
-    ##### TTStitch ######
-    # varVal['madHT'] = events.madHT
-    #####################
     varVal['mT'] = mtAK8
     varVal['HT'] = ht
     varVal['ST'] = st
@@ -408,9 +409,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     evtw = varVal['evtw'][cut] 
     eCounter = varVal['eCounter'][cut] 
     nBJets = varVal['nb'][cut]
-    ##### TTStitch ######
-    # madHT= varVal['madHT'][cut]
-    #####################
+    madHT= varVal['madHT'][cut]
     met = varVal['MET'][cut]
     metPhi = varVal['METPhi'][cut]
     mtAK8 = varVal['mT'][cut]
@@ -539,9 +538,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['METrST_pt30'] = varVal['METrST_pt30'][cut]
     varVal['dPhiMinjMET'] = dPhiMinj
     varVal['dPhiMinjMETAK8'] = dPhiMinjAK8
-    ##### TTStitch ######
-    # varVal['madHT'] = madHT
-    #####################
+    varVal['madHT'] = madHT
     varVal['jPt'] = jets.pt
     varVal['jEta'] = jetEta
     varVal['jPhi'] = jetPhi
