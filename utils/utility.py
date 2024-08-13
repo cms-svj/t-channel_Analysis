@@ -230,10 +230,12 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
     elif isSignal == 2:
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
-        fjets = fjets[jetsAK8GenInd != -1] # makes sure each reco AK8 jet has a corresponding gen jet, since hv category is only defined for the gen jets
-        jetsAK8GenInd = jetsAK8GenInd[jetsAK8GenInd != -1]
+        missingGenInd = jetsAK8GenInd == -1
+        # temporarily set missing gen jet index to 0 and replace them later with -1
+        jetsAK8GenInd = ak.where(missingGenInd,0,jetsAK8GenInd)
         genHVCategory = GenJetsAK8.hvCategory
         jetCats = genHVCategory[jetsAK8GenInd]
+        jetCats = ak.where(missingGenInd,-1,jetCats)
     else:
         jetCats = awkwardReshape(fjets,np.ones(len(events))*-1)
 
@@ -325,79 +327,6 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
         varVal['JetsAK8_isGood'] = events.JetsAK8.isGood
     return varVal
 
-def jConstVarGetter(dataset,events,varVal,cut):
-    evtw = varVal["evtw"][cut]
-    fjets = varVal["fjets"][cut]
-    jetCats = []
-    fjw = awkwardReshape(fjets,evtw)
-    evtNum = events.EvtNum
-    fjEvtNum = awkwardReshape(fjets,evtNum)
-    bkgKeys = ["QCD","TTJets","WJets","ZJets"]
-    isSignal = 0
-    if "mMed" in dataset:
-        if "s-channel" in dataset:
-            isSignal = 1
-        else:
-            isSignal = 2
-    # getting jet category for each jet
-    if isSignal == 1:
-        jetCats = ak.where(fjets.isHV,9,0) # treating SVJ from s-channel as QM jets and non-SVJ as SM jets
-
-    elif isSignal == 2:
-        GenJetsAK8 = events.GenJetsAK8
-        jetsAK8GenInd = fjets.genIndex
-        fjets = fjets[jetsAK8GenInd != -1]
-        jetsAK8GenInd = jetsAK8GenInd[jetsAK8GenInd != -1]
-        genHVCategory = GenJetsAK8.hvCategory
-        jetCats = genHVCategory[jetsAK8GenInd]
-    else:
-        jetCats = awkwardReshape(fjets,np.ones(len(events))*-1)
-
-    jetConstituents = events.JetsConstituents
-    JetsAK8_constituentsIndex = fjets.constituentsIndex
-    jCstPt = jetConstituents.pt
-    indices = ak.flatten(JetsAK8_constituentsIndex,axis=-1)
-    jetConstituentsForJets = jetConstituents[indices]
-    goodJetConst = ak.unflatten(jetConstituentsForJets,ak.flatten(ak.num(JetsAK8_constituentsIndex,axis=-1)),axis=1)
-
-    jCst4vec = {}
-    jCstVar = {}
-    jCst4vec["jCstPt"] = goodJetConst.pt
-    jCst4vec["jCstEta"] = goodJetConst.eta
-    jCst4vec["jCstPhi"] = goodJetConst.phi
-    jCst4vec["jCstEnergy"] = goodJetConst.energy
-    jCst4vec["jCstPdgId"] = goodJetConst.PdgId
-    jCst4vec["jCstdxy"] = goodJetConst.dxy
-    jCst4vec["jCstdxysig"] = goodJetConst.dxysig
-    jCst4vec["jCstdz"] = goodJetConst.dz
-    jCst4vec["jCstdzsig"] = goodJetConst.dzsig
-    jCst4vec["jCstPuppiWeight"] = goodJetConst.PuppiWeight
-
-    fjets["jetCats"] = jetCats
-    fjets["fjw"] = fjw
-    fjets["fjEvtNum"] = fjEvtNum
-    fjets["fJNum"] = ak.local_index(fjw)
-
-    #fjets_const = ak.broadcast_arrays(fjets,goodJetConst)[0]
-    goodJetConstPt = goodJetConst.pt
-    jCstVar["jCstPtAK8"] = ak.broadcast_arrays(fjets.pt,goodJetConstPt)[0]
-    jCstVar["jCstEtaAK8"] = ak.broadcast_arrays(fjets.eta,goodJetConstPt)[0]
-    jCstVar["jCstPhiAK8"] = ak.broadcast_arrays(fjets.phi,goodJetConstPt)[0]
-    jCstVar["jCstEnergyAK8"] = ak.broadcast_arrays(fjets.energy,goodJetConstPt)[0]
-    jCstVar["jCstAxismajorAK8"] = ak.broadcast_arrays(fjets.axismajor,goodJetConstPt)[0]
-    jCstVar["jCstAxisminorAK8"] = ak.broadcast_arrays(fjets.axisminor,goodJetConstPt)[0]
-    jCstVar["jCstTau1AK8"] = ak.broadcast_arrays(fjets.NsubjettinessTau1,goodJetConstPt)[0]
-    jCstVar["jCstTau2AK8"] = ak.broadcast_arrays(fjets.NsubjettinessTau2,goodJetConstPt)[0]
-    jCstVar["jCstTau3AK8"] = ak.broadcast_arrays(fjets.NsubjettinessTau3,goodJetConstPt)[0]
-    jCstVar["jCstPtDAK8"] = ak.broadcast_arrays(fjets.ptD,goodJetConstPt)[0]
-    jCstVar["jCstSoftDropMassAK8"] = ak.broadcast_arrays(fjets.softDropMass,goodJetConstPt)[0]
-    jCstVar["jCsthvCategory"] = ak.broadcast_arrays(fjets.jetCats,goodJetConstPt)[0]
-    jCstVar["jCstWeightAK8"] = ak.broadcast_arrays(fjets.fjw,goodJetConstPt)[0]
-    jCstVar["jCstEvtNum"] = ak.broadcast_arrays(fjets.fjEvtNum,goodJetConstPt)[0]
-    jCstVar["jCstJNum"] = ak.broadcast_arrays(fjets.fJNum,goodJetConstPt)[0]
-
-    return jCst4vec,jCstVar
-
 def varGetter(dataset,events,varVal,cut,jNVar=False):
     jets = varVal['jets'][cut] 
     bjets = varVal['bjets'][cut] 
@@ -446,12 +375,15 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
         num_of_med = ak.sum(hvCond,axis=1)
         GenJetsAK8 = events.GenJetsAK8
         jetsAK8GenInd = fjets.genIndex
-        fjets = fjets[jetsAK8GenInd != -1]
+        missingGenInd = jetsAK8GenInd == -1
+        # temporarily set missing gen jet index to 0 and replace them later with -1
+        jetsAK8GenInd = ak.where(missingGenInd,0,jetsAK8GenInd)
         genHVCategory = GenJetsAK8.hvCategory
-        genDarkPtFrac = GenJetsAK8.darkPtFrac
-        jetsAK8GenInd = jetsAK8GenInd[jetsAK8GenInd != -1]
         jetCats = genHVCategory[jetsAK8GenInd]
+        jetCats = ak.where(missingGenInd,-1,jetCats)
+        genDarkPtFrac = GenJetsAK8.darkPtFrac
         jetDarkPtFracs = genDarkPtFrac[jetsAK8GenInd]
+        jetDarkPtFracs = ak.where(missingGenInd,-1,jetDarkPtFracs)
     else:
         num_of_med = np.zeros(len(events)) 
         jetCats = awkwardReshape(fjets,np.ones(len(evtw))*-1)
