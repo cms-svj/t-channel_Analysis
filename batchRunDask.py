@@ -4,6 +4,8 @@ import os
 import sys
 import numpy as np
 import argparse
+import uproot as up
+import time
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--nFilesPerJob",       type=int, default=5, help="Number of files to run per job. Higher number can cause memory issue.")
@@ -35,14 +37,15 @@ rerunMissingFiles = args.rerunMissingFiles
 outHistF = args.outHistF
 eTagName = args.eTagName
 haddAll = args.haddAll
+skimCut = args.skimCut
 listOfSampleGroupsToRun = [
                         "2018_QCD",
-                        "2018_ST",
-                        "2018_TTJets",
-                        "2018_WJets",
-                        "2018_ZJets",
-                        "2018_Data",
-                        "2018_SVJ_t",
+                        # "2018_ST",
+                        # "2018_TTJets",
+                        # "2018_WJets",
+                        # "2018_ZJets",
+                        # "2018_Data",
+                        # "2018_SVJ_t",
 ]
 runSignalLocal = args.runSignalLocal
 evtTaggerLoc = f"utils/data/DNNEventClassifier/{eTagName}"
@@ -51,7 +54,7 @@ preCommand = "python analyze.py"
 if maxFilesPerSample != -1: # if not all the files are used, then turn the scale factor flag on
     preCommand += " -f" 
 if skimSource:
-    preCommand += f" --skimSource --skimCut {args.skimCut}" 
+    preCommand += f" --skimSource --skimCut {skimCut}" 
 if args.runJetTag:
     preCommand += " --runJetTag" 
 if args.runEvtClass:
@@ -68,7 +71,7 @@ def runOrPrintCommand(command,haddAll=False,printOnly=False):
         print(command)
         os.system(command)
 
-def runMissingFile(command,outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod):
+def runMissingFile(command,outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod,skimSource,skimCut):
     outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
     if outFile not in os.listdir(outHistF):
         print("Rerunning:")
@@ -107,7 +110,7 @@ def runHadd(expectedFilesDict,outHistF):
 
 for sampleGroupToRun in listOfSampleGroupsToRun:
     expectedFilesDict[sampleGroupToRun] = []
-    runDetail = s.getSamplesFromGroup(sampleGroupToRun,args.skimCut,skimSource=skimSource)
+    runDetail = s.getSamplesFromGroup(sampleGroupToRun,skimCut,skimSource=skimSource)
     # figuring out how many files each subsample has for the given constraints
     jobDetails = []
     # since signal samples are much smaller than the background and data samples, we can always process all of them
@@ -121,17 +124,17 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -w 4 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize}"
                 addExpectedFile(outHistF,sample,nVal,mVal,False,False,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sample,nVal,mVal,False,False,"")
+                    runMissingFile(command,outHistF,sample,nVal,mVal,False,False,"",skimSource,skimCut)
             else:
                 command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b 20 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
                 addExpectedFile(outHistF,sample,nVal,mVal,True,True,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"")
+                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"",skimSource,skimCut)
             if rerunMissingFiles == False:
                 runOrPrintCommand(command,haddAll,printOnly)
     else:
         for sample in runDetail:
-            fileset = s.getFileset(sample,skimCut=args.skimCut,startFile=0,nFiles=-1,skimSource=args.skimSource,verbose=False)
+            fileset = s.getFileset(sample,skimCut=skimCut,startFile=0,nFiles=-1,skimSource=args.skimSource,verbose=False)
             if maxFilesPerSample == -1:
                 totalNumberOfFiles = len(list(fileset.items())[0][1]) # run over all the MC samples
             else:
@@ -157,7 +160,7 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
                 addExpectedFile(outHistF,sample,nVal,mVal,True,True,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"")
+                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"",skimSource,skimCut)
                 else:
                     runOrPrintCommand(command,haddAll,printOnly)
         else:
@@ -220,7 +223,7 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
                 addExpectedFile(outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"",expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"")
+                    runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"",skimSource,skimCut)
                 else:
                     runOrPrintCommand(command,haddAll,printOnly)
 if haddAll:

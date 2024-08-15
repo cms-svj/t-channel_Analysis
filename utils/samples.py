@@ -1,6 +1,8 @@
 import os
 import json
 from glob import glob
+import numpy as np  
+
 
 def getSamplesFromGroup(sampleGroup,skimCut,skimSource=False):
     if skimSource:
@@ -72,18 +74,18 @@ def getFileset(sample,skimCut,startFile=0,nFiles=-1,skimSource=False,verbose=Fal
 
     return fileset
 
-def getFilesetFromList(sampleList,options,verbose=False):
-    startFileList = options.startFile 
-    nFilesList = options.nFiles
-    skimSource = options.skimSource
-    skimCut = options.skimCut
+def getFilesetFromList(sampleList,startFileList,nFilesList,skimSource,skimCut,verbose=False):
     allFileset = {}
     for i in range(len(sampleList)):
         sample = sampleList[i]
-        startFile = startFileList[i]
-        nFiles = nFilesList[i]
+        startFile = int(startFileList[i])
+        nFiles = int(nFilesList[i])
         fileset = getFileset(sample,skimCut,startFile,nFiles,skimSource,verbose)
-        allFileset.update(fileset)
+        for sampleKey in fileset:
+            if sampleKey in allFileset.keys():
+                allFileset[sampleKey] += fileset[sampleKey]
+            else:
+                allFileset[sampleKey] = fileset[sampleKey]
     return allFileset
 
 def getAllFilesets():

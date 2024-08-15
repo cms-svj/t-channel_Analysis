@@ -61,7 +61,7 @@ def main():
     sample = options.dataset
 
     # getting dictionary of files from a sample collection e.g. "2016_QCD, 2016_WJets, 2016_TTJets, 2016_ZJets"
-    fileset = s.getFilesetFromList(sample, options, True)
+    fileset = s.getFilesetFromList(sample, options.startFile, options.nFiles, options.skimSource, options.skimCut, True)
     # sf = s.sfGetter(sample,True)
     # print("scaleFactor = {}".format(sf))
 
