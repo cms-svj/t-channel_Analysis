@@ -1,0 +1,6 @@
+{
+    "2016_TTJets_HT-2500toInf": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-1.root"
+    ]
+}

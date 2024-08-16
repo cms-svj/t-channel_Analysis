@@ -9,7 +9,8 @@ if skimSource:
 else:
     from inputDictionary import yearDict,backgrounds,signals,data,postpendToRemove
 
-skimModule = "t_channel_pre_selection"
+# options are: t_channel_pre_selection, t_channel_lost_lepton_control_region (see root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/{year}/Full/PrivateSkims/nominal/{year})
+skimModule = "t_channel_lost_lepton_control_region" 
 
 def getEosContent(eosSource):
     os.system(f"eosls {eosSource} > out.txt")
@@ -27,6 +28,12 @@ def removePostpend(sampleName,sampleGroup):
     if "Data" in sampleGroup:
         newSampleName += "Data"
     return newSampleName
+
+def cleanUpEmptyFolders(outputDir):
+    content = os.listdir(outputDir)
+    if len(content) == 0:
+        os.system(f"rm -r {outputDir}")
+
 
 def makeJSONFiles(sampleDict):
     sampleGroupLabelList = []
@@ -64,11 +71,11 @@ def makeJSONFiles(sampleDict):
                 elif "Data" in sampleGroup:
                     sampleFileName += "Data"
                 sampleFileList = getEosContent(f"{skimLocation}/{sampleName}")
-                sampleLocationList = [f"root://cmseos.fnal.gov/{skimLocation}/{sampleName}/{sampleFile}" for sampleFile in sampleFileList]
-                print(f"{outputDir}/{sampleFileName}.json")
-                with open(f"{outputDir}/{sampleFileName}.json","w") as fp:
-                    json.dump({sampleFileName:sampleLocationList}, fp, indent=4)
-
+                if len(sampleFileList) > 0:
+                    sampleLocationList = [f"root://cmseos.fnal.gov/{skimLocation}/{sampleName}/{sampleFile}" for sampleFile in sampleFileList]
+                    print(f"{outputDir}/{sampleFileName}.json")
+                    with open(f"{outputDir}/{sampleFileName}.json","w") as fp:
+                        json.dump({sampleFileName:sampleLocationList}, fp, indent=4)
             else:
                 sampleFileName = f"{year}_{removePostpend(sampleName,sampleGroup)}"
                 allSampleLocationList = []
@@ -87,8 +94,10 @@ def makeJSONFiles(sampleDict):
                 sampleLabelList.append(sampleFileName)
                 print()
 
-                with open(f"{outputDir}/{sampleFileName}.json","w") as fp:
-                    json.dump({sampleFileName:allSampleLocationList}, fp, indent=4)
+                if len(allSampleLocationList) > 0:
+                    with open(f"{outputDir}/{sampleFileName}.json","w") as fp:
+                        json.dump({sampleFileName:allSampleLocationList}, fp, indent=4)
+        cleanUpEmptyFolders(outputDir)
 
 makeJSONFiles(backgrounds)
 makeJSONFiles(data)
