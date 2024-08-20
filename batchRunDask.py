@@ -39,8 +39,8 @@ eTagName = args.eTagName
 haddAll = args.haddAll
 skimCut = args.skimCut
 listOfSampleGroupsToRun = [
-                        "2018_QCD",
-                        # "2018_ST",
+                        # "2018_QCD",
+                        "2018_ST",
                         # "2018_TTJets",
                         # "2018_WJets",
                         # "2018_ZJets",
@@ -74,7 +74,6 @@ def runOrPrintCommand(command,haddAll=False,printOnly=False):
 def runMissingFile(command,outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod,skimSource,skimCut):
     outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
     if outFile not in os.listdir(outHistF):
-        print("Rerunning:")
         runOrPrintCommand(command,haddAll,printOnly)
 
 def addExpectedFile(outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod,expectedFilesDict,sampleGroupToRun):
