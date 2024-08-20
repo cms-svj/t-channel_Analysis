@@ -235,7 +235,6 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimCut,skimSource,runJetTag=Tru
     tch_trgs_CR =  trgListtoInd(trigDict,trgSelectionsCR)
     tch_trgs_QCDCR =  trgListtoInd(trigDict,trgSelectionsQCDCR)
     passTrigger = passTriggerMask(triggerPass,tch_trgs)
-    preselection = qualityCuts & jetIDAK8 & passTrigger & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
     # trigger study for MCs
     # nOffMuons = vars_noCut['nOffMuons']
     passTrigger_muon = passTriggerMask(triggerPass,tch_trgs_CR)
@@ -243,8 +242,10 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimCut,skimSource,runJetTag=Tru
     # preselection_offLineMuons_tchTrg = preselection_offLineMuons & passTrigger
     cr_muon_cut                  = qualityWithLepton & passTrigger & (ncrMuons == 1)     & (nelectron == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
     cr_electron_cut              = qualityWithLepton & passTrigger & (ncrElectrons == 1) & (nmuon == 0) & stCut & (njetsAK8 >= 2) & (dPhiMinjAK8 <= 1.5) & metcut
-    lcr_preselection = qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & metcut & (nl == 1)
-    lcr_preselection_noMETCut = qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 1)
+    preselection =                 qualityCuts       & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & metcut & jetIDAK8    
+    lcr_preselection_loose =       qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & metcut & jetIDAK8 & (nl >= 1)
+    lcr_preselection =             qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & metcut & jetIDAK8 & (nl == 1)
+    lcr_preselection_noMETCut =    qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & jetIDAK8 & (nl == 1)
     # cr_dphimin                   = preselection & (dPhiMinjAK8 > 1.5)
     # cuts = {
     #             ""                                          : np.ones(len(evtw),dtype=bool),
@@ -315,6 +316,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimCut,skimSource,runJetTag=Tru
                 "_pre":                         preselection,
                 # lost lepton control region
                 "_lcr_pre":                     lcr_preselection,
+                "_lcr_pre_loose":               lcr_preselection_loose,
                 "_lcr_pre_noMet":               lcr_preselection_noMETCut,
                 "_cr_muon_":                    cr_muon_cut, 
                 "_cr_electron_":                cr_electron_cut,
