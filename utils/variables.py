@@ -106,24 +106,24 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
         #'svjPtAK8':                SVJHistoInfo("svjPtAK8",                 h.axis.Regular(name="x", label=r"$p_{T}$ [GeV]",                                 bins=280,   start= 0.0,    stop=2800.0),     0,     1, 'svfjw'     ),
         #'svjEtaAK8':               SVJHistoInfo("svjEtaAK8",                h.axis.Regular(name="x", label=r"$\eta$",                                        bins=200,   start=-6.0,    stop=6.0   ),     0,     1, 'svfjw'     ),
 
-        'electronPT':                       SVJHistoInfo("electronPT",                       h.axis.Regular(name="x", label=r"p_{T}(electron) (GeV)",         bins=100,   start= 0.0,    stop=500.0),     0,     1,       'ew'),
-        'electronPhi':                      SVJHistoInfo("electronPhi",                       h.axis.Regular(name="x", label=r"\phi (electron) ",             bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'ew'),
-        'electronEta':                      SVJHistoInfo("electronEta",                  h.axis.Regular(name="x", label=r"\eta (electron)",                   bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'ew' ),
-        'muonPT':                           SVJHistoInfo("muonPT",                       h.axis.Regular(name="x", label=r"p_{T}(muon) (GeV)",                 bins=100,   start= 0.0,    stop=500.0),     0,     1,       'mw'),
-        'muonPhi':                          SVJHistoInfo("muonPhi",                       h.axis.Regular(name="x", label=r"\phi (muon) ",                     bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'mw'),
-        'muonEta':                          SVJHistoInfo("muonEta",                  h.axis.Regular(name="x", label=r"\eta (muon)",                           bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'mw' ),
+        'electronPT':                         SVJHistoInfo("electronPT",                h.axis.Regular(name="x", label=r"p_{T}(electron) (GeV)",                bins=100,   start= 0.0,    stop=500.0),     0,     1,       'ew'),
+        'electronPhi':                        SVJHistoInfo("electronPhi",               h.axis.Regular(name="x", label=r"\phi (electron) ",                     bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'ew'),
+        'electronEta':                        SVJHistoInfo("electronEta",               h.axis.Regular(name="x", label=r"\eta (electron)",                      bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'ew' ),
+        'muonPT':                             SVJHistoInfo("muonPT",                    h.axis.Regular(name="x", label=r"p_{T}(muon) (GeV)",                    bins=100,   start= 0.0,    stop=500.0),     0,     1,       'mw'),
+        'muonPhi':                            SVJHistoInfo("muonPhi",                   h.axis.Regular(name="x", label=r"\phi (muon) ",                         bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'mw'),
+        'muonEta':                            SVJHistoInfo("muonEta",                   h.axis.Regular(name="x", label=r"\eta (muon)",                          bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'mw' ),
         
-        'crElectronPT':                       SVJHistoInfo("crElectronPT",                    h.axis.Regular(name="x", label=r"p_{T}(crElectron) (GeV)",      bins=100,   start= 0.0,    stop=500.0),     0,     1,       'crew'),
-        'crElectronPhi':                      SVJHistoInfo("crElectronPhi",                   h.axis.Regular(name="x", label=r"\phi (crElectron) ",           bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'crew'),
-        'crElectronEta':                      SVJHistoInfo("crElectronEta",                   h.axis.Regular(name="x", label=r"\eta (crElectron)",            bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'crew' ),
-        'crMuonPT':                           SVJHistoInfo("crMuonPT",                        h.axis.Regular(name="x", label=r"p_{T}(crMuon) (GeV)",          bins=100,   start= 0.0,    stop=500.0),     0,     1,       'crmw'),
-        'crMuonPhi':                          SVJHistoInfo("crMuonPhi",                       h.axis.Regular(name="x", label=r"\phi (crMuon) ",               bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'crmw'),
-        'crMuonEta':                          SVJHistoInfo("crMuonEta",                       h.axis.Regular(name="x", label=r"\eta (crMuon)",                bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'crmw' ),
-        'mtMETCRMuon':                      SVJHistoInfo("mtMETCRMuon",                       h.axis.Regular(name="x", label=r"$m_{T} (MET,crMuon) (GeV)$",                                 bins=500,   start= 0.0,    stop=1000.0),     2,     0,       'evtw'),
-        'mtMETCRElectron':                      SVJHistoInfo("mtMETCRElectron",                       h.axis.Regular(name="x", label=r"$m_{T} (MET,crElectron) (GeV)$",                                 bins=500,   start= 0.0,    stop=1000.0),     2,     0,       'evtw'),
+        'crElectronPT':                       SVJHistoInfo("crElectronPT",              h.axis.Regular(name="x", label=r"p_{T}(crElectron) (GeV)",              bins=100,   start= 0.0,    stop=500.0),     0,     1,       'crew'),
+        'crElectronPhi':                      SVJHistoInfo("crElectronPhi",             h.axis.Regular(name="x", label=r"\phi (crElectron) ",                   bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'crew'),
+        'crElectronEta':                      SVJHistoInfo("crElectronEta",             h.axis.Regular(name="x", label=r"\eta (crElectron)",                    bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'crew' ),
+        'crMuonPT':                           SVJHistoInfo("crMuonPT",                  h.axis.Regular(name="x", label=r"p_{T}(crMuon) (GeV)",                  bins=100,   start= 0.0,    stop=500.0),     0,     1,       'crmw'),
+        'crMuonPhi':                          SVJHistoInfo("crMuonPhi",                 h.axis.Regular(name="x", label=r"\phi (crMuon) ",                       bins=40,    start=-4.0,    stop=4.0   ),     0,     1,       'crmw'),
+        'crMuonEta':                          SVJHistoInfo("crMuonEta",                 h.axis.Regular(name="x", label=r"\eta (crMuon)",                        bins=200,   start=-6.0,    stop=6.0   ),     0,     1,       'crmw' ),
+        'mtMETCRMuon':                        SVJHistoInfo("mtMETCRMuon",               h.axis.Regular(name="x", label=r"$m_{T} (MET,crMuon) (GeV)$",           bins=500,   start= 0.0,    stop=1000.0),     2,     0,       'evtw'),
+        'mtMETCRElectron':                    SVJHistoInfo("mtMETCRElectron",           h.axis.Regular(name="x", label=r"$m_{T} (MET,crElectron) (GeV)$",       bins=500,   start= 0.0,    stop=1000.0),     2,     0,       'evtw'),
         
-        'dPhiMinJAK8crMuon1':                 SVJHistoInfo("dPhiMinJAK8crMuon1",              h.axis.Regular(name="x", label=r"$\Delta\phi_{min}(J,crMuon1)$",                     bins=100,   start= 0.0,    stop=4.0   ),     0,     0,       'evtw'),
-        'dPhiMinJAK8crElectron1':             SVJHistoInfo("dPhiMinJAK8crElectron1",          h.axis.Regular(name="x", label=r"$\Delta\phi_{min}(J,crElectron1)$",                     bins=100,   start= 0.0,    stop=4.0   ),     0,     0,       'evtw'),
+        'dPhiMinJAK8crMuon1':                 SVJHistoInfo("dPhiMinJAK8crMuon1",        h.axis.Regular(name="x", label=r"$\Delta\phi_{min}(J,crMuon1)$",        bins=100,   start= 0.0,    stop=4.0   ),     0,     0,       'evtw'),
+        'dPhiMinJAK8crElectron1':             SVJHistoInfo("dPhiMinJAK8crElectron1",    h.axis.Regular(name="x", label=r"$\Delta\phi_{min}(J,crElectron1)$",    bins=100,   start= 0.0,    stop=4.0   ),     0,     0,       'evtw'),
         
         
     }
@@ -160,6 +160,20 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
                 # "J{}_darkPtFrac".format(i+1):     SVJHistoInfo("J{}_darkPtFrac".format(i+1),      h.axis.Regular(name="x", label="J_"+str(i+1)+" Dark pT Fraction",        bins=100,   start= 0.0,    stop=1.0   ),       0,     1,       'evtw'),
                 'dRj{}AK8crMuon1'.format(i+1):     SVJHistoInfo('dRj{}AK8crMuon1'.format(i+1),      h.axis.Regular(name="x", label=r"$\Delta R(J_{"+str(i+1)+"},crMuon1)$",   bins=100,   start= 0.0,    stop=4.0   ),       2,     0,       'evtw'),
                 'dRj{}AK8crElectron1'.format(i+1): SVJHistoInfo('dRj{}AK8crElectron1'.format(i+1),  h.axis.Regular(name="x", label=r"$\Delta R(J_{"+str(i+1)+"},crElectron1)$",   bins=100,   start= 0.0,    stop=4.0   ),       2,     0,       'evtw'),
+                # 2D
+                'j{0}Phivsj{0}Eta'.format(i+1):             SVJHistoInfo(
+                                                                           varXName='j{}Eta'.format(i+1), 
+                                                                           varYName='j{}Phi'.format(i+1),
+                                                                           npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                                           xbins=h.axis.Regular(name="x", label=r"$\eta$(j_"+str(i+1)+")", bins=200,   start=-6.0,    stop=6.0   ), 
+                                                                           ybins=h.axis.Regular(name="y", label=r"$\phi$(j_"+str(i+1)+")", bins=200,   start=-4.0,    stop=4.0   )),
+                'j{0}PhiAK8vsj{0}EtaAK8'.format(i+1):       SVJHistoInfo(
+                                                                           varXName='j{}EtaAK8'.format(i+1), 
+                                                                           varYName='j{}PhiAK8'.format(i+1),
+                                                                           npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                                           xbins=h.axis.Regular(name="x", label=r"$\eta$(J_"+str(i+1)+")", bins=200,   start=-6.0,    stop=6.0   ), 
+                                                                           ybins=h.axis.Regular(name="y", label=r"$\phi$(J_"+str(i+1)+")", bins=200,   start=-4.0,    stop=4.0   )),
+
             }
             allVars.update(jNList)
 
@@ -168,6 +182,7 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
             j1 = com[0]+1
             j2 = com[1]+1
             jNjMList = {
+                # angular difference
                 'dEtaj{}{}'.format(j1,j2):         SVJHistoInfo('dEtaj{}{}'.format(j1,j2),         h.axis.Regular(name="x",label=r"$\Delta\eta(j_{"+str(j1)+"},j_{"+str(j2)+"})$",                    bins=200,start=0.0,stop=5.3  ), 0, 0, 'evtw'),
                 'dPhij{}{}'.format(j1,j2):         SVJHistoInfo('dPhij{}{}'.format(j1,j2),         h.axis.Regular(name="x",label=r"$\Delta\phi(j_{"+str(j1)+"},j_{"+str(j2)+"})$",                    bins=100,start=0.0,stop=4.0  ), 2, 0, 'evtw'),
                 'dRj{}{}'.format(j1,j2):           SVJHistoInfo('dRj{}{}'.format(j1,j2),           h.axis.Regular(name="x",label=r"$\Delta R(j_{"+str(j1)+"},j_{"+str(j2)+"})$",                      bins=100,start=0.0,stop=6.0  ), 0, 0, 'evtw'),
@@ -181,16 +196,48 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
 
     #varXName, xbins, npzInfo, flattenInfo, weightName, varYName=None, ybins=None
     histos2D = {
-        'jPtAK8vsjEtaAK8': SVJHistoInfo(varXName='jPtAK8', varYName='jEtaAK8',npzInfo=0, flattenInfo=1, weightName='fjw', 
-                                        xbins=h.axis.Regular(name="x", label="Jet $p_{T}$", bins=280, start=0.0, stop=2800.0), ybins=h.axis.Regular(name="y", label="Jet $\eta$",  bins=200, start=-6.0, stop=6.0)),
-        'METvsnNMedEvent': SVJHistoInfo(varXName='MET', varYName='nNMedEvent',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                        xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=500, start=0.0, stop=2000.0), ybins=h.axis.Regular(name="y", label="nNMedEvent",  bins=4, start=0.0, stop=4.0 )),
-        'nNMedEventvsnjetsAK8': SVJHistoInfo(varXName='nNMedEvent', varYName='njetsAK8',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                        xbins=h.axis.Regular(name="x", label="N-Med Event",      bins=4, start=0.0, stop=4.0), ybins=h.axis.Regular(name="y", label="njetsAK8",  bins=10, start=0.0, stop=10.0 )),
-        'nNMedEventvsnTruSVJ': SVJHistoInfo(varXName='nNMedEvent', varYName='nTruthSVJ',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                        xbins=h.axis.Regular(name="x", label="N-Med Event",      bins=4, start=0.0, stop=4.0), ybins=h.axis.Regular(name="y", label="Number of Truth SVJ",  bins=8, start=0.0, stop=8.0 )),
-        'nTruSVJvsnjetsAK8': SVJHistoInfo(varXName='nTruthSVJ', varYName='njetsAK8',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                        xbins=h.axis.Regular(name="x", label="Number of Truth SVJ",      bins=8, start=0.0, stop=8.0), ybins=h.axis.Regular(name="y", label="njetsAK8",  bins=10, start=0.0, stop=10.0 )),  
+        'jPtAK8vsjEtaAK8':                      SVJHistoInfo(
+                                                                varXName='jPtAK8', 
+                                                                varYName='jEtaAK8',
+                                                                npzInfo=0, flattenInfo=1, weightName='fjw', 
+                                                                xbins=h.axis.Regular(name="x", label="Jet $p_{T}$", bins=280, start=0.0, stop=2800.0), 
+                                                                ybins=h.axis.Regular(name="y", label="Jet $\eta$",  bins=200, start=-6.0, stop=6.0)),
+        'METvsnNMedEvent':                      SVJHistoInfo(
+                                                                varXName='MET', 
+                                                                varYName='nNMedEvent',
+                                                                npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                                xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=500, start=0.0, stop=2000.0), 
+                                                                ybins=h.axis.Regular(name="y", label="nNMedEvent",  bins=4, start=0.0, stop=4.0 )),
+        'nNMedEventvsnjetsAK8':                 SVJHistoInfo(
+                                                                varXName='nNMedEvent', 
+                                                                varYName='njetsAK8',
+                                                                npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                                xbins=h.axis.Regular(name="x", label="N-Med Event",      bins=4, start=0.0, stop=4.0), 
+                                                                ybins=h.axis.Regular(name="y", label="njetsAK8",  bins=10, start=0.0, stop=10.0 )),
+        'nNMedEventvsnTruSVJ':                  SVJHistoInfo(
+                                                                varXName='nNMedEvent', 
+                                                                varYName='nTruthSVJ',
+                                                                npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                                xbins=h.axis.Regular(name="x", label="N-Med Event",      bins=4, start=0.0, stop=4.0), 
+                                                                ybins=h.axis.Regular(name="y", label="Number of Truth SVJ",  bins=8, start=0.0, stop=8.0 )),
+        'nTruSVJvsnjetsAK8':                    SVJHistoInfo(
+                                                                varXName='nTruthSVJ', 
+                                                                varYName='njetsAK8',
+                                                                npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                                xbins=h.axis.Regular(name="x", label="Number of Truth SVJ",      bins=8, start=0.0, stop=8.0), 
+                                                                ybins=h.axis.Regular(name="y", label="njetsAK8",  bins=10, start=0.0, stop=10.0 )),  
+        'elecPhivselecEta'.format(i+1):         SVJHistoInfo(
+                                                                varXName='electronEta', 
+                                                                varYName='electronPhi',
+                                                                npzInfo=0, flattenInfo=1, weightName='ew', 
+                                                                xbins=h.axis.Regular(name="x", label=r"\eta (electron)", bins=200,   start=-6.0,    stop=6.0   ), 
+                                                                ybins=h.axis.Regular(name="y", label=r"\phi (electron)", bins=200,   start=-4.0,    stop=4.0   )),
+        'muonPhivsmuonEta'.format(i+1):         SVJHistoInfo(
+                                                                varXName='muonEta', 
+                                                                varYName='muonPhi',
+                                                                npzInfo=0, flattenInfo=1, weightName='mw', 
+                                                                xbins=h.axis.Regular(name="x", label=r"\eta (muon)", bins=200,   start=-6.0,    stop=6.0   ), 
+                                                                ybins=h.axis.Regular(name="y", label=r"\phi (muon)", bins=200,   start=-4.0,    stop=4.0   )),
     }
     allVars.update(histos2D)
 
@@ -216,26 +263,66 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
                     'dnnEventClassScore':      SVJHistoInfo("dnnEventClassScore",       h.axis.Regular(name="x", label="dnnEventClassScore",                             bins=100,   start= 0.0,    stop=1.0   ),     0,     0, 'evtw'       ),
                     # 'nnEventOutputrMET':       SVJHistoInfo("nnEventOutputrMET",        h.axis.Regular(name="x", label="nnEventOutputrMET",                              bins=100,   start= 0.0,    stop=1.0   ),     0,     0, 'evtw'       ),
                     # 'nnEventOutputrST':        SVJHistoInfo("nnEventOutputrST",         h.axis.Regular(name="x", label="nnEventOutputrST",                               bins=100,   start= 0.0,    stop=0.02  ),     0,     0, 'evtw'       ),
-                    'njetsAK8vsDNN': SVJHistoInfo(varXName='njetsAK8', varYName='dnnEventClassScore',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label="Number of AK8Jets",      bins=20, start=0.0, stop=20.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    'nTagSVJvsnTruSVJ': SVJHistoInfo(varXName='nsvjJetsAK8', varYName='nTruthSVJ',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label="Number of Tagged SVJ",      bins=8, start=0.0, stop=8.0), ybins=h.axis.Regular(name="y", label="Number of Truth SVJ",  bins=8, start=0.0, stop=8.0 )),
-                    'METvsDNN': SVJHistoInfo(varXName='MET', varYName='dnnEventClassScore',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=300, start=0.0, stop=2000.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    'logMETvsDNN': SVJHistoInfo(varXName='logMET', varYName='dnnEventClassScore',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label="log MET",      bins=100, start=0.0, stop=10.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    'metSigvsDNN': SVJHistoInfo(varXName='metSig', varYName='dnnEventClassScore',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label="MET Significance",      bins=200, start=0.0, stop=200.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    'logMETSigvsDNN': SVJHistoInfo(varXName='logMETSig', varYName='dnnEventClassScore',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label="log MET Significance",      bins=100, start=0.0, stop=10.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    'STvsDNN':  SVJHistoInfo(varXName='ST',  varYName='dnnEventClassScore',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label=r"$S_{T}$ (GeV)", bins=500, start=0.0, stop=5000.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    # 'METvsDNNrMET': SVJHistoInfo(varXName='MET', varYName='nnEventOutputrMET',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                    #                                 xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=500, start=0.0, stop=2000.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    # 'STvsDNNrST':  SVJHistoInfo(varXName='ST',  varYName='nnEventOutputrST',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                    #                                 xbins=h.axis.Regular(name="x", label=r"$S_{T}$ (GeV)", bins=500, start=0.0, stop=5000.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=0.02 )),
-                    'nNMedEventvsDNN': SVJHistoInfo(varXName='nNMedEvent', varYName='dnnEventClassScore',npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                    xbins=h.axis.Regular(name="x", label="N-Med Event",      bins=4, start=0.0, stop=4.0), ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'njetsAK8vsDNN':    SVJHistoInfo(
+                                                        varXName='njetsAK8', 
+                                                        varYName='dnnEventClassScore',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="Number of AK8Jets",      bins=20, start=0.0, stop=20.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'nTagSVJvsnTruSVJ': SVJHistoInfo(
+                                                        varXName='nsvjJetsAK8', 
+                                                        varYName='nTruthSVJ',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="Number of Tagged SVJ",      bins=8, start=0.0, stop=8.0), 
+                                                        ybins=h.axis.Regular(name="y", label="Number of Truth SVJ",  bins=8, start=0.0, stop=8.0 )),
+                    'METvsDNN':         SVJHistoInfo(
+                                                        varXName='MET', 
+                                                        varYName='dnnEventClassScore',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=300, start=0.0, stop=2000.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'logMETvsDNN':      SVJHistoInfo(
+                                                        varXName='logMET', 
+                                                        varYName='dnnEventClassScore',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="log MET",      bins=100, start=0.0, stop=10.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'metSigvsDNN':      SVJHistoInfo(
+                                                        varXName='metSig', 
+                                                        varYName='dnnEventClassScore',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="MET Significance",      bins=200, start=0.0, stop=200.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'logMETSigvsDNN':   SVJHistoInfo(
+                                                        varXName='logMETSig', 
+                                                        varYName='dnnEventClassScore',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="log MET Significance",      bins=100, start=0.0, stop=10.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'STvsDNN':          SVJHistoInfo(
+                                                        varXName='ST',  
+                                                        varYName='dnnEventClassScore',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label=r"$S_{T}$ (GeV)", bins=500, start=0.0, stop=5000.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'METvsDNNrMET':     SVJHistoInfo(
+                                                        varXName='MET', 
+                                                        varYName='nnEventOutputrMET',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=500, start=0.0, stop=2000.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    'STvsDNNrST':       SVJHistoInfo(
+                                                        varXName='ST',  
+                                                        varYName='nnEventOutputrST',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label=r"$S_{T}$ (GeV)", bins=500, start=0.0, stop=5000.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=0.02 )),
+                    'nNMedEventvsDNN':  SVJHistoInfo(
+                                                        varXName='nNMedEvent', 
+                                                        varYName='dnnEventClassScore',
+                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
+                                                        xbins=h.axis.Regular(name="x", label="N-Med Event",      bins=4, start=0.0, stop=4.0), 
+                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
         }
         allVars.update(evtClassVars)
 

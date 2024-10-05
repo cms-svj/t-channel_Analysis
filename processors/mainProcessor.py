@@ -18,6 +18,7 @@ class MainProcessor(processor.ProcessorABC):
                 self.jNVar = kwargs["jNVar"]
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
                 self.hemPeriod = kwargs["hemPeriod"]
+                self.hemStudy = kwargs["hemStudy"]
                 self.evtTaggerDict = kwargs["evtTaggerDict"]
                 self.sFactor = kwargs["sFactor"]
                 self.skimSource = kwargs["skimSource"]
@@ -75,7 +76,7 @@ class MainProcessor(processor.ProcessorABC):
                 utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 if self.runEvtClass:
                     runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)                    
-                cuts = bl.cutList(dataset,events,vars_noCut,self.hemPeriod,self.skimCut,self.skimSource,self.runJetTag,SVJCut=True)
+                cuts = bl.cutList(dataset,events,vars_noCut,self.hemStudy,self.hemPeriod,self.skimCut,self.skimSource,self.runJetTag)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)
@@ -101,7 +102,7 @@ class MainProcessor(processor.ProcessorABC):
                     }
                     if len(events) > 0:
                         ## filling histograms
-                        for histName, varDetail in variables(self.jNVar,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():    
+                        for histName, varDetail in variables(self.jNVar,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():   
                             vX = vars_noCut[varDetail.varXName][cut]
                             vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]
@@ -120,14 +121,19 @@ class MainProcessor(processor.ProcessorABC):
                             else:
                                 hW = weight
 
-                            if self.jNVar:
-                                finiteMask = np.isfinite(vX)
-                                vX = vX[finiteMask]
-                                hW = hW[finiteMask]
                             if len(vX) > 0:
                                 if   varDetail.dim == 1:  
+                                    if self.jNVar:
+                                        finiteMask = np.isfinite(vX)
+                                        vX = vX[finiteMask]
+                                        hW = hW[finiteMask]
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, weight=hW)
                                 elif varDetail.dim == 2:
+                                    if self.jNVar:
+                                        finiteMask = np.isfinite(vX) & np.isfinite(vY)
+                                        vX = vX[finiteMask]
+                                        vY = vY[finiteMask]
+                                        hW = hW[finiteMask]
                                     output['h_{}{}'.format(histName,cutName)].fill(x=vX, y=vY, weight=hW)
 
                         ## filling histograms by jet category

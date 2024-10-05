@@ -88,9 +88,7 @@ def main():
     ###########################################################################################################
     # get executor/processor args
     ###########################################################################################################
-    if options.hemStudy:
-        from processors.hemPhiSpikeProcessor import MainProcessor
-    elif options.slimProc:
+    if options.slimProc:
         from processors.slimProcessor import MainProcessor
     elif options.issue:
         from processors.dataTestProcessor import MainProcessor
