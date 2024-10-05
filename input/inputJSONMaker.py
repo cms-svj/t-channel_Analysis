@@ -3,14 +3,14 @@
 import json
 import os
 
-skimSource = True
+skimSource = False
 if skimSource:
     from inputDictionary_skim import backgrounds,signals,data
 else:
     from inputDictionary import yearDict,backgrounds,signals,data,postpendToRemove
 
 # options are: t_channel_pre_selection, t_channel_lost_lepton_control_region (see root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/{year}/Full/PrivateSkims/nominal/{year})
-skimModule = "t_channel_lost_lepton_control_region" 
+skimModule = "t_channel_lost_lepton_control_region_nLeptonEq1" 
 
 def getEosContent(eosSource):
     os.system(f"eosls {eosSource} > out.txt")
@@ -88,7 +88,7 @@ def makeJSONFiles(sampleDict):
                     if sampleName in sampleNameList:
                         sampleFileList = getEosContent(f"{sampleGroupLocation}/{sampleName}")
                         print(f"{len(sampleFileList)} files")
-                        sampleLocationList = [f"root://cmseos.fnal.gov/{dataBkgLocation}/{yearAlias}/{sampleName}/{sampleFile}" for sampleFile in sampleFileList]
+                        sampleLocationList = [f"root://cmseos.fnal.gov/{sampleGroupLocation}/{sampleName}/{sampleFile}" for sampleFile in sampleFileList]
                         allSampleLocationList += sampleLocationList
                 print(f"{outputDir}/{sampleFileName}.json")
                 sampleLabelList.append(sampleFileName)
