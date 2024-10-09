@@ -10,73 +10,13 @@ import os
 from hist import Hist
 from scipy.stats import linregress
 import pickle
+import utility as utl 
 
 mpl.use('Agg')
 
 mpl.rc("font", family="serif", size=20)
 
 plotFormat = "png"
-
-def getHisto(inputFolder,fileName,varName,cut,dim=1):
-    fullInputFilePath = "{}{}".format(inputFolder,fileName)
-    f = up.open(fullInputFilePath)
-    hist = f[varName + cut]
-    if dim == 1:
-        npHist, bins = hist.to_numpy() 
-        histHist = hist.to_hist() #*(1./np.sum(npHist)) # normalization, however, ratioplot will not calculate the error properly
-        return npHist, histHist, bins
-    elif dim == 2:
-        npHist = hist.to_numpy() 
-        histHist = hist.to_hist() #*(1./np.sum(npHist)) # normalization, however, ratioplot will not calculate the error properly
-        return npHist, histHist
-
-def getTotal2DHist(inputFolder,inputFile,varName,cut):
-    npHist, histHist = getHisto(inputFolder,inputFile,varName,cut,dim=2)
-    npZ = npHist[0]
-    npX = npHist[1]
-    npY = npHist[2]
-    return npZ,npX,npY
-
-def getTicks(fullTicks, fullTickLabels, desiredLabels):
-    linFit = linregress(fullTickLabels, fullTicks)
-    m = linFit[0]
-    b = linFit[1]
-    desiredTicks = []
-    for lab in desiredLabels:
-        desiredTicks.append(m*lab+b)
-    return desiredTicks, linFit
-
-def actualToBinVal(val, linFit):
-    m = linFit[0]
-    b = linFit[1]
-    return m*val+b
-
-def bintoActualVal(binVal, linFit):
-    m = linFit[0]
-    b = linFit[1]
-    return (binVal-b)/m
-
-def widenHEMMask(linFitX, linFitY, zVals, extraMask=2):
-    # extraMask = number of extra bins to widen the HEM veto by
-    etaVetoMin = int(actualToBinVal(-3.05, linFitX) + 0.5)
-    etaVetoMax = int(actualToBinVal(-1.35, linFitX) + 0.5)
-    phiVetoMax = int(actualToBinVal(-0.82, linFitY) + 0.5) - extraMask
-    phiVetoMin = int(actualToBinVal(-1.62, linFitY) + 0.5) + extraMask
-    zVals[phiVetoMax:phiVetoMin,etaVetoMin:etaVetoMax] = 0
-
-def uniqueCombine(a1,a2,b1,b2):
-    c1 = list(a1) + list(b1)
-    c2 = list(a2) + list(b2)
-    s = []
-    for i in range(len(c1)):
-        s.append(f"{c1[i]}_{c2[i]}")
-    ulist, uInds = np.unique(s,return_index=True)
-    u1 = []
-    u2 = []
-    for i in uInds:
-        u1.append(c1[i])
-        u2.append(c2[i])
-    return u1, u2
 
 cut = "_pre" ##
 etaMin = -2.4
@@ -130,23 +70,23 @@ for year, inputFolder in inputFileDict.items():
                 inputFile = f"{year}_{sub}_sub.root"
                 os.makedirs(plotFolder,exist_ok=True)
                 varName = "h_{}".format(var)
-                zVals, xVals, yVals = getTotal2DHist(inputFolder,inputFile,varName,cut)
+                zVals, xVals, yVals = utl.getTotal2DHist(inputFolder,inputFile,varName,cut)
                 zVals = np.rot90(zVals,k=1)
                 zValsUnnormed = zVals
                 desiredYLabels = [-3,-2,-1,0,1,2,3]
-                desiredYTicks, linFitY = getTicks(np.arange(zVals.shape[1] - 0.5,-1,-1), yVals, desiredYLabels)
+                desiredYTicks, linFitY = utl.getTicks(np.arange(zVals.shape[1] - 0.5,-1,-1), yVals, desiredYLabels)
                 desiredXLabels = [-2,-1,0,1,2]
-                desiredXTicks, linFitX = getTicks(np.arange(-.5,zVals.shape[0]), xVals, desiredXLabels)
-                xmin = actualToBinVal(etaMin, linFitX)
-                xmax = actualToBinVal(etaMax, linFitX)
-                ymin = actualToBinVal(phiMin, linFitY)
-                ymax = actualToBinVal(phiMax, linFitY)
+                desiredXTicks, linFitX = utl.getTicks(np.arange(-.5,zVals.shape[0]), xVals, desiredXLabels)
+                xmin = utl.actualToBinVal(etaMin, linFitX)
+                xmax = utl.actualToBinVal(etaMax, linFitX)
+                ymin = utl.actualToBinVal(phiMin, linFitY)
+                ymax = utl.actualToBinVal(phiMax, linFitY)
                 if normalization:
                     highestEta = np.amax(zVals,axis=0)
                     zVals = zVals/highestEta
                     zVals -= np.average(zVals,axis=0)
                     if "PostHEM" in plotFolder:
-                        widenHEMMask(linFitX, linFitY, zVals, extraMask=2)
+                        utl.widenHEMMask(linFitX, linFitY, zVals, extraMask=2)
                 # 2D plots heat map that shows the hot spots
                 fig = plt.figure(figsize=(10, 10))
                 plt.imshow(zVals)
