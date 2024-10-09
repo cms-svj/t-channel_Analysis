@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 import pandas as pd
 from utils.var import var as vars
+import itertools
 # from utils.variables import variables as vars
 
 mpl.rc("font", family="serif", size=15)
@@ -104,8 +105,9 @@ def getBGHistos(data, histoName, rebinx, xmin, xmax):
 def getData(path, scale=1.0, year = "2018"):
     Data = [
         # info.DataSetInfo(basedir=path, fileName=year+"_DataSR.root",        sys= -1.0, label="Data",        scale=scale),
-        info.DataSetInfo(basedir=path, fileName=year+"_DataCR.root",        sys= -1.0, label="Data",        scale=scale),
+        info.DataSetInfo(basedir=path, fileName=f"{year}_Data.root",        sys= -1.0, label="Data",        scale=scale),
         # info.DataSetInfo(basedir=path, fileName="2018_Data.root",        sys= -1.0, label="Data",        scale=scale),
+        # info.DataSetInfo(basedir=path, fileName="2018_Data_notSkims.root",        sys= -1.0, label="Data",        scale=scale),
         # info.DataSetInfo(basedir=path, fileName="2017_Data.root",        sys= -1.0, label="Data",        scale=scale),
         # info.DataSetInfo(basedir=path, fileName="2016_Data.root",        sys= -1.0, label="Data",        scale=scale),
     ]
@@ -158,18 +160,18 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
         ## varying mMed
 
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 500",  scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 600",  scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed 800",  scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 1000", scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 1500", scale=scale, color=ROOT.kGray+4),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="baseline", scale=scale, color=ROOT.kOrange+2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 3000", scale=scale, color=ROOT.kCyan),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed_500",  scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="baseline", scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-600.root",     label="mMed_600",  scale=scale, color=ROOT.kViolet+2),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800.root",     label="mMed_800",  scale=scale, color=ROOT.kRed),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000.root",    label="mMed_1000", scale=scale, color=ROOT.kMagenta + 1),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1500.root",    label="mMed_1500", scale=scale, color=ROOT.kGray+4),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000.root",    label="mMed_3000", scale=scale, color=ROOT.kCyan),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000.root",    label="mMed_4000", scale=scale, color=ROOT.kBlue + 1),
         
         # # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
         # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="mMed 4000", scale=scale, color=ROOT.kRed),
         
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="mMed 4000", scale=scale, color=ROOT.kRed+2),
         
         # ## varying mDark
 
@@ -213,9 +215,9 @@ def getData(path, scale=1.0, year = "2018"):
     # print(sgData, bgData)
     return Data, sgData, bgData
 
-def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel):
+def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel,title=""):
     dummy.SetStats(0)
-    dummy.SetTitle("")
+    dummy.SetTitle(title)
     dummy.GetXaxis().SetTitleOffset(xOffset)
     dummy.GetYaxis().SetTitleOffset(yOffset)
     dummy.GetXaxis().SetTitleSize(xTitle)
@@ -224,12 +226,16 @@ def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel):
     dummy.GetYaxis().SetLabelSize(yLabel)
     if(dummy.GetXaxis().GetNdivisions() % 100 > 5): dummy.GetXaxis().SetNdivisions(6, 5, 0)
 
-def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax, ymin, ymax, lmax, norm=False, normBkg=False,isRatio=False):
+def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax, ymin, ymax, lmax, title="", norm=False, normBkg=False,isRatio=False,isABCD=False):
     
     if isRatio:
         setupAxes(dummy, 0, 1.05, 0.0, 0.05, 0.0, 0.05)
         dummy.GetXaxis().SetTitle("")
-    
+    elif isABCD:
+        setupAxes(dummy, 0.6, 0.8, 0.1, 0.1, 0.08, 0.06,title)
+        dummy.GetXaxis().SetTitle(xAxisLabel)
+        dummy.GetXaxis().CenterLabels()
+        
     else:    
         setupAxes(dummy, 1.2, 1.6, 0.045, 0.045, 0.045, 0.045)
         dummy.GetXaxis().SetTitle(xAxisLabel)
@@ -261,7 +267,8 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
         # dummy.GetYaxis().SetRangeUser(0.0, ymax*1.2)
         dummy.GetYaxis().SetRangeUser(0.0, ymax)
     #set x-axis range
-    if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
+    if not isABCD:
+        if(xmin < xmax): dummy.GetXaxis().SetRangeUser(xmin, xmax)
     # print("ymax in dummy = ",ymax)
 
 def makeRocVec(h,reverse=False,ignoreUnderflow=False):
@@ -540,7 +547,11 @@ def plotROC(data, histoName, outputPath="./", isLogY=False, xmin=999.9, xmax=-99
     del leg
 
 def createRatio(h1, h2, xtitle):
-    h3 = h1.Clone("h3"+xtitle)
+    print(f"xTitle = {xtitle}")
+    print(f"Type of h2: {type(h2)}")
+    if h1.GetEntries() == 0 or h2.GetEntries() == 0:
+        print("One of the histograms is empty.")
+    h3 = h1.Clone("h3")
     h3.SetLineColor(ROOT.kBlack)
     h3.SetMarkerStyle(20)
     h3.SetMarkerSize(1)
@@ -612,7 +623,7 @@ def createCanvasPads(c,isLogY):
     return c, pad1, pad2
 
 
-def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, normBkg=False, onlySig=False, stList=None, yieldValues=None, isRatio=False):
+def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, normBkg=False, onlySig=False, stList=None, yieldValues=None, year="2017", isRatio=False, hemPeriod=False):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
     # print("Data in plot stack = ",data)
@@ -656,8 +667,11 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     hs = ROOT.THStack()
     hMC = None
     firstPass = True
-    bkghist = None
+    # bkghist = None
+    bkghist = []
     history = []
+    labels= []
+    bkgcontrib = []
     
     # setup background histos
     # print("before setup bkg histos detail key = {}, {}, {}".format(histoName,xmin, xmax))
@@ -670,19 +684,41 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
         if normBkg:
             normHisto(h, True)
             h.SetLineWidth(3)
-            h.SetFillStyle(3955) 
+            h.SetFillStyle(3955)
+            # h.SetLineColor(d.color) 
+        elif norm:
+            normHisto(h,True)
+            h.SetLineColor(d.Color)
+            # h.Draw("hist same")
+            leg.AddEntry(h, d.legEntry(), "L")
+        else:    
+            h.SetFillStyle(3001)
         hs.Add(copy.deepcopy(h))
-        leg.AddEntry(h, d.legEntry(), "F")
+        bkgcontrib.append(round(h.Integral()))
+        labels.append(d.legEntry())
+        
+        # leg.AddEntry(h, d.legEntry(), "F")
         # bkghist += h
+        bkghist.append(copy.deepcopy(h))
         if(firstPass):
             hMC = copy.deepcopy(h)
-            bkghist = h
+            # bkghist = h
             firstPass = False
         else:
             hMC.Add(copy.deepcopy(h))
-            bkghist.Add(h)
+            # bkghist.Add(h)
 
-    
+    # Print legends in the reverse order along with the bkg contribution 
+    totalOfAllhisto = sum(bkgcontrib)
+    percentOfAllhisto = [(x/totalOfAllhisto)*100 if totalOfAllhisto != 0 else x for x in bkgcontrib  ]
+    print(f"bkghist type {type(bkghist)} \n hMC type - {type(hMC)} ")
+    for histo, label, bkg, percent in zip(reversed(bkghist), reversed(labels), reversed(bkgcontrib), reversed(percentOfAllhisto)):
+            # print(f"working on the legend values - histo - {histo}, labels - {label}, bkgcontrib - {bkg}, percentofAllhisto - {percent:.2f}")
+            if normBkg:
+                leg.AddEntry(histo, f"{label}({percent:.2f}%)", "L")
+            else:
+                leg.AddEntry(histo, f"{label}({percent:.2f}%)", "F")
+
 
     print("hs = ", hs)
     print("hMC = ",hMC)
@@ -714,9 +750,12 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
         dummy.SetMinimum(0.00001)
     dummy.Draw("hist")
     if norm:
-        hMC.Draw("hist same")
-        leg.Clear()
-        leg.AddEntry(hMC, "Total Background", "L")
+        for bkg in bkghist:
+            bkg.Draw("hist same")
+            
+    #     # hMC.Draw("hist same")
+    #     # leg.Clear()
+        # leg.AddEntry(hMC, "Total Background", "L")
     elif normBkg:
         hs.Draw("nostackHIST same")
         hs.SetMaximum(100)
@@ -778,9 +817,9 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
             # Print ratio plot
             if isRatio:
                 pad2.cd()
-                # print("bkghist = ",bkghist)
+                print("bkghist = ",)
                 # setupAxes(dummy, 1.2, 1.6, 0.045, 0.045, 0.045, 0.045)
-                ratio = createRatio(datahist,bkghist,xTitle)
+                ratio = createRatio(datahist,hMC,xTitle)
                 ratio.Draw("EX0P")
 
 
@@ -811,7 +850,18 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     # vl2.Draw("same")
     # CMS label
     CMS_lumi.writeExtraText = 1
-    lumi = "59.7"
+    print(f"hemPeriod = {hemPeriod},  year = {year}")
+    # lumi = "59.7"
+    if year == "2017":
+        lumi = "41.5"
+    elif year == "2016":
+        lumi = "35.9"
+    elif hemPeriod == "PostHEM" and year == "2018":
+        lumi = "38.7"
+    elif hemPeriod == "PreHEM" and year == "2018":
+        lumi = "21.1"
+    elif year == "2018" and hemPeriod == False:
+        lumi = "59.7"
 
     CMS_lumi.lumi_sqrtS = lumi + " fb^{-1} (13 TeV)"
 
@@ -835,6 +885,654 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     del leg
     del hMC
 
+
+def plotABCDSingle(data, histoName, cuts, region, outputPath="./", title="", xTitle="", yTitle="", met_min=0, met_max=2000, tagger_min=0.0, tagger_max=1.0, isLogY=False, norm=False, normBkg=False, onlySig=False, stList=None, yieldValues=None, isRatio=False):
+    ROOT.TH2.AddDirectory(False)
+    print(f"region working on is - {title} and the cuts are - {cuts}")
+    c1 = ROOT.TCanvas( "c", "c", 800, 800)
+    c1.cd()
+    ROOT.gPad.Clear()
+    ROOT.gPad.SetLeftMargin(0.15)
+    ROOT.gPad.SetRightMargin(0.05)
+    ROOT.gPad.SetTopMargin(0.08)
+    ROOT.gPad.SetBottomMargin(0.12)
+    ROOT.gPad.SetTicks(1,1)
+    ROOT.gPad.SetLogy(isLogY)
+    ROOT.gStyle.SetOptStat("")
+
+    leg = ROOT.TLegend(0.17, 0.7, 0.95, 0.88)
+    #nColumns = 3 if(len(data[1]) >= 3) else 1
+    nColumns = 2
+    leg.SetFillStyle(0)
+    leg.SetBorderSize(0)
+    leg.SetLineWidth(1)
+    leg.SetNColumns(nColumns)
+    leg.SetTextFont(42)
+    ROOT.gStyle.SetLegendTextSize(0.024)
+
+    hs = ROOT.THStack()
+    hMC = None
+    firstPass = True
+    bkghist = []
+    bkgcontrib = []
+    labels= []
+    # setup background histos
+    # print("before setup bkg histos detail key = {}, {}, {}".format(histoName,xmin, xmax))
+    for d in data[1]:
+        # if (stList != None) and (not normBkg):
+        #     newEntry = stList + [getLabel(d.legEntry()),round(h.Integral())]
+        #     yieldValues.loc[len(yieldValues.index)] = newEntry
+            # print(newEntry)
+        print(f"the dataset is {d}, and label is {d.label_}, the len of the cuts = {len(cuts)}")
+        # print(d.legEntry())
+        # h = ROOT.TH1F(f"h_{d.label_}",f"{d.label_}",len(cuts),0,len(cuts))
+        bkghist.append(ROOT.TH1F(f"h_{d.label_}",f"{d.label_}",len(cuts),0,len(cuts)) ) 
+        for cutname in cuts: # loop over the the SVJbins 
+            histo2DName = histoName + cutname 
+
+            numberOfEvents = d.get2DHistoIntegral(histo2DName, xmin=met_min, xmax=met_max, ymin=tagger_min, ymax=tagger_max, showEvents=True) # using the Integral method to find the number of events
+            # h.Fill(cutname,numberOfEvents)
+            bkghist[-1].Fill(cutname,numberOfEvents)
+            # print(f"histo name = {histo2DName}, num of Events calculated = {numberOfEvents}")
+        # if (stList != None) and (not normBkg):
+        #     newEntry = stList + [getLabel(d.legEntry()),round(numberOfEvents)]
+        #     yieldValues.loc[len(yieldValues.index)] = newEntry
+        bkghist[-1].SetFillColor(d.getColor())
+        hs.Add(copy.deepcopy(bkghist[-1]))
+        labels.append(d.label_)
+        bkgcontrib.append(round(bkghist[-1].Integral()))
+
+        # leg.AddEntry(bkghist[-1], d.label_+f"({round(bkghist[-1].Integral())})", "F")
+        print(f"The value of legend entry here is - {d.legEntry()}")
+        # bkghist += h
+        if(firstPass):
+            hMC = copy.deepcopy(bkghist[-1])
+            # bkghist = hMC[-1]
+            firstPass = False
+        else:
+            hMC.Add(copy.deepcopy(bkghist[-1]))
+            # bkghist.Add(hMC[-1])
+    # for hist in hMC:
+    #     leg.AddEntry(h,)
+    ymax=10**11
+    ymin=10**-4
+    lmax=10**12
+    xmin = 0
+    xmax =len(cuts)
+    dummy = ROOT.TH1D("dummy", "dummy", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX()))
+    setupDummy(dummy, leg, "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg,isRatio)
+    dummy.Draw("hist")
+    dummy.SetTitle(title)
+    totalOfAllhisto = sum(bkgcontrib)
+    percentOfAllhisto = [(x/totalOfAllhisto)*100 if totalOfAllhisto != 0 else x for x in bkgcontrib  ]
+    for histo, label, bkg, percent in zip(reversed(bkghist), reversed(labels), reversed(bkgcontrib), reversed(percentOfAllhisto)):
+            print(f"working on the legend values - histo - {histo}, labels - {label}, bkgcontrib - {bkg}, percentofAllhisto - {percent:.2f}")
+            leg.AddEntry(histo, f"{label}({bkg}, {percent:.2f}%)", "F")
+    hs.Draw("hist F same")
+    leg.Draw("same")
+    linestylenumber = 0
+    linestyle = [ROOT.kSolid,ROOT.kDashed,ROOT.kDotted]
+    if(data[2]):
+        #firstPass=True
+        for d in data[2]:
+            print(f"the dataset is {d}, and label is {d.label_}, the len of the cuts = {len(cuts)}")
+            h = ROOT.TH1F(f"h_{d.label_}",f"{d.label_}",len(cuts),0,len(cuts))  
+            for cutname in cuts: # loop over the the SVJbins 
+                histo2DName = histoName + cutname 
+                numberOfEvents = d.get2DHistoIntegral(histo2DName, xmin=met_min, xmax=met_max, ymin=tagger_min, ymax=tagger_max, showEvents=True) # using the Integral method to find the number of events
+                h.Fill(cutname,numberOfEvents)
+                print(f"histo name = {histo2DName}, num of Events calculated = {numberOfEvents}")
+        
+            if (stList != None) and (not normBkg):
+                newEntry = stList + [getLabel(d.legEntry()),round(h.Integral())]
+                yieldValues.loc[len(yieldValues.index)] = newEntry
+                # print("Signal = ",newEntry)
+            # h.SetLineStyle(ROOT.kDashed)
+            sig = round(simpleSig(h, hMC),2)
+            h.SetLineStyle(linestyle[linestylenumber%3] )
+            linestylenumber+=1
+            h.SetLineWidth(3)
+            leg.AddEntry(h, d.label_+" ({}), {}".format(round(h.Integral()),sig), "L")
+            print(f"The value of legend entry here is - {d.legEntry()}")
+        
+            h.Draw("hist same")
+    #         # history.append(h)
+    # print("legend - ",leg)
+    # leg.Draw()
+    regionName=title.split(":")   
+    c1.Update()
+    c1.RedrawAxis() 
+    c1.SaveAs(outputPath+"/"+histoName+region+regionName[0]+".png")
+    c1.Close()
+    del c1
+    del leg
+    del hMC
+
+## TODO make a function to define the 4regions using the TPad for better positioning.
+
+
+def plotABCD(data, histoName, maincut, cuts, ABCDregions, outputPath="./", xTitle="", yTitle="", isLogY=False, norm=False, normBkg=False, onlySig=False, stList=None, SVJbinContent=None, isRatio=False,year=2018,scenario = "d0_wp7_p0i0",optionLL=False):
+    ROOT.TH2.AddDirectory(False)
+    canvas = ROOT.TCanvas("canvas", "Stack Plot", 1200, 600)
+    canvas.Divide(len(ABCDregions),1,0.0,0.0)
+    # TODO : Make it compatible with ratio plots
+    met = ABCDregions[0][1]
+    dnn_score = ABCDregions[0][3]
+    print(f"**********    Working on the ABCD region with the met - {met} and dnn score - {dnn_score}    ***************")
+
+    # need to use these list because otherwise it only prints on the last histogram, some memory issue with python?
+    stacks = []
+    signalhist = []
+    contributions = []   
+    dummy = []
+    leg = []
+    bkghist = [[] for _ in range(len(ABCDregions))]
+    regionbkgsum = []
+    for iRegion,(region, met_min, met_max, tagger_min, tagger_max) in enumerate(ABCDregions):
+        
+        # print(iRegion)
+        canvas.cd(iRegion+1)
+        ROOT.gPad.Clear()
+        if(iRegion==0):
+            ROOT.gPad.SetLeftMargin(0.16)
+        if(iRegion==3):
+            ROOT.gPad.SetRightMargin(0.05)
+        if(iRegion!=0):
+            ROOT.gPad.SetLeftMargin(0.001)
+
+        ROOT.gPad.SetTopMargin(0.0)
+        ROOT.gPad.SetBottomMargin(0.15)
+        # ROOT.gPad.SetTicks(0)
+        ROOT.gPad.SetLogy(isLogY)
+        # ROOT.gPad.SetFrameLineWidth(2)
+        ROOT.gPad.SetGrid()
+        # ROOT.SetTitleSize(0.1,"XY")
+        
+        
+        # leg = ROOT.TLegend(0.1, 0.78, 0.98, 0.98)
+        # leg.append(ROOT.TLegend(0.16, 0.78, 0.98, 0.98))
+        if (iRegion==0):
+            leg.append(ROOT.TLegend(0.16, 0.78, 0.98, 0.98))
+        else:
+            leg.append(ROOT.TLegend(0.02, 0.78, 0.98, 0.98))
+        # leg.append(ROOT.TLegend(0.17, 0.7, 0.95, 0.88)) 
+        #nColumns = 3 if(len(data[1]) >= 3) else 1
+        nColumns = 1
+        leg[-1].SetFillStyle(0)
+        leg[-1].SetBorderSize(0)
+        leg[-1].SetLineWidth(1)
+        leg[-1].SetNColumns(nColumns)
+        leg[-1].SetTextFont(42)
+        ROOT.gStyle.SetLegendTextSize(0.06)
+
+        
+        stacks.append(ROOT.THStack(f"{iRegion}",f"{iRegion}"))
+        print(f"***** Working on region {iRegion} *****")
+        hMC = None
+        # bkghist = []
+        firstPass = True
+        labels = []
+        bkgcontrib = []
+        # xmin = 0
+        # xmax = len(cuts)
+        # binwidth = len(cuts)
+        xmin = 1
+        xmax = 5
+        binwidth = 4
+        regionsum=[]
+        # Setup background histo
+        for d in data[1]:
+            
+        # if ('QCD' not in d.fileName) and ('ZJets' not in d.fileName):
+        #     # print(f"the dataset is {d}, and label is {d.label_}, the len of the cuts = {len(cuts)}")
+            # print(d.legEntry())
+            # h = ROOT.TH1F(f"h_{d.label_}",f"{d.label_}",len(cuts),0,len(cuts))  
+            bkghist[iRegion].append(ROOT.TH1F(f"h_{d.label_}",f"{d.label_}",binwidth,xmin,xmax))
+            for cutname in cuts: # loop over the the SVJbins 
+                histo2DName = histoName + cutname 
+
+                numberOfEvents = d.get2DHistoIntegral(histo2DName, xmin=met_min, xmax=met_max, ymin=tagger_min, ymax=tagger_max, showEvents=True) # using the Integral method to find the number of events
+                bkghist[iRegion][-1].Fill(cutname,numberOfEvents)
+                if (stList!=None):
+                    newEntry = stList + [region,d.label_,cutname,numberOfEvents]
+                    SVJbinContent.loc[len(SVJbinContent.index)]=newEntry
+                # print(f"histo name = {histo2DName}, num of Events calculated = {numberOfEvents}")
+            
+            bkghist[iRegion][-1].SetFillColor(d.getColor())
+            bkghist[iRegion][-1].SetFillStyle(3001)
+            labels.append(d.label_)
+            regionsum.append(bkghist[iRegion][-1].Integral())
+            bkgcontrib.append(round(bkghist[iRegion][-1].Integral()))
+            stacks[-1].Add(copy.deepcopy(bkghist[iRegion][-1])) # Adding the histogram to the Stack
+            # leg[-1].AddEntry(bkghist[-1], d.label_+f"({round(bkghist[-1].Integral())})", "F")
+            # contributions.append((histoName,region,d.label_,round(bkghist[-1].Integral())))
+            # bkgcontrib.append(round(bkghist[-1].Integral()))
+            if firstPass:
+                hMC = copy.deepcopy(bkghist[iRegion][-1])
+                # bkghist = h
+                firstPass = False
+            else:
+                # bkghist.Add(h)
+                hMC.Add(copy.deepcopy(bkghist[iRegion][-1]))
+        # print(f"Bkghist list = {bkghist}")
+        regionbkgsum.append(regionsum)
+        # sumContrib = sum(bkgcontrib)
+        totalOfAllhisto = sum(bkgcontrib)
+        # numbkgContrib = np.array(bkgcontrib)
+        # sumContrib = np.sum(bkgcontrib)
+        percentOfAllhisto = [(x/totalOfAllhisto)*100 if totalOfAllhisto != 0  else x for x in bkgcontrib  ]
+        # np.set_printoptions(precision=3)
+        
+        for histo, label, bkg, percent in zip(reversed(bkghist[iRegion]), reversed(labels), reversed(bkgcontrib), reversed(percentOfAllhisto)):
+            print(f"working on the legend values - histo - {histo}, labels - {label}, bkgcontrib - {bkg}, percentofAllhisto - {percent:.2f}")
+            leg[-1].AddEntry(histo, f"{label}({bkg}, {percent:.2f}%)", "F")
+
+        ymax=10**10
+        ymin=10**-4
+        lmax=10**11
+        # xmin = 0
+        # xmax = len(cuts)
+        # xmin = 1
+        # xmax =len(cuts)
+        if(iRegion==3):
+            xTitle = f"nSVJ({met},{dnn_score})"
+        else:
+            xTitle = ""
+        # dummy.append(ROOT.TH1D(f"dummy_{iRegion}", f"dummy{iRegion}", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX())))
+        dummy.append(ROOT.TH1D(f"dummy_{iRegion}", f"dummy{iRegion}", binwidth, xmin, xmax))
+        setupDummy(dummy[-1], leg[-1], "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, title=region,isABCD=True)
+        # for i,cutname in enumerate(cuts):
+        #     dummy[-1].GetXaxis().SetBinLabel(i+1,cutname)
+        dummy[-1].Draw("hist")
+        # dummy[-1].SetTitle(region)
+        # dummy[-1].GetXaxis().SetTickSize(0.1)
+        # dummy[-1].GetYaxis().SetTickSize(0.1)
+        
+        # dummy[-1].SetTitleOffset(0.02)
+        # dummy[-1].SetTitleSize(0.4)
+        if(iRegion!=0):
+            dummy[-1].GetYaxis().SetLabelSize(0)
+            dummy[-1].GetYaxis().SetTitleSize(0)
+        # dummy[-1].SetTitleSize()
+        # ROOT.gStyle
+        print("Drawing the Stack plot")
+        # stacks[-1].SetTitle(region)
+        stacks[-1].Draw("hist F same text")
+        
+
+        # canvas.Update()
+        # Setup signal histo
+        linestylenumber = 0
+        linestyle = [ROOT.kSolid,ROOT.kDashed,ROOT.kDotted]
+        signaltoPlot = ["baseline","mMed_600","mMed_4000"]
+        if(data[2]):
+            for d in data[2]:
+                if ('QCD' not in d.fileName) and ('ZJets' not in d.fileName):
+                # print(f"the dataset is {d}, and label is {d.label_}, the len of the cuts = {len(cuts)}")
+                    signalhist.append(ROOT.TH1F(f"h_{d.label_}",f"{d.label_}",binwidth,xmin,xmax) )  
+                
+                
+                    for cutname in cuts: # loop over the the SVJbins 
+                        histo2DName = histoName + cutname 
+                        numberOfEvents = d.get2DHistoIntegral(histo2DName, xmin=met_min, xmax=met_max, ymin=tagger_min, ymax=tagger_max, showEvents=True) # using the Integral method to find the number of events
+                        signalhist[-1].Fill(cutname,numberOfEvents)
+                        if (stList!=None):
+                            newEntry = stList + [region,d.label_,cutname,numberOfEvents]
+                            SVJbinContent.loc[len(SVJbinContent.index)]=newEntry
+                        print(f"histo name = {histo2DName}, num of Events calculated = {numberOfEvents}")
+                
+                    
+                    
+                    
+                    sig = round(simpleSig(signalhist[-1], hMC),2)
+                    # print(f"The value of legend entry here is - {d.legEntry()}")
+            
+                    print("Drawing the signal plot")
+                    # plot only few plots 
+                    if d.label_ in signaltoPlot:
+                        signalhist[-1].SetLineStyle(linestyle[linestylenumber%3] )
+                        signalhist[-1].SetLineWidth(3)
+                        linestylenumber+=1
+                        signalhist[-1].SetLineColor(d.getColor())
+                        leg[-1].AddEntry(signalhist[-1], d.label_+" ({}), {}".format(round(signalhist[-1].Integral()),sig), "L")
+                        signalhist[-1].Draw("hist same")
+                    # signalhist.append(copy.deepcopy(h))
+                    # history.append(h)
+            
+        leg[-1].Draw("same")
+        canvas.Update()
+        ROOT.gPad.RedrawAxis()
+        ROOT.gPad.RedrawAxis("G")
+        # print("contribution value = {}",contributions)
+        # print(f"The total in the {region} is {}")
+        print(f"The region = {region}  --- the bkgcontrib = {bkgcontrib} and the sum = {totalOfAllhisto} and percentage = {percentOfAllhisto}")
+        contributions.append((histoName,cutname,region,percentOfAllhisto))
+    print("contribution value = {}",contributions)
+    # print(f"the bkgcontrib variable is - {bkgcontrib} \n and the bkghist goes as - {bkghist}")
+        
+
+
+    # canvas.cd(1)
+    CMS_lumi.cmsText = f"Scenario {scenario}"
+    CMS_lumi.writeExtraText = False
+    # CMS_lumi.extraText = "Simulation"
+    # if year == "2017":
+    #     lumi = "41.5"
+    # elif year == "2016":
+    #     lumi = "59.7"
+    # else:
+    #     lumi = "59.7"
+
+    # CMS_lumi.lumi_sqrtS = lumi + " fb^{-1} (13 TeV)"
+
+    iPeriod = 0
+    iPos = 0
+
+    CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
+    canvas.cd()
+    canvas.Update()
+    # canvas.RedrawAxis("G")
+
+    print("saving the histogram")
+    # cutSaveName = cuts.split("_")
+    savestring = histoName+maincut+f"_MET{met}_DNN{dnn_score}"
+    canvas.SaveAs(outputPath+"/"+savestring+"_forLL.png")
+    # PredictionABCD(regionbkgsum)
+    print("CLosing the canvas")
+    canvas.Close()
+    del canvas
+    # del leg
+    del hMC
+
+def plotTransferFactors(data, histoName, SRcut, CRcuts,SVJbins, ABCDregions, outputPath="./", xTitle="", yTitle="", isLogY=False, norm=False, normBkg=False, onlySig=False, stList=None, TFContent=None, year=2018,scenario = "d0_wp7_p0i0",optionAVG=False,optionSum=False):
+    ROOT.TH2.AddDirectory(False)
+    canvas = ROOT.TCanvas(f"canvas", f"ABCD TF Plot", 1200, 600)
+    canvas.Divide(len(ABCDregions),1,0.0,0.0)
+    # TODO : Make it compatible with ratio plots
+    met = ABCDregions[0][1]
+    dnn_score = ABCDregions[0][3]
+    print(f"**********    Working on the ABCD region with the met - {met} and dnn score - {dnn_score}    ***************")
+
+    # need to use these list because otherwise it only prints on the last histogram, some memory issue with python?
+    histSR = []
+    histCR = []
+    histTF = []
+    ratioTF = []
+    leg = []
+    bkghist = [[] for _ in range(len(ABCDregions))]
+    
+    for iRegion,(region, met_min, met_max, tagger_min, tagger_max) in enumerate(ABCDregions):
+        # print(iRegion)
+        canvas.cd(iRegion+1)
+        ROOT.gPad.Clear()
+        ROOT.gPad.SetRightMargin(0)
+        ROOT.gPad.SetLeftMargin(0)
+        ROOT.gPad.SetTopMargin(0.0)
+        ROOT.gPad.SetBottomMargin(0.15)
+        ROOT.gPad.SetLogy(isLogY)
+        ROOT.gPad.SetGrid()
+        ROOT.gStyle.SetOptStat(0)
+        
+        leg.append(ROOT.TLegend(0.8, 0.8, 0.98, 0.98))
+        nColumns = 1
+        leg[-1].SetFillStyle(0)
+        leg[-1].SetBorderSize(0)
+        leg[-1].SetLineWidth(1)
+        leg[-1].SetNColumns(nColumns)
+        leg[-1].SetTextFont(42)
+        ROOT.gStyle.SetLegendTextSize(0.06)
+
+        print(f"***** Working on region {iRegion} *****")
+        xmin = 1
+        # xmax = len(SVJbins)
+        binwidth = len(SVJbins)
+        # xmin = int(SVJbins[0][0])
+        xmax = 5
+        print(f"xmin = {int(SVJbins[0][0])}")
+        print(f"binwidth == {binwidth}")
+        
+        histSR.append(ROOT.TH1F(f"h_SR{iRegion}",f"SR{iRegion}",binwidth,xmin,xmax))
+        histCR.append(ROOT.TH1F(f"h_CR{iRegion}",f"CR{iRegion}",binwidth,xmin,xmax))
+        histTF.append(ROOT.TH1F(f"h_TF{iRegion}",f"TF{iRegion}",binwidth,xmin,xmax))
+        
+        print(f"cr = {CRcuts} , sr = {SRcut}")
+        for SVJ in SVJbins:
+            noEventsCR = []
+            for CRcut in CRcuts:
+                print(f"CR cut in the loop -- {CRcut}, and CRcuts = {CRcuts}")
+                numberOfEvents_cr,numberOfEvents_sr = 0,0
+                histo2DName_sr = histoName + SRcut + SVJ
+                histo2DName_cr = histoName + CRcut + SVJ
+                print(" =================================",histo2DName_cr)
+                for d in data[1]:
+                    if ('QCD' not in d.fileName) and ('ZJets' not in d.fileName): 
+                        print("files used = ",d.fileName)
+                        numberOfEvents_cr += d.get2DHistoIntegral(histo2DName_cr, xmin=met_min, xmax=met_max, ymin=tagger_min, ymax=tagger_max, showEvents=True) # using the Integral method to find the number of events
+                        numberOfEvents_sr += d.get2DHistoIntegral(histo2DName_sr, xmin=met_min, xmax=met_max, ymin=tagger_min, ymax=tagger_max, showEvents=True) # using the Integral method to find the number of events
+                noEventsCR.append(numberOfEvents_cr)
+            histSR[-1].SetBinContent(int(SVJ[0]),numberOfEvents_sr)
+            if optionAVG:
+                averageCR = (noEventsCR[0]+noEventsCR[1])/2
+                if averageCR!=0:
+                    TFvalues = numberOfEvents_sr/averageCR
+                else:
+                    TFvalues = 0 
+                histCR[-1].SetBinContent(int(SVJ[0]),averageCR) 
+                newEntry = [region,SRcut,CRcut+"",SVJ,TFvalues]
+            elif optionSum:
+                sumCR = sum(noEventsCR)
+                if sumCR!= 0:
+                    TFvalues = numberOfEvents_sr/sumCR
+                else:
+                    TFvalues = 0
+                histCR[-1].SetBinContent(int(SVJ[0]),sumCR) 
+                newEntry = [region,SRcut,CRcut+"sum",SVJ,TFvalues]
+            else:
+                if numberOfEvents_cr!= 0:
+                    TFvalues = numberOfEvents_sr/numberOfEvents_cr
+                else:
+                    TFvalues = 0
+                histCR[-1].SetBinContent(int(SVJ[0]),numberOfEvents_cr)
+                newEntry = [region,SRcut,CRcut,SVJ,TFvalues]
+             
+            
+            TFContent.loc[len(TFContent.index)] = newEntry
+
+        histSR[-1].SetLineColor(ROOT.kRed)
+        histCR[-1].SetLineColor(ROOT.kBlue)
+        histSR[-1].SetStats(0)
+        histSR[-1].SetTitle("")
+        print(histCR[-1].GetBinContent(1))  ## TODO : The bin content value is used as the bin error, need to fix this.
+        print(histCR[-1].GetBinError(1))
+
+        if(iRegion==3):
+            histSR[-1].GetXaxis().SetTitle(f"nSVJ({met},{dnn_score})")
+            histSR[-1].GetXaxis().SetTitleSize(1.5)
+            histSR[-1].GetXaxis().SetTitleOffset(1)
+        histSR[-1].GetXaxis().SetNdivisions(4)
+        # setupAxes(histSR[-1],0.6, 0.8, 0.1, 0.1, 0.08, 0.06) 
+        ratioTF.append(ROOT.TRatioPlot(histSR[-1],histCR[-1]))   
+        leg[-1].AddEntry(histCR[-1],"CR","l")
+        leg[-1].AddEntry(histSR[-1],"SR","l")
+        ratioTF[-1].Draw()
+        ratioTF[-1].SetH1DrawOpt("histe")
+        ratioTF[-1].SetH2DrawOpt("histe")
+        ratioTF[-1].GetLowerRefGraph().SetMarkerStyle(8)
+        ymax=10**6
+        ymin=10**-6
+        ratioTF[-1].SetSplitFraction(0.4)
+        # Ratio plot margin setup and size of the plots
+        if iRegion == 0:
+            ratioTF[-1].SetLeftMargin(0.18)
+            ratioTF[-1].SetRightMargin(0)
+            ratioTF[-1].GetUpperRefYaxis().SetTitle("Events")
+            ratioTF[-1].GetUpperRefYaxis().SetTitleOffset(1.0)
+            ratioTF[-1].GetUpperRefYaxis().SetTitleSize(0.08)
+            ratioTF[-1].GetUpperRefYaxis().SetLabelSize(0.06)
+            
+            ratioTF[-1].GetLowerRefYaxis().SetTitle("SR/CR")
+            ratioTF[-1].GetLowerRefYaxis().SetTitleOffset(1.4)
+            ratioTF[-1].GetLowerRefYaxis().SetTitleSize(0.06)
+            ratioTF[-1].GetLowerRefYaxis().SetLabelSize(0.06)
+        
+        else:
+            ratioTF[-1].SetLeftMargin(0)
+            ratioTF[-1].SetRightMargin(0)        
+            ratioTF[-1].GetLowerRefYaxis().SetLabelSize(0)
+            ratioTF[-1].GetUpperRefYaxis().SetLabelSize(0)
+            ratioTF[-1].GetLowerRefYaxis().SetTitleSize(0)
+            ratioTF[-1].GetUpperRefYaxis().SetTitleSize(0)
+        ratioTF[-1].SetUpTopMargin(0)
+        ratioTF[-1].SetUpBottomMargin(0)
+        ratioTF[-1].SetLowTopMargin(0)
+        ratioTF[-1].SetLowBottomMargin(0.4)
+        # ratioTF[-1].GetXaxis().SetTitle(f"nSVJ({met},{dnn_score})")
+        # if(iRegion==3):
+        #     ratioTF[-1].GetLowerRefGraph().GetXaxis().SetTitleSize(0.1)
+        #     ratioTF[-1].GetLowerRefGraph().GetXaxis().SetTitleOffset(0.7)
+        # else:
+        #     ratioTF[-1].GetLowerRefXaxis().SetTitle("")
+        
+        ratioTF[-1].GetLowerRefXaxis().SetLabelSize(0.06)    
+        ratioTF[-1].SetSeparationMargin(0.0)
+        
+        # 
+        ratioTF[-1].GetLowerRefXaxis().CenterLabels()
+        # ratioTF[-1].GetLowerRefYaxis().SetRangeUser(0.0,20.0)
+        if optionSum:
+            ratioTF[-1].GetLowerRefGraph().SetMaximum(8.0)
+        else:
+            ratioTF[-1].GetLowerRefGraph().SetMaximum(16.0)
+        
+        ratioTF[-1].GetUpperRefYaxis().SetRangeUser(ymin,ymax)
+        
+        ratioTF[-1].GetUpperPad().cd()
+        leg[-1].Draw()
+        canvas.Update()
+        ROOT.gPad.RedrawAxis()
+        # ROOT.gPad.RedrawAxis("G")
+
+    
+    iPeriod = 0
+    iPos = 0
+    CMS_lumi.cmsText = f"Scenario {scenario}"
+    CMS_lumi.writeExtraText = False
+    CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
+    canvas.cd()
+    canvas.Update()
+    print("saving the histogram")
+    # cutSaveName = cuts.split("_")
+    if optionAVG:
+        savestring = histoName+f"avgCR_{SRcut}_MET{met}_DNN{dnn_score}"
+    elif optionSum:
+        savestring = histoName+f"SumCR_{SRcut}_MET{met}_DNN{dnn_score}"
+    else:
+        savestring = histoName+f"{CRcut}_{SRcut}_MET{met}_DNN{dnn_score}"
+    # savestring = histoName+f"avgCR_{SRCut}_MET{met}_DNN{dnn_score}"
+    canvas.SaveAs(outputPath+"/"+savestring+".png")
+    canvas.Close()
+    del canvas
+    
+def PredictionABCD(data,histoName,cutname,SVJbins,ABCDregions,outputPath,scenario="d0_wp7_p0i0",isLogY=False):
+    ROOT.TH2.AddDirectory(False)
+    c1 = ROOT.TCanvas( "c", "c", 800, 700)
+    c1.cd()
+    ROOT.gPad.Clear()
+    ROOT.gPad.SetLeftMargin(0.15)
+    ROOT.gPad.SetRightMargin(0.05)
+    ROOT.gPad.SetTopMargin(0.08)
+    ROOT.gPad.SetBottomMargin(0.12)
+    ROOT.gPad.SetTicks(1,1)
+    ROOT.gPad.SetLogy(isLogY)
+    ROOT.gStyle.SetOptStat("")
+    # ROOT.gStyle.SetErrorX(0)
+
+    met = 150
+    dnn_score = 0.7
+    leg = ROOT.TLegend(0.7, 0.6, 0.75, 0.75)
+    #nColumns = 3 if(len(data[1]) >= 3) else 1
+    nColumns = 1
+    leg.SetFillStyle(0)
+    leg.SetBorderSize(0)
+    leg.SetLineWidth(1)
+    leg.SetNColumns(nColumns)
+    leg.SetTextFont(42)
+    ROOT.gStyle.SetLegendTextSize(0.06)
+    xmin = 1
+    xmax = 5
+    binwidth = 4
+    predictHist = ROOT.TH1F(f"predA","predA",binwidth,xmin,xmax)
+    AHist = ROOT.TH1F(f"A","A",binwidth,xmin,xmax)
+    for SVJ in SVJbins:
+        a_totalEvents,b_totalEvents,c_totalEvents,d_totalEvents = 0,0,0,0
+        histo2DName = histoName + cutname + SVJ
+        for d in data[1]:
+            # if 'QCD' in d.fileName:
+            a_totalEvents += d.get2DHistoIntegral(histo2DName, xmin=met, xmax=5000, ymin=dnn_score, ymax=1.0, showEvents=True)
+            b_totalEvents += d.get2DHistoIntegral(histo2DName, xmin=met, xmax=5000, ymin=0, ymax=dnn_score, showEvents=True)
+            c_totalEvents += d.get2DHistoIntegral(histo2DName, xmin=0, xmax=met, ymin=dnn_score, ymax=1.0, showEvents=True)
+            d_totalEvents += d.get2DHistoIntegral(histo2DName, xmin=0, xmax=met, ymin=0, ymax=dnn_score, showEvents=True)
+        predicted_A_events = b_totalEvents*(c_totalEvents/d_totalEvents)
+        print(f"Ahist = {a_totalEvents}, Bhist = {b_totalEvents}, Chist = {c_totalEvents}, dhist = {d_totalEvents}")
+        print(f"predicted_A_events = {predicted_A_events}   Ahist = {a_totalEvents}")
+        predictHist.SetBinContent(int(SVJ[0]),predicted_A_events)
+        AHist.SetBinContent(int(SVJ[0]),a_totalEvents)
+        closure = np.abs((a_totalEvents*d_totalEvents)-(b_totalEvents*c_totalEvents))/((a_totalEvents*d_totalEvents)+(b_totalEvents*c_totalEvents))
+        print(f"------ Closure ==  {closure}  ------")
+
+    ymax = 10**6
+    ymin = 10**-4
+    lmax = 10**6
+    xTitle = "SVJ bins"
+    yTitle = "Events"
+    # dummy = ROOT.TH1D(f"dummy", f"dummy", binwidth, xmin, xmax)
+    # setupDummy(dummy, leg, "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax,title="")
+
+    # dummy.Draw("hist")
+    # predictHist.Draw("hist same")
+    # AHist.Draw("hist same")
+    predictHist.SetTitle("")
+    predictHist.GetXaxis().SetTitle(f"nSVJ({met},{dnn_score})")
+    predictHist.GetXaxis().SetNdivisions(4)
+    ratio = ROOT.TRatioPlot(predictHist,AHist)
+    ratio.Draw()
+    ratio.SetH1DrawOpt("histe text")
+    ratio.SetH2DrawOpt("same histe text")
+    ratio.GetLowerRefGraph().SetMarkerStyle(8)
+    ratio.GetLowerRefYaxis().SetTitle("Predict/MC")
+    ratio.GetUpperRefYaxis().SetTitle("Events")
+    ratio.GetUpperRefYaxis().SetRangeUser(ymin,ymax)
+    # dummy.GetXaxis().SetNdivisions(4)
+    predictHist.SetLineStyle(ROOT.kSolid)
+    AHist.SetLineStyle(ROOT.kDashed)
+    predictHist.SetLineColor(ROOT.kViolet)
+    AHist.SetLineColor(ROOT.kRed)
+    ratio.SetSplitFraction(0.3)
+    ratio.GetLowerRefGraph().SetMaximum(2.5)
+    ratio.GetLowerRefXaxis().CenterLabels()  
+    ratio.SetSeparationMargin(0.0)  
+    leg.AddEntry(predictHist,"Predicted A","L")
+    leg.AddEntry(AHist,"MC A","L")
+    ratio.GetUpperPad().cd()
+    leg.Draw()
+    c1.Update()
+    ROOT.gPad.RedrawAxis()
+    ROOT.gPad.RedrawAxis("G")
+
+    # # iPeriod = 0
+    # # iPos = 0
+    # # CMS_lumi.cmsText = f"Scenario {scenario}"
+    # # CMS_lumi.writeExtraText = False
+    # # CMS_lumi.CMS_lumi(c1, iPeriod, iPos)
+    # c1.cd()
+    # c1.Update()
+    savestring = histoName+cutname+"PredictionPlotRatio"
+    c1.SaveAs(outputPath+"/"+savestring+".png")
+    c1.Close()
+    del c1
+
+
+
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
     parser.add_option('-b',                 dest='isNormBkg',  action="store_true",                            help="Normalized Background and Signal plots")
@@ -845,32 +1543,63 @@ def main():
     parser.add_option('-s',                 dest='onlySig',    action="store_true",                            help="Plot only signals")
     parser.add_option('-y',                 dest='year',       type='string',  default='2018',                 help="Can pass in the run year")
     parser.add_option('-o',                 dest='outputdir',  type='string',                                  help="Output folder name")
-    # parser.add_optio
+    parser.add_option('-w',                 dest='scenario',  type='string',   default='d0_w7p0i0',                               help="Scenario")
+    parser.add_option(    '--hemPeriod',  dest='hemPeriod', type=str, default=False,  help='HEM period (PreHEM or PostHEM), default includes entire sample')
     options, args = parser.parse_args()
-
+    scenario = options.scenario
     year = options.year
-    # cuts = ["", "_ge2AK8j", "_ge2AK8j_lp6METrST", "_ge2AK8j_l1p5dEta12", "_baseline"]
-    #cuts = ["_ge2AK8j"]
-    # cutsImportant = ["_qual_trg_st","_qual_trg_st_0nim","_qual_trg_st_ge1nim"]
-    # cutsImportant = ["","_2PJ","_2PJ_nl","_qual_trg_2PJ", "_qual_trg_st_2PJ"]
-    # cutsImportant = ["","_2PJ","_2PJ_nl","_qual_trg_2PJ","_qual_trg_st_2PJ","_qual_trg_st_ht_2PJ_dphimin"]
-    # cutsImportant = ["_cr"]
-    # cutsImportant = ["issue_ht","_issue_met"]
-    cutsImportant = ["_cr_muon","_cr_electron"]
+    hemPeriod = options.hemPeriod
     
+    SVJbins = ["0SVJ","1SVJ","2SVJ","3SVJ","4PSVJ"]
+    regions = ["_cr_muon_","_cr_electron_","_pre_dphimin_"]
 
+    ABCDregions = [ ("A: MET > 150, event tagger > 0.7", 150, 2000, 0.7, 1.0),
+                ("B: MET > 150, event tagger < 0.7", 150, 2000, 0, 0.7),
+                ("C: MET < 150, event tagger > 0.7", 0, 150, 0.7, 1.0),
+                ("D: MET < 150, event tagger < 0.7", 0, 150, 0, 0.7)
+            ]
 
-    Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
+    # Define the MET range
+    # met_values = list(range(150, 501, 50))
+    met_values = [150]
+    dnn_value = 0.7
+    ABCDregions = []
+    # ABCDFolderName = "ABCD"
+    ABCDFolderName = "ABCD_withoutSVJ0"
+    # ABCDFolderName = "ABCD_withoutSVJ0and1"
+    # Create the ABCDregions list using a list comprehension
+    for met in met_values:
+        ABCD = [ (f"A: MET > {met}, event tagger > {dnn_value}", met, 2000, dnn_value, 1.0),
+                (f"B: MET > {met}, event tagger < {dnn_value}", met, 2000, 0, dnn_value),
+                (f"C: MET < {met}, event tagger > {dnn_value}", 0, met, dnn_value, 1.0),
+                (f"D: MET < {met}, event tagger < {dnn_value}", 0, met, 0, 0.7)
+        ]
+        ABCDregions.append(ABCD)
+        
+    print("ABCD region is - ",ABCDregions)
+    cutsImportant = ["_pre","_lcr_pre"]#,"_qual_2PJ_st_dphimin_nl","_qual_2PJ_st_dphimin_ll"]
+    
+    # for region in regions:
+    #     cutsImportant.append(region)
+    #     for bin in SVJbins:
+    #         cutsImportant.append(region + bin)
+    
+    print(f"cutsImportant - {cutsImportant}")
+    # Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
+    # Data, sgData, bgData = getData("DaskHadd/" + options.dataset + "/", 1.0, year)
+    Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
    
     # print(sgData)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
     allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir","cutSig","cBg","cSig","mBg_f","mSig_f"])
     yieldValues = pd.DataFrame(columns=["cut","var","source","yield"])
     signifValues = pd.DataFrame(columns=["cut","var","source","max signif."])
+    SVJbinContent = pd.DataFrame(columns=["cut","var","ABCDregion","source","SVJbin","content"])
+    TFContent = pd.DataFrame(columns=["ABCDregion","SR","CR","SVJbin","content"])
     if options.outputdir:
-        plotOutDir = "output/{}".format(options.outputdir)
+        plotOutDir = "outputPlots/{}".format(options.outputdir)
     else: 
-        plotOutDir = "output/{}".format(options.dataset)
+        plotOutDir = "outputPlots/{}".format(options.dataset)
 
     preVars = {
         "h_njets":False,
@@ -906,37 +1635,65 @@ def main():
     "fjw"
     ]
 
-# myvars = key : ["xlabel", no. of bins, xmin,xmax, npzinfo, flattenInfo, weightName]
+    ABCDhistoVars = ["METvsDNN"]
+    
+    # myvars = key : ["xlabel", no. of bins, xmin,xmax, npzinfo, flattenInfo, weightName]
     
     for histName,details in vars(options.jNVar).items():
-    # for histName, details in myVars.items():
-        # print(histName)
-        # print(details)
+        # print("HistNames - {}".format(histName))
+    # # for histName, details in myVars.items():
+        print(histName)
+        print(details)
         isNorm = options.isNorm
         isNormBkg = options.isNormBkg
         onlySig = options.onlySig
         manySigs = options.manySigs
         if histName in varsSkip:
             continue
-        #if details[6] != "evtw":
+        # if details[6] != "evtw":
         #    continue
         for cut in cutsImportant:
+            print(f"cut - {cut}")
             makeDirs(plotOutDir,cut,"Stacked")
             makeDirs(plotOutDir,cut,"roc")
             makeDirs(plotOutDir,cut,"FOM")
             makeDirs(plotOutDir,cut,"NormedStacked")
             stList = [cut,histName]
-            # print("Data = ",Data)
+            print("Data = ",Data)
             # plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:], isLogY=False,   manySigs=manySigs, stList=stList, allRocValues=allRocValues)
             # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,isRatio=False)
-            plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,isRatio=True)
+            plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,year= year, isRatio=True, hemPeriod = hemPeriod)
             # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/NormedStacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=True, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
-            if histName in preVars.keys():
-                plotSignificance((Data, bgData, sgData), "h_"+histName, details[1], details[0], plotOutDir, cut,                    isLogY=False, reverseCut=preVars[histName], signifValues=signifValues)
+    # #         # if histName in preVars.keys():
+    # # #             plotSignificance((Data, bgData, sgData), "h_"+histName, details[1], details[0], plotOutDir, cut,                    isLogY=False, reverseCut=preVars[histName], signifValues=signifValues)
+    # for i,met in enumerate(met_values):    
+    #     for histName in ABCDhistoVars:
+    #         for region in regions:
+    #             makeDirs(plotOutDir,region,ABCDFolderName)
+    #             cuts = [region + SVJ for SVJ in SVJbins]
+    #             current_abcd_regions = ABCDregions[i]
+    #             print(f"The met value is - {met}      current ABCDregion - {current_abcd_regions}")
+    #             stList = [region,histName]
+    #             PredictionABCD((Data,bgData,sgData),"h_"+histName,region,SVJbins,ABCDregions,plotOutDir+"/"+ABCDFolderName,scenario=scenario,isLogY=True)
+    #             # plotABCD((Data,bgData,sgData),"h_"+histName,region,cuts,current_abcd_regions,outputPath=plotOutDir+"/"+ABCDFolderName+"/"+region[1:],xTitle="nSVJ",yTitle="Events",isLogY=True,stList=stList,SVJbinContent=SVJbinContent,year=year,scenario=scenario)
+                
+    #         # for title, met_min, met_max, tagger_min, tagger_max in ABCDregions:
+    #             # plotABCDSingle((Data,bgData,sgData),"h_"+histName,cuts,region,outputPath=plotOutDir+"/ABCD/", title=title,xTitle="nSVJ",yTitle="number of Events",met_min=met_min,met_max=met_max, tagger_min=tagger_min, tagger_max=tagger_max, isLogY=True)
     yieldValues.to_csv("{}/yieldValues.csv".format(plotOutDir))
-    signifValues.to_csv("{}/signifValues.csv".format(plotOutDir))
-    allRocValues.to_csv("{}/allRocValues.csv".format(plotOutDir))
-    # print(yieldValues)
+    # # signifValues.to_csv("{}/signifValues.csv".format(plotOutDir))
+    # # allRocValues.to_csv("{}/allRocValues.csv".format(plotOutDir))
+    # SVJbinContent.to_csv("{}/{}/allSVJBinContents.csv".format(plotOutDir,ABCDFolderName))
+    # # print(yieldValues)
+    # SRCut = "_pre_dphimin_"
+    # CRcuts = ["_cr_muon_","_cr_electron_"]
+                
+    # for histName in ABCDhistoVars:
+    #     for CRcut in CRcuts:
+    #         CRcut = [CRcut]
+    #         plotTransferFactors((Data,bgData,sgData),"h_"+histName,SRCut,CRcut,SVJbins,ABCDregions[0],outputPath=plotOutDir+"/"+ABCDFolderName,xTitle="nSVJ",yTitle="Transfer Factors",isLogY=True,TFContent=TFContent,year=year,scenario=scenario)
+    #     plotTransferFactors((Data,bgData,sgData),"h_"+histName,SRCut,CRcuts,SVJbins,ABCDregions[0],outputPath=plotOutDir+"/"+ABCDFolderName,xTitle="nSVJ",yTitle="Transfer Factors",isLogY=True,TFContent=TFContent,year=year,scenario=scenario,optionAVG=True)
+    #     plotTransferFactors((Data,bgData,sgData),"h_"+histName,SRCut,CRcuts,SVJbins,ABCDregions[0],outputPath=plotOutDir+"/"+ABCDFolderName,xTitle="nSVJ",yTitle="Transfer Factors",isLogY=True,TFContent=TFContent,year=year,scenario=scenario,optionSum=True)
+    # TFContent.to_csv("{}/{}/TFIndividualContent.csv".format(plotOutDir,ABCDFolderName))
 
 if __name__ == '__main__':
     main()

@@ -23,7 +23,7 @@ parser.add_argument("--haddAll",            action="store_true", help="Hadd all 
 parser.add_argument('--runJetTag',          action='store_true', help='Run jet tagger.', )
 parser.add_argument('--runEvtClass',        action='store_true', help='Run event classifier.')
 parser.add_argument("--skimCut",            type=str, default="t_channel_pre_selection", help='The selection of cuts that have been applied to the TM ntuples when making the skims: t_channel_pre_selection, t_channel_lost_lepton_control_region, etc.')
-
+parser.add_argument("--hemPeriod",          help='HEM period (PreHEM or PostHEM), default includes entire sample', dest='hemPeriod', type=str, default=False)
 args = parser.parse_args()
 
 nFilesPerJob = args.nFilesPerJob 
@@ -39,17 +39,35 @@ eTagName = args.eTagName
 haddAll = args.haddAll
 skimCut = args.skimCut
 listOfSampleGroupsToRun = [
-                        "2018_QCD",
+                        # "2018_QCD",
                         # "2018_ST",
                         # "2018_TTJets",
                         # "2018_WJets",
                         # "2018_ZJets",
                         # "2018_Data",
                         # "2018_SVJ_t",
+                    # # 2017 
+                    #     "2017_QCD",
+                    #     "2017_ST",
+                    #     "2017_TTJets",
+                    #     "2017_WJets",
+                    #     "2017_ZJets",
+                        "2017_Data",
+                    #     "2017_SVJ_t",
+                    # 2016
+                        # "2016_QCD",
+                        # "2016_ST",
+                        # "2016_TTJets",
+                        # "2016_WJets",
+                        # "2016_ZJets",
+                        "2016_Data",
+                        # "2016_SVJ_t",
 ]
 runSignalLocal = args.runSignalLocal
 evtTaggerLoc = f"utils/data/DNNEventClassifier/{eTagName}"
 preCommand = "python analyze.py"
+
+hemPeriod = args.hemPeriod
 # adding extra flags
 if maxFilesPerSample != -1: # if not all the files are used, then turn the scale factor flag on
     preCommand += " -f" 
@@ -59,6 +77,8 @@ if args.runJetTag:
     preCommand += " --runJetTag" 
 if args.runEvtClass:
     preCommand += " --runEvtClass" 
+if hemPeriod is not False:
+    preCommand += f" --hemPeriod {hemPeriod}"
 maxFiles = nFilesPerJob*maxJobs
 expectedFilesDict = {}
 
@@ -72,13 +92,22 @@ def runOrPrintCommand(command,haddAll=False,printOnly=False):
         os.system(command)
 
 def runMissingFile(command,outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod,skimSource,skimCut):
-    outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
+    if hemPeriod is not False:
+        outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
+    else:
+        outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,"").replace(f"{outHistF}/","")
     if outFile not in os.listdir(outHistF):
         print("Rerunning:")
         runOrPrintCommand(command,haddAll,printOnly)
 
 def addExpectedFile(outHistF,dataset,nFiles,startFile,condor,dask,hemPeriod,expectedFilesDict,sampleGroupToRun):
-    outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
+    if hemPeriod is not False:
+        outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
+    else:
+        outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,"").replace(f"{outHistF}/","")
+        
+    
+    # outFile = ld.out_file_name_creator(outHistF,dataset.split(" "),nFiles.split(" "),startFile.split(" "),condor,dask,hemPeriod).replace(f"{outHistF}/","")
     if "SVJ" in sampleGroupToRun:
         expectedFilesDict[sampleGroupToRun].append([outFile,dataset])
     else:    
@@ -90,15 +119,16 @@ def runHadd(expectedFilesDict,outHistF):
             for sample in sampleList:
                 if sample[0] in os.listdir(outHistF):
                     print(f"mv {outHistF}/{sample[0]} {outHistF}/{sample[1]}.root")
+                    os.system(f"mv {outHistF}/{sample[0]} {outHistF}/{sample[1]}.root")
                 else:
                     print(f"{sample[0]} is missing.")
-                    os.system(f"mv {sample[0]} {sample[1]}.root")
+                    # os.system(f"mv {sample[0]} {sample[1]}.root")
         else:
-            command = f"hadd -f {sampleGroup}.root "
+            command = f"hadd -f {outHistF}/{sampleGroup}.root "
             missingFile = False
             for sample in sampleList:
                 if sample in os.listdir(outHistF):
-                    command += f"{sample} "
+                    command += f"{outHistF}/{sample} "
                 else:
                     missingFile = True
                     break
@@ -122,14 +152,14 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
             # since the signal samples are smaller, it is possible to process them offline, or process them with less workers on condor.
             if runSignalLocal:
                 command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -w 4 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize}"
-                addExpectedFile(outHistF,sample,nVal,mVal,False,False,"",expectedFilesDict,sampleGroupToRun)
+                addExpectedFile(outHistF,sample,nVal,mVal,False,False,hemPeriod,expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sample,nVal,mVal,False,False,"",skimSource,skimCut)
+                    runMissingFile(command,outHistF,sample,nVal,mVal,False,False,hemPeriod,skimSource,skimCut)
             else:
                 command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b 20 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
-                addExpectedFile(outHistF,sample,nVal,mVal,True,True,"",expectedFilesDict,sampleGroupToRun)
+                addExpectedFile(outHistF,sample,nVal,mVal,True,True,hemPeriod,expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"",skimSource,skimCut)
+                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,hemPeriod,skimSource,skimCut)
             if rerunMissingFiles == False:
                 runOrPrintCommand(command,haddAll,printOnly)
     else:
@@ -158,9 +188,9 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 mVal = str(mVal)
                 nVal = str(nVal)
                 command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
-                addExpectedFile(outHistF,sample,nVal,mVal,True,True,"",expectedFilesDict,sampleGroupToRun)
+                addExpectedFile(outHistF,sample,nVal,mVal,True,True,hemPeriod,expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,"",skimSource,skimCut)
+                    runMissingFile(command,outHistF,sample,nVal,mVal,True,True,hemPeriod,skimSource,skimCut)
                 else:
                     runOrPrintCommand(command,haddAll,printOnly)
         else:
@@ -221,10 +251,11 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                     mValList += f"{mValGroup[i]} "
                     nValList += f"{nValGroup[i]} "
                 command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
-                addExpectedFile(outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"",expectedFilesDict,sampleGroupToRun)
+                addExpectedFile(outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,hemPeriod,expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
-                    runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,"",skimSource,skimCut)
+                    runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,hemPeriod,skimSource,skimCut)
                 else:
                     runOrPrintCommand(command,haddAll,printOnly)
 if haddAll:
+    print(f"expectedFilesDict -- {expectedFilesDict}")
     runHadd(expectedFilesDict,outHistF)
