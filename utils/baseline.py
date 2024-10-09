@@ -21,7 +21,7 @@ def hemPeriodMask(dataset,events,ak4Jets,electrons,muons,hemPeriod):
         if (hemPeriod == "PreHEM") and ("Data" in dataset):
             return runNum < 319077
         elif (hemPeriod == "PostHEM") and ("Data" in dataset):
-            return (runNum >= 319077) & hemVeto(ak4Jets)
+            return (runNum >= 319077) & hemVeto(ak4Jets,electrons,muons)
         elif hemPeriod == "PostHEM":
             return hemVeto(ak4Jets,electrons,muons)
         else:
@@ -325,6 +325,7 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimCut,skimSource,runJetTag=Tru
                 "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),
                 "_pre_1SVJ":                        preselection & (nsvjJetsAK8 == 1),
                 "_pre_2SVJ":                        preselection & (nsvjJetsAK8 == 2),
+                "_pre_2PSVJ":                       preselection & (nsvjJetsAK8 >= 2),
                 "_pre_3SVJ":                        preselection & (nsvjJetsAK8 == 3),
                 "_pre_4PSVJ":                       preselection & (nsvjJetsAK8 >= 4),
                 "_lcr_pre_0SVJ":                    lcr_preselection & (nsvjJetsAK8 == 0),
@@ -333,12 +334,12 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimCut,skimSource,runJetTag=Tru
                 "_lcr_pre_2PSVJ":                   lcr_preselection & (nsvjJetsAK8 >= 2),
                 "_lcr_pre_3SVJ":                    lcr_preselection & (nsvjJetsAK8 == 3),
                 "_lcr_pre_4PSVJ":                   lcr_preselection & (nsvjJetsAK8 >= 4),
-                "_lcr_pre_noMet_0SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 0),
-                "_lcr_pre_noMet_1SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 1),
-                "_lcr_pre_noMet_2SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 2),
-                "_lcr_pre_noMet_2PSVJ":             lcr_preselection_noMETCut & (nsvjJetsAK8 >= 2),
-                "_lcr_pre_noMet_3SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 3),
-                "_lcr_pre_noMet_4PSVJ":             lcr_preselection_noMETCut & (nsvjJetsAK8 >= 4),
+                # "_lcr_pre_noMet_0SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 0),
+                # "_lcr_pre_noMet_1SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 1),
+                # "_lcr_pre_noMet_2SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 2),
+                # "_lcr_pre_noMet_2PSVJ":             lcr_preselection_noMETCut & (nsvjJetsAK8 >= 2),
+                # "_lcr_pre_noMet_3SVJ":              lcr_preselection_noMETCut & (nsvjJetsAK8 == 3),
+                # "_lcr_pre_noMet_4PSVJ":             lcr_preselection_noMETCut & (nsvjJetsAK8 >= 4),
                 "_cr_muon_0SVJ":                    cr_muon_cut & (nsvjJetsAK8 == 0), 
                 "_cr_muon_1SVJ":                    cr_muon_cut & (nsvjJetsAK8 == 1), 
                 "_cr_muon_2SVJ":                    cr_muon_cut & (nsvjJetsAK8 == 2), 
@@ -351,31 +352,17 @@ def cutList(dataset,events,vars_noCut,hemPeriod,skimCut,skimSource,runJetTag=Tru
                 "_cr_electron_2PSVJ":               cr_electron_cut & (nsvjJetsAK8 >= 2),
                 "_cr_electron_3SVJ":                cr_electron_cut & (nsvjJetsAK8 == 3),
                 "_cr_electron_4PSVJ":               cr_electron_cut & (nsvjJetsAK8 >= 4),
-                "_pre_1PSVJ":                       preselection & (nsvjJetsAK8 >= 1),
-                "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),
-                "_pre_1SVJ":                        preselection & (nsvjJetsAK8 == 1),
-                "_pre_2SVJ":                        preselection & (nsvjJetsAK8 == 2),
-                "_pre_3SVJ":                        preselection & (nsvjJetsAK8 == 3),
-                "_pre_4PSVJ":                       preselection & (nsvjJetsAK8 >= 4),
-                "_pre_2J_1PSVJ":                    preselection & (njetsAK8 == 2) & (nsvjJetsAK8 >= 1),
-                "_pre_3J_1PSVJ":                    preselection & (njetsAK8 == 3) & (nsvjJetsAK8 >= 1),
-                "_pre_4J_1PSVJ":                    preselection & (njetsAK8 == 4) & (nsvjJetsAK8 >= 1),
-                "_pre_5PJ_1PSVJ":                   preselection & (njetsAK8 >= 5) & (nsvjJetsAK8 >= 1), 
-                # "_qual_trg_st_0nim_0SVJ":           qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 0),
-                # "_qual_trg_st_0nim_1SVJ":           qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 1),
-                # "_qual_trg_st_0nim_2SVJ":           qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 == 2),
-                # "_qual_trg_st_0nim_ge1SVJ" :        qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 1),
-                # "_qual_trg_st_0nim_ge2SVJ" :        qualityCuts & passTrigger & stCut & (nnim == 0) & (nsvjJetsAK8 >= 2),
-                # "_qual_trg_st_0nim_4J_0SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 0),
-                # "_qual_trg_st_0nim_4J_1SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 1),
-                # "_qual_trg_st_0nim_4J_2SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 2),
-                # "_qual_trg_st_0nim_4J_3SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 3),
-                # "_qual_trg_st_0nim_4J_4SVJ":        qualityCuts & passTrigger & stCut & (nnim == 0) & (njetsAK8 == 4) & (nsvjJetsAK8 == 4),
-                # "_qual_trg_st_ge1nim_0SVJ":         qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 0),
-                # "_qual_trg_st_ge1nim_1SVJ":         qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 1),
-                # "_qual_trg_st_ge1nim_2SVJ":         qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 == 2),
-                # "_qual_trg_st_ge1nim_ge1SVJ":       qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 1),
-                # "_qual_trg_st_ge1nim_ge2SVJ":       qualityCuts & passTrigger & stCut & (nnim >= 1) & (nsvjJetsAK8 >= 2),
+                # "_pre_1PSVJ":                       preselection & (nsvjJetsAK8 >= 1),
+                # "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),
+                # "_pre_1SVJ":                        preselection & (nsvjJetsAK8 == 1),
+                # "_pre_2SVJ":                        preselection & (nsvjJetsAK8 == 2),
+                # "_pre_3SVJ":                        preselection & (nsvjJetsAK8 == 3),
+                # "_pre_4PSVJ":                       preselection & (nsvjJetsAK8 >= 4),
+                # "_pre_2J_1PSVJ":                    preselection & (njetsAK8 == 2) & (nsvjJetsAK8 >= 1),
+                # "_pre_3J_1PSVJ":                    preselection & (njetsAK8 == 3) & (nsvjJetsAK8 >= 1),
+                # "_pre_4J_1PSVJ":                    preselection & (njetsAK8 == 4) & (nsvjJetsAK8 >= 1),
+                # "_pre_5PJ_1PSVJ":                   preselection & (njetsAK8 >= 5) & (nsvjJetsAK8 >= 1), 
+                
             }
             cuts.update(cutsWithNSVJ)
     return cuts
