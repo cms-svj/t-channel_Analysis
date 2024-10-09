@@ -1,0 +1,32 @@
+{
+    "2017_TTJets_HT-2500toInf": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-10.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-11.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-12.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-13.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-14.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-15.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-16.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-17.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-18.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-19.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-20.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-21.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-22.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-23.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-24.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-25.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-26.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-27.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-6.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-7.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-8.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_lost_lepton_control_region//TTJets_HT-2500toInf/part-9.root"
+    ]
+}
