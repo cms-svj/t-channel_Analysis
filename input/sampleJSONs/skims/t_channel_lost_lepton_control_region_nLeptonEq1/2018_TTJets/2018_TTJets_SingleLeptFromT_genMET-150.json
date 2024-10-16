@@ -1,0 +1,9 @@
+{
+    "2018_TTJets_SingleLeptFromT_genMET-150": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_SingleLeptFromT_genMET-150/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_SingleLeptFromT_genMET-150/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_SingleLeptFromT_genMET-150/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_SingleLeptFromT_genMET-150/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_SingleLeptFromT_genMET-150/part-4.root"
+    ]
+}

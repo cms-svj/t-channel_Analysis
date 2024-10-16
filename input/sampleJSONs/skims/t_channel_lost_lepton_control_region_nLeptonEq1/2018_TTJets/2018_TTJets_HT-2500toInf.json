@@ -1,0 +1,7 @@
+{
+    "2018_TTJets_HT-2500toInf": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_HT-2500toInf/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_HT-2500toInf/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region_nLeptonEq1//TTJets_HT-2500toInf/part-2.root"
+    ]
+}
