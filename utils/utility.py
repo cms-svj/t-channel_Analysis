@@ -162,13 +162,18 @@ def tch_hvCat_decode(hvCat):
 
 def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
     varVal = {}
-    dataKeys = ["HTMHT","JetHT","MET","SingleElectron","SingleMuon","SinglePhoton","EGamma"]
+    print(dataset)
     scaleFactor = s.sfGetter(dataset,scaleOn=sFactor)
     isData = False
-    for dKey in dataKeys:
-        if dKey in dataset:
-            isData = True
-            break
+    if "Data" in dataset:
+        isData = True
+    isSignal = 0
+    if "mMed" in dataset:
+        if "s-channel" in dataset:
+            isSignal = 1
+        else:
+            isSignal = 2
+    varVal["isSignal"] = isSignal
     evtw = np.ones(len(events))
     if not isData:
          # 2018 lumi
@@ -184,6 +189,9 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
             else:
                 luminosity = 59692.692
         evtw = luminosity*events.Weight*scaleFactor
+        # if isSignal == 0: # only apply puWeight to backgrounds
+        #     evtw = evtw*events.puWeight
+    print(evtw)
     eCounter = np.where(evtw >= 0, 1, -1)
     obj = ob.Objects(events)
     jets = obj.goodJets()
@@ -215,13 +223,6 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
     else:
         nBJets = np.zeros(len(evtw))
 
-    isSignal = 0
-    if "mMed" in dataset:
-        if "s-channel" in dataset:
-            isSignal = 1
-        else:
-            isSignal = 2
-    varVal["isSignal"] = isSignal
     ## getting jet category for each jet
     jetCats = []
     if isSignal == 1:
