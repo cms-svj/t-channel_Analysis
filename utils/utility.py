@@ -160,9 +160,8 @@ def tch_hvCat_decode(hvCat):
     hvCat = decode(hvCat,1,"stableD",catList)
     return catList
 
-def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
+def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
     varVal = {}
-    print(dataset)
     scaleFactor = s.sfGetter(dataset,scaleOn=sFactor)
     isData = False
     if "Data" in dataset:
@@ -189,9 +188,8 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
             else:
                 luminosity = 59692.692
         evtw = luminosity*events.Weight*scaleFactor
-        # if isSignal == 0: # only apply puWeight to backgrounds
-        #     evtw = evtw*events.puWeight
-    print(evtw)
+        if isSignal == 0: # only apply puWeight to backgrounds
+            evtw = evtw*events.puWeight
     eCounter = np.where(evtw >= 0, 1, -1)
     obj = ob.Objects(events)
     jets = obj.goodJets()
@@ -324,8 +322,9 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource):
     varVal['crElectrons']   = crElectrons
     varVal['crMuons']       = crMuons
     if skimSource:
-        varVal['JetsAK8_pNetJetTaggerScore'] = events.JetsAK8.pNetJetTaggerScore
         varVal['JetsAK8_isGood'] = events.JetsAK8.isGood
+        if runJetTag:
+            varVal['JetsAK8_pNetJetTaggerScore'] = events.JetsAK8.pNetJetTaggerScore
     return varVal
 
 def varGetter(dataset,events,varVal,cut,jNVar=False):

@@ -18,7 +18,7 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
     allVars = {
         # 'cutflow' :                SVJHistoInfo("cutflow",                  h.),
         'eCounter':                SVJHistoInfo("eCounter",                 h.axis.Regular(name="x", label="h_eCounter",                                     bins= 2,    start=-1.1,    stop=1.1   ),     0,     0,       'w1'  ),
-        'evtw':                    SVJHistoInfo("evtw",                     h.axis.Regular(name="x", label="h_evtw",                                         bins= 2,    start=-1.1,    stop=1.1   ),     2,     0,       'evtw'),
+        'evtw':                    SVJHistoInfo("evtw",                     h.axis.Regular(name="x", label="h_evtw",                                         bins= 2,    start=-1000.1, stop=1000.1   ),  2,     0,       'evtw'),
         'jw':                      SVJHistoInfo("jw",                       h.axis.Regular(name="x", label="h_jw",                                           bins= 2,    start=-1.1,    stop=1.1   ),     0,     2,       'jw'  ),
         'fjw':                     SVJHistoInfo("fjw",                      h.axis.Regular(name="x", label="h_fjw",                                          bins= 2,    start=-1.1,    stop=1.1   ),     1,     2,       'fjw' ),
         'njets':                   SVJHistoInfo("njets",                    h.axis.Regular(name="x", label="Number of Jets",                                 bins=20,    start= 0.0,    stop=20.0  ),     2,     0,       'evtw'),

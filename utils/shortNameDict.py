@@ -65,4 +65,5 @@ shortNameDict = {
                     "HTMHTData":"MHT",
                     "JetHTData":"Jet",
                     "METData":"MET",     
+                    "EGammaData":"EGamma",
 }
