@@ -59,8 +59,10 @@ cutDict = {
 "_pre_psFilterSig5p5":  5.5,
 "_pre_psFilterSig6":    6,
 "_pre_psFilterSig6p5":  6.5,
-# "_pre_psFilterSig7":    7,
-# "_pre_psFilterSig7p5":  7.5,
+"_pre_psFilterSig7":    7,
+"_pre_psFilterSig7p5":  7.5,
+# "_pre_psFilterSig8":    8,
+# "_pre_psFilterSig8p5":  8.5,
 }
 
 sigDict = {
@@ -81,13 +83,14 @@ sigDict = {
 "rinv-0.7":   ["m2000_d20_r0p7_y1_N-1_M0_.root",    "#bcbd22"],
 }
 
-# inputFolder = "/srv/TM_phiSpike_opt_removeHighWeightQCD_clean"
-inputFolder = "/srv/skim_appliedPhiSpike_opt_DataMC_puWeight_clean"
+preYieldFolder = "/srv/skim_phiSpike_restudy_fixedTrgBug_clean"
+defaultCut = "_pre_psFilterSig4" # this is the cut before any additional phi spike cut is applied
+inputFolder = "/srv/skim_phiSpike_restudy_fixedTrgBug_pre_psFilterSig4_clean"
 # years = [2016,2017,2018]
 years = [
-# "2016",
-# "2017",
-# "2018PreHEM",
+"2016",
+"2017",
+"2018PreHEM",
 "2018PostHEM"
 ]
 
@@ -97,7 +100,7 @@ for year in years:
     print(f"{year}")
     # FOM vs nSigmas
     bkgFile = f"{year}_QCD_all.root"
-    preQCDYield = getYield(f"{inputFolder}/{bkgFile}","_pre")
+    preQCDYield = getYield(f"{preYieldFolder}/{bkgFile}",defaultCut)
     sigmaVals = []
     bkgYields = []
     for cutLab, cutVal in cutDict.items():
@@ -110,7 +113,7 @@ for year in years:
         sigFilePost = sigDetails[0]
         print(f"Processing {sigLab}")
         sigFile = f"{year}_{sigFilePost}"
-        preSigYield = getYield(f"{inputFolder}/{sigFile}","_pre")
+        preSigYield = getYield(f"{preYieldFolder}/{sigFile}",defaultCut)
         preSigYieldDict[sigLab] = preSigYield
         sigYields = []
         for cutLab, cutVal in cutDict.items():
@@ -121,8 +124,6 @@ for year in years:
 
 for year, metrics in metricDict.items():
     print(year)
-    print("preSigYieldDict")
-    print(metrics['preSigYieldDict'])
     plotFOMBySigPara(metrics,"mMed")
     plotFOMBySigPara(metrics,"mDark")
     plotFOMBySigPara(metrics,"rinv")
