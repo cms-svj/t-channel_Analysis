@@ -1,19 +1,14 @@
 {
     "2018_WJetsToLNu_HT-1200To2500": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-0.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-1.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-10.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-11.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-12.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-13.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-14.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-2.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-3.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-4.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-5.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-6.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-7.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-8.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//WJetsToLNu_HT-1200To2500/part-9.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-6.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-7.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-8.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//WJetsToLNu_HT-1200To2500/part-9.root"
     ]
 }

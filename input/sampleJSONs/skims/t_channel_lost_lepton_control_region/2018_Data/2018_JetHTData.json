@@ -1,10 +1,17 @@
 {
     "2018_JetHTData": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region//JetHT/part-0.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region//JetHT/part-1.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region//JetHT/part-2.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region//JetHT/part-3.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region//JetHT/part-4.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region//JetHT/part-5.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-10.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-11.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-12.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-6.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-7.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-8.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//JetHT/part-9.root"
     ]
 }

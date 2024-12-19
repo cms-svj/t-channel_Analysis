@@ -1,10 +1,8 @@
 {
     "2018_ZJetsToNuNu_HT-800To1200": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//ZJetsToNuNu_HT-800To1200/part-0.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//ZJetsToNuNu_HT-800To1200/part-1.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//ZJetsToNuNu_HT-800To1200/part-2.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//ZJetsToNuNu_HT-800To1200/part-3.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//ZJetsToNuNu_HT-800To1200/part-4.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_pre_selection//ZJetsToNuNu_HT-800To1200/part-5.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//ZJetsToNuNu_HT-800To1200/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//ZJetsToNuNu_HT-800To1200/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//ZJetsToNuNu_HT-800To1200/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_pre_selection/nominal//ZJetsToNuNu_HT-800To1200/part-3.root"
     ]
 }

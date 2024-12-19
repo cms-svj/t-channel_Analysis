@@ -1,8 +1,5 @@
 {
     "2017_TTJets_SingleLeptFromT": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//TTJets_SingleLeptFromT/part-0.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//TTJets_SingleLeptFromT/part-1.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//TTJets_SingleLeptFromT/part-2.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2017/Full/PrivateSkims/nominal/2017/t_channel_pre_selection//TTJets_SingleLeptFromT/part-3.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2017/t_channel_pre_selection/nominal//TTJets_SingleLeptFromT/part-0.root"
     ]
 }

@@ -1,5 +1,5 @@
 {
     "2016_ST_s-channel_4f_hadronicDecays": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_lost_lepton_control_region//ST_s-channel_4f_hadronicDecays/part-0.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016/t_channel_lost_lepton_control_region/nominal//ST_s-channel_4f_hadronicDecays/part-0.root"
     ]
 }

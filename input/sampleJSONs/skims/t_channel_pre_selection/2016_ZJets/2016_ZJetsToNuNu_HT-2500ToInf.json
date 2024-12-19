@@ -1,6 +1,5 @@
 {
     "2016_ZJetsToNuNu_HT-2500ToInf": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_pre_selection//ZJetsToNuNu_HT-2500ToInf/part-0.root",
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_pre_selection//ZJetsToNuNu_HT-2500ToInf/part-1.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016/t_channel_pre_selection/nominal//ZJetsToNuNu_HT-2500ToInf/part-0.root"
     ]
 }

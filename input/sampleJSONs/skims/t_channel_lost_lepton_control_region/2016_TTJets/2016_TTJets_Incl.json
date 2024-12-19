@@ -1,5 +1,5 @@
 {
     "2016_TTJets_Incl": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2016/Full/PrivateSkims/nominal/2016/t_channel_lost_lepton_control_region//TTJets/part-0.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016/t_channel_lost_lepton_control_region/nominal//TTJets/part-0.root"
     ]
 }

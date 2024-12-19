@@ -1,5 +1,5 @@
 {
     "2018_METData": [
-        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/2018/Full/PrivateSkims/nominal/2018/t_channel_lost_lepton_control_region//MET/part-0.root"
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2018/t_channel_lost_lepton_control_region/nominal//MET/part-0.root"
     ]
 }

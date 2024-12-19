@@ -1,0 +1,8 @@
+{
+    "2016_JetHTData": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016/t_channel_lost_lepton_control_region/nominal//JetHT/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016/t_channel_lost_lepton_control_region/nominal//JetHT/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016/t_channel_lost_lepton_control_region/nominal//JetHT/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016/t_channel_lost_lepton_control_region/nominal//JetHT/part-3.root"
+    ]
+}
