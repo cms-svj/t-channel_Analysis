@@ -188,21 +188,8 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
         if year in dataset:
             yr = year
 
-    psFilterFolder = "utils/data/phiSpikeFilter/QCD_gt300/combined_1_2/pre_psFilterSig4"
-    psFilterSig2 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma2p0.pkl")
-    psFilterSig2p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma2p5.pkl")
-    psFilterSig3 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma3p0.pkl")
-    psFilterSig3p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma3p5.pkl") 
-    psFilterSig4 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma4p0.pkl") # from phi spike optimization study
-    psFilterSig4p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma4p5.pkl")
-    psFilterSig5 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma5p0.pkl")
-    psFilterSig5p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma5p5.pkl")
-    psFilterSig6 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma6p0.pkl")
-    psFilterSig6p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma6p5.pkl")
-    psFilterSig7 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma7p0.pkl")
-    psFilterSig7p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma7p5.pkl")
-    # psFilterSig8 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma8p0.pkl")
-    # psFilterSig8p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma8p5.pkl")
+    psFilterFolder = "utils"
+    psFilter =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpots.pkl")
 
     if f"{yr}_Data" == s.getGroupFromSample(dataset,skimCut,skimSource=skimSource):
         DataMask = removeOverlap(dataset, events, yr)
@@ -216,8 +203,8 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
     phiMax = -0.82
     hemMask = hemPeriodMask(dataset,events,vars_noCut["jets"],vars_noCut["electrons"],vars_noCut["muons"],hemPeriod,etaMin,etaMax,phiMin,phiMax)
     # psFilter = phiSpikeFilter(dataset,vars_noCut['jets'])
-    qualityCuts = metFilters & (nl == 0) & ttStitch & DataMask & hemMask
-    qualityWithLepton = metFilters & ttStitch & DataMask & hemMask
+    qualityCuts = metFilters & (nl == 0) & ttStitch & DataMask & hemMask & psFilter
+    qualityWithLepton = metFilters & ttStitch & DataMask & hemMask & psFilter
     # qualityCuts = metFilters & psFilter # NN training files
     # cuts to get over trigger plateau
     # metCut = met > 266
@@ -261,70 +248,16 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
             "_leptonVeto":                  DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (nl == 0),
             "_dPhiMin":                     DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5),
             "_met":                         DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5) & metcut,
+            "_psFilter":                    DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter,
             "_metOnly":                     metcut,
-            # "_qual":                        qualityWithLepton,
-            # "_qual_passTrig":               qualityWithLepton & passTrigger,
-            # "_qual_2PJ":                    qualityWithLepton & passTrigger & (njetsAK8 >=2),
-            # "_qual_2PJ_st":                 qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut,
-            # "_qual_2PJ_st_dphimin":         qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5),
-            # "_qual_2PJ_st_dphimin_nl":      qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 0),
-            # "_qual_2PJ_st_dphimin_ll":      qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 1),
             "_pre_noHEM":                   DataMask & passTrigger & stCut & metFilters & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5) & metcut & ttStitch,
             "_pre":                         preselection,
             # "_pre_psFilterSig2":            preselection & psFilterSig2,
             # "_pre_psFilterSig2p5":          preselection & psFilterSig2p5,
             # "_pre_psFilterSig3":            preselection & psFilterSig3,
             # "_pre_psFilterSig3p5":          preselection & psFilterSig3p5,
-            "_pre_psFilterSig4":            preselection & psFilterSig4,
-            # "_pre_psFilterSig4p5":          preselection & psFilterSig4p5,
-            # "_pre_psFilterSig5":            preselection & psFilterSig5,
-            # "_pre_psFilterSig5p5":          preselection & psFilterSig5p5,
-            # "_pre_psFilterSig6":            preselection & psFilterSig6,
-            # "_pre_psFilterSig6p5":          preselection & psFilterSig6p5,
-            # "_pre_psFilterSig7":            preselection & psFilterSig7,
-            # "_pre_psFilterSig7p5":          preselection & psFilterSig7p5,
-            # "_pre_psFilterSig8":            preselection & psFilterSig8,
-            # "_pre_psFilterSig8p5":          preselection & psFilterSig8p5,
-            # "_preNoMET":                    preselection_noMETCut,
-            # "_preNoMET_psFilterSig2":       preselection_noMETCut & psFilterSig2,
-            # "_preNoMET_psFilterSig2p5":     preselection_noMETCut & psFilterSig2p5,
-            # "_preNoMET_psFilterSig3":       preselection_noMETCut & psFilterSig3,
-            # "_preNoMET_psFilterSig3p5":     preselection_noMETCut & psFilterSig3p5,
-            # "_preNoMET_psFilterSig4":       preselection_noMETCut & psFilterSig4,
-            # "_preNoMET_psFilterSig4p5":     preselection_noMETCut & psFilterSig4p5,
-            # "_preNoMET_psFilterSig5":       preselection_noMETCut & psFilterSig5,
-            # "_preNoMET_psFilterSig5p5":     preselection_noMETCut & psFilterSig5p5,
-            # "_preNoMET_psFilterSig6":       preselection_noMETCut & psFilterSig6,
-            # "_preNoMET_psFilterSig6p5":     preselection_noMETCut & psFilterSig6p5,
-            # "_preNoMET_psFilterSig7":       preselection_noMETCut & psFilterSig7,
-            # "_preNoMET_psFilterSig7p5":     preselection_noMETCut & psFilterSig7p5,
             # lost lepton control region
-            # "_lcr_pre":                       lcr_preselection,
-            # "_lcr_pre_psFilterSig2":          lcr_preselection & psFilterSig2,
-            # "_lcr_pre_psFilterSig2p5":        lcr_preselection & psFilterSig2p5,
-            # "_lcr_pre_psFilterSig3":          lcr_preselection & psFilterSig3,
-            # "_lcr_pre_psFilterSig3p5":        lcr_preselection & psFilterSig3p5,
-            # "_lcr_pre_psFilterSig4":          lcr_preselection & psFilterSig4,
-            # "_lcr_pre_psFilterSig4p5":        lcr_preselection & psFilterSig4p5,
-            # "_lcr_pre_psFilterSig5":          lcr_preselection & psFilterSig5,
-            # "_lcr_pre_psFilterSig5p5":        lcr_preselection & psFilterSig5p5,
-            # "_lcr_pre_psFilterSig6":          lcr_preselection & psFilterSig6,
-            # "_lcr_pre_psFilterSig6p5":        lcr_preselection & psFilterSig6p5,
-            # "_lcr_pre_psFilterSig7":          lcr_preselection & psFilterSig7,
-            # "_lcr_pre_psFilterSig7p5":        lcr_preselection & psFilterSig7p5,
-            # "_lcr_preNoMET":                  lcr_preselection_noMETCut,
-            # "_lcr_preNoMET_psFilterSig2":     lcr_preselection_noMETCut & psFilterSig2,
-            # "_lcr_preNoMET_psFilterSig2p5":   lcr_preselection_noMETCut & psFilterSig2p5,
-            # "_lcr_preNoMET_psFilterSig3":     lcr_preselection_noMETCut & psFilterSig3,
-            # "_lcr_preNoMET_psFilterSig3p5":   lcr_preselection_noMETCut & psFilterSig3p5,
-            # "_lcr_preNoMET_psFilterSig4":     lcr_preselection_noMETCut & psFilterSig4,
-            # "_lcr_preNoMET_psFilterSig4p5":   lcr_preselection_noMETCut & psFilterSig4p5,
-            # "_lcr_preNoMET_psFilterSig5":     lcr_preselection_noMETCut & psFilterSig5,
-            # "_lcr_preNoMET_psFilterSig5p5":   lcr_preselection_noMETCut & psFilterSig5p5,
-            # "_lcr_preNoMET_psFilterSig6":     lcr_preselection_noMETCut & psFilterSig6,
-            # "_lcr_preNoMET_psFilterSig6p5":   lcr_preselection_noMETCut & psFilterSig6p5,
-            # "_lcr_preNoMET_psFilterSig7":     lcr_preselection_noMETCut & psFilterSig7,
-            # "_lcr_preNoMET_psFilterSig7p5":   lcr_preselection_noMETCut & psFilterSig7p5,
+            "_lcr_pre":                       lcr_preselection,
             # "_lcr_pre_loose":               lcr_preselection_loose,
             # "_lcr_pre_noMet":               lcr_preselection_noMETCut,
             # "_cr_muon_":                    cr_muon_cut, 
