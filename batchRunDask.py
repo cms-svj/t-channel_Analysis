@@ -24,6 +24,7 @@ parser.add_argument('--runJetTag',          action='store_true', help='Run jet t
 parser.add_argument('--runEvtClass',        action='store_true', help='Run event classifier.')
 parser.add_argument("--skimCut",            type=str, default="t_channel_pre_selection", help='The selection of cuts that have been applied to the TM ntuples when making the skims: t_channel_pre_selection, t_channel_lost_lepton_control_region, etc.')
 parser.add_argument('--hemStudy',           action='store_true', help='Create histograms essential for HEM region optimization study.')
+parser.add_argument('--trgEffStudy',        action='store_true', help='Create histograms essential for calculating efficiency of individual triggers.')
 parser.add_argument('--hemPeriod',          type=str, default ="", help='HEM period (PreHEM or PostHEM), default includes entire sample')
 
 args = parser.parse_args()
@@ -42,24 +43,30 @@ haddAll = args.haddAll
 skimCut = args.skimCut
 hemStudy = args.hemStudy
 hemPeriod = args.hemPeriod
+trgEffStudy = args.trgEffStudy
 listOfSampleGroupsToRun = [
+                        # "2016APV_Data",
                         # "2016_Data",
-                        "2016_QCD",
+                        # "2016_QCD",
+                        # "2016_SVJ_t",
                         # "2016_ST",
                         # "2016_TTJets",
                         # "2016_WJets",
                         # "2016_ZJets",
-                        "2016_SVJ_t",
                         # "2017_Data",
-                        "2017_QCD",
+                        # "2017_QCD",
+                        # "2017_SVJ_t",
                         # "2017_ST",
                         # "2017_TTJets",
                         # "2017_WJets",
                         # "2017_ZJets",
-                        "2017_SVJ_t",
                         # "2018_Data",
                         "2018_QCD",
                         "2018_SVJ_t",
+                        "2018_ST",
+                        "2018_TTJets",
+                        "2018_WJets",
+                        "2018_ZJets",
 ]
 runSignalLocal = args.runSignalLocal
 evtTaggerLoc = f"utils/data/DNNEventClassifier/{eTagName}"
@@ -68,9 +75,11 @@ preCommand = "python analyze.py"
 if maxFilesPerSample != -1: # if not all the files are used, then turn the scale factor flag on
     preCommand += " -f" 
 if skimSource:
-    preCommand += f" --skimSource --skimCut {skimCut}" 
+    preCommand += f" --skimSource --skimCut {skimCut}"
 if hemStudy:
     preCommand += " --hemStudy"
+if trgEffStudy:
+    preCommand += " --trgEffStudy"
 if args.runJetTag:
     preCommand += " --runJetTag" 
 if args.runEvtClass:

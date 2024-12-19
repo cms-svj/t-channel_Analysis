@@ -498,3 +498,8 @@ trgMuonEG = {
                 'Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ',
             ]
 }
+
+trgLowLumi = {
+    "2016" : ["PFHT800"],
+    "2017" : ["AK8PFJet360_TrimMass30"]
+}

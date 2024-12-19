@@ -19,6 +19,7 @@ class MainProcessor(processor.ProcessorABC):
                 self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
                 self.hemPeriod = kwargs["hemPeriod"]
                 self.hemStudy = kwargs["hemStudy"]
+                self.trgEffStudy = kwargs["trgEffStudy"]
                 self.evtTaggerDict = kwargs["evtTaggerDict"]
                 self.sFactor = kwargs["sFactor"]
                 self.skimSource = kwargs["skimSource"]
@@ -66,7 +67,7 @@ class MainProcessor(processor.ProcessorABC):
                 # cut loop
                 ## objects used for cuts
                 dataset = events.metadata['dataset']
-                vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor,self.skimSource)
+                vars_noCut = utl.baselineVar(dataset,events,self.hemPeriod,self.sFactor,self.skimSource,self.runJetTag)
                 if self.runJetTag:
                     if self.skimSource:
                         create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
@@ -76,7 +77,7 @@ class MainProcessor(processor.ProcessorABC):
                 utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 if self.runEvtClass:
                     runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)                    
-                cuts = bl.cutList(dataset,events,vars_noCut,self.hemStudy,self.hemPeriod,self.skimCut,self.skimSource,self.runJetTag)
+                cuts = bl.cutList(dataset,events,vars_noCut,self.hemStudy,self.trgEffStudy,self.hemPeriod,self.skimCut,self.skimSource,self.runJetTag)
                 # setup histograms
                 if self.setupHistos is None:
                     self.setupHistogram(cuts)

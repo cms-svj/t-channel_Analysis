@@ -157,7 +157,7 @@ def conditionMask(var, condition):
         print(val)
     print("Mask = ",FullMask)
 
-def cutList(dataset,events,vars_noCut,hemStudy,hemPeriod,skimCut,skimSource,runJetTag=True):
+def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,skimSource,runJetTag=True):
     evtw = vars_noCut["evtw"]
     nl = vars_noCut["nl"]
     # nnim = vars_noCut["nnim"] # no of Isolated Muons
@@ -192,8 +192,8 @@ def cutList(dataset,events,vars_noCut,hemStudy,hemPeriod,skimCut,skimSource,runJ
     psFilterSig2 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma2p0.pkl")
     psFilterSig2p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma2p5.pkl")
     psFilterSig3 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma3p0.pkl")
-    psFilterSig3p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma3p5.pkl") # from phi spike optimization study
-    psFilterSig4 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma4p0.pkl")
+    psFilterSig3p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma3p5.pkl") 
+    psFilterSig4 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma4p0.pkl") # from phi spike optimization study
     psFilterSig4p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma4p5.pkl")
     psFilterSig5 =   phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma5p0.pkl")
     psFilterSig5p5 = phiSpikeFilter(yr, vars_noCut["jets"], f"{psFilterFolder}/phiSpikeHotSpotsSigma5p5.pkl")
@@ -261,6 +261,7 @@ def cutList(dataset,events,vars_noCut,hemStudy,hemPeriod,skimCut,skimSource,runJ
             "_leptonVeto":                  DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (nl == 0),
             "_dPhiMin":                     DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5),
             "_met":                         DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5) & metcut,
+            "_metOnly":                     metcut,
             # "_qual":                        qualityWithLepton,
             # "_qual_passTrig":               qualityWithLepton & passTrigger,
             # "_qual_2PJ":                    qualityWithLepton & passTrigger & (njetsAK8 >=2),
@@ -270,18 +271,18 @@ def cutList(dataset,events,vars_noCut,hemStudy,hemPeriod,skimCut,skimSource,runJ
             # "_qual_2PJ_st_dphimin_ll":      qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & (nl == 1),
             "_pre_noHEM":                   DataMask & passTrigger & stCut & metFilters & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5) & metcut & ttStitch,
             "_pre":                         preselection,
-            "_pre_psFilterSig2":            preselection & psFilterSig2,
-            "_pre_psFilterSig2p5":          preselection & psFilterSig2p5,
-            "_pre_psFilterSig3":            preselection & psFilterSig3,
-            "_pre_psFilterSig3p5":          preselection & psFilterSig3p5,
+            # "_pre_psFilterSig2":            preselection & psFilterSig2,
+            # "_pre_psFilterSig2p5":          preselection & psFilterSig2p5,
+            # "_pre_psFilterSig3":            preselection & psFilterSig3,
+            # "_pre_psFilterSig3p5":          preselection & psFilterSig3p5,
             "_pre_psFilterSig4":            preselection & psFilterSig4,
-            "_pre_psFilterSig4p5":          preselection & psFilterSig4p5,
-            "_pre_psFilterSig5":            preselection & psFilterSig5,
-            "_pre_psFilterSig5p5":          preselection & psFilterSig5p5,
-            "_pre_psFilterSig6":            preselection & psFilterSig6,
-            "_pre_psFilterSig6p5":          preselection & psFilterSig6p5,
-            "_pre_psFilterSig7":            preselection & psFilterSig7,
-            "_pre_psFilterSig7p5":          preselection & psFilterSig7p5,
+            # "_pre_psFilterSig4p5":          preselection & psFilterSig4p5,
+            # "_pre_psFilterSig5":            preselection & psFilterSig5,
+            # "_pre_psFilterSig5p5":          preselection & psFilterSig5p5,
+            # "_pre_psFilterSig6":            preselection & psFilterSig6,
+            # "_pre_psFilterSig6p5":          preselection & psFilterSig6p5,
+            # "_pre_psFilterSig7":            preselection & psFilterSig7,
+            # "_pre_psFilterSig7p5":          preselection & psFilterSig7p5,
             # "_pre_psFilterSig8":            preselection & psFilterSig8,
             # "_pre_psFilterSig8p5":          preselection & psFilterSig8p5,
             # "_preNoMET":                    preselection_noMETCut,
@@ -343,6 +344,20 @@ def cutList(dataset,events,vars_noCut,hemStudy,hemPeriod,skimCut,skimSource,runJ
             cutsHemStudy[f"_lcr_eta_{etaCutLabel}"] = DataMask & passTrigger & stCut & metFilters & jetIDAK8 & (njetsAK8 >=2) & (nl == 1) & (dPhiMinjAK8 <= 1.5) & metcut & hemMask
             cutsHemStudy[f"_lcr_loose_eta_{etaCutLabel}"] = DataMask & passTrigger & stCut & metFilters & jetIDAK8 & (njetsAK8 >=2) & (nl >= 1) & (dPhiMinjAK8 <= 1.5) & metcut & hemMask
         cuts.update(cutsHemStudy)
+
+    if trgEffStudy:
+        cuts = {
+                    "_nocut":                       np.ones(len(evtw),dtype=bool),
+                    "_trigger":                     DataMask & passTrigger,
+                } 
+        for trgName in trgSelection:
+            trgList = []
+            for trg in trgSelection:
+                if trg != trgName:
+                    trgList.append(trg)
+            tch_trgs =  trgListtoInd(trigDict,trgList)
+            passTriggerInd = passTriggerMask(triggerPass,tch_trgs)
+            cuts["_all_except_"+trgName] = passTriggerInd
 
     # orthogonal dataset: SingleMuon
     if "Muon" in dataset:

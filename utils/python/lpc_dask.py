@@ -70,7 +70,7 @@ def run_processor(fileset,sample,MainExecutor,MainProcessor,args,exe_args,evtTag
     output = processor.run_uproot_job(
         fileset,
         treename=treename,
-        processor_instance=MainProcessor(jNVar=args.jNVar,hemStudy=args.hemStudy,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,sFactor=args.sFactor,skimSource=args.skimSource,skimCut=args.skimCut,runJetTag=args.runJetTag,runEvtClass=args.runEvtClass),
+        processor_instance=MainProcessor(jNVar=args.jNVar,hemStudy=args.hemStudy,trgEffStudy=args.trgEffStudy,hemPeriod=args.hemPeriod,evtTaggerDict=evtTaggerDict,tcut=args.tcut,sFactor=args.sFactor,skimSource=args.skimSource,skimCut=args.skimCut,runJetTag=args.runJetTag,runEvtClass=args.runEvtClass),
         executor=MainExecutor,
         executor_args=exe_args,
         chunksize=args.chunksize,

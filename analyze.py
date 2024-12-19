@@ -43,6 +43,7 @@ def main():
     parser.add_argument(      '--outHistF',     help='Output directory for histogram files',      dest='outHistF', type=str, default="./")
     parser.add_argument(      '--hemPeriod',    help='HEM period (PreHEM or PostHEM), default includes entire sample',            dest='hemPeriod', type=str, default="")
     parser.add_argument(      '--hemStudy',     help='HEM study',         dest='hemStudy',             default=False, action='store_true')
+    parser.add_argument(      '--trgEffStudy',  help='Individual trigger efficiency study',         dest='trgEffStudy',             default=False, action='store_true')
     parser.add_argument(      '--slimProc',     help='Slimmed processor for fasting processing',       dest='slimProc',             default=False, action='store_true')  
     parser.add_argument(      '--tcut',         help='Cut for training files: _pre, _pre_1PSVJ',  dest='tcut', type=str, default="_pre")    
     parser.add_argument('-i', '--issues',       help='Run the dataTestProcessor', dest='issue', default=False, action='store_true')
