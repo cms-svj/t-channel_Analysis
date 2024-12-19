@@ -37,26 +37,39 @@ def absMeanError(numData,denData,avgRatio):
 # 2016 vs 2018 NNOutput comparison
 numLabel = "PreHEM"
 denLabel = "PostHEM"
-numFile = "/uscms/home/keanet/nobackup/SVJ/t-channel_skimBug/t-channel_Analysis/TM_hemStudy_2018Pre/2018_Data_all.root"
-denFile = "/uscms/home/keanet/nobackup/SVJ/t-channel_skimBug/t-channel_Analysis/TM_hemStudy_2018Post/2018_Data_all.root"
+noHEM = True
+# files just for the comparison with and without hem veto
+if noHEM:
+    numFile = "/uscms/home/keanet/nobackup/SVJ/t-channel_skimBug/t-channel_Analysis/skim_preHEM_vs_postHEM/2018PreHEM_Data_all.root"
+    denFile = "/uscms/home/keanet/nobackup/SVJ/t-channel_skimBug/t-channel_Analysis/skim_preHEM_vs_postHEM/2018PostHEM_Data_all.root"
+# files for the optimization
+else:
+    numFile = "/uscms/home/keanet/nobackup/SVJ/t-channel_skimBug/t-channel_Analysis/TM_hemStudy_2018PreHEM_clean/2018_Data_all.root"
+    denFile = "/uscms/home/keanet/nobackup/SVJ/t-channel_skimBug/t-channel_Analysis/TM_hemStudy_2018PostHEM_clean/2018_Data_all.root"
 
 outputFolder = "./"
 
 variables = {
-                'h_dPhiMinjMETAK8':          [r"$\Delta\phi_{min}(j,MET)$",[0,4]],
-                'h_j1PhiAK8':                [r"$\phi (J_{1})$",[-4,4]],
-                'h_j2PhiAK8':                [r"$\phi (J_{2})$",[-4,4]],
-                'h_MET':                     ["MET [GeV]",[0,1500]],
-                'h_METPhi':                  [r"MET $\phi$",[-4,4]]
+                'h_dPhiMinjMETAK8':          [r"$\Delta\phi_{min}(j,MET)$",[0,3.2]],
+                'h_j1PhiAK8':                [r"$\phi (J_{1})$",[-3.2,3.2]],
+                'h_j2PhiAK8':                [r"$\phi (J_{2})$",[-3.2,3.2]],
+                'h_MET':                     ["MET [GeV]",[200,1500]],
+                'h_METPhi':                  [r"MET $\phi$",[-3.2,3.2]]
             }
 
-etaLows = np.arange(-3.0,-3.51,-0.05)
+if noHEM:
+    etaLows = [0]
+else:
+    etaLows = np.arange(-3.0,-3.51,-0.05)
 ameDict = {}
 for varName, xDetail in variables.items():
     ameList = []
     for i in range(len(etaLows)):
         etaCutLabel = str(np.round(etaLows[i],2)).replace(".","p").replace("-","")
-        cut = f"_pre_eta_{etaCutLabel}"
+        if noHEM:
+            cut = f"_pre"
+        else:
+            cut = f"_pre_eta_{etaCutLabel}"
         coffeaHist, npHist, bins = getBkgHisto(numFile,varName,cut)
         coffeaHistAPV, npHistAPV, bins = getBkgHisto(denFile,varName,cut)
         maxInd = np.amax(np.where(npHist>0)[0])+1
@@ -85,14 +98,14 @@ for varName, xDetail in variables.items():
 print("ameDict")
 print(ameDict)
 
-
-plt.figure(figsize=(12,8))
-for varName, ameScores in ameDict.items():
-    plt.plot(etaLows,ameScores/np.amax(ameScores),label=varName)
-    plt.ylabel("Normalized Difference between Actual and Expected Ratios")
-    plt.xlabel("$\eta$, $phi$ veto")
-    plt.legend()
-    plt.xticks(np.arange(-3.0, -3.51, -0.1), 
-        ('$-3.0<\eta<-1.4$\n$-1.57<\phi<-0.87$', '$-3.1<\eta<-1.3$\n$-1.67<\phi<-0.77$', '$-3.2<\eta<-1.2$\n$-1.77<\phi<-0.67$',   
-         '$-3.3<\eta<-1.1$\n$-1.87<\phi<-0.57$', '$-3.4<\eta<-1$\n$-1.97<\phi<-0.47$',  '$-3.5<\eta<-0.9$\n$-2.07<\phi<-0.37$',) ,fontsize = 12 )
-plt.savefig("hemStudy.pdf")
+if not noHEM:
+    plt.figure(figsize=(12,8))
+    for varName, ameScores in ameDict.items():
+        plt.plot(etaLows,ameScores/np.amax(ameScores),label=varName)
+        plt.ylabel("Normalized Difference between Actual and Expected Ratios")
+        plt.xlabel("$\eta$, $phi$ veto")
+        plt.legend()
+        plt.xticks(np.arange(-3.0, -3.51, -0.1), 
+            ('$-3.0<\eta<-1.4$\n$-1.57<\phi<-0.87$', '$-3.1<\eta<-1.3$\n$-1.67<\phi<-0.77$', '$-3.2<\eta<-1.2$\n$-1.77<\phi<-0.67$',   
+             '$-3.3<\eta<-1.1$\n$-1.87<\phi<-0.57$', '$-3.4<\eta<-1$\n$-1.97<\phi<-0.47$',  '$-3.5<\eta<-0.9$\n$-2.07<\phi<-0.37$',) ,fontsize = 12 )
+    plt.savefig("hemStudy.pdf")
