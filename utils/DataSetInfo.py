@@ -1,5 +1,6 @@
 import ROOT
 import ctypes
+import array
 
 class DataSetInfo:
     def __init__(self, basedir, fileName, label, color=None, sys=None, processName=None, process=None, rate=None, lumiSys=None, scale=-1.0):
@@ -114,7 +115,11 @@ class DataSetInfo:
             xProjectionhist = histo.ProjectionX(f"Projection_less_{yValue}", 0, yValueBin) # Underflow bin is considered 
         
         if self.scale != -1.0: xProjectionhist.Scale(self.scale)
-        if rebinx != -1.0: xProjectionhist.RebinX(rebinx)
+        if isinstance(rebinx, list):  # If rebinx is a list of bin edges
+            bin_array = array('d', rebinx)  # Convert list to array of doubles
+            xProjectionhist = xProjectionhist.Rebin(len(bin_array) - 1, f"{xProjectionhist.GetName()}_rebinned", bin_array)
+        elif rebinx != -1.0:  # If rebinx is a single integer
+            xProjectionhist.Rebin(int(rebinx))
         if rebiny != -1.0: xProjectionhist.RebinY(rebiny)
         if xmin is not None and xmax is not None:
             xProjectionhist.GetXaxis().SetRangeUser(xmin,xmax)

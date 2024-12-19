@@ -10,7 +10,8 @@ else:
     from inputDictionary import yearDict,backgrounds,signals,data,postpendToRemove
 
 # options are: t_channel_pre_selection, t_channel_lost_lepton_control_region (see root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/{year}/Full/PrivateSkims/nominal/{year})
-skimModule = "t_channel_lost_lepton_control_region" 
+# skimModule = "t_channel_lost_lepton_control_region"
+skimModule = "t_channel_pre_selection"
 
 def getEosContent(eosSource):
     os.system(f"eosls {eosSource} > out.txt")

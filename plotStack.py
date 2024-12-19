@@ -102,10 +102,10 @@ def getBGHistos(data, histoName, rebinx, xmin, xmax):
             hMC.Add(hist)
     return hs, hMC, hList
 
-def getData(path, scale=1.0, year = "2018"):
+def getData(path, scale=1.0, year = "2018",HEMPeriod=''):
     Data = [
         # info.DataSetInfo(basedir=path, fileName=year+"_DataSR.root",        sys= -1.0, label="Data",        scale=scale),
-        info.DataSetInfo(basedir=path, fileName=f"{year}_Data.root",        sys= -1.0, label="Data",        scale=scale),
+        info.DataSetInfo(basedir=path, fileName=f"{year}{HEMPeriod}_Data.root",        sys= -1.0, label="Data",        scale=scale),
         # info.DataSetInfo(basedir=path, fileName="2018_Data.root",        sys= -1.0, label="Data",        scale=scale),
         # info.DataSetInfo(basedir=path, fileName="2018_Data_notSkims.root",        sys= -1.0, label="Data",        scale=scale),
         # info.DataSetInfo(basedir=path, fileName="2017_Data.root",        sys= -1.0, label="Data",        scale=scale),
@@ -120,7 +120,7 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_Diboson.root",         label="VV",                      scale=scale, color=(ROOT.kMagenta + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_DYJetsToLL_M-50.root", label="Z#gamma*+jets",           scale=scale, color=(ROOT.kOrange + 2)),
         # info.DataSetInfo(basedir=path, fileName=year+"_TTX.root",             label="ttX",                     scale=scale, color=(ROOT.kCyan + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_ST.root",              label="Single top",              scale=scale, color=(ROOT.kRed + 1)),
+        info.DataSetInfo(basedir=path, fileName=f"{year}{HEMPeriod}_ST.root",              label="Single top",              scale=scale, color=(ROOT.kRed + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",           label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),
     
         # info.DataSetInfo(basedir=path, fileName=year+"_ST_tZq.root",          label="ST tZq",                scale=scale, color=(ROOT.kRed)),
@@ -129,15 +129,15 @@ def getData(path, scale=1.0, year = "2018"):
         # info.DataSetInfo(basedir=path, fileName=year+"_ST_t-channel.root",          label="ST t-channel",                scale=scale, color=(ROOT.kTeal)),
         
 
-        info.DataSetInfo(basedir=path, fileName=year+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
         # info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
         # full bkg sample
         # info.DataSetInfo(basedir=path, fileName=year+"_mTTJetsmini_Inc_noEtaCut_pT50.root",     label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
-        info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",             label="Z#rightarrow#nu#nu+jets",    scale=scale, color=(ROOT.kGray + 1)),
-        info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",              label="W+jets",                    scale=scale, color=(ROOT.kYellow + 1)),
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_ZJets.root",             label="Z#rightarrow#nu#nu+jets",    scale=scale, color=(ROOT.kGray + 1)),
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_WJets.root",              label="W+jets",                    scale=scale, color=(ROOT.kYellow + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_TT.root",              label="t#bar{t} (pow)",             scale=scale, color=(ROOT.kBlue - 6)),
-        info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",               label="QCD",                        scale=scale, color=(ROOT.kGreen + 1)),
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_QCD.root",               label="QCD",                        scale=scale, color=(ROOT.kGreen + 1)),
     ]
     #
     sgData = [
@@ -737,9 +737,9 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
         ymin=10**-12
         lmax=10**1
     else:
-        ymax=10**11
+        ymax=10**9
         ymin=10**-4
-        lmax=10**12
+        lmax=10**9
     dummy = ROOT.TH1D("dummy", "dummy", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX()))
     setupDummy(dummy, leg, "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg,isRatio)
     # print("near setup dummy detail key = {}, {}, {}".format(histoName,xmin, xmax))
@@ -1544,7 +1544,7 @@ def main():
     parser.add_option('-y',                 dest='year',       type='string',  default='2018',                 help="Can pass in the run year")
     parser.add_option('-o',                 dest='outputdir',  type='string',                                  help="Output folder name")
     parser.add_option('-w',                 dest='scenario',  type='string',   default='d0_w7p0i0',                               help="Scenario")
-    parser.add_option(    '--hemPeriod',  dest='hemPeriod', type=str, default=False,  help='HEM period (PreHEM or PostHEM), default includes entire sample')
+    parser.add_option(    '--hemPeriod',  dest='hemPeriod', type=str, default="",  help='HEM period (PreHEM or PostHEM), default includes entire sample')
     options, args = parser.parse_args()
     scenario = options.scenario
     year = options.year
@@ -1577,7 +1577,7 @@ def main():
         ABCDregions.append(ABCD)
         
     print("ABCD region is - ",ABCDregions)
-    cutsImportant = ["_pre","_lcr_pre"]#,"_qual_2PJ_st_dphimin_nl","_qual_2PJ_st_dphimin_ll"]
+    cutsImportant = ["_pre_psFilterSig4"]#,"_pre_noHEM"]#,"_qual_2PJ_st_dphimin_nl","_qual_2PJ_st_dphimin_ll"]
     
     # for region in regions:
     #     cutsImportant.append(region)
@@ -1587,8 +1587,8 @@ def main():
     print(f"cutsImportant - {cutsImportant}")
     # Data, sgData, bgData = getData("condor/" + options.dataset + "/", 1.0, year)
     # Data, sgData, bgData = getData("DaskHadd/" + options.dataset + "/", 1.0, year)
-    Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
-   
+    Data, sgData, bgData = getData( options.dataset + "/", 1.0, year,HEMPeriod=hemPeriod)
+    
     # print(sgData)
     #Data, sgData, bgData = getData("condor/MakeNJetsDists_"+year+"/", 1.0, year)
     allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir","cutSig","cBg","cSig","mBg_f","mSig_f"])

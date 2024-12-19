@@ -272,13 +272,121 @@ def TFAnalysis(dataList, ABCDHistoVar, SRcut,CRcut, SVJBins,  plotOutputDir, xTi
     bgDataMergedABCDDict_CR = TF.GetABCDhistDict(bgData, ABCDHistoVar, CRcut, SVJBins, merge=True)
 
     TFhisto, SR, CR = GetTFhistoAndPlot(bgDataMergedABCDDict_SR, bgDataMergedABCDDict_CR, SVJBins, year, isLogY=isLogY, saveName=plotOutputDir+f"/TFplot_{SRcut}_{CRcut}")
-
+    histogram_list = [TFhisto, SR, CR]
+    for hist in bgDataMergedABCDDict_SR.values():
+        histogram_list.append(hist)
+    for hist in bgDataMergedABCDDict_CR.values():
+        histogram_list.append(hist)
     for data in Data:
         DataHist_CR = TF.GetABCDhist(data, ABCDHistoVar, CRcut, SVJBins, merge=True)
+        histogram_list.append(DataHist_CR)
         MC_QCD_ZJets_SR = TF.SumHistograms(bgDataMergedABCDDict_SR,skipList=[f"{year}_TTJets",f"{year}_WJets",f"{year}_ST"])
+        histogram_list.append(MC_QCD_ZJets_SR)
         PlotValidation(TFhisto, DataHist_CR, SR, MC_QCD_ZJets_SR, SVJBins, xTitle="Bin index", yTitle="Events", isLogY=isLogY, year=year, saveName=plotOutputDir+f"/Validation_{SRcut}_{CRcut}")
-        
 
+    return histogram_list     
+
+def SaveROOTFiles(DataList, ABCDHistoVar, SRcut, CRcut, SVJbins, plotOutputDir,year=2018, perSVJbin=False):
+    """
+    Generate and save various ROOT files for analysis, including A, B, C, D histograms,
+    summed backgrounds, transfer factors, LL estimates, and QCD estimates.
+    
+    Parameters:
+        DataList: Tuple of (Data, sgData, bgData).
+        ABCDHistoVar: Variable name for histograms.
+        SRcut: String defining the SR cut.
+        CRcut: String defining the CR cut.
+        SVJbins: Dictionary containing SVJ bin definitions.
+        plotOutputDir: Directory where the ROOT files will be saved.
+    """
+    Data, sgData, bgData = DataList
+
+    # Generate and save individual A, B, C, D histograms for Data, Signal, and Background
+    for dataset, cutname in [(Data, "Data"), (sgData, "Signal"), (bgData, "Background")]:
+        for data in dataset:
+            hist_dict = TF.GetABCDhistDict([data], ABCDHistoVar, SRcut, SVJbins, isStack=False, merge=False,perSVJbin=perSVJbin)
+            print(hist_dict)
+            TF.SaveHistDictToFile(hist_dict[data], f"{plotOutputDir}/{data.fileName.replace('.root', f'_SR.root')}")
+            hist_dict = TF.GetABCDhistDict([data], ABCDHistoVar, CRcut, SVJbins, isStack=False, merge=False,perSVJbin=perSVJbin)
+            TF.SaveHistDictToFile(hist_dict[data], f"{plotOutputDir}/{data.fileName.replace('.root', f'_CR.root')}")
+
+
+    # Sum all bgData histograms for total background
+    total_bg_SR = TF.SumABCDhistList(TF.GetABCDhistDict(bgData, ABCDHistoVar, SRcut, SVJbins, isStack=False, merge=False,perSVJbin=perSVJbin))
+    TF.SaveHistDictToFile(total_bg_SR, f"{plotOutputDir}/{year}_total_bkg_SR.root")
+    total_bg_CR = TF.SumABCDhistList(TF.GetABCDhistDict(bgData, ABCDHistoVar, CRcut, SVJbins, isStack=False, merge=False,perSVJbin=perSVJbin))
+    TF.SaveHistDictToFile(total_bg_CR, f"{plotOutputDir}/{year}_total_bkg_CR.root")
+
+    # Sum only lost lepton backgrounds (WJets, TTJets, ST)
+    skip_list = [f"{year}_QCD.root",f"{year}_ZJets.root",f"{year}_Data.root"]
+    ll_bkg_SR = TF.SumABCDhistList(TF.GetABCDhistDict(bgData, ABCDHistoVar, SRcut, SVJbins, isStack=False, merge=False,perSVJbin=perSVJbin), skipList=skip_list)
+    # ll_bkg_SR.SetTitle(f"LL bkg in SR")
+    TF.SaveHistDictToFile(ll_bkg_SR, f"{plotOutputDir}/{year}_LL_bkg_SR.root")
+    ll_bkg_CR = TF.SumABCDhistList(TF.GetABCDhistDict(bgData, ABCDHistoVar, CRcut, SVJbins, isStack=False, merge=False,perSVJbin=perSVJbin), skipList=skip_list)
+    # ll_bkg_SR.SetTitle(f"LL bkg in CR")
+    TF.SaveHistDictToFile(ll_bkg_CR, f"{plotOutputDir}/{year}_LL_bkg_CR.root")
+
+    print(f"ll_bkg_SR - {ll_bkg_SR} ")
+    # Compute Transfer Factors
+    tf_hist = []
+    for i, region in enumerate(['A', 'B', 'C', 'D']):
+        tf_hist.append(ll_bkg_SR[i].Clone(f"h_TF_{region}"))
+        tf_hist[i].SetTitle(f"Transfer Factor in {region}")
+        tf_hist[i].Divide(ll_bkg_CR[i])
+    TF.SaveHistDictToFile(tf_hist, f"{plotOutputDir}/{year}_LL_transfer_factors.root")
+
+    # Compute LL Estimate in SR
+    ll_estimate_in_sr = []
+    Data_CR = TF.GetABCDhistPerSVJBin(Data[0], ABCDHistoVar, CRcut, SVJbins)
+    for i, region in enumerate(['A', 'B', 'C', 'D']):
+        ll_estimate_in_sr.append(Data_CR[region].Clone(f"h_LL_Estimate_{region}"))
+        ll_estimate_in_sr[i].SetTitle(f"LL estimate in SR for {region}")
+        ll_estimate_in_sr[i].Multiply(tf_hist[i])
+    TF.SaveHistDictToFile(ll_estimate_in_sr, f"{plotOutputDir}/{year}_LL_Estimate_in_SR.root")
+
+    # Subtract LL estimate from total background in SR
+    total_bkg_minus_ll = []
+    for i, region in enumerate(['A', 'B', 'C', 'D']):
+        total_bkg_minus_ll.append(total_bg_SR[i].Clone(f"h_total_minus_LL_{region}"))
+        total_bkg_minus_ll[i].SetTitle(f"Total bkg in SR - LL estimate in SR for {region}")
+        total_bkg_minus_ll[i].Add(ll_estimate_in_sr[i], -1)
+    TF.SaveHistDictToFile(total_bkg_minus_ll, f"{plotOutputDir}/{year}_LL_estimate_subtracted_total_bkg_in_SR.root")
+
+    # Subtract LL estimate and ZJets from total background in SR for QCD Estimate
+    qcd_estimate_in_sr = []
+    zdata = [data for data in bgData if "ZJets.root" in data.fileName]
+    print(f"z data - {zdata[0].fileName}")
+    # Get ZJets histograms (using GetABCDhist)
+    if perSVJbin:
+        zjets_hist = TF.GetABCDhistPerSVJBin(zdata[0],ABCDHistoVar,SRcut,SVJbins)
+    else:
+        zjets_hist = TF.GetABCDhist(zdata[0],ABCDHistoVar,SRcut,SVJbins,isStack=False)
+
+    # Debugging: Check the structure of zjets_hist
+    print(f"ZJets histograms: {zjets_hist}")
+
+    # Compute QCD Estimate in SR
+    for i, region in enumerate(['A', 'B', 'C', 'D']):
+        qcd_estimate_in_sr.append(total_bkg_minus_ll[i].Clone(f"h_QCD_Estimate_SR_{region}"))
+        qcd_estimate_in_sr[i].SetTitle(f"QCD estimate in SR for region {region}")
+        qcd_estimate_in_sr[i].Add(zjets_hist[region], -1)  # Indexing zjets_hist by i
+    TF.SaveHistDictToFile(qcd_estimate_in_sr, f"{plotOutputDir}/{year}_QCD_Estimate_in_SR.root")
+
+    # Create a histogram for C/D
+    cd_ratio_hist = qcd_estimate_in_sr[2].Clone("h_QCD_C_over_D")  # Clone C histogram
+    cd_ratio_hist.Divide(qcd_estimate_in_sr[3])  # Divide by D histogram
+    cd_ratio_hist.SetTitle("C/D ratio for QCD estimate in SR")
+
+    # Save the C/D histogram
+    TF.SaveHistDictToFile(cd_ratio_hist, f"{plotOutputDir}/{year}_QCD_C_over_D.root")
+
+    # Compute QCD estimate in region A: C/D * B
+    qcd_in_A_hist = qcd_estimate_in_sr[1].Clone("h_QCD_in_A")  # Clone B histogram
+    qcd_in_A_hist.Multiply(cd_ratio_hist)  # Multiply by C/D
+    qcd_in_A_hist.SetTitle("QCD estimate in region A using ABCD method")
+
+    # Save the QCD in A histogram
+    TF.SaveHistDictToFile(qcd_in_A_hist, f"{plotOutputDir}/{year}_QCD_in_A.root")
 
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
@@ -287,11 +395,13 @@ def main():
     parser.add_option('-s',                 dest='onlySig',    action="store_true",                            help="Plot only signals")
     parser.add_option('-y',                 dest='year',       type='string',  default='2018',                 help="Can pass in the run year")
     parser.add_option('-o',                 dest='outputdir',  type='string',                                  help="Output folder name")
+    # parser.add_option('--outfile',           dest='outfile',  type='string',  default='try.root',                                help="Output ROOT file name")
     parser.add_option('-w',                 dest='scenario',  type='string',   default='d0_w7p0i0',                               help="Scenario")
     parser.add_option(    '--hemPeriod',  dest='hemPeriod', type=str, default=False,  help='HEM period (PreHEM or PostHEM), default includes entire sample',)
     options, args = parser.parse_args()
     print("Parsed options:", options)
 
+    # outROOTfileName = options.outfile
     year = options.year
     SVJbins = GetSVJbins()
     ABCDhistoVars = ["METvsDNN"]
@@ -302,22 +412,38 @@ def main():
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
     print(f"Data = {Data[0].fileName} \n bgData = {bgData[0].fileName}")
     
+    histograms = []
+
     if options.outputdir:
         plotOutDir = "outputPlots/{}".format(options.outputdir)
     else: 
         plotOutDir = "outputPlots/{}".format(options.dataset)
 
-    for histName in ABCDhistoVars:
-        for maincut in maincuts:
-            pltutils.makeDirs(plotOutDir,maincut,ABCDFolderName)
-            plotABCDdir = plotOutDir+'/'+ABCDFolderName+'/'+maincut[1:]
-            plotABCD((Data, sgData, bgData), "h_"+histName, maincut, SVJbins, plotOutputDir=plotABCDdir, isLogY = True, year = year, isRatio= True)
+    # for histName in ABCDhistoVars:
+    #     # for maincut in maincuts:
+    #     #     pltutils.makeDirs(plotOutDir,maincut,ABCDFolderName)
+    #     #     plotABCDdir = plotOutDir+'/'+ABCDFolderName+'/'+maincut[1:]
+    #     #     plotABCD((Data, sgData, bgData), "h_"+histName, maincut, SVJbins, plotOutputDir=plotABCDdir, isLogY = True, year = year, isRatio= True)
 
 
-        for CRcut in CRCuts:
-            pltutils.makeDirs(plotOutDir,CRcut, "TransferFactors")
-            plotTFdir= plotOutDir+'/'+"TransferFactors"+'/'+CRcut[1:]
-            TFAnalysis((Data, bgData), "h_"+histName, SRCut, CRcut, SVJbins, plotOutputDir=plotTFdir, isLogY = True, year=year)
+    #     for CRcut in CRCuts:
+    #         pltutils.makeDirs(plotOutDir,CRcut, "TransferFactors")
+    #         plotTFdir= plotOutDir+'/'+"TransferFactors"+'/'+CRcut[1:]
+    #         # TFhistos = TFAnalysis((Data, bgData), "h_"+histName, SRCut, CRcut, SVJbins, plotOutputDir=plotTFdir, isLogY = True, year=year)
+    #         SaveROOTFiles((Data, sgData, bgData), "h_"+histName, SRCut, CRcut, SVJbins, plotOutputDir=plotTFdir,year=year)
+
+
+    for SVJ in SVJbins.items():
+        key, values = SVJ
+        for histName in ABCDhistoVars:
+            for CRCut in CRCuts:
+                pltutils.makeDirs(plotOutDir,CRCut, f"{SVJ[0]}")
+                Rootfiles = plotOutDir+f"/{SVJ[0]}"
+                SaveROOTFiles((Data,sgData,bgData), "h_"+histName, SRCut,CRCut, SVJ, plotOutputDir=Rootfiles, year = year, perSVJbin=True)
+
+
+
+    
 
 if __name__ == '__main__':
     main()
@@ -331,3 +457,15 @@ if __name__ == '__main__':
 # TODO: Redraw axis properly for the dummy.
     # TODO: Remove the grid from the pad1. 
     
+
+# TODO: Make inputs for the data cards. The input has A, B, C, D regions as separate histograms. Save these histograms into each of the following files. 
+    # 1. separate background files
+    # 2. separate signal files
+    # 3. Data - SR and CR file
+    # 4. Total background 
+    # 5. Lost lepton background
+    # 6. LL prediction for SR region using the Data CR.
+    # 7. Removing the Lost lepton backgroud from the Total background .
+    # 8. Removing the Zjets from above.
+    # 9. TF 
+    # 

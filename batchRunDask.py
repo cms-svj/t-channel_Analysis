@@ -45,14 +45,14 @@ listOfSampleGroupsToRun = [
                         # "2018_WJets",
                         # "2018_ZJets",
                         # "2018_Data",
-                        # "2018_SVJ_t",
+                        "2018_SVJ_t",
                     # # 2017 
                     #     "2017_QCD",
                     #     "2017_ST",
                     #     "2017_TTJets",
                     #     "2017_WJets",
                     #     "2017_ZJets",
-                        "2017_Data",
+                        # "2017_Data",
                     #     "2017_SVJ_t",
                     # 2016
                         # "2016_QCD",
@@ -60,7 +60,7 @@ listOfSampleGroupsToRun = [
                         # "2016_TTJets",
                         # "2016_WJets",
                         # "2016_ZJets",
-                        "2016_Data",
+                        # "2016_Data",
                         # "2016_SVJ_t",
 ]
 runSignalLocal = args.runSignalLocal
