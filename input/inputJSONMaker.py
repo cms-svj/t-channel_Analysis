@@ -3,14 +3,15 @@
 import json
 import os
 
-skimSource = False
+skimSource = True
 if skimSource:
     from inputDictionary_skim import backgrounds,signals,data
 else:
     from inputDictionary import yearDict,backgrounds,signals,data,postpendToRemove
 
-# options are: t_channel_pre_selection, t_channel_lost_lepton_control_region (see root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/{year}/Full/PrivateSkims/nominal/{year})
-skimModule = "t_channel_lost_lepton_control_region_nLeptonEq1" 
+# options are: t_channel_pre_selection, t_channel_lost_lepton_control_region (see root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/{year}/})
+skimModule = "t_channel_pre_selection" 
+specialNote = "" # use "" for normal circumstances
 
 def getEosContent(eosSource):
     os.system(f"eosls {eosSource} > out.txt")
@@ -41,7 +42,7 @@ def makeJSONFiles(sampleDict):
     for sampleGroup, sampleList in sampleDict.items():
         year = sampleGroup[:sampleGroup.find("_")]
         if skimSource:
-            skimLocation = f"/store/user/lpcdarkqcd/tchannel_UL/{year}/Full/PrivateSkims/nominal/{year}/{skimModule}/"
+            skimLocation = f"/store/user/lpcdarkqcd/tchannel_UL/skims/{year}/{skimModule}/nominal/"
             ntupleKind = "skims"
         else:
             dataBkgLocation = "/store/user/lpcsusyhad/SusyRA2Analysis2015/Run2ProductionV20"
@@ -50,7 +51,7 @@ def makeJSONFiles(sampleDict):
         print(year)
         sampleGroupLabelList.append(sampleGroup)
         if skimSource:
-            outputDir = f"sampleJSONs/{ntupleKind}/{skimModule}/{sampleGroup}"
+            outputDir = f"sampleJSONs/{ntupleKind}/{skimModule}{specialNote}/{sampleGroup}"
         else:
             if "Data" in sampleGroup:
                 yearAliasList = yearDict[year]["data"]
