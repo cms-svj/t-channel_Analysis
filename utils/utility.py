@@ -174,22 +174,35 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
             isSignal = 2
     varVal["isSignal"] = isSignal
     evtw = np.ones(len(events))
+    kFactor = 1
     if not isData:
          # 2018 lumi
         if "2016" in dataset:
             luminosity = 35921.036
+            if "QCD" in dataset:
+                kFactor = 1.2428
         elif "2017" in dataset:
             luminosity = 41521.331
+            if "QCD" in dataset:
+                kFactor = 1.4164
         elif "2018" in dataset:
             if hemPeriod == "PreHEM":
                 luminosity = 21071.460
+                if "QCD" in dataset:
+                    kFactor = 1.4623
             elif hemPeriod == "PostHEM":
                 luminosity = 38621.232
+                if "QCD" in dataset:
+                    kFactor = 1.5551
             else:
                 luminosity = 59692.692
-        evtw = luminosity*events.Weight*scaleFactor
+        print(f"kFactor used  - {kFactor}")
+        evtw = luminosity*events.Weight*scaleFactor*kFactor
         if isSignal == 0: # only apply puWeight to backgrounds
             evtw = evtw*events.puWeight
+        # if "QCD" in dataset:  # adding the kFactor scaling
+
+
     eCounter = np.where(evtw >= 0, 1, -1)
     obj = ob.Objects(events)
     jets = obj.goodJets()
