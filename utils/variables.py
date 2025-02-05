@@ -279,7 +279,7 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
                                                         varXName='MET', 
                                                         varYName='dnnEventClassScore',
                                                         npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                        xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=300, start=0.0, stop=2000.0), 
+                                                        xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=400, start=0.0, stop=2000.0), 
                                                         ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
                     'logMETvsDNN':      SVJHistoInfo(
                                                         varXName='logMET', 
@@ -305,18 +305,18 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
                                                         npzInfo=0, flattenInfo=0, weightName='evtw', 
                                                         xbins=h.axis.Regular(name="x", label=r"$S_{T}$ (GeV)", bins=500, start=0.0, stop=5000.0), 
                                                         ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    'METvsDNNrMET':     SVJHistoInfo(
-                                                        varXName='MET', 
-                                                        varYName='nnEventOutputrMET',
-                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                        xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=500, start=0.0, stop=2000.0), 
-                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
-                    'STvsDNNrST':       SVJHistoInfo(
-                                                        varXName='ST',  
-                                                        varYName='nnEventOutputrST',
-                                                        npzInfo=0, flattenInfo=0, weightName='evtw', 
-                                                        xbins=h.axis.Regular(name="x", label=r"$S_{T}$ (GeV)", bins=500, start=0.0, stop=5000.0), 
-                                                        ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=0.02 )),
+                    # 'METvsDNNrMET':     SVJHistoInfo(
+                    #                                     varXName='MET', 
+                    #                                     varYName='nnEventOutputrMET',
+                    #                                     npzInfo=0, flattenInfo=0, weightName='evtw', 
+                    #                                     xbins=h.axis.Regular(name="x", label="MET [GeV]",      bins=500, start=0.0, stop=2000.0), 
+                    #                                     ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=1.0 )),
+                    # 'STvsDNNrST':       SVJHistoInfo(
+                    #                                     varXName='ST',  
+                    #                                     varYName='nnEventOutputrST',
+                    #                                     npzInfo=0, flattenInfo=0, weightName='evtw', 
+                    #                                     xbins=h.axis.Regular(name="x", label=r"$S_{T}$ (GeV)", bins=500, start=0.0, stop=5000.0), 
+                    #                                     ybins=h.axis.Regular(name="y", label="dnnEventClassScore",  bins=100, start=0.0, stop=0.02 )),
                     'nNMedEventvsDNN':  SVJHistoInfo(
                                                         varXName='nNMedEvent', 
                                                         varYName='dnnEventClassScore',
