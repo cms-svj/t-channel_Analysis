@@ -11,17 +11,18 @@ def GetABCDregions(met,dnn):
                 ]
     return regions
 
-# def  GetABCDhistinMETProjections(data, data_type, ABCDhistoVar, maincut, SVJbin, binning):
-#     """Return the A,B,C,D histograms for the given SVJbin using the 2D variable provided for the ABCDhistVar"""
-#     if data_type == "bkg":
-#         filename = data.fileName.split()[1].replace('.root','')
-#     elif data_type == "sgn":
-#         filename = "sgn"
-#     elif data_type == "data":
-#         filename = "obs"
-    
-#     histName =ABCDhistoVar + maincut + SVJbin
-#     dnn, met = SVJbin
+
+def adjustRegionBoundaries(region, xmin, xmax, ymin, ymax):
+    """ Adjust regions to avoid bin overlap based on the detected overlap. """
+    if region == 'A':
+        xmin = xmin + 0.1 
+        ymin = ymin + 0.01
+    if region == 'B':
+        xmin = xmin + 0.1
+    if region == 'C':
+        ymin = ymin + 0.01    
+
+    return xmin, xmax, ymin, ymax
 
 def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin):
     """Return the dictionary of ABCD histogram for only one svj bin"""
@@ -32,14 +33,51 @@ def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin):
     histName = ABCDhistoVar + maincut + SVJ
     regions = GetABCDregions(met,dnn)
 
-    for region, xmin, xmax, ymin, ymax in regions:
+    for region, xmin, xmax, ymin, ymax in regions:   # TODO: this for condition should be written into a function work in all the cases
+        xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
         hist, histIntegral, integral_error = data.get2DHistoIntegral(histName, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, showEvents=True)
+        print(f"hist integral is - {hist.Integral()} in region - {region} and from the function is  - {histIntegral}, xmin - {xmin}, xmax - {xmax}, ymin - {ymin}, ymax - {ymax}")
         hist_dict[region].SetBinContent(1, histIntegral)
         hist_dict[region].SetBinError(1, integral_error)
         hist_dict[region].Sumw2()
     return hist_dict
 
+def checkIntegralConsistency(data, ABCDhistoVar, maincut, SVJbin):
+    """Check if the sum of the integrals of all regions equals the original integral"""
 
+    bkgname = data.fileName.split('_')[1].replace('.root','')
+    SVJ, (dnn, met) = SVJbin
+    histName = ABCDhistoVar + maincut + SVJ
+    print(f"The file is - {data.fileName} and the SVJ region is - {SVJbin}")
+    # Get the original integral without considering the regions
+    original_hist, original_integral, original_integral_error = data.get2DHistoIntegral(histName, showEvents=False)
+
+    # Initialize the sum of the integrals of all regions
+    total_integral = 0.0
+
+    # Define the regions
+    regions = GetABCDregions(met, dnn)
+
+    # Sum the integrals over the regions
+    for region, xmin, xmax, ymin, ymax in regions:
+        xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
+        hist, histIntegral, integral_error = data.get2DHistoIntegral(histName, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, showEvents=False)
+        # print(f"the ABCD region is - {region}, and integral is - {histIntegral}")
+        print(f"hist integral is - {hist.Integral()} in region - {region} and from the function is  - {histIntegral}, xmin - {xmin}, xmax - {xmax}, ymin - {ymin}, ymax - {ymax}")
+        
+        total_integral += histIntegral
+
+    # Compare the sum of the integrals of the regions with the original integral
+    print(f"Original integral: {original_integral}")
+    print(f"Total integral of all regions: {total_integral}")
+
+    # Check if they are approximately equal
+    if abs(original_integral - total_integral) < 1e-5:  # Tolerance can be adjusted
+        print("The sum of the region integrals matches the original integral.")
+        return True
+    else:
+        print("The sum of the region integrals does NOT match the original integral.")
+        return False
 
 def GetABCDhist(data, ABCDhistoVar, maincut, SVJbins, isStack=False, merge=False):
     """
@@ -80,6 +118,7 @@ def GetABCDhist(data, ABCDhistoVar, maincut, SVJbins, isStack=False, merge=False
         regions = GetABCDregions(met, dnn)
         
         for region, xmin, xmax, ymin, ymax in regions:
+            xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
             hist, histIntegral, integral_error = data.get2DHistoIntegral(histName, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, showEvents=True)
             hist_dict[region].SetBinContent(i + 1, histIntegral)
             hist_dict[region].SetBinError(i+1, integral_error)
@@ -178,13 +217,11 @@ def SumHistograms(hist_dict, skipList=None):
     first_key = next(iter(hist_dict))
     summed_hist = hist_dict[first_key].Clone("summed_hist")
     summed_hist.Reset()  # Clear the content, keep the structure
-
     # Iterate over the histograms and sum them
     for d, hist in hist_dict.items():
         if skipList != None and d.fileName in skipList:
             continue  # Skip this histogram if its key is in the skipList
         summed_hist.Add(hist)  # Sum the histograms
-
     return summed_hist
 
 def rebinHistogramstoABCD(histList):
@@ -210,49 +247,54 @@ def SaveHistDictToFile(hist_data, rootfileName):
     """
     Saves the histograms in hist_data to a ROOT file.
     Supports both dictionaries (region: histogram) and lists of histograms.
-    
-    For lists, the histograms are saved in folders "A", "B", "C", "D" in that order.
-    
+
     Parameters:
-        hist_data: Either a dictionary {region: histogram} or a list of histograms (interpreted as A, B, C, D).
+        hist_data: Dictionary {region: histogram} or list of 4 histograms (A, B, C, D).
         rootfileName: Name of the output ROOT file.
     """
-    # Ensure the directory exists
+    # Ensure the output directory exists
     output_dir = os.path.dirname(rootfileName)
     if not os.path.exists(output_dir):
-        os.makedirs(output_dir)  # Create directories if they don't exist
-    
+        os.makedirs(output_dir)
+
     # Create the ROOT file
     output_file = ROOT.TFile(rootfileName, "RECREATE")
-    
-    if isinstance(hist_data, ROOT.TH1):  # Single histogram
-        folder = output_file.mkdir('A')
-        folder.cd()
-        hist_data.Write()  # Write the histogram directly
-    elif isinstance(hist_data, dict):  # If it's a dictionary
-        for region, hist in hist_data.items():
-            # Create or navigate to the folder corresponding to the region
-            folder = output_file.mkdir(region)
-            folder.cd()  # Change directory to the folder
-            
-            # Write the histogram into the folder
-            hist.Write()
-    elif isinstance(hist_data, list):  # If it's a list
-        if len(hist_data) != 4:
-            raise ValueError("For list input, exactly 4 histograms are expected (for A, B, C, D).")
+
+    try:
+        if isinstance(hist_data, ROOT.TH1):  # Single histogram case
+            folder = output_file.mkdir('A')
+            folder.cd()
+            hist_clone = hist_data.Clone()
+            hist_clone.SetDirectory(0)  # Prevent ROOT from automatically managing this
+            hist_clone.Write(hist_clone.GetName(), ROOT.TObject.kOverwrite)
         
-        # Define folder names for regions
-        regions = ["A", "B", "C", "D"]
-        for region, hist in zip(regions, hist_data):
-            # Create or navigate to the folder corresponding to the region
-            folder = output_file.mkdir(region)
-            folder.cd()  # Change directory to the folder
+        elif isinstance(hist_data, dict):  # Dictionary of histograms
+            for region, hist in hist_data.items():
+                folder = output_file.GetDirectory(region)
+                if not folder:
+                    folder = output_file.mkdir(region)
+                folder.cd()
+                
+                hist_clone = hist.Clone()
+                hist_clone.SetDirectory(0)  # Prevent memory issues
+                hist_clone.Write(hist_clone.GetName(), ROOT.TObject.kOverwrite)
+        
+        elif isinstance(hist_data, list):  # List of histograms (A, B, C, D)
+            if len(hist_data) != 4:
+                raise ValueError("For list input, exactly 4 histograms are expected (for A, B, C, D).")
             
-            # Write the histogram into the folder
-            hist.Write()
-    else:
-        raise ValueError("Unsupported data type for hist_data. Must be dict or list.")
-    
-    # Close the ROOT file
-    output_file.Close()
-    print(f"Histograms saved successfully to {rootfileName}.")
+            regions = ["A", "B", "C", "D"]
+            for region, hist in zip(regions, hist_data):
+                folder = output_file.GetDirectory(region)
+                if not folder:
+                    folder = output_file.mkdir(region)
+                folder.cd()
+                
+                hist_clone = hist.Clone()
+                hist_clone.SetDirectory(0)  # Prevent memory issues
+                hist_clone.Write(hist_clone.GetName(), ROOT.TObject.kOverwrite)
+
+    finally:
+        output_file.Write("", ROOT.TObject.kOverwrite)  # Ensure all histograms are saved
+        output_file.Close()
+        print(f"Histograms saved successfully to {rootfileName}.")
