@@ -1,0 +1,14 @@
+{
+    "2016APV_JetHTData": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-6.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-7.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-8.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/2016APV/t_channel_pre_selection/nominal//JetHT/part-9.root"
+    ]
+}
