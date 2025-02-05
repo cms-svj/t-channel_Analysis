@@ -11,6 +11,7 @@ else:
 
 # options are: t_channel_pre_selection, t_channel_lost_lepton_control_region (see root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims/{year}/})
 skimModule = "t_channel_pre_selection" 
+# skimModule = "t_channel_lost_lepton_control_region" 
 specialNote = "" # use "" for normal circumstances
 
 def getEosContent(eosSource):
