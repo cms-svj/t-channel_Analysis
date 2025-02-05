@@ -45,14 +45,16 @@ hemStudy = args.hemStudy
 hemPeriod = args.hemPeriod
 trgEffStudy = args.trgEffStudy
 listOfSampleGroupsToRun = [
+                    # 2016
                         # "2016APV_Data",
                         # "2016_Data",
                         # "2016_QCD",
-                        "2016_SVJ_t",
+                        # "2016_SVJ_t",
                         # "2016_ST",
                         # "2016_TTJets",
                         # "2016_WJets",
                         # "2016_ZJets",
+                    # 2017    
                         # "2017_Data",
                         # "2017_QCD",
                         # "2017_SVJ_t",
@@ -60,6 +62,7 @@ listOfSampleGroupsToRun = [
                         # "2017_TTJets",
                         # "2017_WJets",
                         # "2017_ZJets",
+                    # 2018    
                         # "2018_Data",
                         # "2018_QCD",
                         # "2018_SVJ_t",
@@ -121,11 +124,12 @@ def runHadd(expectedFilesDict,outHistF):
                     print(f"{sample[0]} is missing.")
                     os.system(f"mv {sample[0]} {sample[1]}.root")
         else:
-            command = f"hadd -f {sampleGroup}.root "
+            command = f"hadd -f {outHistF}/{sampleGroup}.root "
             missingFile = False
             for sample in sampleList:
+                print("sample - {}".format(sample))
                 if sample in os.listdir(outHistF):
-                    command += f"{sample} "
+                    command += f"{outHistF}/{sample} "
                 else:
                     missingFile = True
                     break
