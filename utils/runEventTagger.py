@@ -28,7 +28,10 @@ def calculate_skim_variables_from_ntuples(events, varVal):
     varVal["JetsAK8_deltaPhiMET"] = jet_variables.calculate_delta_phi_with_met(jets_ak8_lv, met_lv)
     varVal["JetsAK8_LundJetPlaneZ"] = jet_variables.calculate_lund_jet_plane_z_with_met(jets_ak8_lv, met_lv)
     varVal["JetsAK8_MTMET"] = jet_variables.calculate_invariant_mass_with_met(jets_ak8_lv, met_lv)
-    
+    varVal["JetsAK8_/.fPt"] = jets_ak8_lv.pt
+    varVal["JetsAK8_/.fEta"] = jets_ak8_lv.eta
+    varVal["JetsAK8_/.fPhi"] = jets_ak8_lv.phi
+
     # Event variables
     nan_value = 0.  # Natural choice for missing values for LJP variables and delat eta / phi!
     n_jets_max = 4
@@ -95,6 +98,9 @@ def get_skim_variables_from_skims(events, varVal):
     varVal["JetsAK8_deltaPhiMET"] = events.JetsAK8.deltaPhiMET
     varVal["JetsAK8_LundJetPlaneZ"] = events.JetsAK8.LundJetPlaneZ
     varVal["JetsAK8_MTMET"] = events.JetsAK8.MTMET
+    varVal["JetsAK8_/.fPt"] = events.JetsAK8.pt
+    varVal["JetsAK8_/.fEta"] = events.JetsAK8.eta
+    varVal["JetsAK8_/.fPhi"] = events.JetsAK8.phi
     varVal["JetsAK8_pNetJetTaggerScore"] = events.JetsAK8.pNetJetTaggerScore
     # Event variables
     n_jets_max = 4
