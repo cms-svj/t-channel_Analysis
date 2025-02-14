@@ -13,6 +13,7 @@ import matplotlib as mpl
 import pandas as pd
 from utils.var import var as vars
 import itertools
+import ROOTplotutils as rtutils
 # from utils.variables import variables as vars
 
 mpl.rc("font", family="serif", size=15)
@@ -120,7 +121,7 @@ def getData(path, scale=1.0, year = "2018",HEMPeriod=''):
         # info.DataSetInfo(basedir=path, fileName=year+"_Diboson.root",         label="VV",                      scale=scale, color=(ROOT.kMagenta + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_DYJetsToLL_M-50.root", label="Z#gamma*+jets",           scale=scale, color=(ROOT.kOrange + 2)),
         # info.DataSetInfo(basedir=path, fileName=year+"_TTX.root",             label="ttX",                     scale=scale, color=(ROOT.kCyan + 1)),
-        info.DataSetInfo(basedir=path, fileName=f"{year}{HEMPeriod}_ST.root",              label="Single top",              scale=scale, color=ROOT.TColor.GetColor("#5790fc")),
+        info.DataSetInfo(basedir=path, fileName=f"{year}{HEMPeriod}_ST.root",              label="Single top",              scale=scale, color=ROOT.TColor.GetColor("#9c9ca1")),
         # info.DataSetInfo(basedir=path, fileName=year+"_ZJets.root",           label="Z#rightarrow#nu#nu+jets", scale=scale, color=(ROOT.kGray + 1)),
     
         # info.DataSetInfo(basedir=path, fileName=year+"_ST_tZq.root",          label="ST tZq",                scale=scale, color=(ROOT.kRed)),
@@ -128,17 +129,17 @@ def getData(path, scale=1.0, year = "2018",HEMPeriod=''):
         # info.DataSetInfo(basedir=path, fileName=year+"_ST_tW.root",          label="ST tW",                scale=scale, color=(ROOT.kPink + 7)),
         # info.DataSetInfo(basedir=path, fileName=year+"_ST_t-channel.root",          label="ST t-channel",                scale=scale, color=(ROOT.kTeal)),
         
-
-        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=ROOT.TColor.GetColor("#f89c20")),
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_ZJets.root",             label="Z#rightarrow#nu#nu+jets",    scale=scale, color=ROOT.TColor.GetColor("#e42536")),
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_WJets.root",              label="W+jets",                    scale=scale, color=ROOT.TColor.GetColor("#f89c20")),
+        
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_TTJets.root",          label="t#bar{t}",                scale=scale, color=ROOT.TColor.GetColor("#964a8b")),
         # info.DataSetInfo(basedir=path, fileName=year+"_WJets.root",           label="W+jets",                  scale=scale, color=(ROOT.kYellow + 1)),
         # info.DataSetInfo(basedir=path, fileName=year+"_QCD.root",             label="QCD",                     scale=scale, color=(ROOT.kGreen + 1)),
         # full bkg sample
         # info.DataSetInfo(basedir=path, fileName=year+"_mTTJetsmini_Inc_noEtaCut_pT50.root",     label="t#bar{t}",                scale=scale, color=(ROOT.kBlue - 6)),
-        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_ZJets.root",             label="Z#rightarrow#nu#nu+jets",    scale=scale, color=ROOT.TColor.GetColor("#e42536")),
-        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_WJets.root",              label="W+jets",                    scale=scale, color=ROOT.TColor.GetColor("#964a8b")),
         # info.DataSetInfo(basedir=path, fileName=year+"_TT.root",              label="t#bar{t} (pow)",             scale=scale, color=(ROOT.kBlue - 6)),
-        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_QCD.root",               label="QCD",                        scale=scale, color=ROOT.TColor.GetColor("#9c9ca1")),
-    ]
+        info.DataSetInfo(basedir=path, fileName=year+HEMPeriod+"_QCD.root",               label="QCD",                        scale=scale, color=ROOT.TColor.GetColor("#5790fc")),
+    ]    
     #
     sgData = [
 
@@ -160,19 +161,20 @@ def getData(path, scale=1.0, year = "2018",HEMPeriod=''):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
         ## varying mMed
 
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="mMed_500",  scale=scale, color=ROOT.kMagenta + 1),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#phi} = 2000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir=path, fileName=year+f"_m2000_d20_r0p3_y1_N-1_M0_{HEMPeriod}.root",    label="m_{#phi} = 2000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-600.root",     label="mMed_600",  scale=scale, color=ROOT.kViolet+2),
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800.root",     label="mMed_800",  scale=scale, color=ROOT.kRed),
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000.root",    label="mMed_1000", scale=scale, color=ROOT.kMagenta + 1),
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1500.root",    label="mMed_1500", scale=scale, color=ROOT.kGray+4),
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000.root",    label="mMed_3000", scale=scale, color=ROOT.kCyan),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000.root",    label="mMed_4000", scale=scale, color=ROOT.kBlue + 1),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="m_{#Phi} = 600 GeV, r_{inv} = 0.3",  scale=scale, color=ROOT.kViolet + 2),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.1", scale=scale, color=ROOT.kMagenta + 1),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlack),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.7", scale=scale, color=ROOT.TColor.GetColor("#92dadd")),
         
-        # # info.DataSetInfo(basedir=path, fileName="2017_mZprime-3000_mDark-20_rinv-0p3_alpha-peak.root",          label="s-ch 3000", scale=scale, color=ROOT.kRed),
-        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1_noEtaCut_pT170.root",    label="mMed 4000", scale=scale, color=ROOT.kRed),
         
+        
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="m_{#Phi} = 800 GeV, r_{inv} = 0.3",  scale=scale, color=ROOT.kRed),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 1000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 1500 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kGray+4),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 3000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kCyan),
+        info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 4000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlue - 4),
+        
+       ##
         
         # ## varying mDark
 
@@ -202,16 +204,7 @@ def getData(path, scale=1.0, year = "2018",HEMPeriod=''):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="M-800_r-0p3", scale=scale, color=ROOT.kMagenta + 1),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p5_alpha-peak_yukawa-1.root",     label="M-800_r-0p5", scale=scale, color=ROOT.kBlack),
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",     label="M-800_r-0p7", scale=scale, color=ROOT.kGreen),
-        ## comparing QdM and QsM jets
-        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed400.root",     label="mMed 400 QdM",  scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed400.root",     label="mMed 400 QsM",  scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed600.root",     label="mMed 600 QdM",  scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed600.root",     label="mMed 600 QsM",  scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed800.root",     label="mMed 800 QdM",  scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed800.root",     label="mMed 800 QsM",  scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir="{}/QdM/".format(qdm_qsmDir), fileName=year+"_mMed1000.root",    label="mMed 1000 QdM", scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir="{}/QsM/".format(qdm_qsmDir), fileName=year+"_mMed1000.root",    label="mMed 1000 QsM", scale=scale, color=ROOT.kBlack),
-
+        
     ]
     # print(sgData, bgData)
     return Data, sgData, bgData
@@ -228,9 +221,10 @@ def setupAxes(dummy, xOffset, yOffset, xTitle, yTitle, xLabel, yLabel,title=""):
     if(dummy.GetXaxis().GetNdivisions() % 100 > 5): dummy.GetXaxis().SetNdivisions(6, 5, 0)
 
 def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax, ymin, ymax, lmax, title="", norm=False, normBkg=False,isRatio=False,isABCD=False):
-    
+    print(f"IsRatio - {isRatio}")
     if isRatio:
-        setupAxes(dummy, 0, 1.05, 0.0, 0.05, 0.0, 0.05)
+        print("In setup dummy isratio is invoked")
+        setupAxes(dummy, 0.0, 0.85, 0.0, 0.055, 0.0, 0.048)
         dummy.GetXaxis().SetTitle("")
     elif isABCD:
         setupAxes(dummy, 0.6, 0.8, 0.1, 0.1, 0.08, 0.06,title)
@@ -238,7 +232,7 @@ def setupDummy(dummy, leg, histName, xAxisLabel, yAxisLabel, isLogY, xmin, xmax,
         dummy.GetXaxis().CenterLabels()
         
     else:    
-        setupAxes(dummy, 1.2, 1.6, 0.045, 0.045, 0.045, 0.045)
+        setupAxes(dummy, 1.2, 1.3, 0.045, 0.045, 0.045, 0.045)
         dummy.GetXaxis().SetTitle(xAxisLabel)
     
     dummy.GetYaxis().SetTitle(yAxisLabel)
@@ -572,12 +566,12 @@ def createRatio(h1, h2, xtitle):
     x = h3.GetXaxis()
     y = h3.GetYaxis()
     
-    x.SetTitleOffset(0.65)
-    y.SetTitleOffset(0.27)
-    x.SetTitleSize(0.2)
-    y.SetTitleSize(0.15)
+    x.SetTitleOffset(0.75)
+    y.SetTitleOffset(0.35)
+    x.SetTitleSize(0.18)
+    y.SetTitleSize(0.13)
     x.SetLabelSize(0.13)
-    y.SetLabelSize(0.13)
+    y.SetLabelSize(0.11)
     x.SetTitle(xtitle)
     # print("xtitle",xtitle)
     y.SetTitle("Data/MC")
@@ -624,7 +618,7 @@ def createCanvasPads(c,isLogY):
     return c, pad1, pad2
 
 
-def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, normBkg=False, onlySig=False, stList=None, yieldValues=None, year="2017", isRatio=False, hemPeriod=False, showEvent = False,ispdf=False):
+def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", isLogY=False, xmin=999.9, xmax=-999.9, norm=False, normBkg=False, onlySig=False, stList=None, yieldValues=None, year="2017", isRatio=False, hemPeriod=False, showEvent = False,ispdf=False,isN1plots = False , MakeLineAtBin=None):
     #This is a magic incantation to disassociate opened histograms from their files so the files can be closed
     ROOT.TH1.AddDirectory(False)
     # print("Data in plot stack = ",data)
@@ -636,10 +630,10 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
         c1, pad1, pad2 = createCanvasPads(c1,isLogY)
         pad1.cd()
     else:
-        c1 = ROOT.TCanvas( "c", "c", 800, 800)
+        c1 = ROOT.TCanvas( "c", "c", 800, 700)
         c1.cd()
         ROOT.gPad.Clear()
-        ROOT.gPad.SetLeftMargin(0.15)
+        ROOT.gPad.SetLeftMargin(0.12)
         ROOT.gPad.SetRightMargin(0.05)
         ROOT.gPad.SetTopMargin(0.08)
         ROOT.gPad.SetBottomMargin(0.12)
@@ -649,9 +643,19 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     ROOT.gStyle.SetOptStat("")
 
     #Create TLegend
-    leg = ROOT.TLegend(0.17, 0.7, 0.95, 0.88)
+    # if isN1plots:
+    #     leg = ROOT.TLegend(0.35,0.65, 0.6,0.90)
+    #     # legsignal = rtutils.SetupLegend(0.6,0.7,0.92,0.90)
+    # else:
+    if isRatio:
+        leg = ROOT.TLegend(0.17,0.7,0.55,0.88)
+        nColumns = 2
+    else:        
+        leg = ROOT.TLegend(0.35, 0.7, 0.55, 0.88)
+        nColumns = 1
+    legsignal = rtutils.SetupLegend(0.55,0.7,0.90,0.88)
     #nColumns = 3 if(len(data[1]) >= 3) else 1
-    nColumns = 2
+    
     leg.SetFillStyle(0)
     leg.SetBorderSize(0)
     leg.SetLineWidth(1)
@@ -660,7 +664,7 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     if isRatio:
         ROOT.gStyle.SetLegendTextSize(0.05)
     else:    
-        ROOT.gStyle.SetLegendTextSize(0.024)
+        ROOT.gStyle.SetLegendTextSize(0.033)
             
     #Setup background histos
     rebinx = rebinCalc(totalBin,40)
@@ -684,14 +688,15 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
             # print(newEntry)
         if normBkg:
             normHisto(h, True)
-            h.SetLineWidth(3)
+            # h.SetLineWidth(3)
             h.SetFillStyle(3955)
             # h.SetLineColor(d.color) 
         elif norm:
             normHisto(h,True)
-            h.SetLineColor(d.Color)
+            # h.SetFillStyle(1001)
+            # h.SetLineColor(d.Color)
             # h.Draw("hist same")
-            leg.AddEntry(h, d.legEntry(), "L")
+            # leg.AddEntry(h, d.legEntry(), "L")
         else:    
             h.SetFillStyle(1001)
         hs.Add(copy.deepcopy(h))
@@ -709,18 +714,7 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
             hMC.Add(copy.deepcopy(h))
             # bkghist.Add(h)
 
-    # Print legends in the reverse order along with the bkg contribution 
-    totalOfAllhisto = sum(bkgcontrib)
-    percentOfAllhisto = [(x/totalOfAllhisto)*100 if totalOfAllhisto != 0 else x for x in bkgcontrib  ]
-    print(f"bkghist type {type(bkghist)} \n hMC type - {type(hMC)} ")
-    for histo, label, bkg, percent in zip(reversed(bkghist), reversed(labels), reversed(bkgcontrib), reversed(percentOfAllhisto)):
-            # print(f"working on the legend values - histo - {histo}, labels - {label}, bkgcontrib - {bkg}, percentofAllhisto - {percent:.2f}")
-            if normBkg:
-                leg.AddEntry(histo, f"{label}({percent:.2f}%)", "L")
-            if showEvent:
-                leg.AddEntry(histo, f"{label}({percent:.2f}%)", "F")
-            else:
-                leg.AddEntry(histo, f"{label}", "F")
+  
                 
 
 
@@ -745,7 +739,8 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
         ymin=10**-4
         lmax=10**9
     dummy = ROOT.TH1D("dummy", "dummy", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX()))
-    setupDummy(dummy, leg, "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg,isRatio)
+    print(f"isRatio before setup dummy - {isRatio}")
+    setupDummy(dummy, leg, "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg, isRatio=isRatio)
     # print("near setup dummy detail key = {}, {}, {}".format(histoName,xmin, xmax))
         
     # setupDummy(dummy, leg, histoName, xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg)
@@ -772,11 +767,22 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
 
     # print("detail key = {}, {}, {}".format(histoName,xmin, xmax))
     
+    # For N-1 plots 
+    if isN1plots:
+        if MakeLineAtBin != None:
+            print("This is invoked")
+            bin = dummy.FindBin(MakeLineAtBin)
+            if histoName == "h_dPhiMinjMETAK8_pre__dPhiMin":
+                line = rtutils.AddVerticalLineAtBinEnd(dummy,bin_number=bin,ymax=ymax/10000, color = ROOT.kBlack, line_width=4, line_style=ROOT.kDashed)
+            else:    
+                line = rtutils.AddVerticalLineAtBinEnd(dummy,bin_number=bin,ymax=ymax/100, color = ROOT.kBlack, line_width=4, line_style=ROOT.kDashed)
+            line.Draw("same")
+
     #Setup signal histos
     
     sig = 0.0
     linestylenumber = 0
-    linestyle = [ROOT.kDotted,ROOT.kSolid,ROOT.kDashed]
+    linestyle = [ROOT.kSolid,ROOT.kDashed]#,ROOT.kDotted,]
     if(data[2]):
         #firstPass=True
         for d in data[2]:
@@ -790,18 +796,21 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
             #firstPass=False
             #print(d.legEntry(), round(simpleSig(h, hMC),2))
             # h.SetLineStyle(ROOT.kDashed)
-            h.SetLineStyle(linestyle[linestylenumber%3] )
+            h.SetLineStyle(linestyle[linestylenumber%2] )
             linestylenumber+=1
             h.SetLineWidth(3)
             if showEvent:
                 leg.AddEntry(h, d.legEntry()+", {}".format(sig), "L")
             else:
-                leg.AddEntry(h, d.legEntry(), "L")
+                legsignal.AddEntry(h, d.legEntry(), "L")
+            # else:
+            #     leg.AddEntry(h, d.legEntry(), "L")
             if norm or normBkg:
                 normHisto(h, True)
             h.Draw("hist same")
             history.append(h)
-        
+    # if isN1plots:
+    legsignal.Draw("same") 
     # Setup data histogram
     if(data[0]):
         for d in data[0]:
@@ -828,10 +837,22 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
                 # setupAxes(dummy, 1.2, 1.6, 0.045, 0.045, 0.045, 0.045)
                 ratio = createRatio(datahist,hMC,xTitle)
                 ratio.Draw("EX0P")
+                pad1.cd()
 
 
+  # Print legends in the reverse order along with the bkg contribution 
+    totalOfAllhisto = sum(bkgcontrib)
+    percentOfAllhisto = [(x/totalOfAllhisto)*100 if totalOfAllhisto != 0 else x for x in bkgcontrib  ]
+    print(f"bkghist type {type(bkghist)} \n hMC type - {type(hMC)} ")
+    for histo, label, bkg, percent in zip(reversed(bkghist), reversed(labels), reversed(bkgcontrib), reversed(percentOfAllhisto)):
+            # print(f"working on the legend values - histo - {histo}, labels - {label}, bkgcontrib - {bkg}, percentofAllhisto - {percent:.2f}")
+            if normBkg:
+                leg.AddEntry(histo, f"{label}({percent:.2f}%)", "L")
+            if showEvent:
+                leg.AddEntry(histo, f"{label}({percent:.2f}%)", "F")
+            else:
+                leg.AddEntry(histo, f"{label}", "F")
 
-    
 
     #Draw significance
     significance = ROOT.TLatex()
@@ -857,6 +878,12 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     # vl2.Draw("same")
     # CMS label
     CMS_lumi.writeExtraText = 1
+    print(f"data[0] == {data[0]}")
+    if (data[0] == []):
+        CMS_lumi.extraText = "Simulation" 
+    if isRatio:
+        CMS_lumi.rightalign = 1.058
+
     print(f"hemPeriod = {hemPeriod},  year = {year}")
     # lumi = "59.7"
     if year == "2017":
@@ -898,6 +925,7 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
 
 
 
+
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
     parser.add_option('-b',                 dest='isNormBkg',  action="store_true",                            help="Normalized Background and Signal plots")
@@ -914,12 +942,11 @@ def main():
     scenario = options.scenario
     year = options.year
     hemPeriod = options.hemPeriod
+
     
-
-
     # cutsImportant = ["_pre","_pre_psFilterSig4"]#,"_pre_noHEM"]#,"_qual_2PJ_st_dphimin_nl","_qual_2PJ_st_dphimin_ll"]
     cutsImportant = ["_pre"]#,"_lcr_pre","_pre_0SVJ","_pre_1SVJ","_pre_2PSVJ","_lcr_pre_0SVJ","_lcr_pre_1SVJ","_lcr_pre_2PSVJ"]
-   
+    # cutsImportant = ["_pre__stcut"]#,"_pre__nl","_pre__2jetsAK8","_pre__stcut","_pre__dPhiMin","_pre__metcut","_pre__jetID"]
     
     print(f"cutsImportant - {cutsImportant}")
 
@@ -968,6 +995,14 @@ def main():
     "fjw"
     ]
 
+    N1PlotVariables = {
+        "_pre__nl"         : [["nl",1.0],["nelectrons",1.0],["nmuons",1.0]],
+        "_pre__2jetsAK8"   : [["njetsAK8",2.0]],
+        "_pre__stcut"      : [["ST",1300.0]],
+        "_pre__dPhiMin"    : [["dPhiMinjMETAK8", 1.5]],
+        "_pre__metcut"     : [["MET", 200.0]],
+    }
+
 
     
     # myvars = key : ["xlabel", no. of bins, xmin,xmax, npzinfo, flattenInfo, weightName]
@@ -996,14 +1031,26 @@ def main():
             # plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:], isLogY=False,   manySigs=manySigs, stList=stList, allRocValues=allRocValues)
             # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,isRatio=False)
             plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,year= year, isRatio=True, hemPeriod = hemPeriod, showEvent=False, ispdf=True)
-            # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,year= year, isRatio=True, hemPeriod = hemPeriod)
+            # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,year= year, isRatio=False, hemPeriod = hemPeriod, ispdf=True)
             # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/NormedStacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=True, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
-    # #         # if histName in preVars.keys():
-    # # #             plotSignificance((Data, bgData, sgData), "h_"+histName, details[1], details[0], plotOutDir, cut,                    isLogY=False, reverseCut=preVars[histName], signifValues=signifValues)
+    # # #         # if histName in preVars.keys():
+    # # # #             plotSignificance((Data, bgData, sgData), "h_"+histName, details[1], details[0], plotOutDir, cut,                    isLogY=False, reverseCut=preVars[histName], signifValues=signifValues)
    
-    yieldValues.to_csv("{}/yieldValues.csv".format(plotOutDir))
+    # yieldValues.to_csv("{}/yieldValues.csv".format(plotOutDir))
     # # signifValues.to_csv("{}/signifValues.csv".format(plotOutDir))
     # # allRocValues.to_csv("{}/allRocValues.csv".format(plotOutDir))
+
+    # for cut, histdetails in N1PlotVariables.items():
+    #     makeDirs(plotOutDir,cut,"N1plots")
+    #     allvars = vars()
+    #     for hist in histdetails:
+    #         isNorm = options.isNorm
+    #         histName, cutline = hist
+    #         details = allvars[histName]
+    #         print(f"cutname - {cut}, histName - {histName}, cutline - {cutline}, details - {details}")
+    #         plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/N1plots/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=None, stList=None, yieldValues=yieldValues,year= year, isRatio=False, hemPeriod = hemPeriod, showEvent=False, ispdf=True, isN1plots = True , MakeLineAtBin = cutline)
+            
+    
    
 
 if __name__ == '__main__':

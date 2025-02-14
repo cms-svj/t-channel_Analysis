@@ -14,14 +14,14 @@ extraText   = "Preliminary"
 extraTextFont = 52
 
 lumiTextSize     = 0.6
-lumiTextOffset   = 0.2
+lumiTextOffset   = 0.2 # for vertical offset
 
 cmsTextSize      = 0.75
 cmsTextOffset    = 0.1
 
 relPosX    = 0.045
 relPosY    = 0.035
-relExtraDY = 1.5
+relExtraDY = 1.5 # controls the gap between the CMS and extra text, 
 
 extraOverCmsTextSize  = 0.76
 
@@ -29,6 +29,7 @@ lumi_13TeV = "20.1 fb^{-1}"
 lumi_8TeV  = "19.7 fb^{-1}"
 lumi_7TeV  = "5.1 fb^{-1}"
 lumi_sqrtS = ""
+rightalign = 1.0
 
 drawLogo      = False
 
@@ -100,8 +101,8 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
     latex.SetTextFont(42)
     latex.SetTextAlign(31)
     latex.SetTextSize(lumiTextSize*t)
-
-    latex.DrawLatex(1.058-r,1-t+lumiTextOffset*t,lumiText)
+    
+    latex.DrawLatex(rightalign-r,1-t+lumiTextOffset*t,lumiText)
 
     if( outOfFrame ):
         latex.SetTextFont(cmsTextFont)
