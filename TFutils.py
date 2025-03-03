@@ -24,23 +24,71 @@ def adjustRegionBoundaries(region, xmin, xmax, ymin, ymax):
 
     return xmin, xmax, ymin, ymax
 
-def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin):
-    """Return the dictionary of ABCD histogram for only one svj bin"""
+def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin, isMETbinsCollapsed=True, Metbinning=None):
+    """Return the dictionary of ABCD histograms for one SVJ bin, using TCutG for projections if needed."""
 
-    bkgname = data.fileName.split('_')[1].replace('.root','')
-    hist_dict = {region: ROOT.TH1F(f"h_{bkgname}_{region}",f"h_{bkgname}_{region}", 1,0,1) for region in ['A','B','C','D']}
+    # Extract background name from file
+    bkgname = data.fileName.split('_')[1].replace('.root', '')
+
+    # Initialize an empty dictionary to store histograms
+    hist_dict = {}
+
     SVJ, (dnn, met) = SVJbin
     histName = ABCDhistoVar + maincut + SVJ
-    regions = GetABCDregions(met,dnn)
+    regions = GetABCDregions(met, dnn)  # Get the bin edges for each region
 
-    for region, xmin, xmax, ymin, ymax in regions:   # TODO: this for condition should be written into a function work in all the cases
+    for region, xmin, xmax, ymin, ymax in regions:
+        # Adjust bin boundaries if necessary
         xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
-        hist, histIntegral, integral_error = data.get2DHistoIntegral(histName, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, showEvents=True)
-        print(f"hist integral is - {hist.Integral()} in region - {region} and from the function is  - {histIntegral}, xmin - {xmin}, xmax - {xmax}, ymin - {ymin}, ymax - {ymax}")
-        hist_dict[region].SetBinContent(1, histIntegral)
-        hist_dict[region].SetBinError(1, integral_error)
-        hist_dict[region].Sumw2()
+
+        if isMETbinsCollapsed:
+            # Create a single-bin histogram to store integral value
+            hist_dict[region] = ROOT.TH1F(f"h_{bkgname}_{region}", f"h_{bkgname}_{region}", 1, 0, 1)
+
+            # Compute integral using 2D histogram directly
+            hist, histIntegral, integral_error = data.get2DHistoIntegral(
+                histName, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, showEvents=True
+            )
+
+            print(f"Hist integral in region {region}: {hist.Integral()} | Function integral: {histIntegral} | xmin: {xmin}, xmax: {xmax}, ymin: {ymin}, ymax: {ymax}")
+
+            hist_dict[region].SetBinContent(1, histIntegral)
+            hist_dict[region].SetBinError(1, integral_error)
+            hist_dict[region].Sumw2()
+
+        else:
+            # Ensure MET binning is provided
+            if Metbinning is None:
+                print(f"\033[31mError: Met binning must be provided when isMETbinsCollapsed is False.\033[0m")
+                return None
+
+            print(f"Using MET binning for SVJ bin {SVJ}: {Metbinning}")
+            print(f"The region - {region}, the xmax - {xmax}, xmin - {xmin}, ymax - {ymax}, ymin - {ymin}")
+
+            # Create TCutG for the current region
+            tcutg = ROOT.TCutG(f"TCutG_{region}", 4)
+            tcutg.SetPoint(0, xmin, ymin)
+            tcutg.SetPoint(1, xmin, ymax)
+            tcutg.SetPoint(2, xmax, ymax)
+            tcutg.SetPoint(3, xmax, ymin)
+
+            # Pass TCutG into getXProjection (assuming you modified data.getXProjection to accept a tcutg argument)
+            hist_dict[region] = data.getXProjection(
+                histName,
+                ymin=ymin,
+                ymax=ymax,
+                xmin=xmin,
+                xmax=xmax,
+                rebinx=Metbinning,
+                tcutg=tcutg  # NEW: Apply the TCutG directly
+            )
+
+            if not hist_dict[region]:
+                print(f"\033[31mWarning: No histogram returned for region {region}\033[0m")
+
     return hist_dict
+
+  
 
 def checkIntegralConsistency(data, ABCDhistoVar, maincut, SVJbin):
     """Check if the sum of the integrals of all regions equals the original integral"""
@@ -154,7 +202,7 @@ def GetABCDhist(data, ABCDhistoVar, maincut, SVJbins, isStack=False, merge=False
         return hist_dict
 
 
-def GetABCDhistDict(dataList, ABCDhistoVar, maincut, SVJbins, isStack=False, merge=False,perSVJbin=False):
+def GetABCDhistDict(dataList, ABCDhistoVar, maincut, SVJbins, isStack=False, merge=False,perSVJbin=False,isMETbinsCollapsed = True ,Metbinning=None):
     """
     Returns a dictionary containing A, B, C, D histograms or only merged histograms based on the merge flag.
     
@@ -178,7 +226,7 @@ def GetABCDhistDict(dataList, ABCDhistoVar, maincut, SVJbins, isStack=False, mer
             merged_hist = GetABCDhist(data, ABCDhistoVar, maincut, SVJbins, isStack=isStack, merge=merge)
             ABCDhistDict.update({data: merged_hist})
         elif perSVJbin:
-            histograms = GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbins)
+            histograms = GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbins,isMETbinsCollapsed = isMETbinsCollapsed, Metbinning=Metbinning)
             ABCDhistDict.update({data: [histograms['A'], histograms['B'], histograms['C'], histograms['D']]})
         else:
             histograms = GetABCDhist(data, ABCDhistoVar, maincut, SVJbins, isStack=isStack, merge=False)
