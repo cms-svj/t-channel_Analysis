@@ -10,7 +10,8 @@ from MetAnalysis import GetSVJbins
 import numpy as np
 import os 
 import matplotlib.pyplot as plt
-
+import mplhep as hep
+import matplotlib.gridspec as gridspec
 AddCMSText = True
 # ROOT.TH1.SetDefaultSumw2()
 # ROOT.TH2.SetDefaultSumw2()
@@ -381,9 +382,9 @@ def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin,factor):
         xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
         hist, histIntegral, integral_error = data.get2DHistoIntegral(histName, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, showEvents=True)
         print(f"hist integral is - {hist.Integral()} in region - {region} and from the function is  - {histIntegral}, xmin - {xmin}, xmax - {xmax}, ymin - {ymin}, ymax - {ymax}")
+        hist_dict[region].Sumw2()
         hist_dict[region].SetBinContent(1, histIntegral)
         hist_dict[region].SetBinError(1, integral_error)
-        hist_dict[region].Sumw2()
     return hist_dict
 
 
@@ -392,6 +393,7 @@ def get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,f
     Extracts the ABCD region counts split by the number of SVJ jets for both signal and background.
     """
     counts_by_SVJ = {}
+    error_by_SVJ = {}
     for data_list, label in [(Data,"Data"),(sgData, "Signal"), (bgData, "Background")]:
         for data in data_list:  # Iterate over individual dataset objects
             for svj_bin in SVJBins.items():
@@ -412,8 +414,16 @@ def get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,f
                 N_C = hist_dict['dC'].GetBinContent(1)
                 N_D = hist_dict['dD'].GetBinContent(1)
                 
+                N_A_error = hist_dict['dA'].GetBinError(1)
+                N_B_error = hist_dict['dB'].GetBinError(1)
+                N_C_error = hist_dict['dC'].GetBinError(1)
+                N_D_error = hist_dict['dD'].GetBinError(1)
+                
                 if (bin_label, label) not in counts_by_SVJ:
                     counts_by_SVJ[(bin_label, label)] = (0, 0, 0, 0)
+
+                if (bin_label, label) not in error_by_SVJ:
+                    error_by_SVJ[(bin_label, label)] = (0, 0, 0, 0)
                 
                 counts_by_SVJ[(bin_label, label)] = (
                     counts_by_SVJ[(bin_label, label)][0] + N_A,
@@ -421,219 +431,198 @@ def get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,f
                     counts_by_SVJ[(bin_label, label)][2] + N_C,
                     counts_by_SVJ[(bin_label, label)][3] + N_D,
                 )
+
+                error_by_SVJ[(bin_label, label)] = (
+                    error_by_SVJ[(bin_label, label)][0] + N_A_error,
+                    error_by_SVJ[(bin_label, label)][1] + N_B_error,
+                    error_by_SVJ[(bin_label, label)][2] + N_C_error,
+                    error_by_SVJ[(bin_label, label)][3] + N_D_error,
+                )
+
     
-    return counts_by_SVJ
-
-def compute_ABCD_prediction_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut,factor):
-    
-    SVJBins = GetSVJbins(factor)
-    counts_by_SVJ = get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,factor)
-    #plot_ABCD_results(counts_by_SVJ)
-
-    for (svj_bin, label), (N_A, N_B, N_C, N_D) in counts_by_SVJ.items():
-        print(f'[{label}] A:{N_A} B:{N_B} C:{N_C} D:{N_D}')  # Print with dataset label
-        
-        if N_D is None or N_D <= 0 or np.isnan(N_D):
-            print(f"Warning: N_D is zero or undefined for {label} in SVJ Bin {svj_bin}")
-            N_A_pred = float('nan')
-        else:
-            N_A_pred = (N_B * N_C) / N_D
-        
-        ratio = N_A / N_A_pred if N_A_pred > 0 else float('nan')
-        print(f"[{label}] SVJ Bin: {svj_bin} | Observed A: {N_A}, Predicted A: {N_A_pred}, Ratio: {ratio}")
-        
-    return counts_by_SVJ,N_A,N_A_pred
-
+    return counts_by_SVJ,error_by_SVJ
 
 def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, factors):
+    factor_results = {}  
+    error_results_by_factor = ()
+    # Separate lists for each SVJ category and each component (Data, Signal, Background)
+    obs_0SVJ_data, obs_0SVJ_sig, obs_0SVJ_bg = [], [], []
+    pred_0SVJ_data, pred_0SVJ_sig, pred_0SVJ_bg = [], [], []
 
-    factor_results = {}  # Stores ABCD counts for each factor
-    observed_A = {}
-    predicted_A = {}
-    ratio_A = {}
-    SVJ_labels = ['0SVJ', '1SVJ', '2PSVJ']
+    obs_1SVJ_data, obs_1SVJ_sig, obs_1SVJ_bg = [], [], []
+    pred_1SVJ_data, pred_1SVJ_sig, pred_1SVJ_bg = [], [], []
+
+    obs_2PSVJ_data, obs_2PSVJ_sig, obs_2PSVJ_bg = [], [], []
+    pred_2PSVJ_data, pred_2PSVJ_sig, pred_2PSVJ_bg = [], [], []
 
     for factor in factors:
         print(f"\nProcessing factor: {factor}")
         SVJBins = GetSVJbins(factor)
-        counts_by_SVJ = get_ABCD_counts_by_SVJ(Data, sgData, bgData, ABCDHistoVar, maincut, SVJBins, factor)
+        counts_by_SVJ,error_by_SVJ = get_ABCD_counts_by_SVJ(Data, sgData, bgData, ABCDHistoVar, maincut, SVJBins, factor)
         factor_results[factor] = counts_by_SVJ
-
-        # Initialize for each factor
-        observed_A[factor] = {label: [] for label in SVJ_labels}
-        predicted_A[factor] = {label: [] for label in SVJ_labels}
-        ratio_A[factor] = {label: [] for label in SVJ_labels}
-
+            
         for (svj_bin, label), (N_A, N_B, N_C, N_D) in counts_by_SVJ.items():
-            svj_label = label.split('_')[0]  # Extract the SVJ category from the label
+            print(svj_bin)
 
-            if svj_label in SVJ_labels:  # Ensure valid SVJ label
-                N_A_pred = (N_B * N_C) / N_D if N_D > 0 else float('nan')
-                ratio = N_A / N_A_pred if N_A_pred > 0 else float('nan')
+            # Determine which SVJ category this bin belongs to
+            if "0SVJ" in svj_bin:
+                obs_data, obs_sig, obs_bg = obs_0SVJ_data, obs_0SVJ_sig, obs_0SVJ_bg
+                pred_data, pred_sig, pred_bg = pred_0SVJ_data, pred_0SVJ_sig, pred_0SVJ_bg
+            elif "1SVJ" in svj_bin:
+                obs_data, obs_sig, obs_bg = obs_1SVJ_data, obs_1SVJ_sig, obs_1SVJ_bg
+                pred_data, pred_sig, pred_bg = pred_1SVJ_data, pred_1SVJ_sig, pred_1SVJ_bg
+            elif "2PSVJ" in svj_bin:
+                obs_data, obs_sig, obs_bg = obs_2PSVJ_data, obs_2PSVJ_sig, obs_2PSVJ_bg
+                pred_data, pred_sig, pred_bg = pred_2PSVJ_data, pred_2PSVJ_sig, pred_2PSVJ_bg
+            else:
+                print(f"Warning: No valid SVJ label found for {label}")
+                continue  # Skip if no valid SVJ label is found
 
-                observed_A[factor][svj_label].append(N_A)
-                predicted_A[factor][svj_label].append(N_A_pred)
-                ratio_A[factor][svj_label].append(ratio)
+            # Compute predicted A
+            N_A_pred = (N_B * N_C) / N_D if N_D > 0 else float('nan')
 
-                print(f"[{label}] Factor: {factor}, SVJ Bin: {svj_bin} | Observed A: {N_A}, Predicted A: {N_A_pred}, Ratio: {ratio}")
+            # Identify whether this entry belongs to Data, Signal, or Background
+            if "Data" in label:
+                obs_data.append(N_A)
+                pred_data.append(N_A_pred)
+            elif "Signal" in label:
+                obs_sig.append(N_A)
+                pred_sig.append(N_A_pred)
+            elif "Background" in label:
+                obs_bg.append(N_A)
+                pred_bg.append(N_A_pred)
 
-    return factor_results, observed_A, predicted_A, ratio_A
+            print(f"[{label}] Factor: {factor}, SVJ Bin: {svj_bin} | Observed A: {N_A}, Predicted A: {N_A_pred}")
+            print(f"0SVJ obs len: {len(obs_0SVJ_data)}, 1SVJ obs len: {len(obs_1SVJ_data)}, 2PSVJ obs len: {len(obs_2PSVJ_data)}")
 
+    return (
+        factor_results,
+        obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
+        obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
+        obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg
+    )
 
-
-def plot_ABCD_ratios(factor_results, observed_A, predicted_A, factors, SVJBins, output_dir):
+def plot_ABCD_ratios(
+        year,
+        factor_results, 
+        obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
+        obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
+        obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
+        factors, output_dir):
     """
-    Plots the ratio of observed to predicted A values for each SVJ type separately.
-
-    Args:
-        observed_A (dict): Observed A values {factor: {svj_type: [A_0SVJ, A_1SVJ, A_2PSVJ]}}
-        predicted_A (dict): Predicted A values {factor: {svj_type: [A_pred_0SVJ, A_pred_1SVJ, A_pred_2PSVJ]}}
-        factors (list): List of scaling factors.
-        SVJBins (dict): Dictionary of SVJ bins.
-        output_dir (str): Directory where plots will be saved.
+    Plots the ratio of observed to predicted A values for each SVJ type and SCJ category separately,
+    and adds a subplot showing the difference between Data Ratio and Background Ratio with a rectangular bottom plot.
     """
 
-    SVJ_labels = list(SVJBins.keys())  # Extract SVJ types ["0SVJ", "1SVJ", "2PSVJ"]
-    print('SVJ_labels:', SVJ_labels)
-    colors = ['b', 'r', 'g']  # Assign colors to SVJ types
-    
-    for i, svj_type in enumerate(SVJ_labels):
-        #svj_type = SVJ_labels[2]
-        print(f"Processing {svj_type}...")
-        # Initialize the lists to hold the ratios for each factor
-        Data_ratios = []
-        Background_ratios = []
-        SignalMC_ratios = []
-        Ratio_Diff = []
-        SignalvsBackgroundMC_Ratio = []
-        Signal_cotamination = [] 
+    # Define x-axis values
+    #values = 0.5 / np.array(factors)
+    values = 350 / np.array(factors)
 
-        for factor in factors:
-            # Calculate ratios for each factor and SVJ type combination
-            
-            dataobsA = observed_A.get(factor, {}).get(svj_type, [0])[0]
-            datapredA = predicted_A.get(factor, {}).get(svj_type, [0])[0]
-            data_ratio = dataobsA / datapredA if datapredA > 0 else float('nan') #0 index is data
-            
-            sigobsA = observed_A.get(factor, {}).get(svj_type, [0])[1]
-            sigpredA = predicted_A.get(factor, {}).get(svj_type,[0])[1]
-            signalmc_ratio = sigobsA /sigpredA if sigpredA > 0 else float('nan') #1 index sigMC
+    # Compute ratios safely
+    def compute_ratio(obs, pred):
+        obs = np.array(obs) 
+        pred = np.array(pred)  
 
-            bckgobsA = observed_A.get(factor, {}).get(svj_type, [0])[2]
-            bckgpredA =  predicted_A.get(factor, {}).get(svj_type, [0])[2]
-            background_ratio = bckgobsA / bckgpredA if bckgpredA > 0 else float('nan') #2index is bggMC
-            
+        obs_err = np.sqrt(obs)
+        pred_err = np.sqrt(pred)
 
+        """Avoid division by zero errors"""
+        ratio =  np.where(pred > 0, obs / pred, float('nan'))
+        nonclosure = np.ones_like(ratio)-np.reciprocal(ratio)
+
+        ratio_err = np.where(
+        (obs > 0) & (pred > 0),
+        ratio * np.sqrt((obs_err / obs) ** 2 + (pred_err / pred) ** 2),
+        float('nan')
+        )
+        #data weight of 1 
+        #MC weight of 
+        # Propagate errors for nonclosure
+        nonclosure_err = np.abs(np.reciprocal(ratio**2)) * ratio_err
+        return nonclosure,nonclosure_err
+
+    # Compute non-closure and errors for each category
+    ratio_0SVJ_data, errbars_0SVJ_data = compute_ratio(obs_0SVJ_data, pred_0SVJ_data)
+    ratio_0SVJ_bg, errbars_0SVJ_bg = compute_ratio(obs_0SVJ_bg, pred_0SVJ_bg)
+    ratio_0SVJ_sig, errbars_0SVJ_sig = compute_ratio(obs_0SVJ_sig, pred_0SVJ_sig)
+
+    ratio_1SVJ_data, errbars_1SVJ_data = compute_ratio(obs_1SVJ_data, pred_1SVJ_data)
+    ratio_1SVJ_bg, errbars_1SVJ_bg = compute_ratio(obs_1SVJ_bg, pred_1SVJ_bg)
+    ratio_1SVJ_sig, errbars_1SVJ_sig = compute_ratio(obs_1SVJ_sig, pred_1SVJ_sig)
+
+    ratio_2PSVJ_data, errbars_2PSVJ_data = compute_ratio(obs_2PSVJ_data, pred_2PSVJ_data)
+    ratio_2PSVJ_bg, errbars_2PSVJ_bg = compute_ratio(obs_2PSVJ_bg, pred_2PSVJ_bg)
+    ratio_2PSVJ_sig, errbars_2PSVJ_sig = compute_ratio(obs_2PSVJ_sig, pred_2PSVJ_sig)
+
+    # Compute Data Ratio - Background Ratio
+    diff_0SVJ_data_bg = ratio_0SVJ_data - ratio_0SVJ_bg
+    diff_1SVJ_data_bg = ratio_1SVJ_data - ratio_1SVJ_bg
+    diff_2PSVJ_data_bg = ratio_2PSVJ_data - ratio_2PSVJ_bg
+
+    # Function to plot and save the main plot and the difference plot
+    def plot_and_save(x_values,non_closures,nonclosure_err, diff_ratios, labels, colors, filename):
+        plt.figure(figsize=(15, 12))  # Increase figure size to make room for the rectangular bottom plot
         
+        # Create a gridspec for controlling subplot layout
+        gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1])  # Top plot takes 2/3 of the space, bottom plot 1/3
 
-            totalMC = sigobsA+dataobsA
-            Sigcontamination = sigobsA/totalMC
+        # Plot the main ratio plot (top subplot)
+        ax0 = plt.subplot(gs[0])  # Top subplot
+        for non_closure, error, label, color in zip(non_closures, nonclosure_err, labels, colors):
+            if len(non_closure) > 0:  # Avoid empty plots
+                ax0.errorbar(x_values, non_closure, yerr=error, fmt='o', color=color, label=label, capsize=5)
 
-            # Append the ratios to the lists
-            Data_ratios.append(data_ratio)
-            Background_ratios.append(background_ratio)
-            SignalMC_ratios.append(signalmc_ratio)
-            Signal_cotamination.append(Sigcontamination)
+        hep.cms.label(rlabel="")
 
-        # Calculate the differences between signal/background and data/simulation
-        Ratio_Diff = np.array(Data_ratios) - np.array(Background_ratios)
-        SignalvsBackgroundMC_Ratio = np.array(SignalMC_ratios) - np.array(Background_ratios)
+        ax0.set_xlabel("Boundary Value")
+        ax0.set_ylabel("Non-Closure")
+        ax0.set_title(f'Control Region Non Closure split by DNN (VR II) {year}', fontsize=15.5)
+        ax0.legend()
+        ax0.grid(True)
+
+        # Plot the difference plot (bottom subplot)
+        ax1 = plt.subplot(gs[1])  # Bottom subplot
+        for diff_ratio, label, color in zip(diff_ratios, labels, colors):
+            if len(diff_ratio) > 0:  # Avoid empty plots
+                ax1.scatter(x_values, diff_ratio, marker='o', color=color, label=label)
+                ax1.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='red', linewidth=2)
         
-        print('background_ratio',Background_ratios)
-        print(len(Background_ratios))
-        print('Signal_cotamination',Signal_cotamination)
-        print(len(Signal_cotamination))
-        values = 0.5 / np.array(factors)
-        #################### UNDOING THIS WILLL UNBLIND THE THE ANALYSIS ####################
-        
-        print('data_ratio',Data_ratios)
-        # Plot the ratios for each SVJ type
-        plt.figure(figsize=(10, 7))
-        values = 0.5 / np.array(factors)
-        plt.scatter(values, Data_ratios, marker='o', linestyle='-', color=colors[i], label=f"Data {svj_type}")
-        plt.scatter(values, Background_ratios, marker='x', linestyle='-', color=colors[i], label=f"Background Sim {svj_type}")
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Observed A / Predicted A")
-        plt.legend()
-        plt.grid(True)
+        ax1.set_xlabel("Boundary Value")
+        ax1.set_ylabel("Data - Background Sim ")
+        ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=16)
+        ax1.legend()
+        ax1.grid(True)
 
-        # Save plot
-        plot_filename = os.path.join(output_dir, f"NonCloser_{svj_type}.jpg")
-        plt.savefig(plot_filename, dpi=300)
+        # Save the plot
+        plt.tight_layout()  # Adjust layout to prevent overlap
+        plt.savefig(os.path.join(output_dir, filename), dpi=300)
         plt.close()
-        print(f"Saved plot: {plot_filename}")
 
-        # Plot the difference between Data and Simulation ratios
-        plt.figure(figsize=(10, 5))
-        plt.scatter(values, Ratio_Diff, marker='o', linestyle='-', color=colors[i], label=f"Data - Sim")
-        plt.plot(values, np.array([0] * len(values)), linestyle='--', color='r')
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Observed A / Predicted A")
-        plt.legend()
-        plt.grid(True)
+    plot_and_save(values, 
+                [ratio_0SVJ_data, ratio_0SVJ_bg],
+                [errbars_0SVJ_data, errbars_0SVJ_bg],
+                [diff_0SVJ_data_bg], 
+                ["Data 0SVJ", "Background MC 0SVJ"], 
+                ["b", "r"], 
+                "Ratio_Data_0SVJ.jpg")
 
-        # Save plot
-        plot_filename = os.path.join(output_dir, f"Data-Sim_{svj_type}.jpg")
-        plt.savefig(plot_filename, dpi=300)
-        plt.close()
-        print(f"Saved plot: {plot_filename}")
+    plot_and_save(values, 
+                [ratio_1SVJ_data, ratio_1SVJ_bg],
+                [errbars_1SVJ_data, errbars_1SVJ_bg],
+                [diff_1SVJ_data_bg], 
+                ["Data 1SVJ", "Background MC 1SVJ"], 
+                ["b", "r"], 
+                "Ratio_Data_1SVJ.jpg")
 
+    plot_and_save(values, 
+                [ratio_2PSVJ_data, ratio_2PSVJ_bg],
+                [errbars_2PSVJ_data, errbars_2PSVJ_bg],
+                [diff_2PSVJ_data_bg], 
+                ["Data 2SVJ", "Background MC 2SVJ"], 
+                ["b", "r"], 
+                "Ratio_Data_2PSVJ.jpg")
 
-
-
-
-        plt.figure(figsize=(10, 5))
-        plt.scatter(values, Signal_cotamination, marker='o', linestyle='-', color=colors[i], label=f"Signal Contamination")
-        plt.plot(values, np.array([0] * len(values)), linestyle='--', color='r')
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Observed Signal / Total MC")
-        plt.legend()
-        plt.grid(True)
-
-        # Save plot
-        plot_filename = os.path.join(output_dir, f"Signal_Contamination{svj_type}.jpg")
-        plt.savefig(plot_filename, dpi=300)
-        plt.close()
-        print(f"Saved plot: {plot_filename}")
-
-
-
-
-        ####### MC ######
-        # Plot the Signal vs Background ratios
-        plt.figure(figsize=(10, 7))
-        plt.scatter(values, SignalMC_ratios, marker='o', linestyle='-', color=colors[i], label=f"Signal Sim {svj_type}")
-        plt.scatter(values, Background_ratios, marker='x', linestyle='-', color=colors[i], label=f"Background Sim {svj_type}")
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Observed A / Predicted A")
-        plt.legend()
-        plt.grid(True)
-
-        # Save plot
-        plot_filename = os.path.join(output_dir, f"SignalvsBackgroundMC_{svj_type}.jpg")
-        plt.savefig(plot_filename, dpi=300)
-        plt.close()
-        print(f"Saved plot: {plot_filename}")
-
-        # Plot the difference between Signal and Background ratios
-        plt.figure(figsize=(10, 5))
-        plt.scatter(values, Ratio_Diff, marker='o', linestyle='-', color=colors[i], label=f"Signal - Background")
-        plt.plot(values, np.array([0] * len(values)), linestyle='--', color='r')
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Observed A / Predicted A")
-        plt.legend()
-        plt.grid(True)
-
-        # Save plot
-        plot_filename = os.path.join(output_dir, f"Signal-Background_MC_{svj_type}.jpg")
-        plt.savefig(plot_filename, dpi=300)
-        plt.close()
-        print(f"Saved plot: {plot_filename}")
-
-
-   
-
-
+    print(f'Boundary Values {values[::-1]}')
 
 
 def main():
@@ -651,11 +640,11 @@ def main():
     ABCDhistoVars = ["METvsDNN"]
     ABCDFolderName = "ABCD"
     SRCut = "_pre_"
-    CRCuts = ["_lcr_pre_"]#,"_cr_muon_","_cr_electron_"]
+    #CRCuts = ["_lcr_pre_"]#,"_cr_muon_","_cr_electron_"]
     
     #DataCut = "_pre_"                                                               
-    #CRCuts = ["data/MC"]         
-    maincuts = [SRCut] + CRCuts
+    CRCuts = ["data/MC"]         
+    maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
     signal_factors = np.linspace(1/2, 1, 20)
@@ -674,11 +663,17 @@ def main():
             os.makedirs(output_dir)
     '''
     output_dir = 'Noncloser/ControlRegion'
-    factor_results, observed_A, predicted_A, ratio_A = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_", factors)
+    factor_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_", factors)
     #print('factor_results ',factor_results)
-    print('observed_A',observed_A)
+    #print('observed_A',observed_A)
     #print('ratio_A',ratio_A)
-    plot_ABCD_ratios(factor_results,observed_A, predicted_A, factors, GetSVJbins(factors[0]),output_dir)
+    plot_ABCD_ratios(
+        year,
+        factor_results, 
+        obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
+        obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
+        obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
+        factors, output_dir)
  
 
 if __name__ == '__main__':
