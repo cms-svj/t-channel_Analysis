@@ -14,7 +14,9 @@ parser.add_argument("--maxJobs",            type=int, default=50, help="Maximum 
 parser.add_argument("--chunkSize",          type=int, default=1000, help='Chunk size.')
 parser.add_argument("--submissionMode",     type=int, default=1, help="0 = submit jobs without mixing different samples together, 1 = submit jobs while mixing samples together (faster since lower number of submissions)")
 parser.add_argument("--outHistF",           type=str, default="output/QCD_cl0p02_net64", help="Location to save all the output histograms")
-parser.add_argument("--eTagName",           type=str, default="sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn", help="Name of the event classifier.")
+#parser.add_argument("--eTagName",           type=str, default="sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn", help="Name of the event classifier.")
+#setting it to normal DNN
+parser.add_argument("--eTagName",           type=str, default="sdt_allBkgs_disco_0p001_closure_0p06_damp_1_net_64_32_16_8_trainingAllYears_eval2016", help="Name of the event classifier.")
 parser.add_argument("--skimSource",         action="store_true", help="Use skims instead of TreeMaker ntuples. (under development)")
 parser.add_argument("--runSignalLocal",     action="store_true", help="Run over signals locally. Slow, but more stable than running on condor.")
 parser.add_argument("--printOnly",          action="store_true", help="Print the commands without running them.")
@@ -45,22 +47,22 @@ hemStudy = args.hemStudy
 hemPeriod = args.hemPeriod
 trgEffStudy = args.trgEffStudy
 listOfSampleGroupsToRun = [
-                        # "2016APV_Data",
-                        # "2016_Data",
-                        # "2016_QCD",
-                        # "2016_SVJ_t",
-                        # "2016_ST",
-                        # "2016_TTJets",
-                        # "2016_WJets",
-                        # "2016_ZJets",
-                        # "2017_Data",
-                        # "2017_QCD",
-                        # "2017_SVJ_t",
-                        # "2017_ST",
-                        # "2017_TTJets",
-                        # "2017_WJets",
-                        # "2017_ZJets",
-                        # "2018_Data",
+                        #"2016APV_Data",
+                        "2016_Data",
+                        "2016_QCD",
+                        "2016_SVJ_t",
+                        "2016_ST",
+                        "2016_TTJets",
+                        "2016_WJets",
+                        "2016_ZJets",
+                        "2017_Data",
+                        "2017_QCD",
+                        "2017_SVJ_t",
+                        "2017_ST",
+                        "2017_TTJets",
+                        "2017_WJets",
+                        "2017_ZJets",
+                        "2018_Data",
                         "2018_QCD",
                         "2018_SVJ_t",
                         "2018_ST",
