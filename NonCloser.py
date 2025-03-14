@@ -12,6 +12,7 @@ import os
 import matplotlib.pyplot as plt
 import mplhep as hep
 import matplotlib.gridspec as gridspec
+from matplotlib.ticker import MultipleLocator
 AddCMSText = True
 # ROOT.TH1.SetDefaultSumw2()
 # ROOT.TH2.SetDefaultSumw2()
@@ -455,51 +456,79 @@ def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, factors
     obs_2PSVJ_data, obs_2PSVJ_sig, obs_2PSVJ_bg = [], [], []
     pred_2PSVJ_data, pred_2PSVJ_sig, pred_2PSVJ_bg = [], [], []
 
+    obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg = [], [], []
+    prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg = [], [], []
+
+    obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg = [], [], []
+    prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg = [], [], []
+
+    obserr_2PSVJ_data, obserr_2PSVJ_sig, obserr_2PSVJ_bg = [], [], []
+    prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = [], [], []
+
     for factor in factors:
         print(f"\nProcessing factor: {factor}")
         SVJBins = GetSVJbins(factor)
         counts_by_SVJ,error_by_SVJ = get_ABCD_counts_by_SVJ(Data, sgData, bgData, ABCDHistoVar, maincut, SVJBins, factor)
         factor_results[factor] = counts_by_SVJ
             
-        for (svj_bin, label), (N_A, N_B, N_C, N_D) in counts_by_SVJ.items():
+        for ((svj_bin, label), (N_A, N_B, N_C, N_D)), ((_, _), (NA_err, NB_err, NC_err, ND_err)) in zip(counts_by_SVJ.items(), error_by_SVJ.items()):
             print(svj_bin)
 
             # Determine which SVJ category this bin belongs to
             if "0SVJ" in svj_bin:
                 obs_data, obs_sig, obs_bg = obs_0SVJ_data, obs_0SVJ_sig, obs_0SVJ_bg
                 pred_data, pred_sig, pred_bg = pred_0SVJ_data, pred_0SVJ_sig, pred_0SVJ_bg
+                obs_dataerr, obs_sigerr, obs_bgerr = obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg
+                pred_dataerr, pred_sigerr, pred_bgerr = prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg
             elif "1SVJ" in svj_bin:
                 obs_data, obs_sig, obs_bg = obs_1SVJ_data, obs_1SVJ_sig, obs_1SVJ_bg
                 pred_data, pred_sig, pred_bg = pred_1SVJ_data, pred_1SVJ_sig, pred_1SVJ_bg
+                obs_dataerr, obs_sigerr, obs_bgerr = obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg
+                pred_dataerr, pred_sigerr, pred_bgerr = prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg
             elif "2PSVJ" in svj_bin:
                 obs_data, obs_sig, obs_bg = obs_2PSVJ_data, obs_2PSVJ_sig, obs_2PSVJ_bg
                 pred_data, pred_sig, pred_bg = pred_2PSVJ_data, pred_2PSVJ_sig, pred_2PSVJ_bg
+                obs_dataerr, obs_sigerr, obs_bgerr = obserr_2PSVJ_data, obserr_2PSVJ_sig, obserr_2PSVJ_bg
+                pred_dataerr, pred_sigerr, pred_bgerr = prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg
             else:
                 print(f"Warning: No valid SVJ label found for {label}")
                 continue  # Skip if no valid SVJ label is found
 
             # Compute predicted A
             N_A_pred = (N_B * N_C) / N_D if N_D > 0 else float('nan')
-
+            relative_error = np.sqrt((NB_err / N_B) ** 2 + (NC_err / N_C) ** 2 + (ND_err / N_D) ** 2)
+            NA_pred_err = N_A_pred * relative_error
+            
             # Identify whether this entry belongs to Data, Signal, or Background
             if "Data" in label:
                 obs_data.append(N_A)
                 pred_data.append(N_A_pred)
+                obs_dataerr.append(NA_err)
+                pred_dataerr.append(NA_pred_err)
             elif "Signal" in label:
                 obs_sig.append(N_A)
                 pred_sig.append(N_A_pred)
+                obs_sigerr.append(NA_err)
+                pred_sigerr.append(NA_pred_err)
             elif "Background" in label:
                 obs_bg.append(N_A)
                 pred_bg.append(N_A_pred)
+                obs_bgerr.append(NA_err)
+                pred_bgerr.append(NA_pred_err)
 
-            print(f"[{label}] Factor: {factor}, SVJ Bin: {svj_bin} | Observed A: {N_A}, Predicted A: {N_A_pred}")
-            print(f"0SVJ obs len: {len(obs_0SVJ_data)}, 1SVJ obs len: {len(obs_1SVJ_data)}, 2PSVJ obs len: {len(obs_2PSVJ_data)}")
+            print(f"[{label}] Factor: {factor}, SVJ Bin: {svj_bin} | Observed A: {N_A},Observed ERR A: {NA_err},Predicted A: {N_A_pred}, Predicted Err {NA_pred_err}")
+            #print(f"0SVJ obs len: {len(obs_0SVJ_data)}, 1SVJ obs len: {len(obs_1SVJ_data)}, 2PSVJ obs len: {len(obs_2PSVJ_data)}")
 
     return (
         factor_results,
         obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
         obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
-        obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg
+        obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
+        obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,
+        obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,
+        obserr_2PSVJ_data, obserr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg
+
+
     )
 
 def plot_ABCD_ratios(
@@ -508,6 +537,9 @@ def plot_ABCD_ratios(
         obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
         obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
         obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
+        obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,
+        obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,
+        obserr_2PSVJ_data, obserr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg,
         factors, output_dir):
     """
     Plots the ratio of observed to predicted A values for each SVJ type and SCJ category separately,
@@ -515,52 +547,49 @@ def plot_ABCD_ratios(
     """
 
     # Define x-axis values
-    #values = 0.5 / np.array(factors)
-    values = 350 / np.array(factors)
+    values = 0.5 / np.array(factors)
+    #values = 350 / np.array(factors)
 
     # Compute ratios safely
-    def compute_ratio(obs, pred):
+    def compute_ratio(obs,obs_err,pred,pred_err):
         obs = np.array(obs) 
         pred = np.array(pred)  
-
-        obs_err = np.sqrt(obs)
-        pred_err = np.sqrt(pred)
+        obs_err = np.array(obs_err)
+        pred_err = np.array(pred_err)
 
         """Avoid division by zero errors"""
         ratio =  np.where(pred > 0, obs / pred, float('nan'))
         nonclosure = np.ones_like(ratio)-np.reciprocal(ratio)
 
-        ratio_err = np.where(
-        (obs > 0) & (pred > 0),
-        ratio * np.sqrt((obs_err / obs) ** 2 + (pred_err / pred) ** 2),
-        float('nan')
-        )
-        #data weight of 1 
-        #MC weight of 
-        # Propagate errors for nonclosure
-        nonclosure_err = np.abs(np.reciprocal(ratio**2)) * ratio_err
+        ratio_err = np.where(pred > 0, ratio * np.sqrt((obs_err / obs) ** 2 + (pred_err / pred) ** 2), float('nan'))
+        nonclosure_err = (1 / ratio ** 2) * ratio_err
+        #nonclosure_err = ratio_err
         return nonclosure,nonclosure_err
 
     # Compute non-closure and errors for each category
-    ratio_0SVJ_data, errbars_0SVJ_data = compute_ratio(obs_0SVJ_data, pred_0SVJ_data)
-    ratio_0SVJ_bg, errbars_0SVJ_bg = compute_ratio(obs_0SVJ_bg, pred_0SVJ_bg)
-    ratio_0SVJ_sig, errbars_0SVJ_sig = compute_ratio(obs_0SVJ_sig, pred_0SVJ_sig)
+    ratio_0SVJ_data, errbars_0SVJ_data = compute_ratio(obs_0SVJ_data,obserr_0SVJ_data, pred_0SVJ_data,prederr_0SVJ_data)
+    ratio_0SVJ_bg, errbars_0SVJ_bg = compute_ratio(obs_0SVJ_bg,obserr_0SVJ_bg, pred_0SVJ_bg,prederr_0SVJ_bg)
+    ratio_0SVJ_sig, errbars_0SVJ_sig = compute_ratio(obs_0SVJ_sig,obserr_0SVJ_sig,prederr_0SVJ_sig ,pred_0SVJ_sig)
 
-    ratio_1SVJ_data, errbars_1SVJ_data = compute_ratio(obs_1SVJ_data, pred_1SVJ_data)
-    ratio_1SVJ_bg, errbars_1SVJ_bg = compute_ratio(obs_1SVJ_bg, pred_1SVJ_bg)
-    ratio_1SVJ_sig, errbars_1SVJ_sig = compute_ratio(obs_1SVJ_sig, pred_1SVJ_sig)
+    ratio_1SVJ_data, errbars_1SVJ_data = compute_ratio(obs_1SVJ_data,obserr_1SVJ_data, pred_1SVJ_data,prederr_1SVJ_data)
+    ratio_1SVJ_bg, errbars_1SVJ_bg = compute_ratio(obs_1SVJ_bg,obserr_1SVJ_bg, pred_1SVJ_bg,prederr_1SVJ_bg)
+    ratio_1SVJ_sig, errbars_1SVJ_sig = compute_ratio(obs_1SVJ_sig,obserr_1SVJ_sig,prederr_1SVJ_sig ,pred_1SVJ_sig)
 
-    ratio_2PSVJ_data, errbars_2PSVJ_data = compute_ratio(obs_2PSVJ_data, pred_2PSVJ_data)
-    ratio_2PSVJ_bg, errbars_2PSVJ_bg = compute_ratio(obs_2PSVJ_bg, pred_2PSVJ_bg)
-    ratio_2PSVJ_sig, errbars_2PSVJ_sig = compute_ratio(obs_2PSVJ_sig, pred_2PSVJ_sig)
+    ratio_2PSVJ_data, errbars_2PSVJ_data = compute_ratio(obs_2PSVJ_data,obserr_2PSVJ_data, pred_2PSVJ_data,prederr_2PSVJ_data)
+    ratio_2PSVJ_bg, errbars_2PSVJ_bg = compute_ratio(obs_2PSVJ_bg,obserr_2PSVJ_bg, pred_2PSVJ_bg,prederr_2PSVJ_bg)
+    ratio_2PSVJ_sig, errbars_2PSVJ_sig = compute_ratio(obs_2PSVJ_sig,obserr_2PSVJ_sig,prederr_2PSVJ_sig ,pred_2PSVJ_sig)
 
     # Compute Data Ratio - Background Ratio
     diff_0SVJ_data_bg = ratio_0SVJ_data - ratio_0SVJ_bg
     diff_1SVJ_data_bg = ratio_1SVJ_data - ratio_1SVJ_bg
     diff_2PSVJ_data_bg = ratio_2PSVJ_data - ratio_2PSVJ_bg
+    
+    errbars_0SVJ_diff = np.sqrt(errbars_0SVJ_data**2 + errbars_0SVJ_bg**2)
+    errbars_1SVJ_diff = np.sqrt(errbars_1SVJ_data**2 + errbars_1SVJ_bg**2)
+    errbars_2PSVJ_diff = np.sqrt(errbars_2PSVJ_data**2 + errbars_2PSVJ_bg**2)
 
     # Function to plot and save the main plot and the difference plot
-    def plot_and_save(x_values,non_closures,nonclosure_err, diff_ratios, labels, colors, filename):
+    def plot_and_save(x_values,non_closures,nonclosure_err, diff_ratios,diff_error, labels, colors, filename):
         plt.figure(figsize=(15, 12))  # Increase figure size to make room for the rectangular bottom plot
         
         # Create a gridspec for controlling subplot layout
@@ -571,7 +600,8 @@ def plot_ABCD_ratios(
         for non_closure, error, label, color in zip(non_closures, nonclosure_err, labels, colors):
             if len(non_closure) > 0:  # Avoid empty plots
                 ax0.errorbar(x_values, non_closure, yerr=error, fmt='o', color=color, label=label, capsize=5)
-
+                ax0.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
+                
         hep.cms.label(rlabel="")
 
         ax0.set_xlabel("Boundary Value")
@@ -582,9 +612,10 @@ def plot_ABCD_ratios(
 
         # Plot the difference plot (bottom subplot)
         ax1 = plt.subplot(gs[1])  # Bottom subplot
-        for diff_ratio, label, color in zip(diff_ratios, labels, colors):
+        for diff_ratio,error, label, color in zip(diff_ratios,diff_error,labels, colors):
             if len(diff_ratio) > 0:  # Avoid empty plots
-                ax1.scatter(x_values, diff_ratio, marker='o', color=color, label=label)
+                #ax1.scatter(x_values, diff_ratio, marker='o', color=color, label=label)
+                ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color=color, label=label,capsize=5)
                 ax1.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='red', linewidth=2)
         
         ax1.set_xlabel("Boundary Value")
@@ -593,6 +624,18 @@ def plot_ABCD_ratios(
         ax1.legend()
         ax1.grid(True)
 
+        for ax in [ax0, ax1]:
+            for spine in ax.spines.values():
+                spine.set_linewidth(2)  # Make borders bold
+
+        ax0.yaxis.set_major_locator(MultipleLocator(0.1))  # Major ticks
+        ax0.yaxis.set_minor_locator(MultipleLocator(0.05))  # Minor ticks
+
+        ax1.yaxis.set_major_locator(MultipleLocator(0.1))
+        ax1.yaxis.set_minor_locator(MultipleLocator(0.05))
+
+        ax0.grid(True, which='both', linestyle='--', linewidth=0.5)
+        ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
         # Save the plot
         plt.tight_layout()  # Adjust layout to prevent overlap
         plt.savefig(os.path.join(output_dir, filename), dpi=300)
@@ -601,7 +644,7 @@ def plot_ABCD_ratios(
     plot_and_save(values, 
                 [ratio_0SVJ_data, ratio_0SVJ_bg],
                 [errbars_0SVJ_data, errbars_0SVJ_bg],
-                [diff_0SVJ_data_bg], 
+                [diff_0SVJ_data_bg],[errbars_0SVJ_diff], 
                 ["Data 0SVJ", "Background MC 0SVJ"], 
                 ["b", "r"], 
                 "Ratio_Data_0SVJ.jpg")
@@ -609,18 +652,19 @@ def plot_ABCD_ratios(
     plot_and_save(values, 
                 [ratio_1SVJ_data, ratio_1SVJ_bg],
                 [errbars_1SVJ_data, errbars_1SVJ_bg],
-                [diff_1SVJ_data_bg], 
+                [diff_1SVJ_data_bg],[errbars_1SVJ_diff], 
                 ["Data 1SVJ", "Background MC 1SVJ"], 
                 ["b", "r"], 
                 "Ratio_Data_1SVJ.jpg")
-
+    print(f"data {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
     plot_and_save(values, 
                 [ratio_2PSVJ_data, ratio_2PSVJ_bg],
                 [errbars_2PSVJ_data, errbars_2PSVJ_bg],
-                [diff_2PSVJ_data_bg], 
+                [diff_2PSVJ_data_bg],[errbars_2PSVJ_diff], 
                 ["Data 2SVJ", "Background MC 2SVJ"], 
                 ["b", "r"], 
                 "Ratio_Data_2PSVJ.jpg")
+    
 
     print(f'Boundary Values {values[::-1]}')
 
@@ -662,8 +706,8 @@ def main():
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
     '''
-    output_dir = 'Noncloser/ControlRegion'
-    factor_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_", factors)
+    output_dir = 'Nonclosure/VRII-DNN/ControlRegion/'
+    factor_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_", factors)
     #print('factor_results ',factor_results)
     #print('observed_A',observed_A)
     #print('ratio_A',ratio_A)
@@ -673,6 +717,9 @@ def main():
         obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
         obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
         obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
+        obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,
+        obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,
+        obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg,
         factors, output_dir)
  
 
