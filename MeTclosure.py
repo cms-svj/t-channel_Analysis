@@ -607,6 +607,7 @@ def plot_ABCD_ratios(
         ax0.set_xlabel("Boundary Value")
         ax0.set_ylabel("Non-Closure")
         ax0.set_title(f'Control Region Non Closure split by MET (VR I) {year}', fontsize=15.5)
+        ax0.set_ylim(-0.7, 0.7)
         ax0.legend()
         ax0.grid(True)
 
@@ -621,6 +622,7 @@ def plot_ABCD_ratios(
         ax1.set_xlabel("Boundary Value")
         ax1.set_ylabel("Data - Background Sim ")
         ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=16)
+        ax1.set_ylim(-0.8, 0.8)
         #ax1.legend()
         ax1.grid(True)
 

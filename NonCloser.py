@@ -601,12 +601,13 @@ def plot_ABCD_ratios(
             if len(non_closure) > 0:  # Avoid empty plots
                 ax0.errorbar(x_values, non_closure, yerr=error, fmt='o', color=color, label=label, capsize=5)
                 ax0.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
-                
+
         hep.cms.label(rlabel="")
 
         ax0.set_xlabel("Boundary Value")
         ax0.set_ylabel("Non-Closure")
         ax0.set_title(f'Control Region Non Closure split by DNN (VR II) {year}', fontsize=15.5)
+        ax0.set_ylim(-0.6, 0.6)
         ax0.legend()
         ax0.grid(True)
 
@@ -615,13 +616,14 @@ def plot_ABCD_ratios(
         for diff_ratio,error, label, color in zip(diff_ratios,diff_error,labels, colors):
             if len(diff_ratio) > 0:  # Avoid empty plots
                 #ax1.scatter(x_values, diff_ratio, marker='o', color=color, label=label)
-                ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color=color, label=label,capsize=5)
-                ax1.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='red', linewidth=2)
+                ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color='black', label=label,capsize=5)
+                ax1.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
         
         ax1.set_xlabel("Boundary Value")
         ax1.set_ylabel("Data - Background Sim ")
         ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=16)
-        ax1.legend()
+        ax1.set_ylim(-0.7, 0.7)
+        #ax1.legend()
         ax1.grid(True)
 
         for ax in [ax0, ax1]:

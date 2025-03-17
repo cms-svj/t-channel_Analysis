@@ -606,8 +606,9 @@ def plot_ABCD_ratios(
 
         ax0.set_xlabel("Boundary Value")
         ax0.set_ylabel("Non-Closure")
-        ax0.set_title(f'Control Region Non Closure split by MET (VR I) {year}', fontsize=15.5)
+        ax0.set_title(f'Control Region Non Closure split by MET and DNN (VR III) {year}', fontsize=15.5)
         ax0.legend()
+        ax0.set_ylim(-1.0, 1.0)
         ax0.grid(True)
 
         # Plot the difference plot (bottom subplot)
@@ -615,12 +616,13 @@ def plot_ABCD_ratios(
         for diff_ratio,error, label, color in zip(diff_ratios,diff_error,labels, colors):
             if len(diff_ratio) > 0:  # Avoid empty plots
                 #ax1.scatter(x_values, diff_ratio, marker='o', color=color, label=label)
-                ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color=color, label='data-background',capsize=5)
+                ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color='black', label='data-background',capsize=5)
                 ax1.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
         
         ax1.set_xlabel("Boundary Value")
         ax1.set_ylabel("Data - Background Sim ")
         ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=16)
+        ax1.set_ylim(-1.0, 1.0)
        #ax1.legend()
         ax1.grid(True)
 
@@ -694,7 +696,7 @@ def main():
     signal_factors = np.linspace(1/2, 1, 20)
     #controlregion_factors = [1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.5,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2]
     #controlregion_factors = [1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.5,1.55,1.6]#,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2]
-    controlregion_factors = np.linspace(1.5,1,20)
+    controlregion_factors = np.linspace(1.5,0.5,20)
     factors = controlregion_factors
     '''
     if (factors == signal_factors).all():
