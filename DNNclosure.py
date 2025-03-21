@@ -455,6 +455,31 @@ def plot_ABCD_ratios(
         #nonclosure_err = ratio_err
         return nonclosure,nonclosure_err
 
+    def signalcontamination(sig_obs,sig_obs_err,bckg_obs,bckg_err):
+        sig_obs = np.array(sig_obs) 
+        bckg_obs = np.array(bckg_obs)  
+        sig_obs_err = np.array(sig_obs_err)
+        bckg_err = np.array(bckg_err)
+        MC = sig_obs+bckg_obs
+        MCerr = np.sqrt((sig_obs_err**2)+(bckg_err**2))
+        sigcontam =  np.where(bckg_obs > 0, sig_obs / MC, float('nan'))
+        sigcont_ratio_err = np.where(MC > 0, sigcontam * np.sqrt((sig_obs_err / sig_obs) ** 2 + (MCerr / MC) ** 2), float('nan'))
+        return sigcontam,sigcont_ratio_err
+
+    def plot_signal_contamination(x_values, sig_contam, sig_contam_err, label, filename):
+        hep.cms.label(rlabel="")
+        plt.figure(figsize=(10, 5))
+        plt.errorbar(x_values, sig_contam, yerr=sig_contam_err, fmt='o', color='purple', label=label, capsize=5)
+        plt.axhline(0, linestyle='dashed', color='black', linewidth=2)
+        hep.cms.label(rlabel="")
+        plt.xlabel("Boundary Value")
+        plt.ylabel("Signal Contamination")
+        plt.title(f'Signal Contamination {label} {year}', fontsize=15.5)
+        plt.grid(True)
+        plt.legend()
+        plt.savefig(os.path.join(output_dir, filename), dpi=300)
+        plt.close()
+
     # Compute non-closure and errors for each category
     ratio_0SVJ_data, errbars_0SVJ_data = compute_ratio(obs_0SVJ_data,obserr_0SVJ_data, pred_0SVJ_data,prederr_0SVJ_data)
     ratio_0SVJ_bg, errbars_0SVJ_bg = compute_ratio(obs_0SVJ_bg,obserr_0SVJ_bg, pred_0SVJ_bg,prederr_0SVJ_bg)
@@ -476,6 +501,11 @@ def plot_ABCD_ratios(
     errbars_0SVJ_diff = np.sqrt(errbars_0SVJ_data**2 + errbars_0SVJ_bg**2)
     errbars_1SVJ_diff = np.sqrt(errbars_1SVJ_data**2 + errbars_1SVJ_bg**2)
     errbars_2PSVJ_diff = np.sqrt(errbars_2PSVJ_data**2 + errbars_2PSVJ_bg**2)
+
+    #compute Signal contamination 
+    sig_contam_0SVJ, sig_contam_err_0SVJ = signalcontamination(obs_0SVJ_sig, obserr_0SVJ_sig, obs_0SVJ_bg, obserr_0SVJ_bg)
+    sig_contam_1SVJ, sig_contam_err_1SVJ = signalcontamination(obs_1SVJ_sig, obserr_1SVJ_sig, obs_1SVJ_bg, obserr_1SVJ_bg)
+    sig_contam_2PSVJ, sig_contam_err_2PSVJ = signalcontamination(obs_2PSVJ_sig, obserr_2PSVJ_sig, obs_2PSVJ_bg, obserr_2PSVJ_bg)
 
     # Function to plot and save the main plot and the difference plot
     def plot_and_save(x_values,non_closures,nonclosure_err, diff_ratios,diff_error, labels, colors, filename):
@@ -563,6 +593,11 @@ def plot_ABCD_ratios(
                 "Ratio_Data_2PSVJ.jpg")
     print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
 
+    plot_signal_contamination(values, sig_contam_0SVJ, sig_contam_err_0SVJ, "0SVJ", "signal_contamination_0SVJ.jpg")
+    plot_signal_contamination(values, sig_contam_1SVJ, sig_contam_err_1SVJ, "1SVJ", "signal_contamination_1SVJ.jpg")
+    plot_signal_contamination(values, sig_contam_2PSVJ, sig_contam_err_2PSVJ, "2PSVJ", "signal_contamination_2PSVJ.jpg")
+
+    print(f"Signal Contamination 0SVJ: {sig_contam_0SVJ}")
     #print(f'Boundary Values {values[::-1]}')
     print(f'Boundary Values {values}')
 
