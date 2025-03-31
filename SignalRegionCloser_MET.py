@@ -12,17 +12,29 @@ import os
 import matplotlib.pyplot as plt
 import mplhep as hep
 import matplotlib.gridspec as gridspec
-
+from matplotlib.ticker import MultipleLocator
 AddCMSText = True
+
+
 # ROOT.TH1.SetDefaultSumw2()
 # ROOT.TH2.SetDefaultSumw2()
 
-def GetSVJbins(factor):
-    '''Change the SVJbin edges here'''
+# def GetSVJbins(outer_edge):
+#     '''Change the SVJbin edges here these are the ones for DNN trained on only QCD '''    
+#     SVJbins = {
+#                 "0SVJ" : [0.5,350.0/outer_edge],
+#                 "1SVJ" : [0.56,450.0/outer_edge],
+#                 "2PSVJ" : [0.56,350.0/outer_edge],
+#     }
+#    return SVJbins
+
+
+def GetSVJbins(inner_edge):
+    '''Change the SVJbin edges here these are the ones for DNN trained on all back '''    
     SVJbins = {
-                "0SVJ" : [0.5,350.0/factor],
-                "1SVJ" : [0.56,450.0/factor],
-                "2PSVJ" : [0.56,350.0/factor],
+                "0SVJ" : [0.6,inner_edge],
+                "1SVJ" : [0.6,inner_edge],
+                "2PSVJ" : [0.6,inner_edge],
     }
     return SVJbins
 
@@ -224,67 +236,6 @@ def GetTFhistoAndPlot(ABCDhistDict_SR, ABCDhistDict_CR, SVJBins, xTitle="nSVJ", 
 
     return TFhist, summed_SR, summed_CR
 
-def PlotValidation(TFhist, hist, expected_SR, MC_QCD_ZJets_SR, SVJBins,xTitle="nSVJ", yTitle="Events", xmin=999.9, xmax = -999.9, isLogY = False, year="2018", saveName="Validation", isDataCR=False,hemPeriod=False):
-    '''
-    validation is done by taking the ratio between the SR (Expected) and the Predicted SR.
-    '''
-    ROOT.TH1.AddDirectory(False)
-    predicted_Data_SR = TF.Validation(hist,TFhist, MC_QCD_ZJets_SR)
-    RatioHist = pltutils.RatioHistogram(expected_SR,predicted_Data_SR)
-    c1 = ROOT.TCanvas( "c", "c", 800, 700)
-    c1, pad1, pad2 = pltutils.createCanvasPads(c1,isLogY)
-    pad1.cd()
-    ROOT.gStyle.SetOptStat("")
-    leg = pltutils.SetupLegend(x1=0.2, textSize=0.04)
-    pltutils.SetupLineHistStyle(expected_SR)
-    pltutils.SetupLineHistStyle(predicted_Data_SR, color=ROOT.kRed)
-   
-    # make dummy plot for axis
-    dummy = ROOT.TH1D("dummy", "dummy", len(SVJBins)*4, expected_SR.GetBinLowEdge(1), expected_SR.GetBinLowEdge(expected_SR.GetNbinsX()) + expected_SR.GetBinWidth(expected_SR.GetNbinsX()))
-    # print(f"The dummy values are  - {expected_SR.GetBinLowEdge(1)}, {expected_SR.GetBinLowEdge(expected_SR.GetNbinsX())}, { expected_SR.GetBinWidth(expected_SR.GetNbinsX())}")
-    ymax=10**9
-    ymin=10
-    lmax=10**9
-    pltutils.setupDummy(dummy,leg,"", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, isRatio=True)
-    dummy.Draw("hist")
-
-    expected_SR.Draw("histe same")
-    predicted_Data_SR.Draw("histe same")
-    leg.AddEntry(expected_SR,"Expected SR (MC)","L")
-    if isDataCR:
-        leg.AddEntry(predicted_Data_SR,"Predicted SR ((Data_{CR} - MC^{QCD,ZJets}_{CR}) #times TF + MC^{QCD,ZJets}_{SR})","L")
-    else:
-        leg.AddEntry(predicted_Data_SR,"Predicted SR (CR #times TF + SR MC_{QCD,ZJets})","L")
-    lines_upperpad = pltutils.AddVerticalLine(expected_SR, SVJBins, ymax = 10**5)
-    for line in lines_upperpad:
-        line.Draw("same")
-    
-    pltutils.AddLabelsForABCD(predicted_Data_SR,SVJBins,yloc=5*10**4)
-    leg.Draw("same")
-    pad2.cd()
-    
-    RatioHist = pltutils.SetupRatioStyle(RatioHist, xTitle="nSVJ", yTitle="Expected/Predicted", yTitleSize=0.1, ymin=0.6, ymax=1.4)
-    RatioHist.Draw("EX0P")
-    lines_lowerpad = pltutils.AddVerticalLine(expected_SR, SVJBins, ymin=0.5, ymax = 1.5)
-    for line in lines_lowerpad:
-        line.Draw("same")
-    if AddCMSText:
-        pltutils.AddCMSLumiText(c1, year,isExtraText=True,hemPeriod=hemPeriod)
-    
-    
-    # print(f"Expected Hist -  {pltutils.printBinContentAndError(expected_SR)}")
-    # print(f"Predicted Hist - {pltutils.printBinContentAndError(predicted_Data_SR)}")
-    # print(f"Ratio Hist - {pltutils.printBinContentAndError(RatioHist)}")
-    
-    
-    c1.cd()
-    c1.Update()
-    # c1.RedrawAxis()
-    ROOT.gPad.RedrawAxis()
-    ROOT.gPad.RedrawAxis("G")
-    c1.SaveAs(saveName+".png")
-    c1.Close()
-    del c1, leg
 
 
 def checks(DataList, ABCDHistoVar, SRcut, CRcut, SVJbins, plotOutputDir,year=2018, perSVJbin=False):
@@ -293,19 +244,29 @@ def checks(DataList, ABCDHistoVar, SRcut, CRcut, SVJbins, plotOutputDir,year=201
     for d in bgData:
         integralConsistency = TF.checkIntegralConsistency(d, ABCDHistoVar, CRcut, SVJbins)
         # print(f"Integral consistency  - {integralConsistency}")
-def GetSubABCDregions(met,dnn,factor):
+#def GetSubABCDregions(met,dnn,outer_edge):
     #Defining the A B C D regions
-    print('MeT',met)
-    print('dnn',dnn/factor)
+    
     #print('dnn/3',dnn/2)
-    regions = [ ("dA", met/factor, met,0 , dnn),
-                    ("dB", met/factor,met, 0, dnn),
-                    ("dC", 0, met/factor, 0,dnn),
-                    ("dD", 0, met/factor, 0, dnn)
+    # regions = [ ("dA", met/outer_edge, met,0 , dnn),
+    #                 ("dB", met/outer_edge,met, 0, dnn),
+    #                 ("dC", 0, met/outer_edge, 0,dnn),
+    #                 ("dD", 0, met/outer_edge, 0, dnn)
+    #             ]
+    # return regions
+
+def GetSubABCDregions(inner_edge,dnn,outer_edge):
+    '''Defining the A B C D regions'''
+    print('MeT',inner_edge)
+    print('dnn',dnn)
+    regions = [ ("dA", inner_edge, outer_edge, dnn, 1.0),
+                    ("dB", inner_edge, outer_edge, 0, dnn),
+                    ("dC", 0, inner_edge, dnn, 1.0),
+                    ("dD", 0, inner_edge, 0, dnn)
                 ]
+    print(f'REGIONS {regions}')
     return regions
 
-    
 def adjustRegionBoundaries(region, xmin, xmax, ymin, ymax):
     """ Adjust regions to avoid bin overlap based on the detected overlap. """
     if region == 'dA':
@@ -318,30 +279,27 @@ def adjustRegionBoundaries(region, xmin, xmax, ymin, ymax):
 
     return xmin, xmax, ymin, ymax
 
-def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin,factor):
+def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin,inner_edge,outer_edge):
     """Return the dictionary of ABCD histogram for only one svj bin"""
 
     bkgname = data.fileName.split('_')[1].replace('.root','')
     hist_dict = {region: ROOT.TH1F(f"h_{bkgname}_{region}",f"h_{bkgname}_{region}", 1,0,1) for region in ['dA','dB','dC','dD']}
     SVJ, (dnn, met) = SVJbin
     histName = ABCDhistoVar + maincut + SVJ
-    #factors = [1.1,1.2,1.3,1.5,1.6,1.7,1.8,1.9,2]
-    #NA_Predicted = [] 
-    #for factor in factors:
-    #    regions = GetSubABCDregions(met,dnn,factor=2)    
-    regions = GetSubABCDregions(met,dnn,factor)
+    regions = GetSubABCDregions(inner_edge,0.6,outer_edge)
+
 
     for region, xmin, xmax, ymin, ymax in regions:   # TODO: this for condition should be written into a function work in all the cases
         xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
         hist, histIntegral, integral_error = data.get2DHistoIntegral(histName, xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax, showEvents=True)
         print(f"hist integral is - {hist.Integral()} in region - {region} and from the function is  - {histIntegral}, xmin - {xmin}, xmax - {xmax}, ymin - {ymin}, ymax - {ymax}")
+        hist_dict[region].Sumw2()
         hist_dict[region].SetBinContent(1, histIntegral)
         hist_dict[region].SetBinError(1, integral_error)
-        hist_dict[region].Sumw2()
     return hist_dict
 
 
-def get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,factor):
+def get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,inner_edge,outer_edge):
     """
     Extracts the ABCD region counts split by the number of SVJ jets for both signal and background.
     """
@@ -351,7 +309,7 @@ def get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,f
         for data in data_list:  # Iterate over individual dataset objects
             for svj_bin in SVJBins.items():
                 #hist_dict = GetABCDhistPerSVJBin(data, ABCDHistoVar, maincut, svj_bin)
-                hist_dict = GetABCDhistPerSVJBin(data, ABCDHistoVar, maincut, svj_bin,factor)
+                hist_dict = GetABCDhistPerSVJBin(data, ABCDHistoVar, maincut, svj_bin,inner_edge,outer_edge)
                 print('hist_dict:',hist_dict)
                 #put if statment with pre and if maincut is pre Data = Data SR SR cut s now pre
                 #Data_SR = TF.GetABCDhistPerSVJBin(Data[0], ABCDHistoVar, SRcut, SVJbins)
@@ -394,9 +352,10 @@ def get_ABCD_counts_by_SVJ(Data,sgData, bgData, ABCDHistoVar, maincut, SVJBins,f
 
     
     return counts_by_SVJ,error_by_SVJ
-def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, factors):
-    factor_results = {}  
-    error_results_by_factor = ()
+
+def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, inner_edges,outer_edges):
+    outer_edge_results = {}  
+    error_results_by_outer_edge = ()
     # Separate lists for each SVJ category and each component (Data, Signal, Background)
     obs_0SVJ_data, obs_0SVJ_sig, obs_0SVJ_bg = [], [], []
     pred_0SVJ_data, pred_0SVJ_sig, pred_0SVJ_bg = [], [], []
@@ -416,11 +375,11 @@ def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, factors
     obserr_2PSVJ_data, obserr_2PSVJ_sig, obserr_2PSVJ_bg = [], [], []
     prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = [], [], []
 
-    for factor in factors:
-        print(f"\nProcessing factor: {factor}")
-        SVJBins = GetSVJbins(factor)
-        counts_by_SVJ,error_by_SVJ = get_ABCD_counts_by_SVJ(Data, sgData, bgData, ABCDHistoVar, maincut, SVJBins, factor)
-        factor_results[factor] = counts_by_SVJ
+    for inner_edge,outer_edge in zip(inner_edges,outer_edges):
+        print(f"\nProcessing outer_edge: {outer_edge}")
+        SVJBins = GetSVJbins(outer_edge)
+        counts_by_SVJ,error_by_SVJ = get_ABCD_counts_by_SVJ(Data, sgData, bgData, ABCDHistoVar, maincut, SVJBins,inner_edge, outer_edge)
+        outer_edge_results[outer_edge] = counts_by_SVJ
             
         for ((svj_bin, label), (N_A, N_B, N_C, N_D)), ((_, _), (NA_err, NB_err, NC_err, ND_err)) in zip(counts_by_SVJ.items(), error_by_SVJ.items()):
             print(svj_bin)
@@ -447,11 +406,7 @@ def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, factors
 
             # Compute predicted A
             N_A_pred = (N_B * N_C) / N_D if N_D > 0 else float('nan')
-            #relative_error = np.sqrt((NB_err / N_B) ** 2 + (NC_err / N_C) ** 2 + (ND_err / N_D) ** 2)
-            if N_B == 0 or N_C == 0 or N_D == 0:
-                relative_error = np.nan  # or set a default value, e.g., float('inf') or 0
-            else:
-                relative_error = np.sqrt((NB_err / N_B) ** 2 + (NC_err / N_C) ** 2 + (ND_err / N_D) ** 2)
+            relative_error = np.sqrt((NB_err / N_B if N_B > 0 else float('nan') ) ** 2 + (NC_err / N_C if N_C > 0 else float('nan')) ** 2 + (ND_err / N_D  if N_D > 0 else float('nan')) ** 2 )
             NA_pred_err = N_A_pred * relative_error
             
             # Identify whether this entry belongs to Data, Signal, or Background
@@ -471,11 +426,11 @@ def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, factors
                 obs_bgerr.append(NA_err)
                 pred_bgerr.append(NA_pred_err)
 
-            print(f"[{label}] Factor: {factor}, SVJ Bin: {svj_bin} | Observed A: {N_A},Observed ERR A: {NA_err},Predicted A: {N_A_pred}, Predicted Err {NA_pred_err}")
+            print(f"[{label}] outer_edge: {outer_edge}, SVJ Bin: {svj_bin} | Observed A: {N_A},Observed ERR A: {NA_err},Predicted A: {N_A_pred}, Predicted Err {NA_pred_err}")
             #print(f"0SVJ obs len: {len(obs_0SVJ_data)}, 1SVJ obs len: {len(obs_1SVJ_data)}, 2PSVJ obs len: {len(obs_2PSVJ_data)}")
 
     return (
-        factor_results,
+        outer_edge_results,
         obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
         obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
         obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
@@ -485,7 +440,6 @@ def compute_ABCD_prediction(Data, sgData, bgData, ABCDHistoVar, maincut, factors
 
 
     )
-
 
 def plot_ABCD_ratios(
         year,
@@ -503,8 +457,8 @@ def plot_ABCD_ratios(
     """
 
     # Define x-axis values
-    
-    values = 350 / np.array(factors)
+    values = np.array(factors)
+    #values = 350 / np.array(factors)
 
     # Compute ratios safely
     def compute_ratio(obs,obs_err,pred,pred_err):
@@ -549,10 +503,10 @@ def plot_ABCD_ratios(
         #plt.yaxis.set_minor_locator
         #plt.yaxis.set_major_locator
         plt.legend()
-        plt.title(f'Signal Region Background MC Ratios split by DNN {year}', fontsize=10)
+        plt.title(f'Signal Region Background MC Ratios split by MET {year}', fontsize=10)
         hep.cms.label(rlabel="")
-        plt.ylim(-0.4,0.4)
         plt.grid(True)
+        plt.ylim(-0.4,0.4)
         plt.savefig(os.path.join(output_dir, filename), dpi=300)
         plt.close()
 
@@ -582,7 +536,6 @@ def plot_ABCD_ratios(
                 "Ratio_Data_2PSVJ.jpg")
     
     print(f'Boundary Values {values}')
-   
 
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
@@ -599,27 +552,46 @@ def main():
     ABCDhistoVars = ["METvsDNN"]
     ABCDFolderName = "ABCD"
     SRCut = "_pre_"
-    CRCuts = ["_lcr_pre_"]#,"_cr_muon_","_cr_electron_"]
+    #CRCuts = ["_lcr_pre_"]#,"_cr_muon_","_cr_electron_"]
     
     #DataCut = "_pre_"                                                               
-    #CRCuts = ["data/MC"]         
-    maincuts = [SRCut] 
+    CRCuts = ["data/MC"]  
+    CRCuts = ["_lcr_pre_"]          
+    maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
-    signal_factors = np.linspace(0.7,1.5,20)
-    factors = signal_factors
-    output_dir = 'Nonclosure/VRI-MET/SignalRegion/'
-    factor_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_", factors)
-    
+
+ 
+    controlregion_outer_edges = np.linspace(1.1,1,3)
+
+    outer_edges = np.linspace(210,1000,30)
+    inner_edges = np.linspace(200,250,30)
+    '''
+    if (outer_edges == signal_outer_edges).all():
+        output_dir = 'Noncloser/SignalRegion'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+    elif outer_edges == controlregion_outer_edges:
+        output_dir = 'Noncloser/ControlRegion'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+    '''
+    output_dir = 'Nonclosure/VRI-MET/SignalRegion'
+    outer_edge_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_",inner_edges, outer_edges)
+    #print('outer_edge_results ',outer_edge_results)
+    #print('observed_A',observed_A)
+    #print('ratio_A',ratio_A)
     plot_ABCD_ratios(
         year,
-        factor_results, 
+        outer_edge_results, 
         obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
         obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
         obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
         obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,
         obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,
         obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg,
-        factors, output_dir)
+        outer_edges, output_dir)
+ 
+
 if __name__ == '__main__':
     main()
 

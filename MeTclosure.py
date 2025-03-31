@@ -448,14 +448,14 @@ def plot_ABCD_ratios(
         obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,
         obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,
         obserr_2PSVJ_data, obserr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg,
-        outer_edges, output_dir):
+        Boundary_vals, output_dir):
     """
     Plots the ratio of observed to predicted A values for each SVJ type and SCJ category separately,
     and adds a subplot showing the difference between Data Ratio and Background Ratio with a rectangular bottom plot.
     """
 
     # Define x-axis values
-    values = np.array(outer_edges)
+    values = np.array(Boundary_vals)
 
     # Compute ratios safely
     def compute_ratio(obs,obs_err,pred,pred_err):
@@ -473,7 +473,6 @@ def plot_ABCD_ratios(
         #nonclosure_err = ratio_err
         return nonclosure,nonclosure_err
 
-        
     def signalcontamination(sig_obs,sig_obs_err,bckg_obs,bckg_err):
         sig_obs = np.array(sig_obs) 
         bckg_obs = np.array(bckg_obs)  
@@ -498,7 +497,7 @@ def plot_ABCD_ratios(
         plt.legend()
         plt.savefig(os.path.join(output_dir, filename), dpi=300)
         plt.close()
-    
+
     # Compute non-closure and errors for each category
     ratio_0SVJ_data, errbars_0SVJ_data = compute_ratio(obs_0SVJ_data,obserr_0SVJ_data, pred_0SVJ_data,prederr_0SVJ_data)
     ratio_0SVJ_bg, errbars_0SVJ_bg = compute_ratio(obs_0SVJ_bg,obserr_0SVJ_bg, pred_0SVJ_bg,prederr_0SVJ_bg)
@@ -534,9 +533,9 @@ def plot_ABCD_ratios(
         gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1])  # Top plot takes 2/3 of the space, bottom plot 1/3
 
         # Plot the main ratio plot (top subplot)
-        ax0 = plt.subplot(gs[0])  # Top subplot
+        ax0 = plt.subplot(gs[0])  
         for non_closure, error, label, color in zip(non_closures, nonclosure_err, labels, colors):
-            if len(non_closure) > 0:  # Avoid empty plots
+            if len(non_closure) > 0:  
                 ax0.errorbar(x_values, non_closure, yerr=error, fmt='o', color=color, label=label, capsize=5)
                 ax0.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
         
@@ -546,29 +545,22 @@ def plot_ABCD_ratios(
         ax0.set_xlabel("Boundary Value")
         ax0.set_ylabel("Non-Closure")
         ax0.set_title(f'Control Region Non Closure split by MET (VR I) {year}', fontsize=15.5)
-        ax0.set_ylim(-0.4, 0.4)
-        #ax0.xaxis.set_label_coords(0.95, -0.1)  
-        #ax0.yaxis.set_label_coords(-0.05, 0.95) #put on rigth side
-
-
         ax0.legend()
+        ax0.set_ylim(-0.40, 0.40)
         ax0.grid(True)
 
         # Plot the difference plot (bottom subplot)
         ax1 = plt.subplot(gs[1])  # Bottom subplot
         for diff_ratio,error, label, color in zip(diff_ratios,diff_error,labels, colors):
             if len(diff_ratio) > 0:  # Avoid empty plots
-                #ax1.scatter(x_values, diff_ratio, marker='o', color=color, label=label)
-                ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color='black', label=label,capsize=5)
+                ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color='black', label='data-background',capsize=5)
                 ax1.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
         
         ax1.set_xlabel("Boundary Value")
         ax1.set_ylabel("Data - Background Sim ")
         ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=16)
-        ax1.set_ylim(-0.6, 0.6)
-        #ax1.xaxis.set_label_coords(0.95, -0.1)  #shifts labels to the right
-        #ax1.yaxis.set_label_coords(-0.025, 0.95) 
-        #ax1.legend()
+        ax1.set_ylim(-0.60, 0.60)
+       #ax1.legend()
         ax1.grid(True)
 
         for ax in [ax0, ax1]:
@@ -578,7 +570,7 @@ def plot_ABCD_ratios(
         ax0.yaxis.set_major_locator(MultipleLocator(0.1))  # Major ticks
         ax0.yaxis.set_minor_locator(MultipleLocator(0.05))  # Minor ticks
 
-        ax1.yaxis.set_major_locator(MultipleLocator(0.1))
+        #ax1.yaxis.set_major_locator(MultipleLocator(0.1))
         #ax1.yaxis.set_minor_locator(MultipleLocator(0.05))
 
         ax0.grid(True, which='both', linestyle='--', linewidth=0.5)
@@ -603,7 +595,7 @@ def plot_ABCD_ratios(
                 ["Data 1SVJ", "Background MC 1SVJ"], 
                 ["b", "r"], 
                 "Ratio_Data_1SVJ.jpg")
-    print(f"non closure data 1svj {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
+    print(f"data {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
     plot_and_save(values, 
                 [ratio_2PSVJ_data, ratio_2PSVJ_bg],
                 [errbars_2PSVJ_data, errbars_2PSVJ_bg],
@@ -611,6 +603,7 @@ def plot_ABCD_ratios(
                 ["Data 2SVJ", "Background MC 2SVJ"], 
                 ["b", "r"], 
                 "Ratio_Data_2PSVJ.jpg")
+    
     print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
     plot_signal_contamination(values, sig_contam_0SVJ, sig_contam_err_0SVJ, "0SVJ", "signal_contamination_0SVJ.jpg")
     plot_signal_contamination(values, sig_contam_1SVJ, sig_contam_err_1SVJ, "1SVJ", "signal_contamination_1SVJ.jpg")
@@ -633,20 +626,16 @@ def main():
     hemPeriod = options.hemPeriod
     ABCDhistoVars = ["METvsDNN"]
     ABCDFolderName = "ABCD"
-    SRCut = "_pre_"
     #CRCuts = ["_lcr_pre_"]#,"_cr_muon_","_cr_electron_"]
-    
-    #DataCut = "_pre_"                                                               
-    CRCuts = ["data/MC"]  
-    CRCuts = ["_lcr_pre_"]          
+    CRCuts = "_cr_electron_"         
     maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
- 
+    SRCut = "_pre_"
     controlregion_outer_edges = np.linspace(1.1,1,3)
 
-    outer_edges = np.linspace(220,20000,30)
-    inner_edges = np.linspace(200,250,30)
+    outer_edges = np.linspace(225,250,30)
+    inner_edges = np.linspace(210,225,30)
     '''
     if (outer_edges == signal_outer_edges).all():
         output_dir = 'Noncloser/SignalRegion'
@@ -658,7 +647,7 @@ def main():
             os.makedirs(output_dir)
     '''
     output_dir = 'Nonclosure/VRI-MET/ControlRegion'
-    outer_edge_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_",inner_edges, outer_edges)
+    outer_edge_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", '_pre_',inner_edges, outer_edges)
     #print('outer_edge_results ',outer_edge_results)
     #print('observed_A',observed_A)
     #print('ratio_A',ratio_A)
