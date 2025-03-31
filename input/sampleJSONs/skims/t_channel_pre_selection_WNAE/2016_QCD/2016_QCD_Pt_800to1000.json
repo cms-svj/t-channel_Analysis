@@ -1,0 +1,16 @@
+{
+    "2016_QCD_Pt_800to1000": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-10.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-11.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-4.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-5.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-6.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-7.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-8.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_800to1000/part-9.root"
+    ]
+}

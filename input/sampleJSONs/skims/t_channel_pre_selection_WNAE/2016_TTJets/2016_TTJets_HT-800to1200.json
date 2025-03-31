@@ -1,0 +1,9 @@
+{
+    "2016_TTJets_HT-800to1200": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//TTJets_HT-800to1200/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//TTJets_HT-800to1200/part-1.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//TTJets_HT-800to1200/part-2.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//TTJets_HT-800to1200/part-3.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//TTJets_HT-800to1200/part-4.root"
+    ]
+}

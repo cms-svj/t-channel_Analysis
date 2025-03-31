@@ -1,0 +1,6 @@
+{
+    "2016_ZJetsToNuNu_HT-800To1200": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//ZJetsToNuNu_HT-800To1200/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//ZJetsToNuNu_HT-800To1200/part-1.root"
+    ]
+}

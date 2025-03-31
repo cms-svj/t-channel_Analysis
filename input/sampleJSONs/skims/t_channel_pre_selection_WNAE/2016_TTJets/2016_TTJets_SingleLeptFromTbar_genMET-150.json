@@ -1,0 +1,6 @@
+{
+    "2016_TTJets_SingleLeptFromTbar_genMET-150": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//TTJets_SingleLeptFromTbar_genMET-150/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//TTJets_SingleLeptFromTbar_genMET-150/part-1.root"
+    ]
+}
