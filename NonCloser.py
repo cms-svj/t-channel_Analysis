@@ -17,12 +17,22 @@ AddCMSText = True
 # ROOT.TH1.SetDefaultSumw2()
 # ROOT.TH2.SetDefaultSumw2()
 
+# def GetSVJbins(factor):
+#     '''Change the SVJbin edges here these are the ones for DNN trained on only QCD '''    
+#     SVJbins = {
+#                 "0SVJ" : [0.5,350.0/factor],
+#                 "1SVJ" : [0.56,450.0/factor],
+#                 "2PSVJ" : [0.56,350.0/factor],
+#     }
+#    return SVJbins
+
+
 def GetSVJbins(factor):
-    '''Change the SVJbin edges here'''
+    '''Change the SVJbin edges here these are the ones for DNN trained on all back '''    
     SVJbins = {
-                "0SVJ" : [0.5/factor,350.0],
-                "1SVJ" : [0.56/factor,450.0],
-                "2PSVJ" : [0.56/factor,350.0],
+                "0SVJ" : [0.6/factor,250.0],
+                "1SVJ" : [0.6/factor,250.0],
+                "2PSVJ" : [0.6/factor,250.0],
     }
     return SVJbins
 
@@ -351,9 +361,10 @@ def GetSubABCDregions(met,dnn,factor):
                     ("dC", 0, met, dnn/factor,dnn),
                     ("dD", 0, met, 0, dnn/factor)
                 ]
+    print(f'REGIONS {regions}')
     return regions
 
-    
+
 def adjustRegionBoundaries(region, xmin, xmax, ymin, ymax):
     """ Adjust regions to avoid bin overlap based on the detected overlap. """
     if region == 'dA':
@@ -372,12 +383,8 @@ def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin,factor):
     bkgname = data.fileName.split('_')[1].replace('.root','')
     hist_dict = {region: ROOT.TH1F(f"h_{bkgname}_{region}",f"h_{bkgname}_{region}", 1,0,1) for region in ['dA','dB','dC','dD']}
     SVJ, (dnn, met) = SVJbin
-    histName = ABCDhistoVar + maincut + SVJ
-    #factors = [1.1,1.2,1.3,1.5,1.6,1.7,1.8,1.9,2]
-    #NA_Predicted = [] 
-    #for factor in factors:
-    #    regions = GetSubABCDregions(met,dnn,factor=2)    
-    regions = GetSubABCDregions(met,dnn,factor)
+    histName = ABCDhistoVar + maincut + SVJ  
+    regions = GetSubABCDregions(250,0.6,factor)
 
     for region, xmin, xmax, ymin, ymax in regions:   # TODO: this for condition should be written into a function work in all the cases
         xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
@@ -547,7 +554,7 @@ def plot_ABCD_ratios(
     """
 
     # Define x-axis values
-    values = 0.5 / np.array(factors)
+    values = 0.6 / np.array(factors)
     #values = 350 / np.array(factors)
 
     # Compute ratios safely
@@ -622,7 +629,7 @@ def plot_ABCD_ratios(
         ax1.set_xlabel("Boundary Value")
         ax1.set_ylabel("Data - Background Sim ")
         ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=16)
-        ax1.set_ylim(-0.7, 0.7)
+        ax1.set_ylim(-0.8, 0.8)
         #ax1.legend()
         ax1.grid(True)
 
@@ -630,6 +637,12 @@ def plot_ABCD_ratios(
             for spine in ax.spines.values():
                 spine.set_linewidth(2)  # Make borders bold
 
+        ax0.xaxis.set_major_locator(MultipleLocator(0.1))  # Major ticks for x-axis
+        ax0.xaxis.set_minor_locator(MultipleLocator(0.05))  # Minor ticks for x-axis
+
+        ax1.xaxis.set_major_locator(MultipleLocator(0.1))
+        ax1.xaxis.set_minor_locator(MultipleLocator(0.05))
+    
         ax0.yaxis.set_major_locator(MultipleLocator(0.1))  # Major ticks
         ax0.yaxis.set_minor_locator(MultipleLocator(0.05))  # Minor ticks
 
@@ -658,7 +671,7 @@ def plot_ABCD_ratios(
                 ["Data 1SVJ", "Background MC 1SVJ"], 
                 ["b", "r"], 
                 "Ratio_Data_1SVJ.jpg")
-    print(f"data {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
+    print(f"non closure data 1svj {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
     plot_and_save(values, 
                 [ratio_2PSVJ_data, ratio_2PSVJ_bg],
                 [errbars_2PSVJ_data, errbars_2PSVJ_bg],
@@ -666,10 +679,10 @@ def plot_ABCD_ratios(
                 ["Data 2SVJ", "Background MC 2SVJ"], 
                 ["b", "r"], 
                 "Ratio_Data_2PSVJ.jpg")
-    
+    print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
 
-    print(f'Boundary Values {values[::-1]}')
-
+    #print(f'Boundary Values {values[::-1]}')
+    print(f'Boundary Values {values}')
 
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
@@ -695,7 +708,7 @@ def main():
 
     signal_factors = np.linspace(1/2, 1, 20)
     controlregion_factors = [1.1,1.15,1.2,1.25,1.3,1.35,1.4,1.45,1.5,1.55,1.6,1.65,1.7,1.75,1.8,1.85,1.9,1.95,2]
-
+    controlregion_factors =np.linspace(2, 1, 30)
 
     factors = controlregion_factors
     '''

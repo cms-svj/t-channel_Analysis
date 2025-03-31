@@ -45,31 +45,31 @@ hemStudy = args.hemStudy
 hemPeriod = args.hemPeriod
 trgEffStudy = args.trgEffStudy
 listOfSampleGroupsToRun = [
-                    # 2016
+                     #2016
                         # "2016APV_Data",
-                        # "2016_Data",
-                        # "2016_QCD",
-                        # "2016_SVJ_t",
-                        # "2016_ST",
-                        # "2016_TTJets",
-                        # "2016_WJets",
-                        # "2016_ZJets",
-                    # 2017    
-                        # "2017_Data",
-                        # "2017_QCD",
-                        # "2017_SVJ_t",
-                        # "2017_ST",
-                        # "2017_TTJets",
-                        # "2017_WJets",
-                        # "2017_ZJets",
+                         "2016_Data",
+                         "2016_QCD",
+                         "2016_SVJ_t",
+                         "2016_ST",
+                         "2016_TTJets",
+                         "2016_WJets",
+                         "2016_ZJets",
+                     #2017    
+                         "2017_Data",
+                         "2017_QCD",
+                         "2017_SVJ_t",
+                         "2017_ST",
+                         "2017_TTJets",
+                         "2017_WJets",
+                         "2017_ZJets",
                     # 2018    
-                        # "2018_Data",
-                        # "2018_QCD",
-                        # "2018_SVJ_t",
-                        # "2018_ST",
-                        # "2018_TTJets",
-                        # "2018_WJets",
-                        # "2018_ZJets",
+                         "2018_Data",
+                         "2018_QCD",
+                         "2018_SVJ_t",
+                         "2018_ST",
+                         "2018_TTJets",
+                         "2018_WJets",
+                         "2018_ZJets",
 ]
 runSignalLocal = args.runSignalLocal
 evtTaggerLoc = f"utils/data/DNNEventClassifier/{eTagName}"

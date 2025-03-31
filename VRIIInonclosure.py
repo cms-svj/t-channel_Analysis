@@ -525,9 +525,9 @@ def plot_ABCD_ratios(
         gs = gridspec.GridSpec(2, 1, height_ratios=[2, 1])  # Top plot takes 2/3 of the space, bottom plot 1/3
 
         # Plot the main ratio plot (top subplot)
-        ax0 = plt.subplot(gs[0])  # Top subplot
+        ax0 = plt.subplot(gs[0])  
         for non_closure, error, label, color in zip(non_closures, nonclosure_err, labels, colors):
-            if len(non_closure) > 0:  # Avoid empty plots
+            if len(non_closure) > 0:  
                 ax0.errorbar(x_values, non_closure, yerr=error, fmt='o', color=color, label=label, capsize=5)
                 ax0.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
         
@@ -545,7 +545,6 @@ def plot_ABCD_ratios(
         ax1 = plt.subplot(gs[1])  # Bottom subplot
         for diff_ratio,error, label, color in zip(diff_ratios,diff_error,labels, colors):
             if len(diff_ratio) > 0:  # Avoid empty plots
-                #ax1.scatter(x_values, diff_ratio, marker='o', color=color, label=label)
                 ax1.errorbar(x_values,diff_ratio, yerr=error, fmt='o', color='black', label='data-background',capsize=5)
                 ax1.plot(x_values, np.zeros_like(x_values), linestyle='dashed', color='black', linewidth=2)
         
@@ -622,15 +621,15 @@ def main():
     #CRCuts = ["_lcr_pre_"]#,"_cr_muon_","_cr_electron_"]
     
     #DataCut = "_pre_"                                                               
-    CRCuts = ["data/MC"]         
+    CRCuts = ["_lcr_pre_"]        
     maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
-    MET_outer_edges = np.linspace(220,20000,30)
-    MET_inner_edges = np.linspace(200,250,30)
+    MET_outer_edges = np.linspace(225,250,30)
+    MET_inner_edges = np.linspace(210,225,30)
 
-    DNN_outer_edges = np.linspace(0.3,1,30)
-    DNN_inner_edges = np.linspace(0.1,0.6,30)
+    DNN_outer_edges = np.linspace(0.2,0.6,30)
+    DNN_inner_edges = np.linspace(0.1,0.3,30)
 
     Boundary_vals = []
     for MET_outer_edge,DNN_outer_edge in zip(MET_outer_edges,DNN_outer_edges):
@@ -650,7 +649,7 @@ def main():
             os.makedirs(output_dir)
     '''
     output_dir = 'Nonclosure/VRIII-DNNandMET/ControlRegion'
-    outer_edge_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", "_pre_", DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_edges)
+    outer_edge_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", '_pre_', DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_edges)
     #print('outer_edge_results ',outer_edge_results)
     #print('observed_A',observed_A)
     #print('ratio_A',ratio_A)
