@@ -467,12 +467,12 @@ def main():
     maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
+    bins = 60
+    MET_outer_edges = np.linspace(20000, 20000, bins)
+    MET_inner_edges = np.linspace(205, 1000, bins)
 
-    MET_outer_edges = np.linspace(215, 1000, 20)
-    MET_inner_edges = np.linspace(205, 250, 20)
-
-    DNN_outer_edges = np.linspace(0.6, 1,20)
-    DNN_inner_edges = np.linspace(0.1, 0.6,20)
+    DNN_outer_edges = np.linspace(1,1,bins)
+    DNN_inner_edges = np.linspace(0.1, 0.90,bins)
     
     Boundary_vals = []
     for MET_outer_edge in MET_outer_edges:
@@ -523,20 +523,22 @@ def main():
         # Transpose nonclosure if needed to match meshgrid orientation
         Z = np.abs(nonclosure).reshape(len(x_edges),len(y_edges))
         print(f'RESHAPED nonclosure {Z}')
-        cmap = plt.cm.plasma
+        cmap = plt.cm.viridis
         pcm = plt.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=max_nonclosure, shading='auto')
         plt.colorbar(pcm, label='|Non-Closure|')
+        hep.cms.label(rlabel="")
         plt.xlabel('MET [GeV]')
         plt.ylabel('DNN Score')
         plt.title(title)
         plt.savefig(filename)
         plt.close()
 
-    DNN_edges = np.linspace(0,1,20)
+    DNN_edges = np.linspace(0,1,bins)
+    MET_edges = np.linspace(200,1000,bins)
     # Plot Non-Closure Histograms
-    plot_nonclosure_histogram(nonclosure_0SVJ, MET_outer_edges,DNN_edges,0.1, '0SVJ Non-Closure', f"{output_dir}/nonclosure_0SVJ.png")
-    plot_nonclosure_histogram(nonclosure_1SVJ, MET_outer_edges,DNN_edges,0.1, '1SVJ Non-Closure', f"{output_dir}/nonclosure_1SVJ.png")
-    plot_nonclosure_histogram(nonclosure_2PSVJ, MET_outer_edges,DNN_edges,0.2,'2PSVJ Non-Closure', f"{output_dir}/nonclosure_2PSVJ.png")
+    plot_nonclosure_histogram(nonclosure_0SVJ, MET_edges,DNN_edges,1, '0SVJ', f"{output_dir}/nonclosure_0SVJ_inneredgeonly.png")
+    plot_nonclosure_histogram(nonclosure_1SVJ, MET_edges,DNN_edges,1, '1SVJ', f"{output_dir}/nonclosure_1SVJ_inneredgeonly.png")
+    plot_nonclosure_histogram(nonclosure_2PSVJ, MET_edges,DNN_edges,1,'2PSVJ', f"{output_dir}/nonclosure_2PSVJ_inneredgeonly.png")
 
  
 if __name__ == '__main__':
