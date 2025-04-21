@@ -1,0 +1,6 @@
+{
+    "2016_WJetsToLNu_HT-2500ToInf": [
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//WJetsToLNu_HT-2500ToInf/part-0.root",
+        "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//WJetsToLNu_HT-2500ToInf/part-1.root"
+    ]
+}
