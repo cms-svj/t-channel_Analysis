@@ -481,7 +481,7 @@ def main():
             Boundary_vals.append(boundary_val)
 
     # Define output directory
-    output_dir = 'Nonclosure/VRIII-DNNandMET/ControlRegion'
+    output_dir = f'Nonclosure/2D-NonC/{year}'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -543,3 +543,6 @@ def main():
  
 if __name__ == '__main__':
     main()
+
+
+#ADD (0.85,250) as the WP 

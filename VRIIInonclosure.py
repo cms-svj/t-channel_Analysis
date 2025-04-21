@@ -628,8 +628,8 @@ def main():
     MET_outer_edges = np.linspace(225,250,30)
     MET_inner_edges = np.linspace(210,225,30)
 
-    DNN_outer_edges = np.linspace(0.2,0.6,30)
-    DNN_inner_edges = np.linspace(0.1,0.3,30)
+    DNN_outer_edges = np.linspace(0.2,0.8,30)
+    DNN_inner_edges = np.linspace(0.1,0.6,30)
 
     Boundary_vals = []
     for MET_outer_edge,DNN_outer_edge in zip(MET_outer_edges,DNN_outer_edges):

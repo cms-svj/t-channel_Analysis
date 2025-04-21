@@ -612,8 +612,8 @@ def main():
     maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
-    outer_edges = np.linspace(0.3,0.6,30)
-    inner_edges = np.linspace(0.1,0.3,30)
+    outer_edges = np.linspace(0.3,0.8,30)
+    inner_edges = np.linspace(0.1,0.7,30)
     print(f"Outer Edges{outer_edges}")
     print(f'Inner Egdes{inner_edges}')
     output_dir = 'Nonclosure/VRII-DNN/ControlRegion/'
