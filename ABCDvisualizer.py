@@ -3,8 +3,8 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import os
 import mplhep as hep
-%matplotlib inline
-%config InlineBackend.figure_format='retina'
+plt.style.use(hep.style.CMS)
+
 
 # Define output directory
 output_dir = 'Nonclosure/VRII-DNN/ControlRegion/'
@@ -82,23 +82,22 @@ def plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_
 
 
 DNN_outer_edges = np.linspace(1, 1, 10)
-DNN_inner_edges = np.linspace(0.6 , 0.6, 10)
+DNN_inner_edges = np.linspace(0.85 , 0.85, 10)
 MET_outer_edges = np.linspace(225,250,10)
 MET_inner_edges = np.linspace(205,225,10)
 plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_edges, 'SubRegions/VR1')
 
 
-DNN_outer_edges = np.linspace(0.2, 0.6, 10)
-DNN_inner_edges = np.linspace(0.1, 0.3, 10)
+DNN_outer_edges = np.linspace(0.2, 0.85, 10)
+DNN_inner_edges = np.linspace(0.1, 0.6, 10)
 MET_outer_edges = np.linspace(1000,1000,10)
 MET_inner_edges = np.linspace(250,250,10)
 plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_edges, 'SubRegions/VR2')
 
 
 
-
-DNN_outer_edges = np.linspace(0.2, 0.6, 10)
-DNN_inner_edges = np.linspace(0.1, 0.3, 10)
+DNN_outer_edges = np.linspace(0.2, 0.85, 10)
+DNN_inner_edges = np.linspace(0.1, 0.6, 10)
 MET_outer_edges = np.linspace(225,250,10)
 MET_inner_edges = np.linspace(205,225,10)
 plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_edges, 'SubRegions/VR3')

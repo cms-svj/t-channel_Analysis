@@ -11,6 +11,7 @@ import numpy as np
 import os 
 import matplotlib.pyplot as plt
 import mplhep as hep
+plt.style.use(hep.style.CMS)
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MultipleLocator
 AddCMSText = True
@@ -478,13 +479,13 @@ def plot_ABCD_ratios(
 
     def plot_signal_contamination(x_values, sig_contam, sig_contam_err, label, filename):
         hep.cms.label(rlabel="")
-        plt.figure(figsize=(10, 5))
+        plt.figure(figsize=(10, 6))
         plt.errorbar(x_values, sig_contam, yerr=sig_contam_err, fmt='o', color='purple', label=label, capsize=5)
         plt.axhline(0, linestyle='dashed', color='black', linewidth=2)
         hep.cms.label(rlabel="")
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Signal Contamination")
-        plt.title(f'Signal Contamination {label} {year}', fontsize=15.5)
+        plt.xlabel("Boundary Value",fontsize=16)
+        plt.ylabel("Signal Contamination",fontsize=16)
+        plt.title(f'Signal Contamination {label} {year}', fontsize=15.5, loc = 'right')
         plt.grid(True)
         plt.legend()
         plt.savefig(os.path.join(output_dir, filename), dpi=300)
@@ -628,7 +629,7 @@ def main():
     MET_outer_edges = np.linspace(225,250,30)
     MET_inner_edges = np.linspace(210,225,30)
 
-    DNN_outer_edges = np.linspace(0.2,0.8,30)
+    DNN_outer_edges = np.linspace(0.2,0.85,30)
     DNN_inner_edges = np.linspace(0.1,0.6,30)
 
     Boundary_vals = []

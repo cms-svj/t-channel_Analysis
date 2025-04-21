@@ -11,6 +11,7 @@ import numpy as np
 import os 
 import matplotlib.pyplot as plt
 import mplhep as hep
+plt.style.use(hep.style.CMS)
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MultipleLocator
 AddCMSText = True
@@ -467,13 +468,13 @@ def plot_ABCD_ratios(
 
     def plot_signal_contamination(x_values, sig_contam, sig_contam_err, label, filename):
         hep.cms.label(rlabel="")
-        plt.figure(figsize=(10, 5))
+        plt.figure(figsize=(10, 6))
         plt.errorbar(x_values, sig_contam, yerr=sig_contam_err, fmt='o', color='purple', label=label, capsize=5)
         plt.axhline(0, linestyle='dashed', color='black', linewidth=2)
         hep.cms.label(rlabel="")
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Signal Contamination")
-        plt.title(f'Signal Contamination {label} {year}', fontsize=15.5)
+        plt.xlabel("Boundary Value",fontsize=16)
+        plt.ylabel("Signal Contamination",fontsize=16)
+        plt.title(f'Signal Contamination {label} {year}', fontsize=15.5, loc = 'right')
         plt.grid(True)
         plt.legend()
         plt.savefig(os.path.join(output_dir, filename), dpi=300)
@@ -525,7 +526,7 @@ def plot_ABCD_ratios(
 
         ax0.set_xlabel("Boundary Value")
         ax0.set_ylabel("Non-Closure")
-        ax0.set_title(f'Control Region Non Closure split by DNN (VR II) {year}', fontsize=15.5)
+        ax0.set_title(f'Control Region Non Closure split by DNN (VR II) {year}', fontsize=18)
         ax0.legend()
         ax0.set_ylim(-0.40, 0.40)
         ax0.grid(True)
@@ -539,7 +540,7 @@ def plot_ABCD_ratios(
         
         ax1.set_xlabel("Boundary Value")
         ax1.set_ylabel("Data - Background Sim ")
-        ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=16)
+        ax1.set_title(f'Difference in Data and Background Ratios  {year}', fontsize=18)
         ax1.set_ylim(-0.60, 0.60)
        #ax1.legend()
         ax1.grid(True)
@@ -548,8 +549,8 @@ def plot_ABCD_ratios(
             for spine in ax.spines.values():
                 spine.set_linewidth(2)  # Make borders bold
 
-        ax0.yaxis.set_major_locator(MultipleLocator(0.1))  # Major ticks
-        ax0.yaxis.set_minor_locator(MultipleLocator(0.05))  # Minor ticks
+        # ax0.yaxis.set_major_locator(MultipleLocator(0.1))  # Major ticks
+        # ax0.yaxis.set_minor_locator(MultipleLocator(0.05))  # Minor ticks
 
         #ax1.yaxis.set_major_locator(MultipleLocator(0.1))
         #ax1.yaxis.set_minor_locator(MultipleLocator(0.05))
@@ -588,6 +589,9 @@ def plot_ABCD_ratios(
 
     #print(f'Boundary Values {values[::-1]}')
     print(f'Boundary Values {values}')
+    plot_signal_contamination(values, sig_contam_0SVJ, sig_contam_err_0SVJ, "0SVJ", "signal_contamination_0SVJ.jpg")
+    plot_signal_contamination(values, sig_contam_1SVJ, sig_contam_err_1SVJ, "1SVJ", "signal_contamination_1SVJ.jpg")
+    plot_signal_contamination(values, sig_contam_2PSVJ, sig_contam_err_2PSVJ, "2PSVJ", "signal_contamination_2PSVJ.jpg")
 
 def main():
     parser = optparse.OptionParser("usage: %prog [options]\n")
@@ -612,8 +616,8 @@ def main():
     maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
-    outer_edges = np.linspace(0.3,0.8,30)
-    inner_edges = np.linspace(0.1,0.7,30)
+    outer_edges = np.linspace(0.3,0.85,30)
+    inner_edges = np.linspace(0.1,0.6,30)
     print(f"Outer Edges{outer_edges}")
     print(f'Inner Egdes{inner_edges}')
     output_dir = 'Nonclosure/VRII-DNN/ControlRegion/'

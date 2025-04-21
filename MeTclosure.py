@@ -11,6 +11,7 @@ import numpy as np
 import os 
 import matplotlib.pyplot as plt
 import mplhep as hep
+plt.style.use(hep.style.CMS)
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MultipleLocator
 AddCMSText = True
@@ -483,16 +484,16 @@ def plot_ABCD_ratios(
         sigcontam =  np.where(bckg_obs > 0, sig_obs / MC, float('nan'))
         sigcont_ratio_err = np.where(MC > 0, sigcontam * np.sqrt((sig_obs_err / sig_obs) ** 2 + (MCerr / MC) ** 2), float('nan'))
         return sigcontam,sigcont_ratio_err
-
+        
     def plot_signal_contamination(x_values, sig_contam, sig_contam_err, label, filename):
         hep.cms.label(rlabel="")
-        plt.figure(figsize=(10, 5))
+        plt.figure(figsize=(10, 6))
         plt.errorbar(x_values, sig_contam, yerr=sig_contam_err, fmt='o', color='purple', label=label, capsize=5)
         plt.axhline(0, linestyle='dashed', color='black', linewidth=2)
         hep.cms.label(rlabel="")
-        plt.xlabel("Boundary Value")
-        plt.ylabel("Signal Contamination")
-        plt.title(f'Signal Contamination {label} {year}', fontsize=15.5)
+        plt.xlabel("Boundary Value",fontsize=16)
+        plt.ylabel("Signal Contamination",fontsize=16)
+        plt.title(f'Signal Contamination {label} {year}', fontsize=15.5, loc = 'right')
         plt.grid(True)
         plt.legend()
         plt.savefig(os.path.join(output_dir, filename), dpi=300)
@@ -604,7 +605,7 @@ def plot_ABCD_ratios(
                 ["b", "r"], 
                 "Ratio_Data_2PSVJ.jpg")
     
-    print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
+    #print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
     plot_signal_contamination(values, sig_contam_0SVJ, sig_contam_err_0SVJ, "0SVJ", "signal_contamination_0SVJ.jpg")
     plot_signal_contamination(values, sig_contam_1SVJ, sig_contam_err_1SVJ, "1SVJ", "signal_contamination_1SVJ.jpg")
     plot_signal_contamination(values, sig_contam_2PSVJ, sig_contam_err_2PSVJ, "2PSVJ", "signal_contamination_2PSVJ.jpg")

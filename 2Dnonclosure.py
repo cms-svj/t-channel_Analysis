@@ -11,6 +11,7 @@ import numpy as np
 import os 
 import matplotlib.pyplot as plt
 import mplhep as hep
+plt.style.use(hep.style.CMS)
 import matplotlib.gridspec as gridspec
 from matplotlib.ticker import MultipleLocator
 import matplotlib.colors as mcolors
@@ -467,7 +468,7 @@ def main():
     maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
-    bins = 60
+    bins = 10
     MET_outer_edges = np.linspace(20000, 20000, bins)
     MET_inner_edges = np.linspace(205, 1000, bins)
 
@@ -482,6 +483,7 @@ def main():
 
     # Define output directory
     output_dir = f'Nonclosure/2D-NonC/{year}'
+    
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
@@ -513,23 +515,24 @@ def main():
     print(f'observed NA: {len(obs_0SVJ_bg)}')
     print(f'predicted NA: {len(pred_0SVJ_bg)}')
     print(f'non closure: {len(nonclosure_0SVJ)}')
+    print(f'output dir {output_dir}')
     nonclosure_1SVJ = compute_nonclosure(obs_1SVJ_bg, pred_1SVJ_bg)
     nonclosure_2PSVJ = compute_nonclosure(obs_2PSVJ_bg, pred_2PSVJ_bg)
     # Function to plot 2D histograms for non-closure
     def plot_nonclosure_histogram(nonclosure, x_edges, y_edges,max_nonclosure, title, filename):
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 8))
         X, Y = np.meshgrid(x_edges, y_edges)
         
         # Transpose nonclosure if needed to match meshgrid orientation
         Z = np.abs(nonclosure).reshape(len(x_edges),len(y_edges))
-        print(f'RESHAPED nonclosure {Z}')
+        #print(f'RESHAPED nonclosure {Z}')
         cmap = plt.cm.viridis
         pcm = plt.pcolormesh(X, Y, Z, cmap=cmap, vmin=0, vmax=max_nonclosure, shading='auto')
         plt.colorbar(pcm, label='|Non-Closure|')
         hep.cms.label(rlabel="")
         plt.xlabel('MET [GeV]')
         plt.ylabel('DNN Score')
-        plt.title(title)
+        plt.title(title,loc='right')
         plt.savefig(filename)
         plt.close()
 
