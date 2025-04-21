@@ -6,6 +6,7 @@ from utils import utility as utl
 from utils import baseline as bl
 from utils.variables import variables
 from utils.inferenceParticleNet import runJetTagger, create_pn_related_variables
+from utils.inferenceWNAE import create_wnae_related_variables
 from utils.runEventTagger import runEventTagger
 import uproot
 import torch

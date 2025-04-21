@@ -244,6 +244,7 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
     if runJetTag:
         jetTagVars = {
                     'nsvjJetsAK8':             SVJHistoInfo("nsvjJetsAK8",              h.axis.Regular(name="x", label="Number of SVJ AK8Jets",                          bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'evtw'      ),
+                    'nsvjJetsAK8WNAE':         SVJHistoInfo("nsvjJetsAK8WNAE",          h.axis.Regular(name="x", label="Number of SVJ AK8Jets WNAE",                     bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'evtw'      ),
                     'nsvjJetsAK8Plus1':        SVJHistoInfo("nsvjJetsAK8Plus1",         h.axis.Regular(name="x", label="Number of SVJ AK8Jets pred1Jets",                bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'pred1_evtw'),
                     'nsvjJetsAK8Plus2':        SVJHistoInfo("nsvjJetsAK8Plus2",         h.axis.Regular(name="x", label="Number of SVJ AK8Jets pred2Jets",                bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'pred2_evtw'),
                     'nsvjJetsAK8Plus3':        SVJHistoInfo("nsvjJetsAK8Plus3",         h.axis.Regular(name="x", label="Number of SVJ AK8Jets pred3Jets",                bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'pred3_evtw'),

@@ -12,41 +12,48 @@ from utils.python import jetutils as ju
 from utils.python.svjgnntagger import SVJGNNTagger
 from scipy.special import softmax
 
+def jetVar_i(var,i,padValue=np.Inf):
+    paddedVar = ak.fill_none(ak.pad_none(var,i+1),padValue)
+    return paddedVar[:,i]
+
 #seed = 12345
 #random.seed(12345)
-def get_data(varsIn, fjets, year, category):
-    scores = varsIn[""] #scores_file["Scores"]["score1"].array(library="np")
-    training_file = uproot.open(f"test_dataset_{year}.root")
+def get_data(varsIn, fjets):
+    j_wnae_pt_0_200 = varsIn["JetsAK8_WNAEPt0To200Loss"]
+    j_wnae_pt_200_300 = varsIn["JetsAK8_WNAEPt200To300Loss"]
+    j_wnae_pt_300_400 = varsIn["JetsAK8_WNAEPt300To400Loss"]
+    j_wnae_pt_400_500 = varsIn["JetsAK8_WNAEPt400To500Loss"]
+    j_wnae_pt_500_inf = varsIn["JetsAK8_WNAEPt500ToInfLoss"]
 
-    j0_pt = training_file["Events"]["GoodJetsAK80_pt"].array(library="np")
-    j1_pt = training_file["Events"]["GoodJetsAK81_pt"].array(library="np")
-    j2_pt = training_file["Events"]["GoodJetsAK82_pt"].array(library="np")
-    j3_pt = training_file["Events"]["GoodJetsAK83_pt"].array(library="np")
+    j0_pt = jetVar_i(fjets.pt, 0)
+    j1_pt = jetVar_i(fjets.pt, 1)
+    j2_pt = jetVar_i(fjets.pt, 2)
+    j3_pt = jetVar_i(fjets.pt, 3)
 
-    j0_wnae_pt_0_200 = training_file["Events"]["GoodJetsAK80_WNAEPt0To200Loss"].array(library="np")
-    j1_wnae_pt_0_200 = training_file["Events"]["GoodJetsAK81_WNAEPt0To200Loss"].array(library="np")
-    j2_wnae_pt_0_200 = training_file["Events"]["GoodJetsAK82_WNAEPt0To200Loss"].array(library="np")
-    j3_wnae_pt_0_200 = training_file["Events"]["GoodJetsAK83_WNAEPt0To200Loss"].array(library="np")
+    j0_wnae_pt_0_200 = jetVar_i(j_wnae_pt_0_200, 0)
+    j1_wnae_pt_0_200 = jetVar_i(j_wnae_pt_0_200, 1)
+    j2_wnae_pt_0_200 = jetVar_i(j_wnae_pt_0_200, 2)
+    j3_wnae_pt_0_200 = jetVar_i(j_wnae_pt_0_200, 3)
 
-    j0_wnae_pt_200_300 = training_file["Events"]["GoodJetsAK80_WNAEPt200To300Loss"].array(library="np")
-    j1_wnae_pt_200_300 = training_file["Events"]["GoodJetsAK81_WNAEPt200To300Loss"].array(library="np")
-    j2_wnae_pt_200_300 = training_file["Events"]["GoodJetsAK82_WNAEPt200To300Loss"].array(library="np")
-    j3_wnae_pt_200_300 = training_file["Events"]["GoodJetsAK83_WNAEPt200To300Loss"].array(library="np")
+    j0_wnae_pt_200_300 = jetVar_i(j_wnae_pt_200_300, 0)
+    j1_wnae_pt_200_300 = jetVar_i(j_wnae_pt_200_300, 1)
+    j2_wnae_pt_200_300 = jetVar_i(j_wnae_pt_200_300, 2)
+    j3_wnae_pt_200_300 = jetVar_i(j_wnae_pt_200_300, 3)
 
-    j0_wnae_pt_300_400 = training_file["Events"]["GoodJetsAK80_WNAEPt300To400Loss"].array(library="np")
-    j1_wnae_pt_300_400 = training_file["Events"]["GoodJetsAK81_WNAEPt300To400Loss"].array(library="np")
-    j2_wnae_pt_300_400 = training_file["Events"]["GoodJetsAK82_WNAEPt300To400Loss"].array(library="np")
-    j3_wnae_pt_300_400 = training_file["Events"]["GoodJetsAK83_WNAEPt300To400Loss"].array(library="np")
+    j0_wnae_pt_300_400 = jetVar_i(j_wnae_pt_300_400, 0)
+    j1_wnae_pt_300_400 = jetVar_i(j_wnae_pt_300_400, 1)
+    j2_wnae_pt_300_400 = jetVar_i(j_wnae_pt_300_400, 2)
+    j3_wnae_pt_300_400 = jetVar_i(j_wnae_pt_300_400, 3)
 
-    j0_wnae_pt_400_500 = training_file["Events"]["GoodJetsAK80_WNAEPt400To500Loss"].array(library="np")
-    j1_wnae_pt_400_500 = training_file["Events"]["GoodJetsAK81_WNAEPt400To500Loss"].array(library="np")
-    j2_wnae_pt_400_500 = training_file["Events"]["GoodJetsAK82_WNAEPt400To500Loss"].array(library="np")
-    j3_wnae_pt_400_500 = training_file["Events"]["GoodJetsAK83_WNAEPt400To500Loss"].array(library="np")
+    j0_wnae_pt_400_500 = jetVar_i(j_wnae_pt_400_500, 0)
+    j1_wnae_pt_400_500 = jetVar_i(j_wnae_pt_400_500, 1)
+    j2_wnae_pt_400_500 = jetVar_i(j_wnae_pt_400_500, 2)
+    j3_wnae_pt_400_500 = jetVar_i(j_wnae_pt_400_500, 3)
 
-    j0_wnae_pt_500_inf = training_file["Events"]["GoodJetsAK80_WNAEPt500ToInfLoss"].array(library="np")
-    j1_wnae_pt_500_inf = training_file["Events"]["GoodJetsAK81_WNAEPt500ToInfLoss"].array(library="np")
-    j2_wnae_pt_500_inf = training_file["Events"]["GoodJetsAK82_WNAEPt500ToInfLoss"].array(library="np")
-    j3_wnae_pt_500_inf = training_file["Events"]["GoodJetsAK83_WNAEPt500ToInfLoss"].array(library="np")
+    j0_wnae_pt_500_inf = jetVar_i(j_wnae_pt_500_inf, 0)
+    j1_wnae_pt_500_inf = jetVar_i(j_wnae_pt_500_inf, 1)
+    j2_wnae_pt_500_inf = jetVar_i(j_wnae_pt_500_inf, 2)
+    j3_wnae_pt_500_inf = jetVar_i(j_wnae_pt_500_inf, 3)
 
     j0_is_tagged = (j0_pt < 200)*(j0_wnae_pt_0_200 > 25.156) + \
                 (j0_pt >= 200)*(j0_pt < 300)*(j0_wnae_pt_200_300 > 18.284) + \
@@ -77,15 +84,13 @@ def get_data(varsIn, fjets, year, category):
     return n_tagged_jets
 
 def create_wnae_related_variables(varsIn, fjets):
-    year = "2016"
-    category = "test"
-    n_tagged_jets = get_data(varsIn, fjets, year, category)
+    varsIn['nsvjJetsAK8WNAE'] = get_data(varsIn, fjets)
 
     # wpt = 0.7 # wpt 0.8, 0.045 fakerate
     # darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
     # bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     # nsvjJetsAK8 = ak.num(darksvjJetsAK8)
-    varsIn['nsvjJetsAK8WNAE'] = n_tagged_jets
+    # varsIn['nsvjJetsAK8WNAE'] = n_tagged_jets
     # varsIn['pNetJetTaggerScore'] = svjJetsAK8
     # varsIn['JetsAK8_pNetJetTaggerScore'] = svjJetsAK8 # needed for event classifier part to work properly; should probably unify the naming conventions
     # varsIn['svfjw'] = u.awkwardReshape(darksvjJetsAK8,varsIn['evtw'])
