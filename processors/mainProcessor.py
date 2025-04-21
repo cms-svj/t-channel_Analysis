@@ -71,6 +71,7 @@ class MainProcessor(processor.ProcessorABC):
                 if self.runJetTag:
                     if self.skimSource:
                         create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
+                        create_wnae_related_variables(vars_noCut, vars_noCut["fjets"])
                     else:
                         runJetTagger(events,vars_noCut,self.fakerateHisto)
 

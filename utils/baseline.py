@@ -312,13 +312,22 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
         # }
     if runJetTag:
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
+        nsvjJetsAK8WNAE = vars_noCut["nsvjJetsAK8WNAE"]        
         cutsWithNSVJ = {
             "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),
             "_pre_1SVJ":                        preselection & (nsvjJetsAK8 == 1),
             "_pre_2SVJ":                        preselection & (nsvjJetsAK8 == 2),
-            "_pre_2PSVJ":                        preselection & (nsvjJetsAK8 >= 2),
+            "_pre_2PSVJ":                       preselection & (nsvjJetsAK8 >= 2),
             "_pre_3SVJ":                        preselection & (nsvjJetsAK8 == 3),
             "_pre_4PSVJ":                       preselection & (nsvjJetsAK8 >= 4),
+
+            "_pre_0WSVJ":                        preselection & (nsvjJetsAK8WNAE == 0),
+            "_pre_1WSVJ":                        preselection & (nsvjJetsAK8WNAE == 1),
+            "_pre_2WSVJ":                        preselection & (nsvjJetsAK8WNAE == 2),
+            "_pre_2WPSVJ":                       preselection & (nsvjJetsAK8WNAE >= 2),
+            "_pre_3WSVJ":                        preselection & (nsvjJetsAK8WNAE == 3),
+            "_pre_4PSVJ":                        preselection & (nsvjJetsAK8WNAE >= 4),
+            
             #"_lcr_pre_0SVJ":                    lcr_preselection & (nsvjJetsAK8 == 0),
             #"_lcr_pre_1SVJ":                    lcr_preselection & (nsvjJetsAK8 == 1),
             #"_lcr_pre_2SVJ":                    lcr_preselection & (nsvjJetsAK8 == 2),
