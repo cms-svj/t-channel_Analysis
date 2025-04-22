@@ -174,20 +174,30 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
             isSignal = 2
     varVal["isSignal"] = isSignal
     evtw = np.ones(len(events))
+    kFactor = 1
     if not isData:
          # 2018 lumi
         if "2016" in dataset:
             luminosity = 35921.036
+            if "QCD" in dataset:
+                kFactor = 1.2428
         elif "2017" in dataset:
             luminosity = 41521.331
+            if "QCD" in dataset:
+                kFactor = 1.4164
         elif "2018" in dataset:
             if hemPeriod == "PreHEM":
                 luminosity = 21071.460
+                if "QCD" in dataset:
+                    kFactor = 1.4623
             elif hemPeriod == "PostHEM":
                 luminosity = 38621.232
+                if "QCD" in dataset:
+                    kFactor = 1.5551
             else:
                 luminosity = 59692.692
-        evtw = luminosity*events.Weight*scaleFactor
+        print(f"kFactor used  - {kFactor}")
+        evtw = luminosity*events.Weight*scaleFactor*kFactor
         if isSignal == 0: # only apply puWeight to backgrounds
             evtw = evtw*events.puWeight
     eCounter = np.where(evtw >= 0, 1, -1)
@@ -325,6 +335,12 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
         varVal['JetsAK8_isGood'] = events.JetsAK8.isGood
         if runJetTag:
             varVal['JetsAK8_pNetJetTaggerScore'] = events.JetsAK8.pNetJetTaggerScore
+            # getting WNAE score
+            jetsAK8_WNAEPt0To200Loss = events.JetsAK8.WNAEPt0To200Loss
+            jetsAK8_WNAEPt200To300Loss = events.JetsAK8.WNAEPt200To300Loss
+            jetsAK8_WNAEPt300To400Loss = events.JetsAK8.WNAEPt300To400Loss
+            jetsAK8_WNAEPt400To500Loss = events.JetsAK8.WNAEPt400To500Loss
+            jetsAK8_WNAEPt500ToInfLoss = events.JetsAK8.WNAEPt500ToInfLoss
     return varVal
 
 def varGetter(dataset,events,varVal,cut,jNVar=False):
