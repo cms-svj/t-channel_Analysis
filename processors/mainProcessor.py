@@ -73,11 +73,12 @@ class MainProcessor(processor.ProcessorABC):
                     if self.skimSource:
                         create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
                         create_wnae_related_variables(vars_noCut, vars_noCut["fjets"], 
-                                                      svjWNAEPt0To200Loss = vars_noCut["JetsAK8_WNAEPt0To200Loss"][vars_noCut["JetsAK8_isGood"]],   wpt0To200 = 0,
-                                                      svjWNAEPt200To300Loss = vars_noCut["JetsAK8_WNAEPt200To300Loss"][vars_noCut["JetsAK8_isGood"]], wpt200To300 = 0,
-                                                      svjWNAEPt300To400Loss = vars_noCut["JetsAK8_WNAEPt300To400Loss"][vars_noCut["JetsAK8_isGood"]], wpt300To400 = 0,
-                                                      svjWNAEPt400To500Loss = vars_noCut["JetsAK8_WNAEPt400To500Loss"][vars_noCut["JetsAK8_isGood"]], wpt400To500 = 0,
-                                                      svjWNAEPt500ToInfLoss = vars_noCut["JetsAK8_WNAEPt500ToInfLoss"][vars_noCut["JetsAK8_isGood"]], wpt500ToInf = 0)
+                                                      svjWNAEPt0To200Loss = vars_noCut["JetsAK8_WNAEPt0To200Loss"][vars_noCut["JetsAK8_isGood"]],   wpt0To200 = 25.156,
+                                                      svjWNAEPt200To300Loss = vars_noCut["JetsAK8_WNAEPt200To300Loss"][vars_noCut["JetsAK8_isGood"]], wpt200To300 = 18.284,
+                                                      svjWNAEPt300To400Loss = vars_noCut["JetsAK8_WNAEPt300To400Loss"][vars_noCut["JetsAK8_isGood"]], wpt300To400 = 20.383,
+                                                      svjWNAEPt400To500Loss = vars_noCut["JetsAK8_WNAEPt400To500Loss"][vars_noCut["JetsAK8_isGood"]], wpt400To500 = 21.941,
+                                                      svjWNAEPt500ToInfLoss = vars_noCut["JetsAK8_WNAEPt500ToInfLoss"][vars_noCut["JetsAK8_isGood"]], wpt500ToInf = 16.370) 
+                        # these WNAE working points are based on a 20% background jet rejection rate
                     else:
                         runJetTagger(events,vars_noCut,self.fakerateHisto)
 
