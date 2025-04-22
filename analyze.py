@@ -39,7 +39,7 @@ def main():
     parser.add_argument('-b', '--jobs',         help='Number of workers to use for condor dask', dest='jobs', type=int, default=1)
     parser.add_argument('-s', '--chunksize',    help='Chunk size',        dest='chunksize', type=int, default=10000)
     parser.add_argument('-m', '--maxchunks',    help='Max number of chunks (for testing)',        dest='maxchunks', type=int, default=None)
-    parser.add_argument('-t', '--eTagLoc',      help='Location of the event tagger model',        dest='eTagLoc', type=str, default="utils/data/DNNEventClassifier/sdt_QCD_disco_0p001_closure_0p02_damp_1_net_128_64_32_16_8_1Evt_all_signals_ep800_trainingAllYears")
+    parser.add_argument('-t', '--eTagLoc',      help='Location of the event tagger model',        dest='eTagLoc', type=str, default="utils/data/DNNEventClassifier/sdt_allBkgs_disco_0p001_closure_0p06_damp_1_net_64_32_16_8_trainingAllYears_eval2016")
     parser.add_argument(      '--outHistF',     help='Output directory for histogram files',      dest='outHistF', type=str, default="./")
     parser.add_argument(      '--hemPeriod',    help='HEM period (PreHEM or PostHEM), default includes entire sample',            dest='hemPeriod', type=str, default="")
     parser.add_argument(      '--hemStudy',     help='HEM study',         dest='hemStudy',             default=False, action='store_true')
