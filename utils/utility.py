@@ -336,11 +336,12 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
         if runJetTag:
             varVal['JetsAK8_pNetJetTaggerScore'] = events.JetsAK8.pNetJetTaggerScore
             # getting WNAE score
-            jetsAK8_WNAEPt0To200Loss = events.JetsAK8.WNAEPt0To200Loss
-            jetsAK8_WNAEPt200To300Loss = events.JetsAK8.WNAEPt200To300Loss
-            jetsAK8_WNAEPt300To400Loss = events.JetsAK8.WNAEPt300To400Loss
-            jetsAK8_WNAEPt400To500Loss = events.JetsAK8.WNAEPt400To500Loss
-            jetsAK8_WNAEPt500ToInfLoss = events.JetsAK8.WNAEPt500ToInfLoss
+            varVal['JetsAK8_WNAEPt0To200Loss'] = events.JetsAK8.WNAEPt0To200Loss
+            varVal['JetsAK8_WNAEPt200To300Loss'] = events.JetsAK8.WNAEPt200To300Loss
+            varVal['JetsAK8_WNAEPt300To400Loss'] = events.JetsAK8.WNAEPt300To400Loss
+            varVal['JetsAK8_WNAEPt400To500Loss'] = events.JetsAK8.WNAEPt400To500Loss
+            varVal['JetsAK8_WNAEPt500ToInfLoss'] = events.JetsAK8.WNAEPt500ToInfLoss
+
     return varVal
 
 def varGetter(dataset,events,varVal,cut,jNVar=False):

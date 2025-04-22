@@ -255,6 +255,8 @@ def variables(jNVar=False, maxN = 3, runJetTag=True, runEvtClass=True):
                     #                                 xbins=h.axis.Regular(name="x", label="N-Med Event",      bins=4, start=0.0, stop=4.0), ybins=h.axis.Regular(name="y", label="Number of Tagged SVJ",  bins=8, start=0.0, stop=8.0 )),  
                     # 'nTagSVJvsnjetsAK8': SVJHistoInfo(varXName='nsvjJetsAK8', varYName='njetsAK8',npzInfo=0, flattenInfo=0, weightName='evtw', 
                     #                                 xbins=h.axis.Regular(name="x", label="Number of Tagged SVJ",      bins=8, start=0.0, stop=8.0), ybins=h.axis.Regular(name="y", label="njetsAK8",  bins=10, start=0.0, stop=10.0 )),
+                    'nsvjWNAE':                SVJHistoInfo("nsvjWNAE",              h.axis.Regular(name="x", label="Number of SVJ AK8Jets (WNAE)",                          bins=20,    start= 0.0,    stop=20.0  ),     0,     0, 'evtw'      ),
+                    'wnaeJetTaggerScore':      SVJHistoInfo("wnaeJetTaggerScore",       h.axis.Regular(name="x", label="wnaeJetTaggerScore",                                 bins=100,   start= 0.0,    stop=100.0   ),   1,     1, 'fjw'       ),
         }
         allVars.update(jetTagVars)
 

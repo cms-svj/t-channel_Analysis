@@ -6,6 +6,7 @@ from utils import utility as utl
 from utils import baseline as bl
 from utils.variables import variables
 from utils.inferenceParticleNet import runJetTagger, create_pn_related_variables
+from utils.inferenceWNAE import create_wnae_related_variables
 from utils.runEventTagger import runEventTagger
 import uproot
 import torch
@@ -71,6 +72,12 @@ class MainProcessor(processor.ProcessorABC):
                 if self.runJetTag:
                     if self.skimSource:
                         create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
+                        create_wnae_related_variables(vars_noCut, vars_noCut["fjets"], 
+                                                      svjWNAEPt0To200Loss = vars_noCut["JetsAK8_WNAEPt0To200Loss"][vars_noCut["JetsAK8_isGood"]],   wpt0To200 = 0,
+                                                      svjWNAEPt200To300Loss = vars_noCut["JetsAK8_WNAEPt200To300Loss"][vars_noCut["JetsAK8_isGood"]], wpt200To300 = 0,
+                                                      svjWNAEPt300To400Loss = vars_noCut["JetsAK8_WNAEPt300To400Loss"][vars_noCut["JetsAK8_isGood"]], wpt300To400 = 0,
+                                                      svjWNAEPt400To500Loss = vars_noCut["JetsAK8_WNAEPt400To500Loss"][vars_noCut["JetsAK8_isGood"]], wpt400To500 = 0,
+                                                      svjWNAEPt500ToInfLoss = vars_noCut["JetsAK8_WNAEPt500ToInfLoss"][vars_noCut["JetsAK8_isGood"]], wpt500ToInf = 0)
                     else:
                         runJetTagger(events,vars_noCut,self.fakerateHisto)
 
