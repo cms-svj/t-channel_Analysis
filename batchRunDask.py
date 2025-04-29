@@ -45,7 +45,7 @@ hemStudy = args.hemStudy
 hemPeriod = args.hemPeriod
 trgEffStudy = args.trgEffStudy
 listOfSampleGroupsToRun = [
-                        "2016APV_Data",
+                        #"2016APV_Data",
                         "2016_Data",
                         "2016_QCD",
                         "2016_SVJ_t",
