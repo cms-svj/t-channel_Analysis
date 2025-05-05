@@ -421,6 +421,18 @@ def plot_ABCD_ratios(
         plt.savefig(os.path.join(output_dir, filename), dpi=300)
         plt.close()
 
+        # Save data to a corresponding .txt file
+        txt_filename = filename.replace('.jpg', '.txt')
+        txt_path = os.path.join(output_dir, txt_filename)
+        with open(txt_path, 'w') as f:
+            f.write("Boundary\t" + "\t".join([f"{label}_NonClosure\t{label}_NC_err" for label in labels]) + "\tDiff(Data-MC)\tDiff_er(Data-MC)r\n")
+            for i in range(len(x_values)):
+                row = [f"{x_values[i]:.5f}"]
+                for nc, err in zip(non_closures, nonclosure_err):
+                    row.append(f"{nc[i]:.5f}\t{err[i]:.5f}")
+                row.append(f"{diff_ratios[0][i]:.5f}\t{diff_error[0][i]:.5f}")
+                f.write("\t".join(row) + "\n")
+
     plot_and_save(values, 
                 [ratio_0SVJ_data, ratio_0SVJ_bg],
                 [errbars_0SVJ_data, errbars_0SVJ_bg],
@@ -474,7 +486,7 @@ def main():
     ABCDhistoVars = ["METvsDNN"]
     ABCDFolderName = "ABCD"
     SRCut = "_pre_"    
-    Years = CRCuts
+    
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
     
