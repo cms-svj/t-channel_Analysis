@@ -32,7 +32,7 @@ cd <working_directory>/t-channel_Analysis
 cp -r /uscms/home/keanet/nobackup/SVJ/t-channel_temp/t-channel_Analysis/utils/data/DNNEventClassifier/sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn utils/data/DNNEventClassifier/sdt_QCD_disco_0p001_closure_0p02_damp_1_net_64_32_16_8_1Evt_pn
 ```
 
-To activate the `coffeaenv` environment and set the Jupyter paths, run the command (every time):
+To activate the `coffeaenv` environment and set the Jupyter paths, run the command (every time). This is the preferred method for working with the `coffea` environment:
 ```bash
 cd <working_directory>/t-channel_Analysis
 source init.sh
@@ -98,7 +98,7 @@ To make histograms locally using the signal and background ntuples, make sure yo
 ```bash
 python analyze.py -d <sample label> -N <number of files>
 ```
-To make neural network training files locally using the signal and background ntuples, make sure you are using the LCG coffea environment. The way the code is set up now, we need to `hadd` the training root files together, but the singularity environment does not support `hadd`
+To make neural network training files locally using the signal and background ntuples, make sure you are using the singularity coffea environment. The way the code is set up now, we need to `hadd` the training root files together, but the singularity environment does not support `hadd`. The singularity container containing the `coffea` environment does not contain the `ROOT` (This is discussed in the later section). 
 ```bash
 python analyze_root_varModule.py -d <sample label> -N <number of files>
 ```
@@ -111,22 +111,87 @@ Running things locally is usually done for debugging and testing purposes.
 * `-M`: index of the first file to run over.
 * `-w`: number of workers.
 * `-s`: chunksize; an input for the coffea processor. It determines how many events to process at the same time.
-* `--skimSource`: run the analysis using the skim files produced in [this framework](https://github.com/fleble/SVJProcessing/tree/main) instead of TreeMaker ntuples.  
-Sometimes it is helpful to use `-w 1 -s 2` for debugging.
+* `--skimSource`: run the analysis using the skim files produced in [this framework](https://github.com/fleble/SVJProcessing/tree/main) instead of TreeMaker ntuples.
+* `--skimCut`: The selection of cuts that have been applied to the TreeMaker NTuples when making the skims - `t_channel_pre_selection`, `t_channel_lost_lepton_control_region`
+* `--outHistF`: Output directory for histogram files.
+* `--hemPeriod`: For 2018 dataset, it can be divided into PreHEM and PostHEM periods removing the HEM issue observed in 2018. By default, entire dataset without this split is used.
+* `--f`: Option to  apply the scale factors. In case you want to work with a subset of the dataset then put the scalefactors in the file `utils/samples.py`. Currently, scalefactors for 20 files per sample are stored.
+* 
+Sometimes it is helpful to use `-w 1 -s 2` for debugging. 
 
 Dask can be used to run `analyze.py` in parallel, either locally or on Condor. The relevant options are:
 * `--dask`: run w/ dask
 * `--port`: port for dask status dashboard
 * `--mincores`: dask waits for min # cores
-* `--quiet`: suppress status printouts  
+* `--quiet`: suppress status printouts
 To view the status dashboard, specify `--port 8NNN` (using the forwarded port from the earlier ssh command)
 and navigate to `localhost:8NNN` in a web browser.
 
+Jet Tagger and Event classifier specific commands:
+* `--eTagLoc`: Location of the event tagger model, by default it is `utils/data/DNNEventClassifier/sdt_allBkgs_disco_0p001_closure_0p06_damp_1_net_64_32_16_8_trainingAllYears_eval2016` which is best Event classifier DNN model trained on all backgrounds. In case there is a different model you want to use, add the model to `utils/data/DNNEventClassifier/`.
+* `--runJetTag`: Run the jet tagger. By default this option is `false`
+* `--runEvtClass`: Run the event classifier. By default this option is `false`
 
 #### Running analysis using dask condor
 To run jobs using dask condor, add `--dask --condor` at the end of the command to run the analysis locally.
+* `-b`: Number of workers to use for condor dask
 
-[Obsolete] To run jobs on condor, cd into the `condor` directory and run
+### Submitting jobs in a batch for multiple backgrounds and signal
+For running the `analyze.py` for multiple dataset using the `--condor --dask` we use the `batchRunDask.py`. Following commands will submit the condor jobs for the datasets mentioned in the `listOfSampleGroupsToRun` dictionary in `batchRunDask.py`. Uncomment the datasets that you don't want to run on. Use `screen` to make sure you don't kill the jobs when exiting the terminal.
+```bash
+screen
+voms-proxy-init -voms cms --valid 192:00
+. init.sh
+python batchRunDask.py --submissionMode 1 --skimSource --skimCut t_channel_pre_selection --runSignalLocal --runJetTag --runEvtClass > logfile.log 2>&1
+Ctrl + A + D # exit the screen session
+```
+Following are the options in the `batchRunDask.py`
+* `--nFilesPerJob`: Number of files to run per job. Higher number can cause memory issue.
+* `--maxFilesPerSample`: The number of files to run over per sample group. -1 = all available files.
+* `--maxJobs`: Maximum number of jobs to run on condor at a time. If inferencing on particleNet (not the case for skims), higher number than 100 can cause instability.
+* `--chunkSize`: 0 = submit jobs without mixing different samples together, 1 = submit jobs while mixing samples together (faster since lower number of submissions)
+* `--outHistF`: Location to save all the output histograms
+* `--eTagName`: Name of the event classifier
+* `--skimSource`: Use skims instead of TreeMaker ntuples.
+* `--skimCut`: The selection of cuts that have been applied to the TM ntuple when making the skims: `t_channel_pre_selection`, `t_channel_lost_lepton_control_region`
+* `--runSignalLocal`: Run over signals locally. Slow, but more stable than running on condor.
+* `--printOnly`: Print the commands without running them
+* `--rerunMissingFiles`: Rerun the jobs based on missing files.
+* `--runJetTag`: Run jet tagger
+* `--runEvtClass`: Run event classifier
+* `--hemPeriod`: HEM period (PreHEM or PostHEM), default includes entire sample for the 2018 dataset
+* `--haddAll`: Hadd all the output files by their sample group (This has to be run outside of the coffeaenv)
+
+After the root files are created, to hadd all the files, use the `haddAll` option as shown in the following example. This has to be done outside the coffeaenv, run `initCondor.sh` to have a `ROOT` environment.
+First setup the `ROOT` environment - 
+```bash
+cd condor
+. initCondor.sh
+cd ../
+```
+Run the `batchRunDask.py`
+```bash
+python batchRunDask.py --submissionMode 1 --skimSource --hadAll --skimCut t_channel_pre_selection
+```
+
+### Making the Skims that contains the ParticleNet scores.
+The skims are made using a different framework named [SVJProcessing](https://github.com/fleble/SVJProcessing/tree/main). Follow the steps mentioned in the framework to create the skims. There are two main steps - `prepare_input_files_list_t_channel.sh` and `make_skims_t_channel.sh`. 
+
+### Important files to edit if needed - 
+1. `utils/baseline.py`: Edit the cuts dictionary to add or remove the cuts needed.
+2. `utils/variable.py`: Add the variable for which the histograms are to be made and accordingly change the `utils/vars.py` which is used by the `plotStack.py` since `variables.py` is not compatible with `ROOT`.
+
+### Plotting histograms 
+To plot the histograms from the root files created after the `batchRunDask.py` step, use the `plotStack.py`. This has to be done outside the `coffeaenv` since it uses `ROOT`. First setup the `ROOT` environment using `initCondor.sh` then run the `plotStack.py`
+```bash
+python plotStack.py -d (location of the histograms) -j -y 2018 -o (output dir name)
+```
+Edit the `main()` function's `cutsImportant` variable to write the name of the cuts that you want to make the stack plots. 
+
+
+
+
+[**Obsolete**] To run jobs on condor, cd into the `condor` directory and run
 ```bash
 source initCondor.sh
 python condorSubmit.py -d 2018_QCD,2018_mMed,2018_TTJets,2018_WJets,2018_ZJets -n 5 -w 1 --output [output directory] -p --pout [eos output directory for storing the training files]
