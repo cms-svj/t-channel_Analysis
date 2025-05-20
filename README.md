@@ -180,6 +180,9 @@ The skims are made using a different framework named [SVJProcessing](https://git
 ### Important files to edit if needed - 
 1. `utils/baseline.py`: Edit the cuts dictionary to add or remove the cuts needed.
 2. `utils/variable.py`: Add the variable for which the histograms are to be made and accordingly change the `utils/vars.py` which is used by the `plotStack.py` since `variables.py` is not compatible with `ROOT`.
+3. `utils/utility.py`: Add the variables in `baselineVar()` and `varGetter()`.
+4. `utils/runEventTagger.py`: Varibles related to the event tagger are to be added here.
+5. `utils/inferenceParticleNet.py`: Variables related to the Jet tagger are to be added here. 
 
 ### Plotting histograms 
 To plot the histograms from the root files created after the `batchRunDask.py` step, use the `plotStack.py`. This has to be done outside the `coffeaenv` since it uses `ROOT`. First setup the `ROOT` environment using `initCondor.sh` then run the `plotStack.py`
