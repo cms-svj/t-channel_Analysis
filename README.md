@@ -188,6 +188,8 @@ python plotStack.py -d (location of the histograms) -j -y 2018 -o (output dir na
 ```
 Edit the `main()` function's `cutsImportant` variable to write the name of the cuts that you want to make the stack plots. 
 
+### Making the Limit plots - 
+For making the limit plots we use the [StatInferenceFramework](https://github.com/cesarecazzaniga/StatInferenceFramework). We use the histograms for the backgrounds and the signals in the A,B,C,D regions with the MET binning which are the outputs from the [ABCDiscoTec Framework](https://github.com/cesarecazzaniga/ABCD_Disco_framework/tree/main). Follow the steps given in the StatINferenceFramework.   
 
 
 
