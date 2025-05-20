@@ -193,7 +193,9 @@ For making the limit plots we use the [StatInferenceFramework](https://github.co
 
 
 
-[**Obsolete**] To run jobs on condor, cd into the `condor` directory and run
+## [**Obsolete**] 
+
+To run jobs on condor, cd into the `condor` directory and run
 ```bash
 source initCondor.sh
 python condorSubmit.py -d 2018_QCD,2018_mMed,2018_TTJets,2018_WJets,2018_ZJets -n 5 -w 1 --output [output directory] -p --pout [eos output directory for storing the training files]
