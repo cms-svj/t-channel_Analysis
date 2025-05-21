@@ -36,7 +36,7 @@ def plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_
                     ]
 
         # Create a new plot for this edge pair
-        fig, ax = plt.subplots(figsize=(7, 6))
+        fig, ax = plt.subplots(figsize=(10, 8))
 
         # Draw each region as a rectangle
         for label, x1, x2, y1, y2, region_color in regions:
@@ -53,13 +53,14 @@ def plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_
             ax.plot([x1, x2], [y2, y2], "k-", linewidth=1.5)  # Top border
             ax.plot([x1, x1], [y1, y2], "k-", linewidth=1.5)  # Left border
             ax.plot([x2, x2], [y1, y2], "k-", linewidth=1.5)  # Right border
-        # Set axis limits and labels
+        
         hep.cms.label(rlabel="")
         #ax.set_xscale("log")
-        ax.set_xlim(200, 300)  # Adjusted MET range
+        ax.set_xlim(200, 400)  # Adjusted MET range
         ax.set_ylim(0, 1)      
-        ax.set_xlabel("MET [GeV]")
-        ax.set_ylabel("DNN Score")
+        ax.set_xlabel(r"$\it{p}_{T}^{\mathrm{Miss}}$ [GeV]")
+        ax.set_ylabel("Event Level DNN Score")
+        #ax.set_xscale("log")
         #ax.set_title(f'Regions for Edges {inner_edge:.2f} - {outer_edge:.2f}', fontsize=15.5)
 
         # Create a legend for regions
@@ -71,10 +72,10 @@ def plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_
         ]
         ax.legend(handles=legend_patches, loc="upper right")
 
-        plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+        #plt.grid(True, which="both", linestyle="--", linewidth=0.5)
 
         # Save figure with inner and outer edge values in filename
-        output_path = os.path.join(output_dir, f"Regions_Inner{DNN_inner_edge:.2f}_Outer{MET_outer_edge:.2f}.jpg")
+        output_path = os.path.join(output_dir, f"Regions_Inner{DNN_inner_edge:.2f}_Outer{MET_outer_edge:.2f}.pdf")
         plt.savefig(output_path, dpi=300, bbox_inches='tight')
         plt.close()  # Close figure to avoid display issues
         print(f'{MET_inner_edges}')
@@ -101,3 +102,9 @@ DNN_inner_edges = np.linspace(0.1, 0.6, 10)
 MET_outer_edges = np.linspace(225,250,10)
 MET_inner_edges = np.linspace(205,225,10)
 plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_edges, 'SubRegions/VR3')
+
+DNN_outer_edges = np.linspace(1, 1, 15)
+DNN_inner_edges = np.linspace(0.85, 0.85, 15)
+MET_outer_edges = np.linspace(3000,3000,15)
+MET_inner_edges = np.linspace(250,250,15)
+plot_ABCD_regions(DNN_inner_edges,DNN_outer_edges,MET_inner_edges,MET_outer_edges, 'SubRegions')
