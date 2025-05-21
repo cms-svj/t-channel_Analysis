@@ -373,7 +373,7 @@ def plot_ABCD_ratios(
 
     # Function to plot and save the main plot and the difference plot
     def plot_and_save(x_values,non_closures,nonclosure_err, diff_ratios,diff_error, labels, colors,title,filename):
-        plt.figure(figsize=(15, 12))  # Increase figure size to make room for the rectangular bottom plot
+        plt.figure(figsize=(16, 13))  # Increase figure size to make room for the rectangular bottom plot
         print(f"x_values length: {len(x_values)}")
         print(f"non_closure length: {len(non_closures[0])}")
         print(f"error length: {len(nonclosure_err)}")
@@ -418,11 +418,14 @@ def plot_ABCD_ratios(
         ax0.grid(True, which='both', linestyle='--', linewidth=0.5)
         ax1.grid(True, which='both', linestyle='--', linewidth=0.5)
         plt.tight_layout()  # Adjust layout to prevent overlap
-        plt.savefig(os.path.join(output_dir, filename), dpi=300)
+        #plt.savefig(os.path.join(output_dir, filename), dpi=300)
+        plt.savefig(os.path.join(output_dir, filename), format='pdf', bbox_inches='tight')
+
+
         plt.close()
 
         # Save data to a corresponding .txt file
-        txt_filename = filename.replace('.jpg', '.txt')
+        txt_filename = filename.replace('.pdf', '.txt')
         txt_path = os.path.join(output_dir, txt_filename)
         with open(txt_path, 'w') as f:
             f.write("Boundary\t" + "\t".join([f"{label}_NonClosure\t{label}_NC_err" for label in labels]) + "\tDiff(Data-MC)\tDiff_er(Data-MC)r\n")
@@ -440,7 +443,7 @@ def plot_ABCD_ratios(
                 ["Data 0SVJ", "Background MC 0SVJ"], 
                 ["b", "r"],
                 title,
-                "Ratio_Data_0SVJ.jpg")
+                "Ratio_Data_0SVJ.pdf")
 
     plot_and_save(values, 
                 [ratio_1SVJ_data, ratio_1SVJ_bg],
@@ -449,7 +452,7 @@ def plot_ABCD_ratios(
                 ["Data 1SVJ", "Background MC 1SVJ"], 
                 ["b", "r"], 
                 title,
-                "Ratio_Data_1SVJ.jpg")
+                "Ratio_Data_1SVJ.pdf")
     print(f"data {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
     plot_and_save(values, 
                 [ratio_2PSVJ_data, ratio_2PSVJ_bg],
@@ -458,7 +461,7 @@ def plot_ABCD_ratios(
                 ["Data 2SVJ", "Background MC 2SVJ"], 
                 ["b", "r"], 
                 title,
-                "Ratio_Data_2PSVJ.jpg")
+                "Ratio_Data_2PSVJ.pdf")
 
     plot_and_save(values, 
                 [ratio_3PSVJ_data, ratio_3PSVJ_bg],
@@ -467,7 +470,7 @@ def plot_ABCD_ratios(
                 ["Data 2SVJ", "Background MC 2SVJ"], 
                 ["b", "r"], 
                 title,
-                "Ratio_Data_3PSVJ.jpg")
+                "Ratio_Data_3PSVJ.pdf")
     print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
     print(f'Boundary Values {values}')
 
