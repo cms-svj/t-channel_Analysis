@@ -397,7 +397,8 @@ def plot_ABCD_ratios(
                 ["Data 0SVJ", "Background MC 0SVJ"], 
                 ["b", "r"],
                 title, 
-                "Ratio_Data_0SVJ.jpg")
+                "Ratio_Data_0SVJ.pdf")
+                #"Ratio_Data_0SVJ.jpg")
 
     plot_and_save(values, 
                 [ratio_1SVJ_data, ratio_1SVJ_bg],
@@ -406,7 +407,8 @@ def plot_ABCD_ratios(
                 ["Data 1SVJ", "Background MC 1SVJ"], 
                 ["b", "r"], 
                 title,
-                "Ratio_Data_1SVJ.jpg")
+                "Ratio_Data_1SVJ.pdf")
+                #"Ratio_Data_1SVJ.jpg")
     print(f"data {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
     plot_and_save(values, 
                 [ratio_2PSVJ_data, ratio_2PSVJ_bg],
@@ -415,7 +417,8 @@ def plot_ABCD_ratios(
                 ["Data 2SVJ", "Background MC 2SVJ"], 
                 ["b", "r"], 
                 title,
-                "Ratio_Data_2PSVJ.jpg")
+                "Ratio_Data_2PSVJ.pdf")
+                #"Ratio_Data_2PSVJ.jpg")
     
     #print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
     plot_signal_contamination(values, sig_contam_0SVJ, sig_contam_err_0SVJ, "0SVJ", "signal_contamination_0SVJ.jpg")
