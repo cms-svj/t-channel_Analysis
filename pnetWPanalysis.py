@@ -396,12 +396,14 @@ def main():
     maincuts = CRCuts
     Data, sgData, bgData = getData( options.dataset + "/", 1.0, year)
 
-    bins = 30
-    MET_outer_edges = np.linspace(20000, 20000, bins)
-    MET_inner_edges = np.linspace(205, 1000, bins)
+    met_bins = 50
+    MET_outer_edges = np.linspace(20000, 20000, met_bins)
+    MET_inner_edges = np.linspace(205, 1000, met_bins)
 
-    DNN_outer_edges = np.linspace(1,1,bins)
-    DNN_inner_edges = np.linspace(0.1, 0.90,bins)
+    dnn_bins = 50
+
+    DNN_outer_edges = np.linspace(1,1,dnn_bins)
+    DNN_inner_edges = np.linspace(0.1, 0.9,dnn_bins)
     
 
     # Define output directory
@@ -434,8 +436,8 @@ def main():
         nonclosure_3PSVJ = compute_nonclosure(obs_3PSVJ_bg, pred_3PSVJ_bg)
         # Function to plot 2D histograms for non-closure
         
-        DNN_edges = np.linspace(0,1,bins)
-        MET_edges = np.linspace(200,1000,bins)
+        DNN_edges = np.linspace(0,1,dnn_bins)
+        MET_edges = np.linspace(200,1000,met_bins)
         # Plot Non-Closure Histograms
         plot_nonclosure_histogram(nonclosure_0SVJ, MET_edges,DNN_edges,1, f'0SVJ {WP}', f"{output_dir}/nonclosure_0SVJ_{WP}.png")
         plot_nonclosure_histogram(nonclosure_1SVJ, MET_edges,DNN_edges,1, f'1SVJ {WP}', f"{output_dir}/nonclosure_1SVJ_{WP}.png")

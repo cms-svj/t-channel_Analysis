@@ -397,8 +397,7 @@ def plot_ABCD_ratios(
                 ["Data 0SVJ", "Background MC 0SVJ"], 
                 ["b", "r"],
                 title, 
-                "Ratio_Data_0SVJ.pdf")
-                #"Ratio_Data_0SVJ.jpg")
+                "Ratio_Data_0SVJ.jpg")
 
     plot_and_save(values, 
                 [ratio_1SVJ_data, ratio_1SVJ_bg],
@@ -407,8 +406,7 @@ def plot_ABCD_ratios(
                 ["Data 1SVJ", "Background MC 1SVJ"], 
                 ["b", "r"], 
                 title,
-                "Ratio_Data_1SVJ.pdf")
-                #"Ratio_Data_1SVJ.jpg")
+                "Ratio_Data_1SVJ.jpg")
     print(f"data {ratio_1SVJ_data} err bars {errbars_1SVJ_data}")
     plot_and_save(values, 
                 [ratio_2PSVJ_data, ratio_2PSVJ_bg],
@@ -417,8 +415,7 @@ def plot_ABCD_ratios(
                 ["Data 2SVJ", "Background MC 2SVJ"], 
                 ["b", "r"], 
                 title,
-                "Ratio_Data_2PSVJ.pdf")
-                #"Ratio_Data_2PSVJ.jpg")
+                "Ratio_Data_2PSVJ.jpg")
     
     #print(f"non closure data 2psvj {ratio_2PSVJ_data} ")
     plot_signal_contamination(values, sig_contam_0SVJ, sig_contam_err_0SVJ, "0SVJ", "signal_contamination_0SVJ.jpg")
@@ -506,28 +503,8 @@ def main():
             obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg,
             DNN_outer_edges, output_dir,f'Control Region Non Closure split by DNN and MET(VR III) {Year}')
 
-    # outer_edges = np.linspace(225,250,30)
-    # inner_edges = np.linspace(210,225,30)
 
-    # output_dir = 'Nonclosure/VRI-MET/ControlRegion'
-    # outer_edge_results,obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg = compute_ABCD_prediction(Data, sgData, bgData, "h_METvsDNN", '_pre_',inner_edges, outer_edges)
-    # #print('outer_edge_results ',outer_edge_results)
-    # #print('observed_A',observed_A)
-    # #print('ratio_A',ratio_A)
-    # plot_ABCD_ratios(
-    #     year,
-    #     outer_edge_results, 
-    #     obs_0SVJ_data, pred_0SVJ_data, obs_0SVJ_sig, pred_0SVJ_sig, obs_0SVJ_bg, pred_0SVJ_bg,
-    #     obs_1SVJ_data, pred_1SVJ_data, obs_1SVJ_sig, pred_1SVJ_sig, obs_1SVJ_bg, pred_1SVJ_bg,
-    #     obs_2PSVJ_data, pred_2PSVJ_data, obs_2PSVJ_sig, pred_2PSVJ_sig, obs_2PSVJ_bg, pred_2PSVJ_bg,
-    #     obserr_0SVJ_data, obserr_0SVJ_sig, obserr_0SVJ_bg,prederr_0SVJ_data, prederr_0SVJ_sig, prederr_0SVJ_bg,
-    #     obserr_1SVJ_data, obserr_1SVJ_sig, obserr_1SVJ_bg,prederr_1SVJ_data, prederr_1SVJ_sig, prederr_1SVJ_bg,
-    #     obserr_2PSVJ_data, oberr_2PSVJ_sig, obserr_2PSVJ_bg,prederr_2PSVJ_data, prederr_2PSVJ_sig, prederr_2PSVJ_bg,
-    #     outer_edges, output_dir)
  
 
 if __name__ == '__main__':
     main()
-
-
-
