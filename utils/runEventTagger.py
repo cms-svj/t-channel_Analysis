@@ -143,6 +143,22 @@ def normalize(evtTaggerDict, varVal):
 
 # inferencing model
 def runEventTagger(events, varVal, skimSource, evtTaggerDict):
+    def _minmax_scale(arr, eps=1e-6):
+    arr = np.asarray(arr, dtype=float)
+    mask = np.isfinite(arr)
+
+    if not np.any(mask):
+        return np.zeros_like(arr)
+
+    a_min, a_max = arr[mask].min(), arr[mask].max()
+    if a_max > a_min:
+        arr[mask] = np.clip((arr[mask] - a_min) / (a_max - a_min), 0, 1-eps)
+    else:
+        arr[mask] = 0.0  # all values identical
+
+    arr[~mask] = 0.0  # replace NaN/Inf with 0
+    return arr
+
     evtTaggerVars(events, varVal, skimSource, evtTaggerDict)
     df_target_std = normalize(evtTaggerDict, varVal)
     model = evtTaggerDict["model"]
@@ -151,4 +167,8 @@ def runEventTagger(events, varVal, skimSource, evtTaggerDict):
     opt_training_options = locate(config_training_options)
     features = opt_training_options.features_training
     event_tagger_score = model(torch.tensor(df_target_std[features].values, dtype=torch.float32))
-    varVal["dnnEventClassScore"] = event_tagger_score.detach().numpy().flatten()
+    #varVal["dnnEventClassScore"] = event_tagger_score.detach().numpy().flatten()
+    # ✅ apply min-max scaling
+    scaled_event_tagger_score = _minmax_scale(event_tagger_score.detach().numpy().flatten())
+    varVal["dnnEventClassScore"] = scaled_event_tagger_score
+    
