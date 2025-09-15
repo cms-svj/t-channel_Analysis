@@ -133,6 +133,32 @@ def runHadd(expectedFilesDict,outHistF):
             else:
                 print(command)
                 os.system(command)
+def runHadd(expectedFilesDict, outHistF):
+    for sampleGroup, sampleList in expectedFilesDict.items():
+        if "SVJ" in sampleGroup:
+            for sample in sampleList:
+                if sample[0] in os.listdir(outHistF):
+                    print(f"mv {outHistF}/{sample[0]} {outHistF}/{sample[1]}.root")
+                else:
+                    print(f"{sample[0]} is missing.")
+                    os.system(f"mv {sample[0]} {sample[1]}.root")
+        else:
+            # build hadd command properly
+            inputs = []
+            missingFile = False
+            for sample in sampleList:
+                if sample in os.listdir(outHistF):
+                    inputs.append(f"{outHistF}/{sample}")
+                else:
+                    missingFile = True
+                    print(f"Missing file: {sample}")
+                    break
+            if missingFile:
+                print(f"{sampleGroup} has missing files. hadd was not performed.")
+            else:
+                command = f"hadd -f {outHistF}/{sampleGroup}.root " + " ".join(inputs)
+                print(command)
+                os.system(command)
 
 for sampleGroupToRun in listOfSampleGroupsToRun:
     expectedFilesDict[sampleGroupToRun] = []
