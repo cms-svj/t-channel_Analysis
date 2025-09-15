@@ -152,16 +152,20 @@ def runEventTagger(events, varVal, skimSource, evtTaggerDict):
       - Scales scores with min-max scaling
       - Stores results in varVal
     """
-    
-    def _minmax_scale(arr, eps=1e-6):
+
+    gmin, gmax = 0.355, 0.795
+    def _minmax_scale(arr, global_min, global_max, eps=1e-6):
+        """
+        Min-max scale using precomputed global min and max.
+        Replaces NaN/Inf with 0s.
+        """
         arr = np.asarray(arr, dtype=float)
-        # remove NaN and Inf
-        arr = arr[np.isfinite(arr)]
-        if arr.size == 0:
-            return np.array([])
-        a_min, a_max = arr.min(), arr.max()
-        if a_max > a_min:
-            return np.clip((arr - a_min) / (a_max - a_min), 0, 1-eps)
+
+        # replace NaN/Inf with 0
+        arr[~np.isfinite(arr)] = 0
+
+        if global_max > global_min:
+            return np.clip((arr - global_min) / (global_max - global_min), 0, 1 - eps)
         else:
             return np.zeros_like(arr)
     
@@ -175,6 +179,6 @@ def runEventTagger(events, varVal, skimSource, evtTaggerDict):
     event_tagger_score = model(torch.tensor(df_target_std[features].values, dtype=torch.float32))
 
     scores = event_tagger_score.detach().numpy().flatten()
-    scaled_scores = _minmax_scale(scores)
+    scaled_scores = _minmax_scale(scores,gmin, gmax)
     varVal["dnnEventClassScore"] = scaled_scores
     #varVal["dnnEventClassScore"] = event_tagger_score.detach().numpy().flatten()
