@@ -153,7 +153,8 @@ def runEventTagger(events, varVal, skimSource, evtTaggerDict):
       - Stores results in varVal
     """
 
-    gmin, gmax = 0.355, 0.795
+    #gmin, gmax = 0.355, 0.795
+    gmin, gmax = 0.005, 0.645
     def _minmax_scale(arr, global_min, global_max, eps=1e-6):
         """
         Min-max scale using precomputed global min and max.
@@ -177,8 +178,8 @@ def runEventTagger(events, varVal, skimSource, evtTaggerDict):
     opt_training_options = locate(config_training_options)
     features = opt_training_options.features_training
     event_tagger_score = model(torch.tensor(df_target_std[features].values, dtype=torch.float32))
-
+    #varVal["dnnEventClassScore"] = event_tagger_score.detach().numpy().flatten()
     scores = event_tagger_score.detach().numpy().flatten()
     scaled_scores = _minmax_scale(scores,gmin, gmax)
     varVal["dnnEventClassScore"] = scaled_scores
-    #varVal["dnnEventClassScore"] = event_tagger_score.detach().numpy().flatten()
+    
