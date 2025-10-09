@@ -324,9 +324,9 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
             "_pre_WNAE_0SVJ":                        preselection & (nsvjWNAE == 0),
             "_pre_WNAE_1SVJ":                        preselection & (nsvjWNAE == 1),
             "_pre_WNAE_2SVJ":                        preselection & (nsvjWNAE == 2),
-            "_pre_WNAE_2PSVJ"                        preselection & (nsvjWNAE >= 2),
+            "_pre_WNAE_2PSVJ":                        preselection & (nsvjWNAE >= 2),
             "_pre_WNAE_3SVJ":                        preselection & (nsvjWNAE == 3),
-            "_pre_WNAE_3PSVJ"                        preselection & (nsvjWNAE >= 3),
+            "_pre_WNAE_3PSVJ":                        preselection & (nsvjWNAE >= 3),
             "_pre_WNAE_4PSVJ":                       preselection & (nsvjWNAE >= 4),
 
 
