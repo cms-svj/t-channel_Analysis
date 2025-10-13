@@ -2,9 +2,25 @@ import numpy as np
 import awkward as ak
 from . import utility as utl
 
+
+
+def safe_get(events, name):
+    """Safely get an awkward record array from NanoAOD-like events."""
+    if hasattr(events, name):
+        arr = getattr(events, name)
+        if hasattr(arr, "fields") and len(arr.fields) > 0:
+            return arr
+
+    # Correct shape: list of (list of records)
+    empty = ak.Array([[{"pt": 0.0, "eta": 0.0, "phi": 0.0, "iso": 0.0}]])[:0]
+    return empty
+
+
 class Objects:
     def __init__(self, events):
-        self.electrons = events.Electrons
+        self.electrons = safe_get(events, "Electrons")
+        #self.electrons = getattr(events, "Electrons", ak.Array([]))
+        #self.electrons = events.Electrons
         self.muons = events.Muons
         self.jets = events.Jets
         self.fjets = events.JetsAK8

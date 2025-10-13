@@ -296,6 +296,41 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
     # varVal['nHLTMatchedMuons'] = nHLTMatchedMuons
     ############################################
     ##### For TTStitch sanity check ######
+
+def safe_num(arr, target_len=None):
+    """
+    Safely compute ak.num(arr) without broadcasting errors.
+    Returns an awkward array of zeros if arr is missing or empty.
+
+    Parameters
+    ----------
+    arr : awkward.Array or None
+        Input array (e.g. electrons or muons)
+    target_len : int or None
+        Optional number of events (to pad output length to match)
+    """
+    # If the array is None or definitely empty
+    if arr is None or len(arr) == 0:
+        if target_len is not None:
+            # Return an array of zeros matching event count
+            return ak.Array([0] * target_len)
+        else:
+            return ak.Array([0])
+
+    try:
+        out = ak.num(arr)
+        # If it’s scalar (not per-event), expand to length 1
+        if not hasattr(out, "__len__"):
+            out = ak.Array([out])
+        return out
+    except Exception:
+        # As a fallback, produce zeros matching target_len if known
+        if target_len is not None:
+            return ak.Array([0] * target_len)
+        else:
+            return ak.Array([0])
+
+
     if "TTJets" in dataset:
         varVal['madHT'] = events.madHT
     else:
@@ -310,7 +345,10 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
     varVal['nonIsoMuons'] = nonIsoMuons
     varVal['eCounter'] = eCounter
     varVal['evtw'] = evtw
-    varVal['nl'] = (ak.num(electrons) + ak.num(muons))
+    #varVal['nl'] = (ak.num(electrons) + ak.num(muons))
+    n_e = utl.safe_num(electrons, target_len=len(events))
+    n_m = utl.safe_num(muons, target_len=len(events))
+    varVal['nl'] = n_e + n_m
     varVal['nnim'] = ak.num(nonIsoMuons)
     varVal['njets'] = ak.num(jets)
     varVal['njetsAK8'] = ak.num(fjets)
