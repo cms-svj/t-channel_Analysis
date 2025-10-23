@@ -137,13 +137,14 @@ import numpy as np
 
 # # --- Config ---
 models = [
+    "Current_Model_wp90",
     "AKSHAT_Nonclosure",
     "AKSHAT_Model_Nonclosure_wp_p9",
     "Longtrained_Florian_model_Nonclosure",
     "Longtrained_Florian_model_Nonclosure_wp_p9"
 ]
 taggers = ["WNAE", "PNET"]
-years = ["2017_", "2018_"]
+years = ["2017", "2018"]
 validation_regions = ["VRI", "VRII", "VRIII"]
 categories = ["0SVJ", "1SVJ", "2SVJ", "2PSVJ", "3PSVJ"]
 
