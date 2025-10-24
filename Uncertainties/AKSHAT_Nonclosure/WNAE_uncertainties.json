@@ -1,0 +1,146 @@
+{
+    "2017": {
+        "0SVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.03151,
+                "Associated_Data_Error": 0.02666
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.17071,
+                "Associated_Data_Error": 0.03542
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.09423,
+                "Associated_Data_Error": 0.0438
+            }
+        },
+        "1SVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.04278,
+                "Associated_Data_Error": 0.02525
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.13239,
+                "Associated_Data_Error": 0.03754
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.11101,
+                "Associated_Data_Error": 0.04348
+            }
+        },
+        "2SVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.04796,
+                "Associated_Data_Error": 0.04376
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.07779,
+                "Associated_Data_Error": 0.05492
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.09556,
+                "Associated_Data_Error": 0.07683
+            }
+        },
+        "2PSVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.0312,
+                "Associated_Data_Error": 0.0396
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.09667,
+                "Associated_Data_Error": 0.0608
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.08964,
+                "Associated_Data_Error": 0.07058
+            }
+        },
+        "3PSVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.07419,
+                "Associated_Data_Error": 0.08247
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.2334,
+                "Associated_Data_Error": 0.18052
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.21418,
+                "Associated_Data_Error": 0.1998
+            }
+        }
+    },
+    "2018": {
+        "0SVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.01968,
+                "Associated_Data_Error": 0.01887
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.07526,
+                "Associated_Data_Error": 0.02671
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.06582,
+                "Associated_Data_Error": 0.03642
+            }
+        },
+        "1SVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.02027,
+                "Associated_Data_Error": 0.02
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.17402,
+                "Associated_Data_Error": 0.03131
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.06608,
+                "Associated_Data_Error": 0.03351
+            }
+        },
+        "2SVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.03562,
+                "Associated_Data_Error": 0.03033
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.0906,
+                "Associated_Data_Error": 0.05427
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.05564,
+                "Associated_Data_Error": 0.05192
+            }
+        },
+        "2PSVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.0275,
+                "Associated_Data_Error": 0.03054
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.10075,
+                "Associated_Data_Error": 0.05105
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.04125,
+                "Associated_Data_Error": 0.04757
+            }
+        },
+        "3PSVJ": {
+            "VRI": {
+                "Abs_Max_Data_NonClosure": 0.22145,
+                "Associated_Data_Error": 0.09471
+            },
+            "VRII": {
+                "Abs_Max_Data_NonClosure": 0.2636,
+                "Associated_Data_Error": 0.08569
+            },
+            "VRIII": {
+                "Abs_Max_Data_NonClosure": 0.17642,
+                "Associated_Data_Error": 0.14702
+            }
+        }
+    }
+}
