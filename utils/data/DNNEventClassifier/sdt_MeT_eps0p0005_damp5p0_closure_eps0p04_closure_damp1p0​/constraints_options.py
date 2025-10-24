@@ -10,8 +10,8 @@ constraints = {
     "MET": {
         "axis": "y",
         "type": "max",
-        "epsilon": 0.001,
-        "damping": 1.0,
+        "epsilon": 0.0005,
+        "damping": 5.0,
         "scale": 1.0,
         "power": 1.0,
         "with_signal": False,
@@ -20,7 +20,7 @@ constraints = {
     "closure": {
         "axis": None,
         "type": "max",
-        "epsilon": 0.06,
+        "epsilon": 0.04,
         "damping": 1.0,
         "scale": 1.0,
         "symmetric": True,
