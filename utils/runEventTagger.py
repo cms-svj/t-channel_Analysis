@@ -153,8 +153,8 @@ def runEventTagger(events, varVal, skimSource, evtTaggerDict):
       - Stores results in varVal
     """
 
-    #gmin, gmax = 0.355, 0.795
-    gmin, gmax = 0.005, 0.645
+    #gmin, gmax = 0.355, 0.795 # for Akshat_Model
+    #gmin, gmax = 0.005, 0.645 # for long traimned dlorian model
     def _minmax_scale(arr, global_min, global_max, eps=1e-6):
         """
         Min-max scale using precomputed global min and max.
