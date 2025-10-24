@@ -60,7 +60,7 @@ def getFlatScore(pNetJetTaggerScore):
     return output
 
 def create_pn_related_variables(varsIn, fakerateHisto, fjets, svjJetsAK8):
-    wpt = 0.7 # wpt 0.8, 0.045 fakerate
+    wpt = 0.9 # wpt 0.8, 0.045 fakerate
     darksvjJetsAK8 = fjets[svjJetsAK8 >= wpt]
     bgroundJetsAK8 = fjets[svjJetsAK8 < wpt]
     nsvjJetsAK8 = ak.num(darksvjJetsAK8)
