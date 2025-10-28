@@ -137,6 +137,7 @@ import numpy as np
 
 # # --- Config ---
 models = [
+    "Potential_Model_wp90",
     "Current_Model_wp90",
     "AKSHAT_Nonclosure",
     "AKSHAT_Model_Nonclosure_wp_p9",
