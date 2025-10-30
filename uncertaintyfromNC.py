@@ -141,6 +141,7 @@ models = [
     "Current_Model_wp90",
     "AKSHAT_Nonclosure",
     "AKSHAT_Model_Nonclosure_wp_p9",
+    "AKSHAT_Model_Nonclosure_wp_p87",
     "Longtrained_Florian_model_Nonclosure",
     "Longtrained_Florian_model_Nonclosure_wp_p9"
 ]
