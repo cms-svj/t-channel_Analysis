@@ -161,19 +161,24 @@ def getData(path, scale=1.0, year = "2018",HEMPeriod=''):
         # info.DataSetInfo(basedir=path, fileName=year+"_mMed-6000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="t-ch 6000", scale=scale, color=ROOT.kCyan,)
         ## varying mMed
 
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="m_{#Phi} = 600 GeV, r_{inv} = 0.3",  scale=scale, color=ROOT.kViolet + 2),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.1", scale=scale, color=ROOT.kMagenta + 1),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlack),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.7", scale=scale, color=ROOT.TColor.GetColor("#92dadd")),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-600_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="m_{#Phi} = 600 GeV, r_{inv} = 0.3",  scale=scale, color=ROOT.kViolet + 2),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p1_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.1", scale=scale, color=ROOT.kMagenta + 1),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlack),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-2000_mDark-20_rinv-0p7_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.7", scale=scale, color=ROOT.TColor.GetColor("#92dadd")),
         
         
         
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="m_{#Phi} = 800 GeV, r_{inv} = 0.3",  scale=scale, color=ROOT.kRed),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 1000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kMagenta + 1),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 1500 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kGray+4),
-        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 3000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kCyan),
-        info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 4000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlue - 4),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-800_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",     label="m_{#Phi} = 800 GeV, r_{inv} = 0.3",  scale=scale, color=ROOT.kRed),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 1000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kMagenta + 1),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-1500_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 1500 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kGray+4),
+        # # info.DataSetInfo(basedir=path, fileName=year+"_mMed-3000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 3000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kCyan),
+        # info.DataSetInfo(basedir=path, fileName=year+"_mMed-4000_mDark-20_rinv-0p3_alpha-peak_yukawa-1.root",    label="m_{#Phi} = 4000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlue - 4),
         
+        info.DataSetInfo(basedir=path, fileName=year+f"_m600_d20_r0p3_y1_N-1_M0_{HEMPeriod}.root",     label="m_{#Phi} = 600 GeV, r_{inv} = 0.3",  scale=scale, color=ROOT.kViolet + 2),
+        info.DataSetInfo(basedir=path, fileName=year+f"_m2000_d20_r0p3_y1_N-1_M0_{HEMPeriod}.root",    label="m_{#Phi} = 2000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlack),
+        info.DataSetInfo(basedir=path, fileName=year+f"_m4000_d20_r0p3_y1_N-1_M0_{HEMPeriod}.root",    label="m_{#Phi} = 4000 GeV, r_{inv} = 0.3", scale=scale, color=ROOT.kBlue - 4),
+        
+
        ##
         
         # ## varying mDark
@@ -682,6 +687,12 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
     # print("before setup bkg histos detail key = {}, {}, {}".format(histoName,xmin, xmax))
     for d in data[1]:
         h = d.getHisto(histoName, rebinx=rebinx, xmin=xmin, xmax=xmax, fill=True, showEvents=showEvent)
+        if d.label_ == "QCD":
+            scale = 1
+            if year == "2017":
+                scale = 1.4
+            print(f"file name - {d.fileName} using scale - {scale}")
+            h.Scale(scale)
         if (stList != None) and (not normBkg):
             newEntry = stList + [getLabel(d.legEntry()),round(h.Integral())]
             yieldValues.loc[len(yieldValues.index)] = newEntry
@@ -731,13 +742,24 @@ def plotStack(data, histoName, totalBin, outputPath="./", xTitle="", yTitle="", 
 
     #create a dummy histogram to act as the axes
     if norm:
-        ymax=10**1
-        ymin=10**-12
-        lmax=10**1
-    else:
+        if isLogY:
+            ymax=10**1
+            ymin=10**-12
+            lmax=10**1
+        else:
+            ymax=1
+            ymin=0
+            lmax=0
+
+    elif isLogY:
         ymax=10**9
         ymin=10**-4
         lmax=10**9
+    else:
+        ymax=30000
+        ymin=10**-1
+        lmax=10**4
+        
     dummy = ROOT.TH1D("dummy", "dummy", 1000, hMC.GetBinLowEdge(1), hMC.GetBinLowEdge(hMC.GetNbinsX()) + hMC.GetBinWidth(hMC.GetNbinsX()))
     print(f"isRatio before setup dummy - {isRatio}")
     setupDummy(dummy, leg, "", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, norm, normBkg, isRatio=isRatio)
@@ -944,13 +966,13 @@ def main():
     hemPeriod = options.hemPeriod
 
     
-    # cutsImportant = ["_pre","_pre_psFilterSig4"]#,"_pre_noHEM"]#,"_qual_2PJ_st_dphimin_nl","_qual_2PJ_st_dphimin_ll"]
-    cutsImportant = ["_pre"]#,"_lcr_pre","_pre_0SVJ","_pre_1SVJ","_pre_2PSVJ","_lcr_pre_0SVJ","_lcr_pre_1SVJ","_lcr_pre_2PSVJ"]
+    cutsImportant = ["_pre"]#,"_pre_psFilterSig4"]#,"_pre_noHEM"]#,"_qual_2PJ_st_dphimin_nl","_qual_2PJ_st_dphimin_ll"]
+    # cutsImportant = ["_pre"]#,"_lcr_pre","_pre_0SVJ","_pre_1SVJ","_pre_2PSVJ","_lcr_pre_0SVJ","_lcr_pre_1SVJ","_lcr_pre_2PSVJ"]
     # cutsImportant = ["_pre__stcut"]#,"_pre__nl","_pre__2jetsAK8","_pre__stcut","_pre__dPhiMin","_pre__metcut","_pre__jetID"]
     
     print(f"cutsImportant - {cutsImportant}")
 
-    Data, sgData, bgData = getData( options.dataset + "/", 1.0, year,HEMPeriod="")
+    Data, sgData, bgData = getData( options.dataset + "/", 1.0, year,HEMPeriod=hemPeriod)
     
     allRocValues = pd.DataFrame(columns=["cut","var","sig","bkg","roc_auc","cutDir","cutSig","cBg","cSig","mBg_f","mSig_f"])
     yieldValues = pd.DataFrame(columns=["cut","var","source","yield"])
@@ -1030,9 +1052,9 @@ def main():
             print("Data = ",Data)
             # plotROC(  (Data, bgData, sgData), "h_"+histName+cut, plotOutDir+"/roc/"+cut[1:], isLogY=False,   manySigs=manySigs, stList=stList, allRocValues=allRocValues)
             # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,isRatio=False)
-            plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,year= year, isRatio=True, hemPeriod = hemPeriod, showEvent=False, ispdf=True)
+            plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=False,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,year= year, isRatio=True, hemPeriod = hemPeriod, showEvent=False, ispdf=True)
             # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/Stacked/"+cut[1:], details[0], "Events", isLogY=True,norm=isNorm, xmin=details[2], xmax=details[3], normBkg=False, onlySig=onlySig, stList=stList, yieldValues=yieldValues,year= year, isRatio=False, hemPeriod = hemPeriod, ispdf=True)
-            # plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/NormedStacked/"+cut[1:], details[0], "Events", isLogY=True, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=True, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
+            plotStack((Data, bgData, sgData), "h_"+histName+cut, details[1], plotOutDir+"/NormedStacked/"+cut[1:], details[0], "Events", isLogY=False, norm=isNorm, xmin=details[2], xmax=details[3], normBkg=True, onlySig=onlySig, stList=stList, yieldValues=yieldValues)
     # # #         # if histName in preVars.keys():
     # # # #             plotSignificance((Data, bgData, sgData), "h_"+histName, details[1], details[0], plotOutDir, cut,                    isLogY=False, reverseCut=preVars[histName], signifValues=signifValues)
    
