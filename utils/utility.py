@@ -200,6 +200,9 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
         evtw = luminosity*events.Weight*scaleFactor*kFactor
         if isSignal == 0: # only apply puWeight to backgrounds
             evtw = evtw*events.puWeight
+        # if "QCD" in dataset:  # adding the kFactor scaling
+
+
     eCounter = np.where(evtw >= 0, 1, -1)
     obj = ob.Objects(events)
     jets = obj.goodJets()

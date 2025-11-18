@@ -116,15 +116,17 @@ def runHadd(expectedFilesDict,outHistF):
             for sample in sampleList:
                 if sample[0] in os.listdir(outHistF):
                     print(f"mv {outHistF}/{sample[0]} {outHistF}/{sample[1]}.root")
+                    os.system(f"mv {outHistF}/{sample[0]} {outHistF}/{sample[1]}.root")
                 else:
                     print(f"{sample[0]} is missing.")
                     os.system(f"mv {sample[0]} {sample[1]}.root")
         else:
-            command = f"hadd -f {sampleGroup}.root "
+            command = f"hadd -f {outHistF}/{sampleGroup}.root "
             missingFile = False
             for sample in sampleList:
+                print("sample - {}".format(sample))
                 if sample in os.listdir(outHistF):
-                    command += f"{sample} "
+                    command += f"{outHistF}/{sample} "
                 else:
                     missingFile = True
                     break
@@ -253,4 +255,5 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 else:
                     runOrPrintCommand(command,haddAll,printOnly)
 if haddAll:
+    print(expectedFilesDict)
     runHadd(expectedFilesDict,outHistF)

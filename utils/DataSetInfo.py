@@ -1,6 +1,6 @@
 import ROOT
 import ctypes
-import array
+from array import array
 
 class DataSetInfo:
     def __init__(self, basedir, fileName, label, color=None, sys=None, processName=None, process=None, rate=None, lumiSys=None, scale=-1.0):
@@ -49,7 +49,7 @@ class DataSetInfo:
         
         # Get the histogram
         histo = self.file.Get(name)
-        histo.Sumw2()
+        # histo.Sumw2() 
         # Handle overflow by adding the overflow bin content to the last bin if specified
         if overflow:
             lastbinx = histo.GetNbinsX()
@@ -103,26 +103,57 @@ class DataSetInfo:
         
         return histo, integral, integral_error.value
     
-    def getXProjection(self, name, yValue, condition, rebinx=-1.0, rebiny=-1.0, xmin=None, xmax=None):
+
+    def getXProjection(self, name, ymin=None, ymax=None, xmin=None, xmax=None, rebinx=-1.0, tcutg=None):
+        """
+        Extract X projection of a 2D histogram, optionally applying a TCutG.
+
+        Parameters:
+            name (str): Histogram name in ROOT file.
+            ymin, ymax (float): Y range for projection.
+            xmin, xmax (float): Optional X range restriction after projection.
+            rebinx (int or list): Rebin factor or array of custom bin edges.
+            tcutg (TCutG): Optional graphical cut to apply.
+
+        Returns:
+            ROOT.TH1: 1D projection histogram.
+        """
+
+        # Get 2D histogram from file
         histo = self.file.Get(name)
+        print(f"rebin is set to be = {rebinx}")
+        if not histo:
+            print(f"\033[31mError: Histogram '{name}' not found in file.\033[0m")
+            return None
+
         nYbins = histo.GetNbinsY()
-        yValueBin = histo.GetYaxis().FindBin(yValue)
-        if condition == '>':
-            print("This is envoked with the condition >")
-            xProjectionhist = histo.ProjectionX(f"Projection_greater_{yValue}", yValueBin, nYbins+1) # Overflow bin is considered
-        elif condition == '<':
-            print("This is envoked with the condition <")
-            xProjectionhist = histo.ProjectionX(f"Projection_less_{yValue}", 0, yValueBin) # Underflow bin is considered 
-        
-        if self.scale != -1.0: xProjectionhist.Scale(self.scale)
-        if isinstance(rebinx, list):  # If rebinx is a list of bin edges
-            bin_array = array('d', rebinx)  # Convert list to array of doubles
-            xProjectionhist = xProjectionhist.Rebin(len(bin_array) - 1, f"{xProjectionhist.GetName()}_rebinned", bin_array)
-        elif rebinx != -1.0:  # If rebinx is a single integer
-            xProjectionhist.Rebin(int(rebinx))
-        if rebiny != -1.0: xProjectionhist.RebinY(rebiny)
+
+        # Find bin range for Y (optional)
+        biny_min = histo.GetYaxis().FindBin(ymin) if ymin is not None else 1
+        biny_max = histo.GetYaxis().FindBin(ymax) if ymax is not None else nYbins
+
+        # Apply TCutG directly if provided
+        if tcutg:
+            tcutg_name = tcutg.GetName()
+            xProjectionhist = histo.ProjectionX(f"Projection_{tcutg_name}", biny_min, biny_max, f"[{tcutg_name}]")
+        else:
+            xProjectionhist = histo.ProjectionX(f"Projection_{ymin}_{ymax}_{xmin}_{xmax}", biny_min, biny_max)
+
+        # Apply scale factor if needed
+        if self.scale != -1.0:
+            xProjectionhist.Scale(self.scale)
+
+        # Apply optional X range restriction
         if xmin is not None and xmax is not None:
-            xProjectionhist.GetXaxis().SetRangeUser(xmin,xmax)
+            xProjectionhist.GetXaxis().SetRangeUser(xmin, xmax)
+
+        # Apply rebinning if requested
+        if isinstance(rebinx, list):
+            bin_array = array('d', rebinx)
+            xProjectionhist = xProjectionhist.Rebin(len(bin_array) - 1, f"{xProjectionhist.GetName()}_rebinned", bin_array)
+        elif rebinx != -1.0:
+            xProjectionhist.Rebin(int(rebinx))
+
         return xProjectionhist
 
     def getFile(self):
