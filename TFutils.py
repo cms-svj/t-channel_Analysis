@@ -11,7 +11,6 @@ def GetABCDregions(met,dnn):
                 ]
     return regions
 
-
 def adjustRegionBoundaries(region, xmin, xmax, ymin, ymax):
     """ Adjust regions to avoid bin overlap based on the detected overlap. """
     if region == 'A':
@@ -39,10 +38,11 @@ def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin, isMETbinsCollapsed
 
     for region, xmin, xmax, ymin, ymax in regions:
         # Adjust bin boundaries if necessary
-        xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
+        
 
         if isMETbinsCollapsed:
             # Create a single-bin histogram to store integral value
+            xmin, xmax, ymin, ymax = adjustRegionBoundaries(region, xmin, xmax, ymin, ymax)
             hist_dict[region] = ROOT.TH1F(f"h_{bkgname}_{region}", f"h_{bkgname}_{region}", 1, 0, 1)
 
             # Compute integral using 2D histogram directly
@@ -82,6 +82,15 @@ def GetABCDhistPerSVJBin(data, ABCDhistoVar, maincut, SVJbin, isMETbinsCollapsed
                 rebinx=Metbinning,
                 tcutg=tcutg  # NEW: Apply the TCutG directly
             )
+            if region == "B":  ## Adding a check for region B and making the first bin of this histogram to be non zero so that it does not have issues over the StatInference Framework as they use FirstBin non Zero to define the bins in the remaking of the histograms
+                if hist_dict[region]:
+                    xaxis = hist_dict[region].GetXaxis()
+                    bin_index = xaxis.FindBin(xmin)
+
+                    if hist_dict[region].GetBinContent(bin_index) == 0:
+                        print(f"\033[33mFixing first bin (x={xmin}) in region B: setting to 1e-6\033[0m")
+                        hist_dict[region].SetBinContent(bin_index, 1e-8)
+                        hist_dict[region].SetBinError(bin_index, 0.0)
 
             if not hist_dict[region]:
                 print(f"\033[31mWarning: No histogram returned for region {region}\033[0m")
@@ -192,11 +201,11 @@ def GetABCDhist(data, ABCDhistoVar, maincut, SVJbins, isStack=False, merge=False
     if isStack:
         for hist in hist_dict.values():
             hist.SetFillColor(data.getColor())
-            hist.SetFillStyle(2001)
+            # hist.SetFillStyle(2001)
     if merge:
         if isStack:
             merged_hist.SetFillColor(data.getColor())
-            merged_hist.SetFillStyle(3001)
+            # merged_hist.SetFillStyle(3001)
         return merged_hist
     else:
         return hist_dict
@@ -239,6 +248,7 @@ def SumABCDhistList(ABCDhistList, skipList=None):
     '''Returns A,B,C,D histograms which are summed over all the files in the data list. It skips the files provided in the skipList'''
     firstPass = True
     for d, histograms in ABCDhistList.items():
+        print(f"file name working on - {d.fileName}")
         if skipList != None and d.fileName in skipList:
             continue
         if firstPass:
@@ -273,7 +283,7 @@ def SumHistograms(hist_dict, skipList=None):
     return summed_hist
 
 def rebinHistogramstoABCD(histList):
-    """Takes a list of histograms and returns a new list of histograms rebinned according to the bins of A, B, C, and D."""# TODO: Figure out the issue, not rebinning properly as desired
+    """Takes a list of histograms and returns a new list of histograms rebinned according to the bins of A, B, C, and D."""# TODO: Figure out the issue, not rebinning properly as desired  --- Rebin included in the projection, not needed anymore
     newHistList = []
     for hist in histList:
         newHist = hist.Clone()
@@ -291,10 +301,10 @@ def Validation(Data_CR, TFhist, SR_nonLL):
     return predicted_Data_SR
     
 
-def SaveHistDictToFile(hist_data, rootfileName):
+def SaveHistogramsToFile(hist_data, rootfileName):
     """
     Saves the histograms in hist_data to a ROOT file.
-    Supports both dictionaries (region: histogram) and lists of histograms.
+    Supports both dictionaries (region: histogram) and lists of histograms and also single TH1 histograms as well
 
     Parameters:
         hist_data: Dictionary {region: histogram} or list of 4 histograms (A, B, C, D).
@@ -307,7 +317,6 @@ def SaveHistDictToFile(hist_data, rootfileName):
 
     # Create the ROOT file
     output_file = ROOT.TFile(rootfileName, "RECREATE")
-
     try:
         if isinstance(hist_data, ROOT.TH1):  # Single histogram case
             folder = output_file.mkdir('A')
@@ -325,6 +334,7 @@ def SaveHistDictToFile(hist_data, rootfileName):
                 
                 hist_clone = hist.Clone()
                 hist_clone.SetDirectory(0)  # Prevent memory issues
+                
                 hist_clone.Write(hist_clone.GetName(), ROOT.TObject.kOverwrite)
         
         elif isinstance(hist_data, list):  # List of histograms (A, B, C, D)
@@ -340,6 +350,9 @@ def SaveHistDictToFile(hist_data, rootfileName):
                 
                 hist_clone = hist.Clone()
                 hist_clone.SetDirectory(0)  # Prevent memory issues
+                print(f"region - {region}, rootfileName - {rootfileName}, number of bins in clone - {hist_clone.GetNbinsX()}, and in hist - {hist.GetNbinsX()}")
+                for i in range(1,hist_clone.GetNbinsX()+1):
+                    print(f"bin value is -- {hist_clone.GetBinContent(i)}")
                 hist_clone.Write(hist_clone.GetName(), ROOT.TObject.kOverwrite)
 
     finally:

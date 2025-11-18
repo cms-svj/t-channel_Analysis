@@ -218,7 +218,7 @@ def SetupLineHistStyle(hist, color=ROOT.kBlue, width=2, style = ROOT.kSolid):
     hist.SetLineWidth(width)
     hist.SetLineStyle(style)
 
-def AddVerticalLineAtBinEnd(histogram, bin_number, ymin= 0, ymax = None, color=ROOT.kBlack, line_width=2):
+def AddVerticalLineAtBinEnd(histogram, bin_number, ymin= 0, ymax = None, color=ROOT.kBlack, line_width=2, line_style = ROOT.kSolid):
     '''
     Adds a vertical line at the end of a specified bin in the given histogram.
 
@@ -242,7 +242,9 @@ def AddVerticalLineAtBinEnd(histogram, bin_number, ymin= 0, ymax = None, color=R
     print(f"In the Line function --- x_end = {x_end}, ymin = {ymin}, ymax={ymax}")
     line.SetLineColor(color)
     line.SetLineWidth(line_width)
-    line.Draw("same")
+    line.SetLineStyle(line_style)
+    return line
+    # line.Draw("same")
 
 def AddVerticalLineForABCD(histogram, SVJbins, ymin=0 , ymax=None, color=ROOT.kBlack, line_width=2):
     '''
@@ -286,7 +288,7 @@ def AddLabelsForABCD(hist, SVJbins, yloc=None):
         SVJbins (dict): Dictionary of SVJ bins.
     """
     num_bins_per_region = len(SVJbins)
-    labels = ["A", "B", "C", "D"]
+    labels = ["A", "B", "C", "D"] # TODO : read labels directy for the regions
     
     # Calculate positions for the labels
     positions = [num_bins_per_region * (i + 0.5) + 1 for i in range(4)]
