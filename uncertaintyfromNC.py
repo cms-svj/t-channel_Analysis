@@ -139,6 +139,7 @@ import numpy as np
 models = [
     "Potential_Model_wp90",
     "Current_Model_wp90",
+    'Current_Model_wp85',
     "AKSHAT_Nonclosure",
     "AKSHAT_Model_Nonclosure_wp_p9",
     "AKSHAT_Model_Nonclosure_wp_p87",
@@ -192,7 +193,7 @@ for model in models:
 
                     # Apply capping condition
                     if max_nc > 0.4 or max_err > 0.3:
-                        max_nc = 0.5
+                        max_nc = 1.0
 
                     if max_nc > max_abs_nc:
                         max_abs_nc = max_nc
