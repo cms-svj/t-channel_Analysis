@@ -46,6 +46,34 @@ def RatioHistogram(numerator, denominator, yTitle="num/den", xTitle = "xTitle", 
     
     return ratio_hist
 
+def NonclosureHistogram(numerator, denominator, yTitle="|num-den|/den", xTitle="xTitle", Title=""):
+    '''Creates a nonclosure histogram: abs(numerator - denominator) / denominator.'''
+    nonclosure_hist = numerator.Clone("nonclosure_hist")
+    nonclosure_hist.SetTitle(Title)
+    nonclosure_hist.GetYaxis().SetTitle(yTitle)
+    nonclosure_hist.GetXaxis().SetTitle(xTitle)
+
+    for i in range(1, nonclosure_hist.GetNbinsX() + 1):
+        num_val = numerator.GetBinContent(i)
+        den_val = denominator.GetBinContent(i)
+        if den_val != 0:
+            nonclosure = abs(num_val - den_val) / abs(den_val)
+        else:
+            nonclosure = 0.0
+        nonclosure_hist.SetBinContent(i, nonclosure)
+        # Error propagation (optional, can be improved for your use case)
+        num_err = numerator.GetBinError(i)
+        den_err = denominator.GetBinError(i)
+        if den_val != 0:
+            err = math.sqrt(
+                (num_err / abs(den_val)) ** 2 +
+                ((num_val - den_val) * den_err / (den_val ** 2)) ** 2
+            )
+        else:
+            err = 0.0
+        nonclosure_hist.SetBinError(i, err)
+    return nonclosure_hist
+
 def SetupRatioStyle(ratioHist, xTitle, yTitle, yTitleSize=0.15, ymin=0,ymax=2):
     ratioHist.SetLineColor(ROOT.kBlack)
     ratioHist.SetMarkerStyle(20)
@@ -94,7 +122,7 @@ def AddCMSLumiText(canvas, year, isExtraText= False, extraText="Preliminary", he
     CMS_lumi.extraText = extraText
     CMS_lumi.lumi_sqrtS = lumi + " fb^{-1} (13 TeV)"
     iPeriod = 0
-    iPos = 0
+    iPos = 10
     CMS_lumi.CMS_lumi(canvas, iPeriod, iPos)
     canvas.cd()
     canvas.Update()
