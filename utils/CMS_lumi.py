@@ -19,10 +19,11 @@ lumiTextOffset   = 0.2 # for vertical offset
 cmsTextSize      = 0.75
 cmsTextOffset    = 0.1
 
-relPosX    = 0.045
+relPosX    = 0.01 #0.045
 relPosY    = 0.035
 relExtraDY = 1.5 # controls the gap between the CMS and extra text, 
-
+extraTextOffsetNDC = 0.05  # <<--- Add this line for fixed NDC offset
+# relExtraDY = 
 extraOverCmsTextSize  = 0.76
 
 lumi_13TeV = "20.1 fb^{-1}"
@@ -146,7 +147,8 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
                 latex.SetTextFont(extraTextFont)
                 latex.SetTextAlign(align_)
                 latex.SetTextSize(extraTextSize*t)
-                latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText)
+                # Use fixed NDC offset for extra text
+                latex.DrawLatex(posX_, posY_ - extraTextOffsetNDC, extraText)
     elif( writeExtraText ):
         if( iPosX==0):
             posX_ =   l +  relPosX*(1-l-r) + 0.1
