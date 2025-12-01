@@ -15,9 +15,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
-
+import plotStack
 import utils.DataSetInfo as info
-
+import utils.CMS_lumi as CMS_lumi
+import ROOTplotutils as pltutils
+import TFutils as TF
 # ---------------------------
 # CONFIG (global)
 # ---------------------------
@@ -75,6 +77,121 @@ def getMCOnly(dataset_dir, scale, year):
     """Return (Data=[], sgData, bgData) to handle the 2016-no-data case easily."""
     _, sgData, bgData = getData(dataset_dir, scale, year)
     return [], sgData, bgData
+
+
+
+def GetSVJbins():
+    '''Change the SVJbin edges here'''
+    SVJbins = {
+                "0SVJ" : [0.85,250.0],
+                "1SVJ" : [0.85,250.0],
+                "2SVJ" : [0.85,250.0],
+                "3PSVJ" : [0.85,250.0],
+
+    }
+    return SVJbins
+
+def plotABCD(dataList, ABCDHistoVar, maincut, SVJBins, plotOutputDir, xTitle="nSVJ",yTitle="Events",xmin=999.9, xmax = -999.9, isLogY = False, year="2018", isRatio=False,hemPeriod=False):
+    '''
+    Plots either a stacked histogram for background with or without the signal (when data is empty)
+    or a ratio plot between tData and background histograms. 
+    '''
+    ROOT.TH1.AddDirectory(False)
+    firstpass = True
+    Data, sgData, bgData = dataList
+    if maincut == "_pre_":
+        Data = None
+    # if maincut == "_lcr_pre_":
+    #     sgData = None
+    if isRatio and Data is None: 
+        print("Not passed data cannot make ratio plot, making normal plot instead") 
+        isRatio = False
+    if isRatio: 
+        c1 = ROOT.TCanvas( "c", "c", 800, 700)
+        c1, pad1, pad2 = pltutils.createCanvasPads(c1,isLogY)
+        pad1.cd()
+    else: 
+        c1 = ROOT.TCanvas( "c", "c", 800, 800)
+        c1.cd()
+        pltutils.SetupGPad(logY=isLogY)
+    
+    ROOT.gStyle.SetOptStat("")
+
+    #TLegend 
+    if isRatio:
+        leg = pltutils.SetupLegend(NColumns=2)
+    else:
+        leg = pltutils.SetupLegend(NColumns=2, textSize=0.024)
+
+    if bgData:
+        bgDataMergedABCDDict = TF.GetABCDhistDict(bgData,ABCDHistoVar, maincut, SVJBins, isStack=True, merge=True)
+        bgStackedHist, bgSummedHist = pltutils.StackedHistogram(bgDataMergedABCDDict)
+        for bgDataHist in bgDataMergedABCDDict.keys():
+            leg.AddEntry(bgDataMergedABCDDict[bgDataHist], bgDataHist.label_,"F")
+        if firstpass:
+            firstpass = False
+            dummy = ROOT.TH1D("dummy", "dummy", len(SVJBins)*4, bgSummedHist.GetBinLowEdge(1), bgSummedHist.GetBinLowEdge(bgSummedHist.GetNbinsX()) + bgSummedHist.GetBinWidth(bgSummedHist.GetNbinsX()))
+            # print(f"The dummy values are  - {bgSummedHist.GetBinLowEdge(1)}, {bgSummedHist.GetBinLowEdge(bgSummedHist.GetNbinsX())}, { bgSummedHist.GetBinWidth(bgSummedHist.GetNbinsX())}")
+            ymax=10**9
+            ymin=10
+            lmax=10**9
+            # Set bin labels for the dummy histogram to match bgSummedHist
+            for bin_idx in range(1, bgSummedHist.GetNbinsX() + 1):
+                bin_label = bgSummedHist.GetXaxis().GetBinLabel(bin_idx)
+                dummy.GetXaxis().SetBinLabel(bin_idx, bin_label)
+            pltutils.setupDummy(dummy,leg,"", xTitle, yTitle, isLogY, xmin, xmax, ymin, ymax, lmax, isRatio=isRatio)
+            dummy.Draw("hist")
+            
+        bgStackedHist.Draw("hist F same")
+        lines_upperpad = pltutils.AddVerticalLine(dummy, SVJBins, ymax = 10**5)
+        for line in lines_upperpad:
+            line.Draw("same")
+    
+    if sgData: 
+        sgDataMergedABCDDict = TF.GetABCDhistDict(sgData, ABCDHistoVar, maincut, SVJBins, merge=True)
+        linestylenumber = 0
+        linestyle = [ROOT.kSolid,ROOT.kDashed,ROOT.kDotted]
+        for sgDataHist in sgDataMergedABCDDict.keys():
+            leg.AddEntry(sgDataMergedABCDDict[sgDataHist], sgDataHist.label_,"L")
+            sgDataMergedABCDDict[sgDataHist].SetLineStyle(linestyle[linestylenumber%3])
+            linestylenumber+=1
+            sgDataMergedABCDDict[sgDataHist].SetLineWidth(3)
+            sgDataMergedABCDDict[sgDataHist].Draw("hist same") 
+            
+    if Data is not None:
+        for d in Data:
+            DataHist = TF.GetABCDhist(d, ABCDHistoVar, maincut, SVJBins, merge=True)
+            ROOT.gStyle.SetErrorX(0.)
+            DataHist = pltutils.SetupDataStyle(DataHist)
+            leg.AddEntry(DataHist, d.label_)
+            DataHist.Draw("P same")
+            
+            if isRatio:
+                pad2.cd()
+                ratioHist = pltutils.RatioHistogram(DataHist,bgSummedHist)
+                ratioHist = pltutils.SetupRatioStyle(ratioHist, xTitle, yTitle="Data/MC", yTitleSize=0.13)
+                ratioHist.Draw("EX0P")
+                lines_lowerpad = pltutils.AddVerticalLine(DataHist, SVJBins, ymax = 2)
+                for line in lines_lowerpad:
+                    line.Draw("same")
+        pad1.cd()
+    leg.Draw("same")
+    
+    # pltutils.AddVerticalLineForABCD(dummy, SVJBins)
+    pltutils.AddLabelsForABCD(dummy, SVJBins,yloc=5*10**4)
+    dummy.Draw("AXIS same")
+    # pltutils.AddVerticalLineAtBinEnd(dummy, 3)
+    if AddCMSText:
+        pltutils.AddCMSLumiText(c1, year, isExtraText=True,hemPeriod=hemPeriod)
+    c1.cd()
+    c1.Update()
+    # c1.RedrawAxis()
+    ROOT.gPad.RedrawAxis()
+    ROOT.gPad.RedrawAxis("G")
+    SaveName = plotOutputDir+"/ABCDPlot_"+maincut
+    c1.SaveAs(SaveName+".png")
+    c1.Close()
+    del c1, leg
 
 # ---------------------------
 # Label/color utilities
@@ -342,6 +459,99 @@ def plot_abcd_panels(counts, aggregated, components, outpng, title_suffix="", da
     plt.close(fig)
     print(f"[OK] Saved -> {outpng}")
 
+
+
+def plot_abcd_panels_ROOT(counts, aggregated, components, outpng,
+                           mode_label="", year="2018",
+                           data_counts=None):
+
+    # --- Setup ----------------------------------------------------
+    from ROOT import TCanvas, TH1F, THStack, TLegend, gStyle
+    gStyle.SetOptStat(0)
+
+    regions = ["A", "B", "C", "D"]
+    SVJbins = ["0SVJ", "1SVJ", "2SVJ", "3PSVJ"]
+    SVJlabels = ["0", "1", "2", "3+"]
+
+    # one canvas with 4 pads
+    c = TCanvas("c_abcd", "ABCD", 1200, 900)
+    c.Divide(2, 2)
+
+    # legend items → only once
+    legend_entries = []
+
+    # --- Loop over regions ----------------------------------------
+    for i, region in enumerate(regions):
+
+        pad = c.cd(i + 1)
+        pad.SetLogy()
+
+        # THStack for this region
+        hs = THStack(f"stack_{region}", f"{region};nSVJ;Events")
+
+        # Background histograms for each component
+        hists_bg = {}
+
+        for comp in components:
+            h = TH1F(f"h_{region}_{comp}", "", len(SVJbins), 0, len(SVJbins))
+            col = ROOT.TColor.GetColor(color_for_label(comp))
+            h.SetFillColor(col)
+            h.SetLineColor(col)
+            hists_bg[comp] = h
+
+        # --- Fill backgrounds -------------------------------------
+        for isvj, svj in enumerate(SVJbins):
+            for comp in components:
+                A, B, C, D = counts[(svj, comp)]
+                val = {"A": A, "B": B, "C": C, "D": D}[region]
+                hists_bg[comp].SetBinContent(isvj + 1, val)
+
+        # --- Add to stack (in consistent order) -------------------
+        for comp in components:
+            hs.Add(hists_bg[comp])
+            if i == 0:   # only add once to legend
+                legend_entries.append((hists_bg[comp], comp))
+
+        hs.Draw("HIST")
+        hs.GetXaxis().SetLabelSize(0.10)
+        for b, lab in enumerate(SVJlabels):
+            hs.GetXaxis().SetBinLabel(b + 1, lab)
+
+        # --- Overlay Data -----------------------------------------
+        if data_counts and region in ["B", "C", "D"]:
+            hD = TH1F(f"h_data_{region}", "", len(SVJbins), 0, len(SVJbins))
+            for isvj, svj in enumerate(SVJbins):
+                dA, dB, dC, dD = data_counts.get((svj, "Data"), (0,0,0,0))
+                dval = {"B": dB, "C": dC, "D": dD}[region]
+                hD.SetBinContent(isvj + 1, dval)
+            hD.SetMarkerStyle(20)
+            hD.SetMarkerSize(1)
+            hD.SetLineColor(ROOT.kBlack)
+            hD.Draw("P SAME")
+
+            if i == 1:
+                legend_entries.append((hD, "Data"))
+
+        # --- CMS lumi text on pad ---------------------------------
+        if i == 0:
+            CMS_lumi.CMS_lumi(pad, 4, 0, lumi_13TeV="41.5 fb^{-1}")
+
+    # --- Global Legend --------------------------------------------
+    c.cd(1)
+    leg = TLegend(0.15, 0.55, 0.45, 0.88)
+    leg.SetBorderSize(0)
+    leg.SetFillStyle(0)
+    for h, lab in legend_entries:
+        leg.AddEntry(h, lab, "f" if lab != "Data" else "p")
+    leg.Draw()
+
+    # --------------------------------------------------------------
+    c.SaveAs(outpng)
+    c.Close()
+
+    print(f"[OK] ROOT ABCD stack saved -> {outpng}")
+
+
 # ---------------------------
 # Single-mode runner
 # ---------------------------
@@ -352,17 +562,34 @@ def run_mode(mode_label, maincut, Data, sgData, bgData, outdir, year):
     # Write TXT
     txtpath = os.path.join(outdir, f"{mode_prefix}_ABCD_counts_{year}.txt")
     save_all_to_txt(counts, aggregated, components, txtpath, mode_label, year)
+    # SVJ binning your TF functions expect
+    SVJBins = GetSVJbins()       # IMPORTANT: names must match SVJ_ORDER
 
+    # Call the ROOT-based stack plot
+    plotABCD((Data, sgData, bgData),
+             "h_METvsDNN",
+             maincut,
+             SVJBins,
+             plotOutputDir=outdir,
+             xTitle="nSVJ",
+             yTitle="Events",
+             isLogY=True,
+             year=year,
+             isRatio=False)
     # MC-only plot
-    mc_pdf = os.path.join(outdir, f"{mode_prefix}_ABCD_MC_{year}.pdf")
-    plot_abcd_panels(counts, aggregated, components, mc_pdf, title_suffix=f"({mode_label})", data_counts=None)
+    #mc_pdf = os.path.join(outdir, f"{mode_prefix}_ABCD_MC_{year}.pdf")
+    #plot_abcd_panels(counts, aggregated, components, mc_pdf, title_suffix=f"({mode_label})", data_counts=None)
+    
 
     # Data overlay for B,C,D if Data present
-    data_counts = {}
-    if Data:
-        data_counts = build_data_counts_by_SVJ(Data, maincut, SVJ_ORDER)
-    data_pdf = os.path.join(outdir, f"{mode_prefix}_ABCD_Data_{year}.pdf")
-    plot_abcd_panels(counts, aggregated, components, data_pdf, title_suffix=f"({mode_label})", data_counts=data_counts if data_counts else None)
+    # data_counts = {}
+    # if Data:
+    #     data_counts = build_data_counts_by_SVJ(Data, maincut, SVJ_ORDER)
+    # data_pdf = os.path.join(outdir, f"{mode_prefix}_ABCD_Data_{year}.pdf")
+    # plot_abcd_panels(counts, aggregated, components, data_pdf, title_suffix=f"({mode_label})", data_counts=data_counts if data_counts else None)
+    
+
+    
 
 # ---------------------------
 # Main
