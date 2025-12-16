@@ -137,17 +137,18 @@ import numpy as np
 
 # # --- Config ---
 models = [
-    "Potential_Model_wp90",
-    "Current_Model_wp90",
-    'Current_Model_wp85',
-    "AKSHAT_Nonclosure",
-    "AKSHAT_Model_Nonclosure_wp_p9",
-    "AKSHAT_Model_Nonclosure_wp_p87",
-    "Longtrained_Florian_model_Nonclosure",
-    "Longtrained_Florian_model_Nonclosure_wp_p9"
+    # "Potential_Model_wp90",
+    # "Current_Model_wp90",
+    # 'Current_Model_wp85',
+    # "AKSHAT_Nonclosure",
+    # "AKSHAT_Model_Nonclosure_wp_p9",
+    # "AKSHAT_Model_Nonclosure_wp_p87",
+    # "Longtrained_Florian_model_Nonclosure",
+    # "Longtrained_Florian_model_Nonclosure_wp_p9",
+    'Current_Model_wp90_wout_HTMHT2016'
 ]
 taggers = ["WNAE", "PNET"]
-years = ["2017", "2018"]
+years = ['2016',"2017", "2018"]
 validation_regions = ["VRI", "VRII", "VRIII"]
 categories = ["0SVJ", "1SVJ", "2SVJ", "2PSVJ", "3PSVJ"]
 
@@ -193,7 +194,7 @@ for model in models:
 
                     # Apply capping condition
                     if max_nc > 0.4 or max_err > 0.3:
-                        max_nc = 1.0
+                        max_nc = 0.5
 
                     if max_nc > max_abs_nc:
                         max_abs_nc = max_nc
