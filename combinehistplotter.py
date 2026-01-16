@@ -1,0 +1,521 @@
+#!/usr/bin/env python3
+import os
+import re
+import math
+import argparse
+import numpy as np
+import uproot
+
+import matplotlib.pyplot as plt
+import mplhep as hep
+
+# --------------------------
+# CONFIG
+# --------------------------
+REGIONS = ["A", "B", "C", "D"]
+SVJ_ORDER = ["0SVJ", "1SVJ", "2SVJ", "3PSVJ"]
+SVJ_XLABELS = ["0", "1", "2", "3+"]
+# Background stacking order (bottom → top)
+BKG_ORDER = ["QCD", "TTJets", "WJetsToLNu", "ZJetsToNuNu", "ST"]
+
+PROC_LABEL = {
+    "QCD": "QCD multijet",
+    "TTJets": r"$t\bar{t}$ + jets",
+    "ZJetsToNuNu": r"$Z \to \nu\nu$ + jets",
+    "WJetsToLNu": r"$W \to \ell\nu$ + jets",
+    "ST": "Single top",
+}
+
+# Explicit colors so QCD is visually obvious (bottom big block)
+PROC_COLOR = {
+    "QCD": "#1f77b4",
+    "TTJets": "#ff7f0e",
+    "WJetsToLNu": "#2ca02c",
+    "ZJetsToNuNu": "#d62728",
+    "ST": "#9467bd",
+}
+
+# Optional: hatches (CMS-style often uses hatches for readability in B/W)
+PROC_HATCH = {
+    "QCD": None,
+    "TTJets": None,
+    "WJetsToLNu": None,
+    "ZJetsToNuNu": None,
+    "ST": None,
+}
+
+
+
+
+
+DATA_NAME = "data_obs"
+
+# --------------------------
+# Helpers
+# --------------------------
+def strip_cycle(name: str) -> str:
+    return name.split(";")[0]
+
+def print_yield_summary(year, yields):
+    """
+    yields[proc][region][svj] = yield
+    """
+    print("\n" + "="*90)
+    print(f"BACKGROUND YIELDS SUMMARY — {year} (Run2)")
+    print("="*90)
+
+    total_year = 0.0
+
+    for region in REGIONS:
+        print(f"\nRegion {region}:")
+        print("-"*70)
+
+        region_total = 0.0
+
+        for svj in SVJ_ORDER:
+            svj_total = 0.0
+            line = f"  nSVJ={svj:>4} : "
+
+            for proc in BKG_ORDER:
+                y = yields.get(proc, {}).get(region, {}).get(svj, 0.0)
+                svj_total += y
+                line += f"{proc}={y:8.2f}  "
+
+            region_total += svj_total
+            line += f"|  TOTAL={svj_total:9.2f}"
+            print(line)
+
+        print(f"  --> Region {region} total = {region_total:10.2f}")
+        total_year += region_total
+
+    print("\n" + "-"*70)
+    print(f"TOTAL BACKGROUND (all regions, all nSVJ) = {total_year:12.2f}")
+    print("="*90 + "\n")
+
+def detect_years(file_):
+    years = set()
+    for k in file_.keys():
+        k0 = strip_cycle(k)
+        m = re.search(r"Y(2016|2017|2018)_Run2$", k0)
+        if m:
+            years.add(m.group(1))
+    return sorted(years)
+
+def svj_dir_name(svj: str, year: str):
+    return f"{svj}Y{year}_Run2"
+
+def get_dir(file_, path: str):
+    try:
+        return file_[path]
+    except Exception:
+        return None
+
+def list_dir_items(dir_):
+    return [strip_cycle(k) for k in dir_.keys()]
+
+def hist_integral_and_err(h, include_flow=True):
+    """
+    Integrate a TH1-like object read by uproot.
+    Error is sqrt(sum(variances)) if available, else Poisson sqrt(N) fallback.
+    """
+    vals, _ = h.to_numpy(flow=include_flow)
+    y = float(np.sum(vals))
+
+    try:
+        v = h.variances(flow=include_flow)
+        if v is not None:
+            e2 = float(np.sum(v))
+            return y, math.sqrt(e2) if e2 >= 0 else 0.0
+    except Exception:
+        pass
+
+    return y, math.sqrt(y) if y >= 0 else 0.0
+
+def read_region_bkgs(file_, svj: str, year: str, region: str, include_flow=True, with_data=False):
+    """
+    Returns:
+      bkg_yields: dict(proc -> (yield, err)) or None if missing
+      data: (yield, err) or None (only when with_data=True)
+    """
+    base = svj_dir_name(svj, year)
+    dreg = get_dir(file_, f"{base}/{region}")
+    if dreg is None:
+        return None, None
+
+    keys = list_dir_items(dreg)
+
+    bkg = {}
+    for proc in BKG_ORDER:
+        if proc in keys:
+            y, e = hist_integral_and_err(dreg[proc], include_flow=include_flow)
+            bkg[proc] = (y, e)
+        else:
+            bkg[proc] = (0.0, 0.0)
+
+    data = None
+    if with_data and (DATA_NAME in keys):
+        y, e = hist_integral_and_err(dreg[DATA_NAME], include_flow=include_flow)
+        data = (y, e)
+
+    return bkg, data
+
+def build_x_layout():
+    """
+    Continuous layout:
+      A: 0 1 2 3 | B: 4 5 6 7 | C: 8 9 10 11 | D: 12 13 14 15
+    No gaps between bars.
+    """
+    nsvj = len(SVJ_ORDER)
+    x = []
+    xticks = []
+    xticklabels = []
+    region_centers = {}
+    region_boundaries = []
+
+    for r_i, reg in enumerate(REGIONS):
+        base = r_i * nsvj
+        if r_i > 0:
+            region_boundaries.append(base - 0.5)
+
+        for s_i in range(nsvj):
+            xpos = base + s_i
+            x.append(xpos)
+            xticks.append(xpos)
+            xticklabels.append(SVJ_XLABELS[s_i])
+
+        region_centers[reg] = base + (nsvj - 1) / 2.0
+
+    #return np.array(x), xticks, xticklabels, region_centers, region_boundaries
+    return np.array(x, dtype=float), xticks, xticklabels, region_centers, region_boundaries
+
+def step_band_from_bins(xpos, y, yerr, width=0.85, eps=1e-6):
+    left = xpos - width / 2.0
+    right = xpos + width / 2.0
+
+    xe = np.empty(2 * len(xpos))
+    yeu = np.empty(2 * len(xpos))
+    yel = np.empty(2 * len(xpos))
+
+    for i in range(len(xpos)):
+        xe[2*i] = left[i]
+        xe[2*i + 1] = right[i]
+
+        up = y[i] + yerr[i]
+        lo = y[i] - yerr[i]
+
+        # IMPORTANT: never hit 0 on log axis
+        lo = max(eps, lo)
+
+        yeu[2*i] = up
+        yeu[2*i + 1] = up
+        yel[2*i] = lo
+        yel[2*i + 1] = lo
+
+    return xe, yel, yeu
+    
+
+
+# --------------------------
+# Plotting
+# --------------------------
+def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
+              lumi_text=None, com_text="13", prelim=True):
+    os.makedirs(outdir, exist_ok=True)
+
+    # CMS style
+    hep.style.use("CMS")
+    plt.rcParams["figure.dpi"] = 150
+
+    x, xticks, xticklabels, region_centers, region_boundaries = build_x_layout()
+    nsvj = len(SVJ_ORDER)
+
+    # 2-panel layout like CMS: main + ratio
+    fig, (ax, rax) = plt.subplots(
+    2, 1, figsize=(14.0, 9.5),
+    gridspec_kw={"height_ratios": (3.4, 1.0), "hspace": 0.03},
+    sharex=True,
+    constrained_layout=True
+)
+
+
+
+    # Collect yields
+    proc_y = {p: np.zeros_like(x, dtype=float) for p in BKG_ORDER}
+    proc_e = {p: np.zeros_like(x, dtype=float) for p in BKG_ORDER}
+    data_y = np.full_like(x, np.nan, dtype=float)
+    data_e = np.full_like(x, np.nan, dtype=float)
+
+
+    with uproot.open(file_path) as f:
+        for r_i, reg in enumerate(REGIONS):
+            for s_i, svj in enumerate(SVJ_ORDER):
+                idx = r_i * nsvj + s_i
+                bkg, data = read_region_bkgs(
+                    f, svj=svj, year=year, region=reg,
+                    include_flow=include_flow, with_data=with_data
+                )
+                if bkg is None:
+                    continue
+                for p in reversed(BKG_ORDER):
+                    proc_y[p][idx] = bkg[p][0]
+                    proc_e[p][idx] = bkg[p][1]
+
+                if with_data and (data is not None):
+                    data_y[idx] = data[0]
+                    data_e[idx] = data[1]
+
+
+    # ---------------------------------------
+    # DEBUG: check stacking numerically
+    # First bin = Region A, nSVJ = 0
+    # ---------------------------------------
+    print(
+        f"DEBUG {year} (Region A, nSVJ=0):",
+        {p: proc_y[p][0] for p in reversed(BKG_ORDER)},
+        "TOTAL =", sum(proc_y[p][0] for p in BKG_ORDER)
+    )
+
+
+    # Stack (QCD first => bottom)
+    # Stack (QCD first => bottom)
+    bottoms = np.zeros_like(x)
+    # Bars: draw on top
+    bottoms = np.zeros_like(x)
+    for p in reversed(BKG_ORDER):
+        ax.bar(
+            x, proc_y[p],
+            bottom=bottoms,
+            width=1.0,
+            label=PROC_LABEL.get(p, p),
+            color=PROC_COLOR.get(p, None),
+            edgecolor="black",
+            linewidth=0.2,
+            hatch=PROC_HATCH.get(p, None),
+            zorder=1,          # <-- was 1
+        )
+        bottoms += proc_y[p]
+
+    
+
+    # -------------------------------------------------
+    # DEBUG #2: verify the stacked total equals sum(MC)
+    # bottoms is now the total MC after stacking
+    # First bin = Region A, nSVJ=0 (index 0)
+    # -------------------------------------------------
+    print(
+        f"DEBUG {year} stack check (Region A, nSVJ=0): "
+        f"QCD={proc_y['QCD'][0]:.2f}  "
+        f"MC_total_from_stack={bottoms[0]:.2f}  "
+        f"MC_total_from_sum={sum(proc_y[p][0] for p in BKG_ORDER):.2f}"
+    )
+
+
+    # Total MC uncertainty band (from sum of per-process variances approximated as sum of per-process errors^2)
+    mc_tot = np.zeros_like(x)
+    mc_var = np.zeros_like(x)
+    for p in reversed(BKG_ORDER):
+        mc_tot += proc_y[p]
+        mc_var += proc_e[p] ** 2
+    mc_err = np.sqrt(mc_var)
+
+    #xe, ylo, yhi = step_band_from_bins(x, mc_tot, mc_err, width=0.85)
+    xe, ylo, yhi = step_band_from_bins(x, mc_tot, mc_err, width=1.0)
+
+    # ax.fill_between(
+    #     xe, ylo, yhi,
+    #     step="pre",
+    #     alpha=0.3,
+    #     label="MC unc."
+    # )
+    # Draw MC uncertainty as a hatched band WITHOUT filling, so it doesn't wash out QCD
+    # MC unc band: draw behind
+    ax.fill_between(
+        xe, ylo, yhi,
+        step="pre",
+        facecolor="none",
+        edgecolor="0.6",
+        linewidth=0.0,
+        hatch="////",
+        label="MC unc.",
+        zorder=1              # <-- keep low
+    )
+
+
+
+    # Optional data overlay (OFF by default)
+    if with_data:
+        m = np.isfinite(data_y)
+        ax.errorbar(
+            x[m], data_y[m], yerr=data_e[m],
+            fmt="o", color="black", markersize=4,
+            linewidth=1.0, capsize=0,
+            label="Data"
+        )
+
+        # Ratio: Data/MC
+        ratio = np.full_like(x, np.nan, dtype=float)
+        ratio_err = np.full_like(x, np.nan, dtype=float)
+
+        denom = mc_tot
+        m2 = m & (denom > 0)
+        ratio[m2] = data_y[m2] / denom[m2]
+        # propagate data stat only for now (you can add mc_unc later)
+        ratio_err[m2] = data_e[m2] / denom[m2]
+
+        rax.errorbar(
+            x[m2], ratio[m2], yerr=ratio_err[m2],
+            fmt="o", color="black", markersize=4,
+            linewidth=1.0, capsize=0
+        )
+        rax.set_ylabel("Data/MC")
+    else:
+        # Keep the panel for CMS-like layout, but no data points
+        rax.set_ylabel("Data/MC")
+
+    # Ratio panel: unity line + MC unc band (as relative)
+    rax.axhline(1.0, color="black", linewidth=1.0)
+    mct = mc_tot.copy()
+    rel_lo = np.ones_like(mct)
+    rel_hi = np.ones_like(mct)
+    ok = mct > 0
+    rel_lo[ok] = np.maximum(0.0, (mct[ok] - mc_err[ok]) / mct[ok])
+    rel_hi[ok] = (mct[ok] + mc_err[ok]) / mct[ok]
+    xe2, rlo, rhi = step_band_from_bins(x, np.ones_like(x), (rel_hi - 1.0), width=0.85)
+    # The helper above assumes symmetric err; make a proper band explicitly:
+    # left = x - 0.85/2.0
+    # right = x + 0.85/2.0
+
+    left = x - 0.5
+    right = x + 0.5
+
+    
+
+    xe_band = np.empty(2 * len(x))
+    rlo_band = np.empty(2 * len(x))
+    rhi_band = np.empty(2 * len(x))
+    for i in range(len(x)):
+        xe_band[2*i] = left[i]
+        xe_band[2*i+1] = right[i]
+        rlo_band[2*i] = rel_lo[i]
+        rlo_band[2*i+1] = rel_lo[i]
+        rhi_band[2*i] = rel_hi[i]
+        rhi_band[2*i+1] = rel_hi[i]
+
+    rax.fill_between(
+        xe_band, rlo_band, rhi_band,
+        step="pre",
+        facecolor="none",
+        edgecolor="gray",
+        linewidth=0.0,
+        hatch="////",
+        zorder=2
+    )
+
+
+    rax.set_ylim(0.0, 2.0)
+
+    # Region separators and labels
+    for xb in region_boundaries:
+        ax.axvline(xb, color="black", linewidth=1.6)
+        rax.axvline(xb, color="black", linewidth=1.6)
+
+    # Place A/B/C/D labels inside the main axis near top
+    ymax = np.nanmax(mc_tot) if np.nanmax(mc_tot) > 0 else 1.0
+    for reg, xc in region_centers.items():
+        ax.text(xc, ymax * 0.35, reg, ha="center", va="bottom", fontsize=15, fontweight="bold")
+
+    # Axes formatting
+    ax.set_yscale("log")
+    ax.set_ylabel("Events")
+
+    ax.set_ylim(10e-3, ymax * 50.0 if ymax > 0 else 10.0)
+    ax.set_xlim(-0.5, len(x) - 0.5)
+
+
+    rax.set_xlabel("nSVJ")
+    rax.set_xticks(xticks)
+    rax.set_xticklabels(xticklabels)
+
+    # Grid similar to CMS plots
+    ax.grid(True, which="both", axis="y", linestyle=":", linewidth=0.8)
+    rax.grid(True, which="both", axis="y", linestyle=":", linewidth=0.8)
+
+    # Legend: keep compact and high, like screenshot
+    ax.legend(
+        loc="upper left",
+        ncol=2,
+        frameon=False,
+        fontsize=10,
+        handlelength=1.6,
+        columnspacing=1.0
+    )
+
+    # CMS label (mplhep)
+    # If you want the exact "CMS Preliminary 41.5 fb^{-1} (13 TeV)" formatting, set lumi_text accordingly.
+    if lumi_text is None:
+        # reasonable defaults if you don't pass lumi
+        lumi_text = {"2016": "35.9 ", "2017": "41.5 ", "2018": "59.7 "}.get(year, "")
+    hep.cms.label(
+        ax=ax,
+        label="Preliminary" if prelim else "",
+        data=with_data,
+        lumi=lumi_text,
+        com=com_text
+    )
+
+    #fig.tight_layout()
+    outpath = os.path.join(outdir, f"ABCD_yields_{year}_CMS.pdf")
+    fig.savefig(outpath)
+    plt.close(fig)
+    print(f"[OK] wrote {outpath}")
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--file", required=True, help="Input ROOT file (combine hist file)")
+    ap.add_argument("--outdir", default="Yield_plots", help="Output directory")
+    ap.add_argument("--include-flow", action="store_true", help="Include under/overflow in integrals")
+    ap.add_argument("--with-data", action="store_true", help="Overlay data_obs if present (OFF by default)")
+    ap.add_argument("--years", nargs="*", default=None, help="Years to plot (e.g. 2016 2017 2018). Default: auto-detect")
+    ap.add_argument("--lumi", default=None, help="Override lumi text (e.g. '41.5 fb$^{-1}$')")
+    ap.add_argument("--com", default="13 ", help="Center-of-mass energy label (default: 13 TeV)")
+    ap.add_argument("--final", action="store_true", help="Use 'CMS' instead of 'CMS Preliminary'")
+    args = ap.parse_args()
+
+    with uproot.open(args.file) as f:
+        years = args.years if args.years else detect_years(f)
+    if not years:
+        raise RuntimeError("No years detected. Check directory naming (e.g. 0SVJY2016_Run2).")
+
+    for y in years:
+        with uproot.open(args.file) as f:
+            yields = {}
+
+            for proc in BKG_ORDER:
+                yields[proc] = {}
+                for region in REGIONS:
+                    yields[proc][region] = {}
+                    for svj in SVJ_ORDER:
+                        hist_path = f"{svj}Y{y}_Run2/{region}/{proc}"
+
+                        if hist_path not in f:
+                            yields[proc][region][svj] = 0.0
+                            continue
+
+                        h = f[hist_path]
+                        values, _ = h.to_numpy()
+                        yields[proc][region][svj] = float(values.sum())
+
+        print_yield_summary(y, yields)
+
+        plot_year(
+            args.file, y, outdir=args.outdir,
+            include_flow=args.include_flow,
+            with_data=args.with_data,
+            lumi_text=args.lumi,
+            com_text=args.com,
+            prelim=(not args.final)
+        )
+
+
+if __name__ == "__main__":
+    main()
