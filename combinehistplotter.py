@@ -95,6 +95,67 @@ DATA_NAME = "data_obs"
 def strip_cycle(name: str) -> str:
     return name.split(";")[0]
 
+def write_abcd_compact_table_txt(year, yields, outdir):
+    """
+    Write compact ABCD yield table (summed over backgrounds),
+    with clean rounding and no scientific notation.
+    """
+    os.makedirs(outdir, exist_ok=True)
+    outpath = os.path.join(outdir, f"ABCD_yields_compact_{year}.txt")
+
+    def fmt(x):
+        if abs(x) < 1e-6:
+            return "0.000"
+        if x >= 100:
+            return f"{x:.0f}"
+        if x >= 10:
+            return f"{x:.1f}"
+        if x >= 1:
+            return f"{x:.2f}"
+        return f"{x:.3f}"
+
+    # Sum over backgrounds
+    total = {svj: {reg: 0.0 for reg in PLOT_REGIONS} for svj in SVJ_ORDER}
+    for proc in BKG_ORDER:
+        for reg in PLOT_REGIONS:
+            for svj in SVJ_ORDER:
+                total[svj][reg] += yields.get(proc, {}).get(reg, {}).get(svj, 0.0)
+
+    # Column totals
+    col_totals = {reg: sum(total[svj][reg] for svj in SVJ_ORDER) for reg in PLOT_REGIONS}
+
+    with open(outpath, "w") as f:
+        # Header
+        f.write(
+            f"{'SVJ':<6}"
+            f"{'A':>14}{'B':>14}{'C':>14}{'D':>14}\n"
+        )
+        f.write("-" * 62 + "\n")
+
+        # Rows
+        for svj in SVJ_ORDER:
+            f.write(
+                f"{svj:<6}"
+                f"{fmt(total[svj]['A']):>14}"
+                f"{fmt(total[svj]['B']):>14}"
+                f"{fmt(total[svj]['C']):>14}"
+                f"{fmt(total[svj]['D']):>14}\n"
+            )
+
+        # Totals row
+        f.write("-" * 62 + "\n")
+        f.write(
+            f"{'TOTAL':<6}"
+            f"{fmt(col_totals['A']):>14}"
+            f"{fmt(col_totals['B']):>14}"
+            f"{fmt(col_totals['C']):>14}"
+            f"{fmt(col_totals['D']):>14}\n"
+        )
+
+    print(f"[OK] wrote compact ABCD table {outpath}")
+
+
+
 def print_yield_summary(year, yields):
     """
     yields[proc][region][svj] = yield
@@ -592,6 +653,10 @@ def main():
                         yields[proc][region_plot][svj] = float(values.sum())
 
         print_yield_summary(y, yields)
+        write_abcd_compact_table_txt(y, yields, args.outdir)
+
+
+
 
         plot_year(
             args.file, y, outdir=args.outdir,
