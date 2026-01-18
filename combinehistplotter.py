@@ -12,7 +12,16 @@ import mplhep as hep
 # --------------------------
 # CONFIG
 # --------------------------
-REGIONS = ["A", "B", "C", "D"]
+
+# Plot/print region names (what you show)
+PLOT_REGIONS = ["A", "B", "C", "D"]
+
+# ROOT region mapping (what you read)
+# (A<->B swap stays; C<->D swap added)
+ROOT_REGION_FOR = {"A": "B", "B": "A", "C": "D", "D": "C"}
+
+# If you use this anywhere (optional / legacy), keep it consistent:
+REGIONS = ["B", "A", "D", "C"]
 SVJ_ORDER = ["0SVJ", "1SVJ", "2SVJ", "3PSVJ"]
 SVJ_XLABELS = ["0", "1", "2", "3+"]
 # Background stacking order (bottom → top)
@@ -27,12 +36,20 @@ PROC_LABEL = {
 }
 
 # Explicit colors so QCD is visually obvious (bottom big block)
+# PROC_COLOR = {
+#     "QCD": "#7a21dd",
+#     "TTJets": "#9c9ca1",
+#     "WJetsToLNu": "#5790fc",
+#     "ZJetsToNuNu": "#e42536",
+#     "ST": "#f89c20",
+# }
+
 PROC_COLOR = {
-    "QCD": "#1f77b4",
-    "TTJets": "#ff7f0e",
-    "WJetsToLNu": "#2ca02c",
-    "ZJetsToNuNu": "#d62728",
-    "ST": "#9467bd",
+    "QCD": "#f89c20",        # was ST
+    "TTJets": "#e42536",     # was Z
+    "WJetsToLNu": "#5790fc", # stays middle
+    "ZJetsToNuNu": "#9c9ca1",# was TT
+    "ST": "#7a21dd",         # was QCD
 }
 
 # Optional: hatches (CMS-style often uses hatches for readability in B/W)
@@ -45,6 +62,28 @@ PROC_HATCH = {
 }
 
 
+# Signals to overlay (must match ROOT histogram names exactly)
+SIGNAL_PROCS = [
+    "mMed500_rinv0p3",
+    #"mMed700_rinv0p3",
+    "mMed1000_rinv0p3",
+    "mMed1500_rinv0p3",
+    "mMed2000_rinv0p3",
+    "mMed4000_rinv0p3",
+]
+
+SIG_COLORS = {
+    "mMed500_rinv0p3": "orange",
+    #"mMed700_rinv0p3": "green",
+    "mMed1000_rinv0p3": "red",
+    "mMed1500_rinv0p3": "blue",
+    "mMed2000_rinv0p3": "darkgreen",
+    "mMed4000_rinv0p3": "purple",
+}
+
+SIG_LINESTYLE = "--"
+SIG_LINEWIDTH = 2.5
+SIG_SCALE = 1.0   # change if you want ×10, ×50, etc.
 
 
 
@@ -66,7 +105,7 @@ def print_yield_summary(year, yields):
 
     total_year = 0.0
 
-    for region in REGIONS:
+    for region in PLOT_REGIONS:
         print(f"\nRegion {region}:")
         print("-"*70)
 
@@ -172,7 +211,7 @@ def build_x_layout():
     region_centers = {}
     region_boundaries = []
 
-    for r_i, reg in enumerate(REGIONS):
+    for r_i, reg in enumerate(PLOT_REGIONS):
         base = r_i * nsvj
         if r_i > 0:
             region_boundaries.append(base - 0.5)
@@ -230,35 +269,59 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     nsvj = len(SVJ_ORDER)
 
     # 2-panel layout like CMS: main + ratio
-    fig, (ax, rax) = plt.subplots(
-    2, 1, figsize=(14.0, 9.5),
-    gridspec_kw={"height_ratios": (3.4, 1.0), "hspace": 0.03},
-    sharex=True,
-    constrained_layout=True
-)
+    # Figure: 2-panel only if with_data, otherwise single panel
+    if with_data:
+        fig, (ax, rax) = plt.subplots(
+            2, 1, figsize=(14.0, 9.5),
+            gridspec_kw={"height_ratios": (3.4, 1.0), "hspace": 0.03},
+            sharex=True,
+            constrained_layout=True
+        )
+    else:
+        fig, ax = plt.subplots(
+            1, 1, figsize=(14.0, 7.5),
+            constrained_layout=True
+        )
+        rax = None
 
-
-
+ 
     # Collect yields
     proc_y = {p: np.zeros_like(x, dtype=float) for p in BKG_ORDER}
     proc_e = {p: np.zeros_like(x, dtype=float) for p in BKG_ORDER}
+    sig_y = {s: np.zeros_like(x, dtype=float) for s in SIGNAL_PROCS}
+
     data_y = np.full_like(x, np.nan, dtype=float)
     data_e = np.full_like(x, np.nan, dtype=float)
 
 
     with uproot.open(file_path) as f:
-        for r_i, reg in enumerate(REGIONS):
+        for r_i, reg_plot in enumerate(PLOT_REGIONS):
+            reg_root = ROOT_REGION_FOR[reg_plot]
+
             for s_i, svj in enumerate(SVJ_ORDER):
                 idx = r_i * nsvj + s_i
+
+                # --- backgrounds ---
                 bkg, data = read_region_bkgs(
-                    f, svj=svj, year=year, region=reg,
+                    f, svj=svj, year=year, region=reg_root,
                     include_flow=include_flow, with_data=with_data
                 )
                 if bkg is None:
                     continue
-                for p in reversed(BKG_ORDER):
+
+                for p in BKG_ORDER:
                     proc_y[p][idx] = bkg[p][0]
                     proc_e[p][idx] = bkg[p][1]
+
+                # --- signals ---
+                for sig in SIGNAL_PROCS:
+                    sig_path = f"{svj}Y{year}_Run2/{reg_root}/{sig}"
+                    if sig_path in f:
+                        hsig = f[sig_path]
+                        vals, _ = hsig.to_numpy(flow=include_flow)
+                        sig_y[sig][idx] = vals.sum()
+
+                # --- data ---
 
                 if with_data and (data is not None):
                     data_y[idx] = data[0]
@@ -340,6 +403,21 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
         zorder=1              # <-- keep low
     )
 
+    # -------------------------------------------------
+    # Signal overlays (dashed lines)  <-- PUT IT HERE
+    # -------------------------------------------------
+    for sig in SIGNAL_PROCS:
+        ysig = SIG_SCALE * sig_y[sig]
+        ax.step(
+            np.r_[x - 0.5, x[-1] + 0.5],
+            np.r_[ysig, ysig[-1]],
+            where="post",
+            color=SIG_COLORS.get(sig, "red"),
+            linestyle=SIG_LINESTYLE,
+            linewidth=SIG_LINEWIDTH,
+            label=sig if SIG_SCALE == 1.0 else f"{sig} × {SIG_SCALE:g}",
+            zorder=5,
+        )
 
 
     # Optional data overlay (OFF by default)
@@ -368,56 +446,53 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
             linewidth=1.0, capsize=0
         )
         rax.set_ylabel("Data/MC")
-    else:
-        # Keep the panel for CMS-like layout, but no data points
-        rax.set_ylabel("Data/MC")
+    # else:
+    #     # Keep the panel for CMS-like layout, but no data points
+    #     rax.set_ylabel("Data/MC")
 
     # Ratio panel: unity line + MC unc band (as relative)
-    rax.axhline(1.0, color="black", linewidth=1.0)
-    mct = mc_tot.copy()
-    rel_lo = np.ones_like(mct)
-    rel_hi = np.ones_like(mct)
-    ok = mct > 0
-    rel_lo[ok] = np.maximum(0.0, (mct[ok] - mc_err[ok]) / mct[ok])
-    rel_hi[ok] = (mct[ok] + mc_err[ok]) / mct[ok]
-    xe2, rlo, rhi = step_band_from_bins(x, np.ones_like(x), (rel_hi - 1.0), width=0.85)
-    # The helper above assumes symmetric err; make a proper band explicitly:
-    # left = x - 0.85/2.0
-    # right = x + 0.85/2.0
+    if with_data:
+        rax.axhline(1.0, color="black", linewidth=1.0)
+        mct = mc_tot.copy()
+        rel_lo = np.ones_like(mct)
+        rel_hi = np.ones_like(mct)
+        ok = mct > 0
+        rel_lo[ok] = np.maximum(0.0, (mct[ok] - mc_err[ok]) / mct[ok])
+        rel_hi[ok] = (mct[ok] + mc_err[ok]) / mct[ok]
 
-    left = x - 0.5
-    right = x + 0.5
+        left = x - 0.5
+        right = x + 0.5
 
-    
+        xe_band = np.empty(2 * len(x))
+        rlo_band = np.empty(2 * len(x))
+        rhi_band = np.empty(2 * len(x))
+        for i in range(len(x)):
+            xe_band[2*i] = left[i]
+            xe_band[2*i+1] = right[i]
+            rlo_band[2*i] = rel_lo[i]
+            rlo_band[2*i+1] = rel_lo[i]
+            rhi_band[2*i] = rel_hi[i]
+            rhi_band[2*i+1] = rel_hi[i]
 
-    xe_band = np.empty(2 * len(x))
-    rlo_band = np.empty(2 * len(x))
-    rhi_band = np.empty(2 * len(x))
-    for i in range(len(x)):
-        xe_band[2*i] = left[i]
-        xe_band[2*i+1] = right[i]
-        rlo_band[2*i] = rel_lo[i]
-        rlo_band[2*i+1] = rel_lo[i]
-        rhi_band[2*i] = rel_hi[i]
-        rhi_band[2*i+1] = rel_hi[i]
+        rax.fill_between(
+            xe_band, rlo_band, rhi_band,
+            step="pre",
+            facecolor="none",
+            edgecolor="gray",
+            linewidth=0.0,
+            hatch="////",
+            zorder=2
+        )
 
-    rax.fill_between(
-        xe_band, rlo_band, rhi_band,
-        step="pre",
-        facecolor="none",
-        edgecolor="gray",
-        linewidth=0.0,
-        hatch="////",
-        zorder=2
-    )
+        rax.set_ylim(0.0, 2.0)
 
-
-    rax.set_ylim(0.0, 2.0)
 
     # Region separators and labels
     for xb in region_boundaries:
         ax.axvline(xb, color="black", linewidth=1.6)
-        rax.axvline(xb, color="black", linewidth=1.6)
+        if with_data:
+            rax.axvline(xb, color="black", linewidth=1.6)
+
 
     # Place A/B/C/D labels inside the main axis near top
     ymax = np.nanmax(mc_tot) if np.nanmax(mc_tot) > 0 else 1.0
@@ -432,13 +507,18 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     ax.set_xlim(-0.5, len(x) - 0.5)
 
 
-    rax.set_xlabel("nSVJ")
-    rax.set_xticks(xticks)
-    rax.set_xticklabels(xticklabels)
+    ax.set_xticks(xticks)
+    ax.set_xticklabels(xticklabels)
+    ax.set_xlabel("nSVJ")
+
+    if with_data:
+        rax.set_xlabel("nSVJ")
+
 
     # Grid similar to CMS plots
     ax.grid(True, which="both", axis="y", linestyle=":", linewidth=0.8)
-    rax.grid(True, which="both", axis="y", linestyle=":", linewidth=0.8)
+    if with_data:
+        rax.grid(True, which="both", axis="y", linestyle=":", linewidth=0.8)
 
     # Legend: keep compact and high, like screenshot
     ax.legend(
@@ -464,7 +544,9 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     )
 
     #fig.tight_layout()
-    outpath = os.path.join(outdir, f"ABCD_yields_{year}_CMS.pdf")
+
+    suffix = "_with_data" if with_data else ""
+    outpath = os.path.join(outdir, f"ABCD_yields_{year}_CMS{suffix}.pdf")
     fig.savefig(outpath)
     plt.close(fig)
     print(f"[OK] wrote {outpath}")
@@ -488,22 +570,26 @@ def main():
 
     for y in years:
         with uproot.open(args.file) as f:
+            # --- in main(), inside: for y in years:  and inside: with uproot.open(args.file) as f:
             yields = {}
 
             for proc in BKG_ORDER:
                 yields[proc] = {}
-                for region in REGIONS:
-                    yields[proc][region] = {}
+
+                for region_plot in PLOT_REGIONS:
+                    region_root = ROOT_REGION_FOR[region_plot]   # <-- MUST be inside this loop
+                    yields[proc][region_plot] = {}
+
                     for svj in SVJ_ORDER:
-                        hist_path = f"{svj}Y{y}_Run2/{region}/{proc}"
+                        hist_path = f"{svj}Y{y}_Run2/{region_root}/{proc}"
 
                         if hist_path not in f:
-                            yields[proc][region][svj] = 0.0
+                            yields[proc][region_plot][svj] = 0.0
                             continue
 
                         h = f[hist_path]
                         values, _ = h.to_numpy()
-                        yields[proc][region][svj] = float(values.sum())
+                        yields[proc][region_plot][svj] = float(values.sum())
 
         print_yield_summary(y, yields)
 
