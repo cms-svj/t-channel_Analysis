@@ -18,11 +18,18 @@ PLOT_REGIONS = ["A", "B", "C", "D"]
 
 # ROOT region mapping (what you read)
 # (A<->B swap stays; C<->D swap added)
-ROOT_REGION_FOR = {"A": "B", "B": "A", "C": "D", "D": "C"}
+#ROOT_REGION_FOR = {"A": "B", "B": "A", "C": "D", "D": "C"}
 
 # If you use this anywhere (optional / legacy), keep it consistent:
-REGIONS = ["B", "A", "D", "C"]
+#REGIONS = ["B", "A", "D", "C"]
 SVJ_ORDER = ["0SVJ", "1SVJ", "2SVJ", "3PSVJ"]
+
+
+# No remapping: read the same region name that you plot
+ROOT_REGION_FOR = {r: r for r in PLOT_REGIONS}
+# REGIONS not needed; keep only if other code references it
+REGIONS = PLOT_REGIONS
+
 SVJ_XLABELS = ["0", "1", "2", "3+"]
 # Background stacking order (bottom → top)
 BKG_ORDER = ["QCD", "TTJets", "WJetsToLNu", "ZJetsToNuNu", "ST"]
