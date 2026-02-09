@@ -611,7 +611,60 @@ def rebin_hist_exact(src_edges, src_counts, dst_edges):
 
     return dst_counts
 
+def read_met_and_weights_by_subsample(fileset_dict):
+    """
+    Reads files grouped by their keys (subsamples) to track contributions.
+    """
+    subsample_data = {}
+    
+    for label, files in fileset_dict.items():
+        print(f"--- Processing Subsample: {label} ({len(files)} files) ---")
+        met_list = []
+        w_list = []
+        
+        # Reuse your existing logic but scoped to this label
+        for fn in files:
+            with uproot.open(fn) as f:
+                tname = find_tree(f)
+                tree = f[tname]
+                branches = tree.keys()
+                
+                met_branch = choose_branch(branches, MET_BRANCH_CANDIDATES, "MET")
+                w_branch = choose_branch(branches, WEIGHT_BRANCH_CANDIDATES, "Weight")
+                pu_branch = choose_branch(branches, PUWEIGHT_BRANCH_CANDIDATES, "puWeight", required=False)
+                
+                met = np.asarray(tree[met_branch].array(library="np")).reshape(-1)
+                w = np.asarray(tree[w_branch].array(library="np")).reshape(-1)
+                pu = np.asarray(tree[pu_branch].array(library="np")).reshape(-1) if pu_branch else np.ones_like(w)
+                
+                met_list.append(met)
+                w_list.append(np.stack([w, pu], axis=1))
+        
+        subsample_data[label] = {
+            "met": np.concatenate(met_list) if met_list else np.array([]),
+            "wpairs": np.concatenate(w_list) if w_list else np.zeros((0, 2))
+        }
+    return subsample_data
+def build_fileset_dict(file_list):
+    """
+    Groups a flat list of files into a dictionary keyed by the pT bin name
+    found in the directory path (e.g., 'QCD_Pt_600to800').
+    """
+    from collections import defaultdict
+    d = defaultdict(list)
+    for f in file_list:
+        # Extract the directory name that contains the pT range
+        # Path format: .../nominal//QCD_Pt_XXXtoYYY/part-N.root
+        parts = f.split('/')
+        pt_bin = "Unknown"
+        for p in parts:
+            if "QCD_Pt_" in p:
+                pt_bin = p
+                break
+        d[pt_bin].append(f)
+    return dict(d)
 
+    
 # ---------------------------
 # Main
 # ---------------------------
@@ -641,149 +694,76 @@ def main():
     args = ap.parse_args()
     os.makedirs(args.outdir, exist_ok=True)
 
-    # --------------------------------------------------
-    # Build skim file list
-    # --------------------------------------------------
-    SKIM_FILES, fileset_dict = build_skim_file_list_from_tchannel(
-        sample=args.sample,
-        skimCut=args.skimCut,
-        startFile=args.startFile,
-        nFiles=args.nFiles,
-        verbose=True,
-    )
+    # Pick the correct list based on year
+    full_list = SKIM_FILES_2018 if args.year == "2018" else SKIM_FILES_2016
+    
+    # NEW: Create the dictionary required by read_met_and_weights_by_subsample
+    fileset_dict = build_fileset_dict(full_list)
 
-    if args.maxFiles is not None:
-        SKIM_FILES = SKIM_FILES[:args.maxFiles]
-        print(f"[FILES] applying --maxFiles: total_files={len(SKIM_FILES)}")
+    if args.maxFiles is not None and args.maxFiles > 0:
+        print(f"Limiting to {args.maxFiles} files per pT bin...")
+        for k in fileset_dict:
+            fileset_dict[k] = fileset_dict[k][:args.maxFiles]
 
-    # --------------------------------------------------
-    # Read skims
-    # --------------------------------------------------
+    # Histogram settings
     bins = np.linspace(args.xmin, args.xmax, args.nbins + 1)
+    
+    # --------------------------------------------------
+    # 1. Read data grouped by pT bin
+    # --------------------------------------------------
+    # This calls the new function you added previously
+    subsample_results = read_met_and_weights_by_subsample(fileset_dict)
 
-    met, wpairs, tname, (b_met, b_w, b_pu), per_file, n_total, sumw_base = \
-        read_met_and_weights_from_skims(SKIM_FILES, max_files=None)
-
-    w_base = wpairs[:, 0]
-    pu = wpairs[:, 1]
-
-    print(f"\n[SKIMS] total events read = {n_total}")
-    print(f"[SKIMS] sum(Weight*puWeight) = {sumw_base:.6g}")
+    # Prepare for plotting
+    all_raw_series = []
+    all_scaled_series = []
+    lumi, kfactor = lumi_and_kfactor(args.year, True, args.hemPeriod)
 
     # --------------------------------------------------
-    # Weight diagnostic plots
+    # 2. Process each bin and prepare for breakdown plots
     # --------------------------------------------------
-    print("\n[WEIGHTS] Making weight PDFs...")
-
-    if len(w_base) > 0:
-        w_lo, w_hi = np.percentile(w_base, [0.1, 99.9])
-        pu_lo, pu_hi = np.percentile(pu, [0.1, 99.9])
-        wtot = w_base * pu
-        wtot_lo, wtot_hi = np.percentile(wtot, [0.1, 99.9])
-
-        nb = 120
-
-        make_simple_hist(
-            os.path.join(args.outdir, "event_weight_distribution"),
-            w_base,
-            np.linspace(w_lo, w_hi, nb),
-            "Event Weight",
-            f"{args.sample} Event Weight",
-            logy=True,
-        )
-
-        make_simple_hist(
-            os.path.join(args.outdir, "pu_weight_distribution"),
-            pu,
-            np.linspace(pu_lo, pu_hi, nb),
-            "PU Weight",
-            f"{args.sample} PU Weight",
-            logy=True,
-        )
-
-        make_simple_hist(
-            os.path.join(args.outdir, "pu_times_event_weight_distribution"),
-            wtot,
-            np.linspace(wtot_lo, wtot_hi, nb),
-            "PU × Event Weight",
-            f"{args.sample} PU × Event Weight",
-            logy=True,
-        )
+    for label, data in subsample_results.items():
+        met = data["met"]
+        w_base = data["wpairs"][:, 0]
+        pu = data["wpairs"][:, 1]
+        
+        # Calculate event weights
+        if args.applyPU:
+            w_evt = lumi * w_base * args.scaleFactor * kfactor * pu
+        else:
+            w_evt = lumi * w_base * args.scaleFactor * kfactor
+            
+        # Create Histograms for this specific pT bin
+        raw_counts, _ = np.histogram(met, bins=bins)
+        scaled_counts, _ = np.histogram(met, bins=bins, weights=w_evt)
+        
+        all_raw_series.append((raw_counts, label, float(np.sum(raw_counts))))
+        all_scaled_series.append((scaled_counts, label, float(np.sum(scaled_counts))))
 
     # --------------------------------------------------
-    # MET raw histogram
+    # 3. Generate Breakdown Plots
     # --------------------------------------------------
-    raw_counts, _ = np.histogram(met, bins=bins)
-    raw_total = float(np.sum(raw_counts))
-
-    lumi, kfactor = lumi_and_kfactor(
-        args.year,
-        dataset_is_qcd=True,
-        hemPeriod=args.hemPeriod
-    )
-
-    if args.applyPU:
-        w_evt = lumi * w_base * args.scaleFactor * kfactor * pu
-    else:
-        w_evt = lumi * w_base * args.scaleFactor * kfactor
-
-    scaled_counts, _ = np.histogram(met, bins=bins, weights=w_evt)
-    scaled_total = float(np.sum(scaled_counts))
-
-    # --------------------------------------------------
-    # Read t-channel histogram
-    # --------------------------------------------------
-    tc_vals, tc_edges = read_th1(args.tchan_root, args.tchan_hist)
-
-    same_edges = (len(tc_edges) == len(bins)) and np.allclose(tc_edges, bins)
-    if same_edges:
-        tc_reb = tc_vals.copy()
-    else:
-        tc_reb = rebin_hist_exact(tc_edges, tc_vals, bins)
-
-    tc_total = float(np.sum(tc_reb))
-
-    # --------------------------------------------------
-    # MET plots
-    # --------------------------------------------------
-    x_range = (args.xmin, args.xmax)
-
+    # Plot: Raw Breakdown
     make_plot(
-        os.path.join(args.outdir, "01_raw_skims_overlay_tchannel"),
+        os.path.join(args.outdir, "04_raw_breakdown_by_pt"),
         bins,
-        [
-            (raw_counts, f"Skims raw (N={n_total})", raw_total),
-            (tc_reb, f"t-channel {args.tchan_hist}", tc_total),
-        ],
-        x_range,
-        f"MET raw vs t-channel ({args.year})",
-        logy=True,
+        all_raw_series,
+        (args.xmin, args.xmax),
+        f"Raw MET Breakdown by pT bin ({args.year})",
+        logy=True
     )
 
+    # Plot: Scaled Breakdown
     make_plot(
-        os.path.join(args.outdir, "02_scaled_skims_only"),
+        os.path.join(args.outdir, "05_scaled_breakdown_by_pt"),
         bins,
-        [(scaled_counts, "Skims scaled", scaled_total)],
-        x_range,
-        f"MET scaled ({args.year})",
-        logy=True,
+        all_scaled_series,
+        (args.xmin, args.xmax),
+        f"Scaled MET Breakdown by pT bin ({args.year})",
+        logy=True
     )
 
-    make_plot(
-        os.path.join(args.outdir, "03_scaled_overlay_tchannel"),
-        bins,
-        [
-            (scaled_counts, "Skims scaled", scaled_total),
-            (tc_reb, f"t-channel {args.tchan_hist}", tc_total),
-        ],
-        x_range,
-        f"MET scaled vs t-channel ({args.year})",
-        logy=True,
-    )
-
-    print("\n[OK] Done.")
-    print(f"Outputs in: {args.outdir}")
-
+    print(f"Done! Check output in: {args.outdir}")
 
 if __name__ == "__main__":
     main()
