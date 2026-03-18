@@ -71,7 +71,7 @@ PROC_HATCH = {
 
 # Signals to overlay (must match ROOT histogram names exactly)
 SIGNAL_PROCS = [
-    "mMed500_rinv0p3",
+    #"mMed500_rinv0p3",
     #"mMed700_rinv0p3",
     "mMed1000_rinv0p3",
     "mMed1500_rinv0p3",
@@ -80,7 +80,7 @@ SIGNAL_PROCS = [
 ]
 
 SIG_COLORS = {
-    "mMed500_rinv0p3": "orange",
+    #"mMed500_rinv0p3": "orange",
     #"mMed700_rinv0p3": "green",
     "mMed1000_rinv0p3": "red",
     "mMed1500_rinv0p3": "blue",
@@ -602,7 +602,9 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     # If you want the exact "CMS Preliminary 41.5 fb^{-1} (13 TeV)" formatting, set lumi_text accordingly.
     if lumi_text is None:
         # reasonable defaults if you don't pass lumi
-        lumi_text = {"2016": "35.9 ", "2017": "41.5 ", "2018": "59.7 "}.get(year, "")
+        lumi_text = {"2016": "36.31", "2017": "42.07", "2018": "59.56"}.get(year, "")
+        #lumi_text = {"2016": "35.9 ", "2017": "41.5 ", "2018": "59.7 "}.get(year, "")
+        lumi_text = {"2016": "36.31", "2017": "42.07", "2018": "59.56"}.get(year, "")
     hep.cms.label(
         ax=ax,
         label="Preliminary" if prelim else "",
@@ -619,10 +621,147 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     plt.close(fig)
     print(f"[OK] wrote {outpath}")
 
+
+
+def write_detailed_yield_table_txt(year, yields, outdir):
+    """
+    Write detailed ABCD yield table separated by background process,
+    matching the requested ROOT-style text format.
+    """
+    os.makedirs(outdir, exist_ok=True)
+    outpath = os.path.join(outdir, f"ABCD_yields_detailed_{year}.txt")
+
+    # Labels formatted exactly like your example
+    table_proc_labels = {
+        "ST": "Single top",
+        "TTJets": "t#bar{t}",
+        "ZJetsToNuNu": "Z#rightarrow#nu#nu+jets",
+        "WJetsToLNu": "W+jets",
+        "QCD": "QCD"
+    }
+    
+    # Process order matching your example
+    table_proc_order = ["ST", "TTJets", "ZJetsToNuNu", "WJetsToLNu", "QCD"]
+
+    with open(outpath, "w") as f:
+        # Header
+        f.write(
+            f"{'SVJ':<8} {'Component':<26} "
+            f"{'A':>12} {'B':>12} {'C':>12} {'D':>12} {'TOTAL':>12}\n"
+        )
+        f.write("-" * 90 + "\n")
+
+        # Rows
+        for svj in SVJ_ORDER:
+            for proc in table_proc_order:
+                # Safely get yields for each region, defaulting to 0.0
+                yA = yields.get(proc, {}).get("A", {}).get(svj, 0.0)
+                yB = yields.get(proc, {}).get("B", {}).get(svj, 0.0)
+                yC = yields.get(proc, {}).get("C", {}).get(svj, 0.0)
+                yD = yields.get(proc, {}).get("D", {}).get(svj, 0.0)
+                ytot = yA + yB + yC + yD
+                
+                label = table_proc_labels.get(proc, proc)
+                
+                f.write(
+                    f"{svj:<8} {label:<26} "
+                    f"{yA:>12.6f} {yB:>12.6f} {yC:>12.6f} {yD:>12.6f} {ytot:>12.6f}\n"
+                )
+
+    print(f"[OK] wrote detailed ABCD table {outpath}")
+
+def write_latex_fraction_tables(year_label, yields, outdir):
+    """
+    Calculates background fractions and efficiencies across nSVJ bins
+    and writes them to a LaTeX file.
+    """
+    os.makedirs(outdir, exist_ok=True)
+    outpath = os.path.join(outdir, f"ABCD_latex_tables_{year_label}.tex")
+
+    # LaTeX mapping for process names
+    tex_proc_map = {
+        "QCD": "QCD multijet",
+        "TTJets": "\\ttjets",
+        "ZJetsToNuNu": "\\zjets",
+        "WJetsToLNu": "\\wjets",
+        "ST": "Single top"
+    }
+    # Match your desired table order
+    tex_proc_order = ["QCD", "TTJets", "ZJetsToNuNu", "WJetsToLNu", "ST"]
+    
+    # 1. Sum over regions (A+B+C+D) for each process and SVJ bin
+    total_proc_svj = {p: {s: 0.0 for s in SVJ_ORDER} for p in BKG_ORDER}
+    for p in BKG_ORDER:
+        for s in SVJ_ORDER:
+            total_proc_svj[p][s] = sum(yields.get(p, {}).get(r, {}).get(s, 0.0) for r in PLOT_REGIONS)
+            
+    # 2. Total background per SVJ bin (summed over processes)
+    total_svj = {s: sum(total_proc_svj[p][s] for p in BKG_ORDER) for s in SVJ_ORDER}
+    
+    # 3. Total inclusive per process
+    total_proc_incl = {p: sum(total_proc_svj[p][s] for s in SVJ_ORDER) for p in BKG_ORDER}
+    
+    # 4. Total inclusive background
+    total_bkg_incl = sum(total_svj[s] for s in SVJ_ORDER)
+
+    with open(outpath, "w") as f:
+        # --- TABLE 1: Background Fractions ---
+        f.write("\\begin{table}[htbp]\n")
+        f.write("\\centering\n")
+        f.write("\\begin{tabular}{|c|c|c|c|c|c|} \n")
+        f.write("    \\hline\n")
+        f.write("    \\multirow{2}{*}{Background} & \\multicolumn{5}{c|}{Fraction [\\%]} \\\\ \n")
+        f.write("    \\cline{2-6}\n")
+        f.write("     & inclusive & $\\nsvjpn = 0$ & $\\nsvjpn = 1$ & $\\nsvjpn = 2$ & $\\nsvjpn \\geq 3$ \\\\ \n")
+        f.write("    \\hline\n")
+
+        for proc in tex_proc_order:
+            name = tex_proc_map.get(proc, proc)
+            
+            # Inclusive fraction for this proc
+            incl_frac = (total_proc_incl[proc] / total_bkg_incl * 100.0) if total_bkg_incl > 0 else 0.0
+            
+            # Fractions per SVJ bin
+            svj_fracs = []
+            for s in SVJ_ORDER:
+                num = total_proc_svj[proc][s]
+                den = total_svj[s]
+                frac = (num / den * 100.0) if den > 0 else 0.0
+                svj_fracs.append(frac)
+            
+            # Write row
+            row_str = f"    {name:<15} & {incl_frac:>6.3f} & {svj_fracs[0]:>6.3f} & {svj_fracs[1]:>6.3f} & {svj_fracs[2]:>6.3f} & {svj_fracs[3]:>6.3f} \\\\\n"
+            f.write(row_str)
+
+        f.write("    \\hline\n")
+        f.write("\\end{tabular}\n")
+        f.write(f"\\caption{{Fraction of the different backgrounds for all events (first column) and in bins of number of ParticleNet-tagged SVJs (last columns) for the DNN introduced in Section~\\ref{{sec:closure_nsvjs}}. ({year_label})}}\n")
+        f.write("\\label{table:abcd_bkg_fraction_nsvjpn}\n")
+        f.write("\\end{table}\n\n")
+
+        # --- TABLE 2: Background Efficiency ---
+        f.write("\\begin{table}[htbp]\n")
+        f.write("\\centering\n")
+        f.write("\\begin{tabular}{|c|c|} \n")
+        f.write("    \\hline\n")
+        f.write("    Category           & Background efficiency [\\%] \\\\ \n")
+        f.write("    \\hline\n")
+
+        svj_labels = ["$\\nsvjpn = 0$", "$\\nsvjpn = 1$", "$\\nsvjpn = 2$", "$\\nsvjpn \\geq  3$"]
+        for s, label in zip(SVJ_ORDER, svj_labels):
+            eff = (total_svj[s] / total_bkg_incl * 100.0) if total_bkg_incl > 0 else 0.0
+            f.write(f"    {label:<18} & {eff:>6.3f} \\\\\n")
+
+        f.write("    \\hline\n")
+        f.write("\\end{tabular}\n")
+        f.write("\\end{table}\n")
+
+    print(f"[OK] wrote LaTeX tables to {outpath}")
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--file", required=True, help="Input ROOT file (combine hist file)")
-    ap.add_argument("--outdir", default="Yield_plots", help="Output directory")
+    ap.add_argument("--file", default='/uscms/home/ashrivas/nobackup/Dark_Sector/StatInferenceFramework/nukuls_results/stat_inference_final/stat_histograms/MET_mMedScan_rInv-0p3_mDark-20_yukawa-1_noSyst_mc_run2_10PctUnc_pNet_dnnV5_DNN85_WP90_MET250_with_fixed_with2016_nc_unc_abelian_0to3PSVJ.root', help="Input ROOT file (combine hist file)")
+    ap.add_argument("--outdir", default="Yield_plots/wlundwights", help="Output directory")
     ap.add_argument("--include-flow", action="store_true", help="Include under/overflow in integrals")
     ap.add_argument("--with-data", action="store_true", help="Overlay data_obs if present (OFF by default)")
     ap.add_argument("--years", nargs="*", default=None, help="Years to plot (e.g. 2016 2017 2018). Default: auto-detect")
@@ -631,11 +770,40 @@ def main():
     ap.add_argument("--final", action="store_true", help="Use 'CMS' instead of 'CMS Preliminary'")
     args = ap.parse_args()
 
+
+    # with uproot.open(args.file) as f:
+    #     year = years[0]
+
+    with uproot.open(args.file) as f:
+        years = args.years if args.years else detect_years(f)
+        
+        year = years[0]
+        svj  = SVJ_ORDER[0]
+        base = f"{svj}Y{year}_Run2"
+        print("\nTOP-LEVEL (first ~50):")
+        print(list(f.keys())[:50])
+
+        print(f"\nDIR KEYS under {base}:")
+        print([k.split(";")[0] for k in f[base].keys()])
+
+        # pick a region name that exists from the above print (e.g. "A" or whatever it actually is)
+        region = [k.split(";")[0] for k in f[base].keys()][0]
+        print(f"\nOBJECTS under {base}/{region}:")
+        print([k.split(';')[0] for k in f[f'{base}/{region}'].keys()])
+
+
     with uproot.open(args.file) as f:
         years = args.years if args.years else detect_years(f)
     if not years:
         raise RuntimeError("No years detected. Check directory naming (e.g. 0SVJY2016_Run2).")
 
+
+    # Initialize a master dictionary to hold the sums for ALL years combined
+    total_yields = {
+        proc: {
+            region: {svj: 0.0 for svj in SVJ_ORDER} for region in PLOT_REGIONS
+        } for proc in BKG_ORDER
+    }
     for y in years:
         with uproot.open(args.file) as f:
             # --- in main(), inside: for y in years:  and inside: with uproot.open(args.file) as f:
@@ -658,12 +826,19 @@ def main():
                         h = f[hist_path]
                         values, _ = h.to_numpy()
                         yields[proc][region_plot][svj] = float(values.sum())
+                        # 1. First, calculate the value and assign it to 'val'
+                        val = float(values.sum())
+                        
+                        # 2. Save it for the current year's tables/plots
+                        yields[proc][region_plot][svj] = val
+                        
+                        # 3. Add it to the running total for the combined LaTeX tables
+                        total_yields[proc][region_plot][svj] += val
 
         print_yield_summary(y, yields)
         write_abcd_compact_table_txt(y, yields, args.outdir)
-
-
-
+        write_detailed_yield_table_txt(y, yields, args.outdir)  
+        
 
         plot_year(
             args.file, y, outdir=args.outdir,
@@ -673,6 +848,7 @@ def main():
             com_text=args.com,
             prelim=(not args.final)
         )
+    write_latex_fraction_tables("Run2_Combined", total_yields, args.outdir)
 
 
 if __name__ == "__main__":
