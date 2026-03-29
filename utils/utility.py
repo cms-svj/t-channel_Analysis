@@ -196,6 +196,7 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
                     kFactor = 1.5551
             else:
                 luminosity = 59692.692
+                kFactor = 1.510
         print(f"kFactor used  - {kFactor}")
         evtw = luminosity*events.Weight*scaleFactor*kFactor
         if isSignal == 0: # only apply puWeight to backgrounds
@@ -339,11 +340,12 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
         if runJetTag:
             varVal['JetsAK8_pNetJetTaggerScore'] = events.JetsAK8.pNetJetTaggerScore
             # getting WNAE score
-            varVal['JetsAK8_WNAEPt0To200Loss'] = events.JetsAK8.WNAEPt0To200Loss
-            varVal['JetsAK8_WNAEPt200To300Loss'] = events.JetsAK8.WNAEPt200To300Loss
-            varVal['JetsAK8_WNAEPt300To400Loss'] = events.JetsAK8.WNAEPt300To400Loss
-            varVal['JetsAK8_WNAEPt400To500Loss'] = events.JetsAK8.WNAEPt400To500Loss
-            varVal['JetsAK8_WNAEPt500ToInfLoss'] = events.JetsAK8.WNAEPt500ToInfLoss
+            
+            # varVal['JetsAK8_WNAEPt0To200Loss'] = events.JetsAK8.WNAEPt0To200Loss
+            # varVal['JetsAK8_WNAEPt200To300Loss'] = events.JetsAK8.WNAEPt200To300Loss
+            # varVal['JetsAK8_WNAEPt300To400Loss'] = events.JetsAK8.WNAEPt300To400Loss
+            # varVal['JetsAK8_WNAEPt400To500Loss'] = events.JetsAK8.WNAEPt400To500Loss
+            # varVal['JetsAK8_WNAEPt500ToInfLoss'] = events.JetsAK8.WNAEPt500ToInfLoss
 
     return varVal
 
