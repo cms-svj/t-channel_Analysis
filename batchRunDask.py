@@ -22,11 +22,11 @@ parser.add_argument("--rerunMissingFiles",  action="store_true", help="Rerun the
 parser.add_argument("--haddAll",            action="store_true", help="Hadd all the output files by their sample group. (This has to be run outside of the coffeaenv. Try running in `source /cvmfs/sft.cern.ch/lcg/views/LCG_106_cuda/x86_64-el9-gcc11-opt/setup.sh`)")
 parser.add_argument('--runJetTag',          action='store_true', help='Run jet tagger.', )
 parser.add_argument('--runEvtClass',        action='store_true', help='Run event classifier.')
-parser.add_argument("--skimCut",            type=str, default="t_channel_pre_selection", help='The selection of cuts that have been applied to the TM ntuples when making the skims: t_channel_pre_selection, t_channel_lost_lepton_control_region, etc.')
+parser.add_argument("--skimCut",            type=str, default="t_channel_pre_selection_WNAE", help='The selection of cuts that have been applied to the TM ntuples when making the skims: t_channel_pre_selection, t_channel_lost_lepton_control_region, etc.')
 parser.add_argument('--hemStudy',           action='store_true', help='Create histograms essential for HEM region optimization study.')
 parser.add_argument('--trgEffStudy',        action='store_true', help='Create histograms essential for calculating efficiency of individual triggers.')
 parser.add_argument('--hemPeriod',          type=str, default ="", help='HEM period (PreHEM or PostHEM), default includes entire sample')
-
+parser.add_argument('--run_locally',           action='store_true', help='Run over background and data samples locally. Not recommended since it can be very slow and cause memory issues.')
 args = parser.parse_args()
 
 nFilesPerJob = args.nFilesPerJob 
@@ -45,28 +45,28 @@ hemStudy = args.hemStudy
 hemPeriod = args.hemPeriod
 trgEffStudy = args.trgEffStudy
 listOfSampleGroupsToRun = [
-                        "2016APV_Data",
-                        "2016_Data",
-                        "2016_QCD",
-                        "2016_SVJ_t",
-                        "2016_ST",
-                        "2016_TTJets",
-                        "2016_WJets",
-                        "2016_ZJets",
+                        # "2016APV_Data",
+                        # "2016_Data",
+                        # "2016_QCD",
+                        # "2016_SVJ_t",
+                        # "2016_ST",
+                        # "2016_TTJets",
+                        # "2016_WJets",
+                        # "2016_ZJets",
                         "2017_Data",
                         "2017_QCD",
-                        "2017_SVJ_t",
+                        # "2017_SVJ_t",
                         "2017_ST",
-                        "2017_TTJets",
-                        "2017_WJets",
-                        "2017_ZJets",
-                        "2018_Data",
-                        "2018_QCD",
-                        "2018_SVJ_t",
-                        "2018_ST",
-                        "2018_TTJets",
-                        "2018_WJets",
-                        "2018_ZJets",
+                        # "2017_TTJets",
+                        # "2017_WJets",
+                        # "2017_ZJets",
+                        # "2018_Data",
+                        # "2018_QCD",
+                        # "2018_SVJ_t",
+                        # "2018_ST",
+                        # "2018_TTJets",
+                        # "2018_WJets",
+                        # "2018_ZJets",
 ]
 runSignalLocal = args.runSignalLocal
 evtTaggerLoc = f"utils/data/DNNEventClassifier/{eTagName}"
@@ -154,7 +154,9 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sample,nVal,mVal,False,False,hemPeriod,skimSource,skimCut)
             else:
-                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b 20 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
+                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b 20 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize}"
+                if not args.run_locally:
+                    command += " --condor --dask"
                 addExpectedFile(outHistF,sample,nVal,mVal,True,True,hemPeriod,expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sample,nVal,mVal,True,True,hemPeriod,skimSource,skimCut)
@@ -185,7 +187,9 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                 sample, mVal, nVal = job
                 mVal = str(mVal)
                 nVal = str(nVal)
-                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
+                command = f"{preCommand} -d {sample} -N {nVal} -M {mVal} -b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize}"
+                if not args.run_locally:
+                    command += " --condor --dask"
                 addExpectedFile(outHistF,sample,nVal,mVal,True,True,hemPeriod,expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sample,nVal,mVal,True,True,hemPeriod,skimSource,skimCut)
@@ -248,7 +252,10 @@ for sampleGroupToRun in listOfSampleGroupsToRun:
                     sampleList += f"{sampleGroup[i]} "
                     mValList += f"{mValGroup[i]} "
                     nValList += f"{nValGroup[i]} "
-                command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize} --condor --dask"
+                if not args.run_locally:
+                    command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-b {maxJobs} --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize}  --condor --dask"
+                else:
+                    command = f"{preCommand} -d {sampleList}-N {nValList}-M {mValList}-w 10 --outHistF {outHistF} -t {evtTaggerLoc} -j -s {chunkSize}"
                 addExpectedFile(outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,hemPeriod,expectedFilesDict,sampleGroupToRun)
                 if rerunMissingFiles:
                     runMissingFile(command,outHistF,sampleList[:-1],nValList[:-1],mValList[:-1],True,True,hemPeriod,skimSource,skimCut)
