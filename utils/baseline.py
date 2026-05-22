@@ -168,6 +168,8 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
     ht = vars_noCut["HT"]
     st = vars_noCut["ST"]
     JAK8Pt = vars_noCut["J1AK8Pt"]
+    j1AK4Pt = vars_noCut["j1Pt"]
+    j1photonFraction = vars_noCut["j1PhoEFract"]
     # dPhiMinj = vars_noCut["dPhiMinjMET"]
     dPhiMinjAK8 = vars_noCut["dPhiMinjMETAK8"]
     nelectron = ak.num(vars_noCut["electrons"])
@@ -237,34 +239,61 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
     lcr_preselection =             qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & metcut & jetIDAK8 & (nl == 1)
     lcr_preselection_noMETCut =    qualityWithLepton & passTrigger & (njetsAK8 >=2) & stCut & (dPhiMinjAK8 <= 1.5) & jetIDAK8 & (nl == 1)
     cuts = {
-            "_nocut":                       np.ones(len(evtw),dtype=bool), 
+            # "_nocut":                       np.ones(len(evtw),dtype=bool), 
             # "_pdOverlap":                   DataMask,
-            "_trigger":                     DataMask & passTrigger,
-            "_st":                          DataMask & passTrigger & stCut,
-            "_metFilters":                  DataMask & passTrigger & stCut & metFilters,
-            "_hemVeto":                     DataMask & passTrigger & stCut & metFilters & hemMask,
-            "_goodJetFilters":              DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8,
-            "_2JetsAK8":                    DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2),
-            "_dPhiMin":                     DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5),
-            "_met":                         DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut,
-            "_psFilter":                    DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter,
-            "_ttstich":                     DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & ttStitch,
-            "lep_more1":                    DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & ttStitch & (nl>=1),
-            "lep1":                         DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & ttStitch & (nl==1),
-            "_metOnly":                     metcut,
-            "_leptonVeto":                  DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & (nl == 0),
-            "_pre_noHEM":                   DataMask & passTrigger & stCut & metFilters & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5) & metcut & ttStitch,
+            # "_trigger":                     DataMask & passTrigger,
+            # "_st":                          DataMask & passTrigger & stCut,
+            # "_metFilters":                  DataMask & passTrigger & stCut & metFilters,
+            # "_hemVeto":                     DataMask & passTrigger & stCut & metFilters & hemMask,
+            # "_goodJetFilters":              DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8,
+            # "_2JetsAK8":                    DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2),
+            # "_dPhiMin":                     DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5),
+            # "_met":                         DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut,
+            # "_psFilter":                    DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter,
+            # "_ttstich":                     DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & ttStitch,
+            # "lep_more1":                    DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & ttStitch & (nl>=1),
+            # "lep1":                         DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & ttStitch & (nl==1),
+            # # "_metOnly":                     metcut,
+            # "_leptonVeto":                  DataMask & passTrigger & stCut & metFilters & hemMask & jetIDAK8 & (njetsAK8 >=2) & (dPhiMinjAK8 <= 1.5) & metcut & psFilter & (nl == 0),
+            # "_pre_noHEM":                   DataMask & passTrigger & stCut & metFilters & jetIDAK8 & (njetsAK8 >=2) & (nl == 0) & (dPhiMinjAK8 <= 1.5) & metcut & ttStitch,
             "_pre":                         preselection,
+
+            # cuts for gap jet studies 
+            "_pre_metgeq1400":             preselection & (met >= 1400),
+            "_pre_metles1400":             preselection & (met < 1400),
+            "_pre_metgeq1400_j1Ptgt1000":     preselection & (met >= 1400) & (j1AK4Pt > 1000),
+            "_pre_metgeq1400_j1Ptlt1000":     preselection & (met >= 1400) & (j1AK4Pt <= 1000),
+            "_pre_metles1400_j1Ptgt1000":     preselection & (met < 1400) & (j1AK4Pt > 1000),
+            "_pre_metles1400_j1Ptlt1000":     preselection & (met < 1400) & (j1AK4Pt <= 1000),
+            "_pre_j1photonFracgt0p7":             preselection & (j1photonFraction > 0.7),
+            "_pre_j1photonFracle0p7":             preselection & (j1photonFraction <= 0.7),
+            "_pre_j1Ptgt1000":                preselection & (j1AK4Pt > 1000),
+            "_pre_j1Ptlt1000":                preselection & (j1AK4Pt <= 1000),
+            "_pre_gapJet":                 preselection & ((j1AK4Pt > 1000) & (j1photonFraction > 0.7)),
+            "_pre_GapJetveto":               preselection & ~((j1AK4Pt > 1000) & (j1photonFraction > 0.7)),
+            "_pre_metgeq1400_gapJet":       preselection & (met >= 1400) & ((j1AK4Pt > 1000) & (j1photonFraction > 0.7)),
+            "_pre_metgeq1400_gapJetveto":     preselection & (met >= 1400) & ~((j1AK4Pt > 1000) & (j1photonFraction > 0.7)),
+            "_pre_metles1400_gapJet":       preselection & (met < 1400) & ((j1AK4Pt > 1000) & (j1photonFraction > 0.7)),
+            "_pre_metles1400_gapJetveto":     preselection & (met < 1400) & ~((j1AK4Pt > 1000) & (j1photonFraction > 0.7)),
+            "_pre_gatJetveto_highMET":     preselection & ~((j1AK4Pt > 1000) & (j1photonFraction > 0.7) & (met >= 1400)),
+            "_pre_gatJetveto_lowMET":     preselection & ~((j1AK4Pt > 1000) & (j1photonFraction > 0.7) & (met < 1400)),
+            "_pre_gapJet_highMET":       preselection & ((j1AK4Pt > 1000) & (j1photonFraction > 0.7) & (met >= 1400)),
+            "_pre_gapJet_lowMET":       preselection & ((j1AK4Pt > 1000) & (j1photonFraction > 0.7) & (met < 1400)),
+
+
+
+            # cuts for phi spike filter studies
             # "_pre_psFilterSig2":            preselection & psFilterSig2,
             # "_pre_psFilterSig2p5":          preselection & psFilterSig2p5,
             # "_pre_psFilterSig3":            preselection & psFilterSig3,
             # "_pre_psFilterSig3p5":          preselection & psFilterSig3p5,
             # lost lepton control region
-            "_lcr_pre":                       lcr_preselection,
+            # "_lcr_pre":                       lcr_preselection,
             # "_lcr_pre_loose":               lcr_preselection_loose,
             # "_lcr_pre_noMet":               lcr_preselection_noMETCut,
             # "_cr_muon_":                    cr_muon_cut, 
             # "_cr_electron_":                cr_electron_cut,
+            
     }
 
     if hemStudy:
@@ -315,7 +344,7 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
         # }
     if runJetTag:
         nsvjJetsAK8 = vars_noCut["nsvjJetsAK8"]
-        nsvjWNAE = vars_noCut["nsvjWNAE"]
+        # nsvjWNAE = vars_noCut["nsvjWNAE"]
         cutsWithNSVJ = {
             "_pre_0SVJ":                        preselection & (nsvjJetsAK8 == 0),
             "_pre_1SVJ":                        preselection & (nsvjJetsAK8 == 1),
@@ -324,13 +353,13 @@ def cutList(dataset,events,vars_noCut,hemStudy,trgEffStudy,hemPeriod,skimCut,ski
             "_pre_3SVJ":                        preselection & (nsvjJetsAK8 == 3),
             "_pre_3PSVJ":                       preselection & (nsvjJetsAK8 >= 3),
             "_pre_4PSVJ":                       preselection & (nsvjJetsAK8 >= 4),
-            "_pre_WNAE_0SVJ":                        preselection & (nsvjWNAE == 0),
-            "_pre_WNAE_1SVJ":                        preselection & (nsvjWNAE == 1),
-            "_pre_WNAE_2SVJ":                        preselection & (nsvjWNAE == 2),
-            "_pre_WNAE_2PSVJ":                       preselection & (nsvjWNAE >= 2),
-            "_pre_WNAE_3SVJ":                        preselection & (nsvjWNAE == 3),
-            "_pre_WNAE_3PSVJ":                       preselection & (nsvjWNAE >= 3),
-            "_pre_WNAE_4PSVJ":                       preselection & (nsvjWNAE >= 4),
+            # "_pre_WNAE_0SVJ":                        preselection & (nsvjWNAE == 0),
+            # "_pre_WNAE_1SVJ":                        preselection & (nsvjWNAE == 1),
+            # "_pre_WNAE_2SVJ":                        preselection & (nsvjWNAE == 2),
+            # "_pre_WNAE_2PSVJ":                       preselection & (nsvjWNAE >= 2),
+            # "_pre_WNAE_3SVJ":                        preselection & (nsvjWNAE == 3),
+            # "_pre_WNAE_3PSVJ":                       preselection & (nsvjWNAE >= 3),
+            # "_pre_WNAE_4PSVJ":                       preselection & (nsvjWNAE >= 4),
 
 
 

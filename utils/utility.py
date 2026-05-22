@@ -178,13 +178,17 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
     if not isData:
          # 2018 lumi
         if "2016" in dataset:
-            luminosity = 35921.036
+            # luminosity = 35921.036
+            luminosity = 36.31e3
             if "QCD" in dataset:
-                kFactor = 1.2428
+                # kFactor = 1.2428
+                kFactor = 1.2
         elif "2017" in dataset:
-            luminosity = 41521.331
+            # luminosity = 41521.331
+            luminosity = 42.07e3
             if "QCD" in dataset:
-                kFactor = 1.4164
+                # kFactor = 1.4164
+                kFactor = 1.4
         elif "2018" in dataset:
             if hemPeriod == "PreHEM":
                 luminosity = 21071.460
@@ -195,8 +199,11 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
                 if "QCD" in dataset:
                     kFactor = 1.5551
             else:
-                luminosity = 59692.692
-        print(f"kFactor used  - {kFactor}")
+                # luminosity = 59692.692
+                luminosity = 59.56e3
+                # kFactor = 1.510
+                kFactor = 1.5
+        # print(f"kFactor used  - {kFactor}")
         evtw = luminosity*events.Weight*scaleFactor*kFactor
         if isSignal == 0: # only apply puWeight to backgrounds
             evtw = evtw*events.puWeight
@@ -339,11 +346,12 @@ def baselineVar(dataset,events,hemPeriod,sFactor,skimSource,runJetTag=False):
         if runJetTag:
             varVal['JetsAK8_pNetJetTaggerScore'] = events.JetsAK8.pNetJetTaggerScore
             # getting WNAE score
-            varVal['JetsAK8_WNAEPt0To200Loss'] = events.JetsAK8.WNAEPt0To200Loss
-            varVal['JetsAK8_WNAEPt200To300Loss'] = events.JetsAK8.WNAEPt200To300Loss
-            varVal['JetsAK8_WNAEPt300To400Loss'] = events.JetsAK8.WNAEPt300To400Loss
-            varVal['JetsAK8_WNAEPt400To500Loss'] = events.JetsAK8.WNAEPt400To500Loss
-            varVal['JetsAK8_WNAEPt500ToInfLoss'] = events.JetsAK8.WNAEPt500ToInfLoss
+            
+            # varVal['JetsAK8_WNAEPt0To200Loss'] = events.JetsAK8.WNAEPt0To200Loss
+            # varVal['JetsAK8_WNAEPt200To300Loss'] = events.JetsAK8.WNAEPt200To300Loss
+            # varVal['JetsAK8_WNAEPt300To400Loss'] = events.JetsAK8.WNAEPt300To400Loss
+            # varVal['JetsAK8_WNAEPt400To500Loss'] = events.JetsAK8.WNAEPt400To500Loss
+            # varVal['JetsAK8_WNAEPt500ToInfLoss'] = events.JetsAK8.WNAEPt500ToInfLoss
 
     return varVal
 
@@ -498,6 +506,8 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
     varVal['jAxismajor'] = jets.axismajor
     varVal['jAxisminor'] = jets.axisminor
     varVal['jPtD'] = jets.ptD
+    # varVal['j1Pt'] = jetVar_i(jets.pt,0)
+    varVal['jPhoEFract'] = jets.photonEnergyFraction
     varVal['dPhiMinjMET'] = dPhiMinj
     varVal['jPtAK8'] = fjets.pt
     varVal['jEtaAK8'] = jetAK8Eta
@@ -592,6 +602,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
             varVal['j{}Axismajor'.format(i+1)] = jetVar_i(jets.axismajor,i)
             varVal['j{}Axisminor'.format(i+1)] = jetVar_i(jets.axisminor,i)
             varVal['j{}PtD'.format(i+1)] = jetVar_i(jets.ptD,i)
+            varVal['j{}PhoEFract'.format(i+1)] = jetVar_i(jets.photonEnergyFraction,i)
             varVal['dPhij{}MET'.format(i+1)] = deltaPhi(jetVar_i(jetPhi,i),metPhi)
             varVal['j{}PtAK8'.format(i+1)] = jetVar_i(fjets.pt,i)
             varVal['j{}EtaAK8'.format(i+1)] = jetVar_i(jetAK8Eta,i)
@@ -607,6 +618,7 @@ def varGetter(dataset,events,varVal,cut,jNVar=False):
             varVal['j{}Tau21AK8'.format(i+1)] = tauRatio(tau2,tau1,i)
             varVal['j{}Tau32AK8'.format(i+1)] = tauRatio(tau3,tau2,i)
             varVal['j{}SoftDropMassAK8'.format(i+1)] = jetVar_i(fjets.softDropMass,i)
+            varVal['j{}PhoEFractAK8'.format(i+1)] = jetVar_i(fjets.photonEnergyFraction,i)
             varVal['dPhij{}METAK8'.format(i+1)] = deltaPhi(jetVar_i(jetAK8Phi,i),metPhi)
             varVal['dRj{}AK8crMuon1'.format(i+1)]= delta_R(jetVar_i(jetAK8Eta,i),jetVar_i(crMuons.eta,0),jetVar_i(jetAK8Phi,i),jetVar_i(crMuons.phi,0))
             varVal['dRj{}AK8crElectron1'.format(i+1)]= delta_R(jetVar_i(jetAK8Eta,i),jetVar_i(crElectrons.eta,0),jetVar_i(jetAK8Phi,i),jetVar_i(crElectrons.phi,0))

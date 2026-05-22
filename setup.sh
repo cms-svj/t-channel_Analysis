@@ -82,8 +82,14 @@ ln -sf ${siteprefix}/XRootD   ${NAME}/${pypackages}/XRootD
 $ECHO "\nInstalling 'pip' packages ... \n"
 python -m pip install --no-cache-dir pip --upgrade
 # set up lpcjobqueue
-python -m pip install --no-cache-dir git+https://github.com/CoffeaTeam/lpcjobqueue.git@v0.2.9
-python -m pip install --no-cache-dir magiconfig
+# python -m pip install --no-cache-dir git+https://github.com/CoffeaTeam/lpcjobqueue.git@v0.2.9
+# python -m pip install --no-cache-dir magiconfig
+# python -m pip install --no-cache-dir htcondor
+# python -m pip install --no-cache-dir git+https://github.com/CoffeaTeam/lpcjobqueue.git@v0.2.9
+python -m pip install --no-cache-dir "htcondor<24.0.0"
+python -m pip install --no-cache-dir git+https://github.com/CoffeaTeam/lpcjobqueue.git@v0.5.0
+python -m pip install --no-cache-dir six
+python -m pip install --no-build-isolation --no-cache-dir magiconfig
 if [[ "$useLCG" -eq 1 ]]; then
         python -m pip install --no-cache-dir torch==1.9 --upgrade
 	python -m pip install --no-cache-dir dask[dataframe]==2020.12.0 distributed==2020.12.0 dask-jobqueue
