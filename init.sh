@@ -21,11 +21,13 @@ export JUPYTER_RUNTIME_DIR=/srv/.local/share/jupyter/runtime
 export JUPYTER_DATA_DIR=/srv/.local/share/jupyter
 export IPYTHONDIR=/srv/.ipython
 export CONDOR_CONFIG=/srv/.condor_config
-
+export COFFEA_IMAGE=$TCHANNEL_SC
+export COFFEA_IMAGE_FULL=/cvmfs/unpacked.cern.ch/registry.hub.docker.com/${TCHANNEL_SC}
 echo "Sourcing virtual env from $NAME ..."
 source $NAME/bin/activate
 
 # keep terminal open
 if [[ -n "$SINGULARITY_CONTAINER" ]]; then
 	/bin/bash
+	
 fi
