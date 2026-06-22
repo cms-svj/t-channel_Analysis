@@ -43,7 +43,7 @@ plt.style.use(hep.style.CMS)
 # Add/extend years/bins as needed. These are the ones from your logs.
 from typing import Dict, List
 
-SKIM_FILES: Dict[str, Dict[str, List[str]]] = {
+# SKIM_FILES: Dict[str, Dict[str, List[str]]] = {
     "2016": {
         "QCD_Pt_470to600": [
             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-0.root",
@@ -161,6 +161,41 @@ def build_hist_from_files(
                 counts += h
 
     return counts, bins, total, above
+
+def copy_aux_objects(
+    fin: uproot.ReadOnlyFile,
+    fout: uproot.WritableDirectory,
+    events_tree_name: str,
+    copy_tree_regexes: List[str],
+) -> None:
+    """
+    Copy all non-Events objects to output.
+    - Histograms / non-TTree objects: direct copy.
+    - TTrees that match copy_tree_regexes: copy fully (they're usually tiny: CutFlow*, Runs, LuminosityBlocks).
+    """
+    tree_res = [re.compile(r) for r in copy_tree_regexes]
+
+    # fin.keys() are like "Events;1"
+    for k in fin.keys():
+        name = k.split(";")[0]
+        if name == events_tree_name:
+            continue
+
+        obj = fin[name]
+
+        # If it's a TTree, copy only if it matches regex (avoid copying big trees accidentally)
+        if isinstance(obj, uproot.behaviors.TTree.TTree):
+            if any(r.search(name) for r in tree_res):
+                # these are small; safe to load all at once
+                arrays = obj.arrays(library="ak")
+                fout[name] = arrays
+            continue
+
+        # Otherwise (histograms, etc.)
+        fout[name] = obj
+
+
+
 def trim_root_file_uproot(
     infile: str,
     outfile: str,
@@ -170,6 +205,7 @@ def trim_root_file_uproot(
     exclude_patterns: List[str],
     step_size: int,
     overwrite: bool,
+    copy_tree_regexes: List[str],
 ) -> Tuple[int, int]:
 
     if (not overwrite) and os.path.exists(outfile):
@@ -203,6 +239,12 @@ def trim_root_file_uproot(
         wrote_anything = False
 
         with uproot.recreate(outfile) as fout:
+            copy_aux_objects(
+                fin=fin,
+                fout=fout,
+                events_tree_name=tree_name,
+                copy_tree_regexes=copy_tree_regexes,
+            )
             for arrays in tree.iterate(
                 expressions=branches,
                 step_size=step_size,
@@ -317,6 +359,8 @@ def main():
                          "For broken leaflists use: --exclude '^.*/\\.f'")
     ap.add_argument("--keepPtBins", nargs="*", default=None,
                     help="Only process these pt bins (e.g. QCD_Pt_470to600 QCD_Pt_600to800)")
+    ap.add_argument("--copy-tree",action="append",default=[r"^Cut.*", r"^Runs$", r"^LuminosityBlocks$"],help="Regex for non-Events TTrees to copy over (repeatable). Default copies Cut*, Runs, LuminosityBlocks.",)
+
     ap.add_argument("--plots-only",action="store_true",help="Only build plots from existing trimmed ROOT files (no trimming)")
 
     args = ap.parse_args()
@@ -402,6 +446,7 @@ def main():
                         exclude_patterns=args.exclude,
                         step_size=args.step_size,
                         overwrite=args.overwrite,
+                        copy_tree_regexes=args.copy_tree,
                     )
                     kept_dataset += kept
                     dropped_dataset += dropped
