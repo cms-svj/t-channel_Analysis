@@ -32,13 +32,13 @@ REGIONS = PLOT_REGIONS
 
 SVJ_XLABELS = ["0", "1", "2", "3+"]
 # Background stacking order (bottom → top)
-BKG_ORDER = ["QCD", "TTJets", "WJetsToLNu", "ZJetsToNuNu", "ST"]
+BKG_ORDER = ["QCD", "TTJets", "WJets", "ZJets", "ST"]
 
 PROC_LABEL = {
     "QCD": "QCD multijet",
     "TTJets": r"$t\bar{t}$ + jets",
-    "ZJetsToNuNu": r"$Z \to \nu\nu$ + jets",
-    "WJetsToLNu": r"$W \to \ell\nu$ + jets",
+    "ZJets": r"$Z$ + jets",
+    "WJets": r"$W$ + jets",
     "ST": "Single top",
 }
 
@@ -54,8 +54,8 @@ PROC_LABEL = {
 PROC_COLOR = {
     "QCD": "#f89c20",        # was ST
     "TTJets": "#e42536",     # was Z
-    "WJetsToLNu": "#5790fc", # stays middle
-    "ZJetsToNuNu": "#9c9ca1",# was TT
+    "WJets": "#5790fc",      # stays middle
+    "ZJets": "#9c9ca1",      # was TT
     "ST": "#7a21dd",         # was QCD
 }
 
@@ -63,29 +63,25 @@ PROC_COLOR = {
 PROC_HATCH = {
     "QCD": None,
     "TTJets": None,
-    "WJetsToLNu": None,
-    "ZJetsToNuNu": None,
+    "WJets": None,
+    "ZJets": None,
     "ST": None,
 }
 
 
 # Signals to overlay (must match ROOT histogram names exactly)
 SIGNAL_PROCS = [
-    #"mMed500_rinv0p3",
-    #"mMed700_rinv0p3",
-    "mMed1000_rinv0p3",
-    "mMed1500_rinv0p3",
-    "mMed2000_rinv0p3",
-    "mMed4000_rinv0p3",
+    "mMed1000_mDark20_rinv0p3_yukawa1",
+    "mMed1500_mDark20_rinv0p3_yukawa1",
+    "mMed2000_mDark20_rinv0p3_yukawa1",
+    "mMed4000_mDark20_rinv0p3_yukawa1",
 ]
 
 SIG_COLORS = {
-    #"mMed500_rinv0p3": "orange",
-    #"mMed700_rinv0p3": "green",
-    "mMed1000_rinv0p3": "red",
-    "mMed1500_rinv0p3": "blue",
-    "mMed2000_rinv0p3": "darkgreen",
-    "mMed4000_rinv0p3": "purple",
+    "mMed1000_mDark20_rinv0p3_yukawa1": "red",
+    "mMed1500_mDark20_rinv0p3_yukawa1": "blue",
+    "mMed2000_mDark20_rinv0p3_yukawa1": "darkgreen",
+    "mMed4000_mDark20_rinv0p3_yukawa1": "purple",
 }
 
 SIG_LINESTYLE = "--"
@@ -326,8 +322,11 @@ def step_band_from_bins(xpos, y, yerr, width=0.85, eps=1e-6):
 # Plotting
 # --------------------------
 def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
-              lumi_text=None, com_text="13", prelim=True):
+              lumi_text=None, com_text="13", prelim=True, years_to_sum=None,
+              output_label=None):
     os.makedirs(outdir, exist_ok=True)
+    years_to_read = years_to_sum if years_to_sum is not None else [year]
+    plot_label = output_label if output_label is not None else year
 
     # CMS style
     hep.style.use("CMS")
@@ -355,45 +354,53 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
  
     # Collect yields
     proc_y = {p: np.zeros_like(x, dtype=float) for p in BKG_ORDER}
-    proc_e = {p: np.zeros_like(x, dtype=float) for p in BKG_ORDER}
+    proc_var = {p: np.zeros_like(x, dtype=float) for p in BKG_ORDER}
     sig_y = {s: np.zeros_like(x, dtype=float) for s in SIGNAL_PROCS}
 
-    data_y = np.full_like(x, np.nan, dtype=float)
-    data_e = np.full_like(x, np.nan, dtype=float)
+    data_y = np.zeros_like(x, dtype=float)
+    data_var = np.zeros_like(x, dtype=float)
+    data_seen = np.zeros_like(x, dtype=bool)
 
 
     with uproot.open(file_path) as f:
-        for r_i, reg_plot in enumerate(PLOT_REGIONS):
-            reg_root = ROOT_REGION_FOR[reg_plot]
+        for year_to_read in years_to_read:
+            for r_i, reg_plot in enumerate(PLOT_REGIONS):
+                reg_root = ROOT_REGION_FOR[reg_plot]
 
-            for s_i, svj in enumerate(SVJ_ORDER):
-                idx = r_i * nsvj + s_i
+                for s_i, svj in enumerate(SVJ_ORDER):
+                    idx = r_i * nsvj + s_i
 
-                # --- backgrounds ---
-                bkg, data = read_region_bkgs(
-                    f, svj=svj, year=year, region=reg_root,
-                    include_flow=include_flow, with_data=with_data
-                )
-                if bkg is None:
-                    continue
+                    # --- backgrounds ---
+                    bkg, data = read_region_bkgs(
+                        f, svj=svj, year=year_to_read, region=reg_root,
+                        include_flow=include_flow, with_data=with_data
+                    )
+                    if bkg is None:
+                        continue
 
-                for p in BKG_ORDER:
-                    proc_y[p][idx] = bkg[p][0]
-                    proc_e[p][idx] = bkg[p][1]
+                    for p in BKG_ORDER:
+                        proc_y[p][idx] += bkg[p][0]
+                        proc_var[p][idx] += bkg[p][1] ** 2
 
-                # --- signals ---
-                for sig in SIGNAL_PROCS:
-                    sig_path = f"{svj}Y{year}_Run2/{reg_root}/{sig}"
-                    if sig_path in f:
-                        hsig = f[sig_path]
-                        vals, _ = hsig.to_numpy(flow=include_flow)
-                        sig_y[sig][idx] = vals.sum()
+                    # --- signals ---
+                    for sig in SIGNAL_PROCS:
+                        sig_path = f"{svj}Y{year_to_read}_Run2/{reg_root}/{sig}"
+                        if sig_path in f:
+                            hsig = f[sig_path]
+                            vals, _ = hsig.to_numpy(flow=include_flow)
+                            sig_y[sig][idx] += vals.sum()
 
-                # --- data ---
+                    # --- data ---
 
-                if with_data and (data is not None):
-                    data_y[idx] = data[0]
-                    data_e[idx] = data[1]
+                    if with_data and (data is not None):
+                        data_y[idx] += data[0]
+                        data_var[idx] += data[1] ** 2
+                        data_seen[idx] = True
+
+    proc_e = {p: np.sqrt(proc_var[p]) for p in BKG_ORDER}
+    data_e = np.sqrt(data_var)
+    data_y[~data_seen] = np.nan
+    data_e[~data_seen] = np.nan
 
 
     # ---------------------------------------
@@ -401,7 +408,7 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     # First bin = Region A, nSVJ = 0
     # ---------------------------------------
     print(
-        f"DEBUG {year} (Region A, nSVJ=0):",
+        f"DEBUG {plot_label} (Region A, nSVJ=0):",
         {p: proc_y[p][0] for p in reversed(BKG_ORDER)},
         "TOTAL =", sum(proc_y[p][0] for p in BKG_ORDER)
     )
@@ -434,7 +441,7 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     # First bin = Region A, nSVJ=0 (index 0)
     # -------------------------------------------------
     print(
-        f"DEBUG {year} stack check (Region A, nSVJ=0): "
+        f"DEBUG {plot_label} stack check (Region A, nSVJ=0): "
         f"QCD={proc_y['QCD'][0]:.2f}  "
         f"MC_total_from_stack={bottoms[0]:.2f}  "
         f"MC_total_from_sum={sum(proc_y[p][0] for p in BKG_ORDER):.2f}"
@@ -602,9 +609,9 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     # If you want the exact "CMS Preliminary 41.5 fb^{-1} (13 TeV)" formatting, set lumi_text accordingly.
     if lumi_text is None:
         # reasonable defaults if you don't pass lumi
-        lumi_text = {"2016": "36.31", "2017": "42.07", "2018": "59.56"}.get(year, "")
+        lumi_text = {"2016": "36.31", "2017": "42.07", "2018": "59.56", "Run2_Combined": "137.94"}.get(plot_label, "")
         #lumi_text = {"2016": "35.9 ", "2017": "41.5 ", "2018": "59.7 "}.get(year, "")
-        lumi_text = {"2016": "36.31", "2017": "42.07", "2018": "59.56"}.get(year, "")
+        lumi_text = {"2016": "36.31", "2017": "42.07", "2018": "59.56", "Run2_Combined": "137.94"}.get(plot_label, "")
     hep.cms.label(
         ax=ax,
         label="Preliminary" if prelim else "",
@@ -616,7 +623,7 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     #fig.tight_layout()
 
     suffix = "_with_data" if with_data else ""
-    outpath = os.path.join(outdir, f"ABCD_yields_{year}_CMS{suffix}.pdf")
+    outpath = os.path.join(outdir, f"ABCD_yields_{plot_label}_CMS{suffix}.pdf")
     fig.savefig(outpath)
     plt.close(fig)
     print(f"[OK] wrote {outpath}")
@@ -635,13 +642,13 @@ def write_detailed_yield_table_txt(year, yields, outdir):
     table_proc_labels = {
         "ST": "Single top",
         "TTJets": "t#bar{t}",
-        "ZJetsToNuNu": "Z#rightarrow#nu#nu+jets",
-        "WJetsToLNu": "W+jets",
+        "ZJets": "Z+jets",
+        "WJets": "W+jets",
         "QCD": "QCD"
     }
     
     # Process order matching your example
-    table_proc_order = ["ST", "TTJets", "ZJetsToNuNu", "WJetsToLNu", "QCD"]
+    table_proc_order = ["ST", "TTJets", "ZJets", "WJets", "QCD"]
 
     with open(outpath, "w") as f:
         # Header
@@ -682,12 +689,12 @@ def write_latex_fraction_tables(year_label, yields, outdir):
     tex_proc_map = {
         "QCD": "QCD multijet",
         "TTJets": "\\ttjets",
-        "ZJetsToNuNu": "\\zjets",
-        "WJetsToLNu": "\\wjets",
+        "ZJets": "\\zjets",
+        "WJets": "\\wjets",
         "ST": "Single top"
     }
     # Match your desired table order
-    tex_proc_order = ["QCD", "TTJets", "ZJetsToNuNu", "WJetsToLNu", "ST"]
+    tex_proc_order = ["QCD", "TTJets", "ZJets", "WJets", "ST"]
     
     # 1. Sum over regions (A+B+C+D) for each process and SVJ bin
     total_proc_svj = {p: {s: 0.0 for s in SVJ_ORDER} for p in BKG_ORDER}
@@ -776,24 +783,6 @@ def main():
 
     with uproot.open(args.file) as f:
         years = args.years if args.years else detect_years(f)
-        
-        year = years[0]
-        svj  = SVJ_ORDER[0]
-        base = f"{svj}Y{year}_Run2"
-        print("\nTOP-LEVEL (first ~50):")
-        print(list(f.keys())[:50])
-
-        print(f"\nDIR KEYS under {base}:")
-        print([k.split(";")[0] for k in f[base].keys()])
-
-        # pick a region name that exists from the above print (e.g. "A" or whatever it actually is)
-        region = [k.split(";")[0] for k in f[base].keys()][0]
-        print(f"\nOBJECTS under {base}/{region}:")
-        print([k.split(';')[0] for k in f[f'{base}/{region}'].keys()])
-
-
-    with uproot.open(args.file) as f:
-        years = args.years if args.years else detect_years(f)
     if not years:
         raise RuntimeError("No years detected. Check directory naming (e.g. 0SVJY2016_Run2).")
 
@@ -848,6 +837,16 @@ def main():
             com_text=args.com,
             prelim=(not args.final)
         )
+    plot_year(
+        args.file, "Run2_Combined", outdir=args.outdir,
+        include_flow=args.include_flow,
+        with_data=args.with_data,
+        lumi_text=args.lumi,
+        com_text=args.com,
+        prelim=(not args.final),
+        years_to_sum=years,
+        output_label="Run2_Combined"
+    )
     write_latex_fraction_tables("Run2_Combined", total_yields, args.outdir)
 
 
