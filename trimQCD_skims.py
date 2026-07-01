@@ -15,8 +15,8 @@ Example:
   python3 trimQCD_skims.py --met-branch MET --plot-dir ./QCD_plots/trimming_skims \
     --ymin 1e-4 --overwrite --exclude '^.*/\.f' --year 2016
 
-Optional:
-  --keepPtBins QCD_Pt_470to600 QCD_Pt_600to800
+for YEAR in 2016 2017 2018; do     echo "============================================================";     echo "Running WNAE trimming for ${YEAR}";     echo "============================================================"
+    python3 -u trimQCD_skims.py         --year "${YEAR}"         --met-branch MET         --plot-dir "$PLOT_DIR"         --trim-subdir "$ROOT_OUT"         --copy-tree '.*'         --ymin 1e-4         --overwrite; done
 """
 
 import os
@@ -44,60 +44,277 @@ plt.style.use(hep.style.CMS)
 from typing import Dict, List
 
 # SKIM_FILES: Dict[str, Dict[str, List[str]]] = {
-    "2016": {
-        "QCD_Pt_470to600": [
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-0.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-1.root",
-        ],
-        "QCD_Pt_600to800": [
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-0.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-1.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-2.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-3.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-4.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-5.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-6.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-7.root",
-        ],
-    },
+#     "2016": {
+#         "QCD_Pt_470to600": [
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-0.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-1.root",
+#         ],
+#         "QCD_Pt_600to800": [
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-0.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-1.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-2.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-3.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-4.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-5.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-6.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2016/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-7.root",
+#         ],
+#     },
 
-    "2017": {
-        "QCD_Pt_470to600": [
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-0.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-1.root",
-        ],
-        "QCD_Pt_600to800": [
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-0.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-1.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-2.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-3.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-4.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-5.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-6.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-7.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-8.root",
-        ],
-    },
+#     "2017": {
+#         "QCD_Pt_470to600": [
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-0.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-1.root",
+#         ],
+#         "QCD_Pt_600to800": [
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-0.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-1.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-2.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-3.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-4.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-5.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-6.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-7.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2017/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-8.root",
+#         ],
+#     },
 
-    "2018": {
-        "QCD_Pt_470to600": [
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-0.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-1.root",
-        ],
-        "QCD_Pt_600to800": [
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-0.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-1.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-2.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-3.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-4.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-5.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-6.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-7.root",
-            "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-8.root",
-        ],
-    },
-}
+#     "2018": {
+#         "QCD_Pt_470to600": [
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-0.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_470to600/part-1.root",
+#         ],
+#         "QCD_Pt_600to800": [
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-0.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-1.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-2.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-3.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-4.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-5.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-6.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-7.root",
+#             "root://cmseos.fnal.gov//store/user/lpcdarkqcd/tchannel_UL/skims_wnae/2018/t_channel_pre_selection/nominal//QCD_Pt_600to800/part-8.root",
+#         ],
+#     },
+# }
 
+
+# =============================================================================
+# noWNAE QCD skim inputs: load all years/bins from saved EOS manifest
+# =============================================================================
+
+MANIFEST_FILE = (
+    "/uscms/home/ashrivas/nobackup/Dark_Sector/t-channel_Analysis/"
+    "qcd_WNAE_2016_2018_manifest.txt"
+)
+
+YEARS = ("2016", "2017", "2018")
+
+PT_BIN_ORDER = [
+    "QCD_Pt_170to300",
+    "QCD_Pt_300to470",
+    "QCD_Pt_470to600",
+    "QCD_Pt_600to800",
+    "QCD_Pt_800to1000",
+    "QCD_Pt_1000to1400",
+    "QCD_Pt_1400to1800",
+    "QCD_Pt_1800to2400",
+    "QCD_Pt_2400to3200",
+    "QCD_Pt_3200toInf",
+]
+
+_MANIFEST_RE = re.compile(
+    r"^root://cmseos\.fnal\.gov//store/user/lpcdarkqcd/"
+    r"tchannel_UL/skims_gapJetVeto/data_mc_WNAE/"
+    r"(?P<year>2016|2017|2018)/"
+    r"t_channel_pre_selection/nominal/"
+    r"(?P<ptbin>QCD_Pt_[^/]+)/"
+    r"part-(?P<part>\d+)\.root$"
+)
+
+
+def load_skim_files_from_manifest(
+    manifest_file: str,
+) -> Dict[str, Dict[str, List[str]]]:
+    """
+    Build:
+      SKIM_FILES[year][ptbin] = sorted list of XRootD part-*.root URLs.
+    """
+    if not os.path.isfile(manifest_file):
+        raise FileNotFoundError(
+            f"Manifest not found:\n  {manifest_file}\n"
+            "Create/copy qcd_WNAE_2016_2018_manifest.txt there first."
+        )
+
+    skim_files: Dict[str, Dict[str, List[str]]] = {
+        year: {ptbin: [] for ptbin in PT_BIN_ORDER}
+        for year in YEARS
+    }
+
+    with open(manifest_file, "r", encoding="utf-8") as handle:
+        for line_number, raw_line in enumerate(handle, start=1):
+            url = raw_line.strip()
+
+            if not url or url.startswith("#"):
+                continue
+
+            # Manifest currently has root://cmseos.fnal.gov///store/...
+            # Normalize it to the standard XRootD spelling.
+            url = re.sub(
+                r"^root://cmseos\.fnal\.gov/+",
+                "root://cmseos.fnal.gov//",
+                url,
+            )
+
+            match = _MANIFEST_RE.match(url)
+            if match is None:
+                raise ValueError(
+                    f"Unexpected manifest entry at line {line_number}:\n  {url}"
+                )
+
+            year = match.group("year")
+            ptbin = match.group("ptbin")
+
+            if ptbin not in skim_files[year]:
+                raise ValueError(
+                    f"Unexpected pT bin at line {line_number}: {ptbin}"
+                )
+
+            skim_files[year][ptbin].append(url)
+
+    missing = []
+    for year in YEARS:
+        for ptbin in PT_BIN_ORDER:
+            if not skim_files[year][ptbin]:
+                missing.append(f"{year}/{ptbin}")
+
+    if missing:
+        raise RuntimeError(
+            "The manifest is missing expected datasets:\n  "
+            + "\n  ".join(missing)
+        )
+
+    part_re = re.compile(r"part-(\d+)\.root$")
+    for year in YEARS:
+        for ptbin in PT_BIN_ORDER:
+            skim_files[year][ptbin].sort(
+                key=lambda path: int(part_re.search(path).group(1))
+            )
+
+    return skim_files
+
+
+SKIM_FILES: Dict[str, Dict[str, List[str]]] = load_skim_files_from_manifest(
+    MANIFEST_FILE
+)
+# =============================================================================
+# noWNAE QCD skim inputs: load all years/bins from saved EOS manifest
+# =============================================================================
+
+MANIFEST_FILE = (
+    "/uscms/home/ashrivas/nobackup/Dark_Sector/t-channel_Analysis/"
+    "qcd_WNAE_2016_2018_manifest.txt"
+)
+
+YEARS = ("2016", "2017", "2018")
+
+PT_BIN_ORDER = [
+    "QCD_Pt_170to300",
+    "QCD_Pt_300to470",
+    "QCD_Pt_470to600",
+    "QCD_Pt_600to800",
+    "QCD_Pt_800to1000",
+    "QCD_Pt_1000to1400",
+    "QCD_Pt_1400to1800",
+    "QCD_Pt_1800to2400",
+    "QCD_Pt_2400to3200",
+    "QCD_Pt_3200toInf",
+]
+
+_MANIFEST_RE = re.compile(
+    r"^root://cmseos\.fnal\.gov//store/user/lpcdarkqcd/"
+    r"tchannel_UL/skims_gapJetVeto/data_mc_WNAE/"
+    r"(?P<year>2016|2017|2018)/"
+    r"t_channel_pre_selection/nominal/"
+    r"(?P<ptbin>QCD_Pt_[^/]+)/"
+    r"part-(?P<part>\d+)\.root$"
+)
+
+
+def load_skim_files_from_manifest(
+    manifest_file: str,
+) -> Dict[str, Dict[str, List[str]]]:
+    """
+    Build:
+      SKIM_FILES[year][ptbin] = sorted list of XRootD part-*.root URLs.
+    """
+    if not os.path.isfile(manifest_file):
+        raise FileNotFoundError(
+            f"Manifest not found:\n  {manifest_file}\n"
+            "Create/copy qcd_WNAE_2016_2018_manifest.txt there first."
+        )
+
+    skim_files: Dict[str, Dict[str, List[str]]] = {
+        year: {ptbin: [] for ptbin in PT_BIN_ORDER}
+        for year in YEARS
+    }
+
+    with open(manifest_file, "r", encoding="utf-8") as handle:
+        for line_number, raw_line in enumerate(handle, start=1):
+            url = raw_line.strip()
+
+            if not url or url.startswith("#"):
+                continue
+
+            # Manifest currently has root://cmseos.fnal.gov///store/...
+            # Normalize it to the standard XRootD spelling.
+            url = re.sub(
+                r"^root://cmseos\.fnal\.gov/+",
+                "root://cmseos.fnal.gov//",
+                url,
+            )
+
+            match = _MANIFEST_RE.match(url)
+            if match is None:
+                raise ValueError(
+                    f"Unexpected manifest entry at line {line_number}:\n  {url}"
+                )
+
+            year = match.group("year")
+            ptbin = match.group("ptbin")
+
+            if ptbin not in skim_files[year]:
+                raise ValueError(
+                    f"Unexpected pT bin at line {line_number}: {ptbin}"
+                )
+
+            skim_files[year][ptbin].append(url)
+
+    missing = []
+    for year in YEARS:
+        for ptbin in PT_BIN_ORDER:
+            if not skim_files[year][ptbin]:
+                missing.append(f"{year}/{ptbin}")
+
+    if missing:
+        raise RuntimeError(
+            "The manifest is missing expected datasets:\n  "
+            + "\n  ".join(missing)
+        )
+
+    part_re = re.compile(r"part-(\d+)\.root$")
+    for year in YEARS:
+        for ptbin in PT_BIN_ORDER:
+            skim_files[year][ptbin].sort(
+                key=lambda path: int(part_re.search(path).group(1))
+            )
+
+    return skim_files
+
+
+SKIM_FILES: Dict[str, Dict[str, List[str]]] = load_skim_files_from_manifest(
+    MANIFEST_FILE
+)
 
 # Per pt-bin MET max cut (from your printouts)
 MET_MAX_CUT: Dict[str, float] = {
@@ -363,6 +580,12 @@ def main():
 
     ap.add_argument("--plots-only",action="store_true",help="Only build plots from existing trimmed ROOT files (no trimming)")
 
+
+    for year in YEARS:
+        total_files = sum(len(files) for files in SKIM_FILES[year].values())
+        print(f"\n[INFO] {year}: {total_files} ROOT files")
+        for ptbin in PT_BIN_ORDER:
+            print(f"  {ptbin:<22} {len(SKIM_FILES[year][ptbin]):>2} files")
     args = ap.parse_args()
 
     if args.year not in SKIM_FILES:
