@@ -15,12 +15,7 @@ import utils.DataSetInfo as info
 
 '''
 Example:
-python3 plotStack2.py \
-    -d /uscms/home/ashrivas/nobackup/Dark_Sector/t-channel_Analysis/output/Current_Model_wp90_w2016 \
-    -o paper_stacks \
-    --years 2016,2017,2018 \
-    --cuts _pre_,_pre_WNAE_ \
-    --ratio
+python3 plotStack2.py     -d /uscms/home/ashrivas/nobackup/Dark_Sector/t-channel_Analysis/output/Current_Model_wp90_w2016     -o paper_stacks     --years 2016,2017,2018     --cuts _pre_,_pre_WNAE_     --ratio --signals "m600_d20_r0p3,m2000_d20_r0p1,m2000_d20_r0p3,m2000_d20_r0p7,m4000_d20_r0p3" --signal-norm
 
 New signal options:
     --signals "SVJ,signal"
@@ -33,8 +28,10 @@ LUMI_BY_YEAR = {"2016": "36.31", "2017": "42.07", "2018": "59.56"}
 PROC_LABEL = {
     "QCD": "QCD ",
     "TTJets": "t#bar{t} + jets",
-    "ZJetsToNuNu": "Z #rightarrow #nu#nu + jets",
-    "WJetsToLNu": "W #rightarrow l#nu + jets",
+    # "ZJetsToNuNu": "Z #rightarrow #nu#nu + jets",
+    # "WJetsToLNu": "W #rightarrow l#nu + jets",
+    "ZJetsToNuNu": "Z(#nu#nu)+jets",
+    "WJetsToLNu": "W(l#nu)+jets",
     "ST": "Single top",
 }
 
@@ -63,14 +60,19 @@ SVJ_BINS = ["0SVJ", "1SVJ", "2SVJ", "3SVJ", "3PSVJ"]
 # Signal overlay config
 # ---------------------------------------------------------
 SIGNAL_LINE_COLORS = [
-    ROOT.kMagenta + 1,
-    ROOT.kCyan + 1,
-    ROOT.kGreen + 2,
-    ROOT.kRed + 1,
-    ROOT.kBlue + 1,
-    ROOT.kOrange + 7,
-    ROOT.kViolet + 1,
-    ROOT.kTeal + 1,
+    ROOT.TColor.GetColor("#92dadd"),  # cyan
+    ROOT.TColor.GetColor("#6b3e26"),  # dark brown
+    ROOT.TColor.GetColor("#0b3d02"),  # darker green
+    ROOT.TColor.GetColor("#228833"),  # dark green
+    ROOT.TColor.GetColor("#1f4e79"),  # dark blue
+]
+
+SIGNAL_LINE_STYLES = [
+    1,  # solid
+    3,  # dotted
+    1,  # solid
+    2,  # dashed
+    1,  # solid
 ]
 
 BKG_FILE_TOKENS = [
@@ -83,23 +85,65 @@ BKG_FILE_TOKENS = [
 ]
 
 def get_signal_label_from_filename(fname, year="", hem_period=""):
-    label = os.path.basename(fname)
-    if label.endswith(".root"):
-        label = label[:-5]
-    
+    base = os.path.basename(fname).replace(".root", "")
+
     prefix = f"{year}{hem_period}_"
-    if label.startswith(prefix):
-        label = label[len(prefix):]
+    if base.startswith(prefix):
+        base = base[len(prefix):]
 
-    # Truncate trailing tokens like N-1 or M0
-    # This splits by "N-" and takes the first part
-    label = label.split("N-")[0].rstrip("_")
+    mphi = None
+    mdark = None
+    rinv = None
 
-    # Translation logic
-    label = label.replace("m2000", "mMed 2000").replace("m1500", "mMed 1500").replace("m500", "mMed 500")
-    label = label.replace("r0p3", "rinv 0.3").replace("y1", "yukawa 1").replace("d20", "mdark 20")
-    
-    return label.replace("_", " ")
+    for part in base.split("_"):
+        if part.startswith("m") and part[1:].isdigit():
+            mphi = part[1:]
+
+        elif part.startswith("d") and part[1:].isdigit():
+            mdark = part[1:]
+
+        elif part.startswith("r"):
+            rinv = part[1:].replace("p", ".")
+
+    if mphi is not None and mdark is not None and rinv is not None:
+        return rf"m_{{#phi}} = {mphi} GeV, m_{{dark}} = {mdark} GeV, r_{{inv}} = {rinv}"
+
+    if mphi is not None and rinv is not None:
+        return rf"m_{{#phi}} = {mphi} GeV, r_{{inv}} = {rinv}"
+
+    return base
+
+
+
+def parse_signal_params(fname):
+    """
+    Extract mMed, mDark, rinv from filenames like:
+      2018_m600_d20_r0p3.root
+      m2000_d20_r0p7.root
+
+    Returns large default values if something is missing,
+    so unknown files go to the end.
+    """
+    base = os.path.basename(fname).replace(".root", "")
+
+    mmed = 999999
+    mdark = 999999
+    rinv = 999999.0
+
+    for part in base.split("_"):
+        if part.startswith("m") and part[1:].isdigit():
+            mmed = int(part[1:])
+
+        elif part.startswith("d") and part[1:].isdigit():
+            mdark = int(part[1:])
+
+        elif part.startswith("r"):
+            try:
+                rinv = float(part[1:].replace("p", "."))
+            except ValueError:
+                pass
+
+    return mmed, rinv, mdark
 
 def discover_signal_files(path, year="2018", HEMPeriod="", patterns_csv=""):
     """
@@ -123,8 +167,10 @@ def discover_signal_files(path, year="2018", HEMPeriod="", patterns_csv=""):
 
         out.append(base)
 
-    return out
+    # Sort signal models by mMed first, then rinv, then mDark
+    out = sorted(out, key=parse_signal_params)
 
+    return out
 
 def get_signal_data(path, scale=1.0, year="2018", HEMPeriod="", signal_patterns=""):
     sgData = []
@@ -157,6 +203,18 @@ def get_signal_data(path, scale=1.0, year="2018", HEMPeriod="", signal_patterns=
 
     return sgData
 
+def normalize_stack_to_unity(proc_hists, total_mc):
+    if total_mc is None:
+        return
+
+    integral = total_mc.Integral()
+    if integral <= 0:
+        return
+
+    for h in proc_hists.values():
+        h.Scale(1.0 / integral)
+
+    total_mc.Scale(1.0 / integral)
 
 def getData(path, scale=1.0, year="2018", HEMPeriod=""):
     Data = [
@@ -301,7 +359,8 @@ def setup_canvas(isRatio=False, isLogY=True):
         pad2 = ROOT.TPad("pad2", "pad2", 0, 0.00, 1.0, 0.28)
 
         pad1.SetBottomMargin(0.02)
-        pad1.SetLeftMargin(0.12)
+        #pad1.SetLeftMargin(0.12)
+        pad1.SetLeftMargin(0.16)  # Set this to 0.16
         pad1.SetRightMargin(0.05)
         pad1.SetTopMargin(0.08)
         pad1.SetTicks(1, 1)
@@ -310,7 +369,8 @@ def setup_canvas(isRatio=False, isLogY=True):
 
         pad2.SetTopMargin(0.03)
         pad2.SetBottomMargin(0.35)
-        pad2.SetLeftMargin(0.12)
+        #pad2.SetLeftMargin(0.12)
+        pad2.SetLeftMargin(0.16)  # Set this to 0.16 to match
         pad2.SetRightMargin(0.05)
         pad2.SetTicks(1, 1)
         pad2.SetGridy()
@@ -319,7 +379,8 @@ def setup_canvas(isRatio=False, isLogY=True):
 
     c = ROOT.TCanvas("c", "c", 800, 800)
     c.cd()
-    ROOT.gPad.SetLeftMargin(0.12)
+   #ROOT.gPad.SetLeftMargin(0.12)
+    ROOT.gPad.SetLeftMargin(0.16) # Set this to 0.16
     ROOT.gPad.SetRightMargin(0.05)
     ROOT.gPad.SetTopMargin(0.08)
     ROOT.gPad.SetBottomMargin(0.12)
@@ -328,21 +389,35 @@ def setup_canvas(isRatio=False, isLogY=True):
     return c, None, None
 
 def make_legend(with_data=True, n_signal=0):
-    # X1, Y1, X2, Y2
-    # Start further left (0.35) and use 1 column
-    leg = ROOT.TLegend(0.35, 0.65, 0.93, 0.89)
-    leg.SetNColumns(1) 
+    # Reduced height and adjusted width to prevent text clipping
+    # (x1, y1, x2, y2)
+    #leg = ROOT.TLegend(0.15, 0.72, 0.93, 0.90)
+    leg = ROOT.TLegend(0.19, 0.72, 0.93, 0.90)
+    leg.SetNColumns(2)
     leg.SetBorderSize(0)
     leg.SetFillStyle(0)
-    leg.SetTextSize(0.028) 
-    return leg
 
+    # 0.025 to 0.028 is usually the 'sweet spot' for CMS paper-style plots
+    #leg.SetTextSize(0.026)
+    #leg.SetTextSize(0.024)
+    leg.SetTextSize(0.022)
+    leg.SetTextFont(42) # Standard Helvetica
+
+    # Increase column separation if labels overlap,
+    # but 0.01-0.05 is usually enough
+    leg.SetColumnSeparation(0.02)
+
+    # Vertical spacing between entries
+    leg.SetEntrySeparation(0.05)
+
+    return leg
 
 def get_paper_vars():
     return {
-        "MET": ("p_{T}^{Miss} [GeV]", 500, 0.0, 2000.0),
+        #"MET": ("p_{T}^{Miss} [GeV]", 500, 0.0, 2000.0),
+        "MET": ("p_{T}^{miss} [GeV]", 500, 200.0, 1000.0),
         "HT": ("H_{T} [GeV]", 500, 0.0, 5000.0),
-        "ST": ("S_{T} [GeV]", 500, 1000.0, 5000.0),
+        "ST": ("S_{T} [GeV]", 500, 1300.0, 5000.0),
         "mT": ("m_{T} [GeV]", 500, 0.0, 6000.0),
         "dPhiMinjMETAK8": ("#Delta#phi_{min}(J, p_{T}^{miss})", 100, 0.0, 2.0),
         "nsvjJetsAK8": ("Number of SVJ AK8 jets", 20, 0.0, 5.0),
@@ -375,8 +450,11 @@ def style_mc_hist(h, proc_key):
     color = PROC_COLOR.get(proc_key, ROOT.kGray)
     h.SetFillColor(color)
     h.SetFillStyle(1001)
-    h.SetLineColor(ROOT.kBlack)
-    h.SetLineWidth(1)
+
+    # No black outline around stacked MC
+    h.SetLineColor(color)
+    h.SetLineWidth(0)
+
     h.SetMarkerSize(0)
     return h
 
@@ -390,15 +468,11 @@ def style_data_hist(h):
     return h
 
 def style_signal_hist(h, idx):
-    # Use high-contrast colors: Red, Blue, Green, Magenta
-    colors = [ROOT.kRed, ROOT.kBlue, ROOT.kGreen+2, ROOT.kMagenta]
-    styles = [1, 2, 7, 3] # Solid, Dashed, Long-Dash, Dotted
-    
-    color = colors[idx % len(colors)]
-    h.SetLineColor(color)
-    h.SetLineWidth(3)
-    h.SetLineStyle(styles[idx % len(styles)])
+    h.SetLineColor(SIGNAL_LINE_COLORS[idx % len(SIGNAL_LINE_COLORS)])
+    h.SetLineWidth(2)
+    h.SetLineStyle(SIGNAL_LINE_STYLES[idx % len(SIGNAL_LINE_STYLES)])
     h.SetFillStyle(0)
+    h.SetMarkerSize(0)
     return h
 
 def get_summed_hist(dset, histoName, rebinx, xmin, xmax, fill=False):
@@ -530,10 +604,41 @@ def build_signal_hists(sgData, histoName, rebinx, xmin, xmax, signal_scale=1.0, 
 
         h = clone_hist(h, f"sig_{i}_{histoName}")
 
-        if signal_scale != 1.0:
-            h.Scale(signal_scale)
+        # --- PER-SIGNAL SCALING LOGIC ---
+        # We start with the base scale from the command line
+        current_scale = signal_scale
+        fname = dset.fileName.lower()
+
+        # Boost heavier masses that have tiny cross-sections
+        # You can adjust these factors based on your specific plots
+        # --- PER-SIGNAL SCALING LOGIC ---
+        current_scale = signal_scale
+        fname = dset.fileName.lower()
+
+        if "m2000" in fname:
+            current_scale *= 100000
+        elif "m4000" in fname:
+            current_scale *= 1000000
+
+        if current_scale != 1.0:
+            h.Scale(current_scale)
+
+            # Format the label nicely
+            if "(x" not in dset.label:
+                scale_str = format_scale(current_scale)
+                dset.label += f" (#times {scale_str})"
+        # --------------------------------
+
+            # Update the legend label so the viewer knows it was boosted
+            # Only append if the label doesn't already contain a scale factor
+            if "x" not in dset.label:
+                dset.label += f" (x{current_scale:g})"
+
+        # --------------------------------
 
         if normalize:
+            # If normalize is True, it will overwrite the scaling above
+            # and force the area to 1.0.
             integral = h.Integral()
             if integral > 0:
                 h.Scale(1.0 / integral)
@@ -542,7 +647,6 @@ def build_signal_hists(sgData, histoName, rebinx, xmin, xmax, signal_scale=1.0, 
         signal_hists.append((dset, h))
 
     return signal_hists
-
 
 def make_ratio(data_hist, mc_hist, xtitle):
     ratio = clone_hist(data_hist, f"ratio_{data_hist.GetName()}")
@@ -592,39 +696,52 @@ def get_ymax(stack, mc_hist, data_hist=None, signal_hists=None, isLogY=True):
     if ymax <= 0:
         ymax = 1.0
 
-    return ymax * (100.0 if isLogY else 1.5)
+    #return ymax * (100.0 if isLogY else 1.5)
+    #return ymax * (100.0 if isLogY else 1.8)
+    return ymax * (25.0 if isLogY else 1.4)
 
 
-def draw_cms_label(year, extra_text="Preliminary"):
+def draw_cms_label(year=None, extra_text="Preliminary", show_lumi=True):
     latex = ROOT.TLatex()
     latex.SetNDC()
-    latex.SetTextAngle(0)
     latex.SetTextColor(ROOT.kBlack)
 
-    # Top-left margin position
-    posX_ = 0.12
-    posY_ = 0.94
-
-    # Draw CMS (Bold/61)
     latex.SetTextFont(61)
     latex.SetTextSize(0.060)
-    # Inside draw_cms_label
-    latex.SetTextAlign(11) 
-    latex.DrawLatex(posX_, posY_, "CMS")
+    latex.SetTextAlign(11)
 
-    if extra_text:
-        latex.SetTextFont(52)
-        latex.SetTextSize(0.040)
-        # Increase the offset from 0.11 to 0.13 to give "CMS" more breathing room
-        latex.DrawLatex(posX_ + 0.13, posY_, extra_text)
+    # Matches the LeftMargin of 0.16
+    latex.DrawLatex(0.16, 0.94, "CMS")
 
-    # Draw Lumi/Year (Regular/42)
-    lumi_text = f"{LUMI_BY_YEAR.get(year, '')} fb^{{-1}} (13 TeV)"
-    latex.SetTextFont(42)
-    latex.SetTextSize(0.045)
-    latex.SetTextAlign(31) # Right alignment
-    latex.DrawLatex(0.95, posY_, lumi_text)
 
+    latex.SetTextFont(52)
+    latex.SetTextSize(0.040)
+
+    # Shifted to 0.27 so it doesn't overlap the "CMS" text
+    #latex.DrawLatex(0.27, 0.94, extra_text)
+    latex.DrawLatex(0.29, 0.94, extra_text)
+    if show_lumi and year is not None:
+        lumi_text = f"{LUMI_BY_YEAR.get(year, '')} fb^{{-1}} (13 TeV)"
+        latex.SetTextFont(42)
+        latex.SetTextSize(0.045)
+        latex.SetTextAlign(31)
+        latex.DrawLatex(0.95, 0.94, lumi_text)
+
+def format_scale(scale):
+    """Converts a multiplier like 100000 into a ROOT LaTeX string like 10^{5}"""
+    if scale == 1.0: return ""
+    if scale >= 1000 or scale <= 0.001:
+        exponent = int(math.floor(math.log10(scale)))
+        mantissa = scale / (10**exponent)
+
+        # If it's exactly 1.0 x 10^5, just write 10^5
+        if abs(mantissa - 1.0) < 0.01:
+            return f"10^{{{exponent}}}"
+        else:
+            return f"{mantissa:.1f} #times 10^{{{exponent}}}"
+    else:
+        # Keep small multipliers as normal numbers (e.g., 50)
+        return f"{scale:g}"
 
 def save_canvas(canvas, outbase):
     canvas.SaveAs(outbase + ".pdf")
@@ -650,6 +767,8 @@ def plot_paper_stack(data_tuple, histoName, totalBin, outputPath, xTitle, yTitle
         pad1.cd()
 
     stack, mc_hist, proc_hists = build_mc_stack(bgData, histoName, rebinx, xmin, xmax)
+
+
     data_hist = build_data_hist(dataList, histoName, rebinx, xmin, xmax)
     signal_hists = build_signal_hists(
         sgData,
@@ -660,7 +779,16 @@ def plot_paper_stack(data_tuple, histoName, totalBin, outputPath, xTitle, yTitle
         signal_scale=signal_scale,
         normalize=signal_norm,
     )
-
+    #  NOW safe to use data_hist
+    # if data_hist is None:
+    #     normalize_stack_to_unity(proc_hists, mc_hist)
+    if data_hist is None and signal_norm: # Only normalize if explicitly requested
+        normalize_stack_to_unity(proc_hists, mc_hist)
+        # rebuild stack
+        stack = ROOT.THStack("hs_norm", "hs_norm")
+        for proc_key in STACK_ORDER:
+            if proc_key in proc_hists:
+                stack.Add(proc_hists[proc_key])
     if mc_hist is None:
         print(f"[WARN] Could not build MC histogram for {histoName}")
         canvas.Close()
@@ -685,9 +813,18 @@ def plot_paper_stack(data_tuple, histoName, totalBin, outputPath, xTitle, yTitle
     dummy.GetYaxis().SetLabelSize(0.04)
     dummy.GetYaxis().SetLabelOffset(0.01)
     #dummy.GetYaxis().SetTitleOffset(0.95)
-    dummy.GetYaxis().SetTitleOffset(1.3) # Increased from 0.95
-
-    dummy.SetMinimum(0.02 if isLogY else 0.0)
+    #dummy.GetYaxis().SetTitleOffset(1.2) # Increased from 0.95
+    #dummy.GetYaxis().SetTitleOffset(1.45)
+    #dummy.GetYaxis().SetTitleOffset(1.3)
+    dummy.GetYaxis().SetTitleOffset(1.5)
+    # Slightly increase left margin to ensure the label doesn't hit the edge of the canvas
+    # Find setup_canvas or the direct cd() calls and ensure LeftMargin is at least 0.15
+    #pad1.SetLeftMargin(0.16)
+    #dummy.SetMinimum(0.02 if isLogY else 0.0)
+    #dummy.SetMinimum(1e-5 if isLogY else 0.0)
+    #dummy.SetMinimum(1e-5 if isLogY else 0.0)
+    # In plot_paper_stack
+    dummy.SetMinimum(1e-4 if isLogY else 0.0)
     dummy.SetMaximum(get_ymax(stack, mc_hist, data_hist, signal_hists=signal_hists, isLogY=isLogY))
     if xmin < xmax:
         dummy.GetXaxis().SetRangeUser(xmin, xmax)
@@ -695,9 +832,14 @@ def plot_paper_stack(data_tuple, histoName, totalBin, outputPath, xTitle, yTitle
 
     stack.Draw("hist same")
 
-    unc_band = make_mc_unc_band(mc_hist)
-    unc_band.Draw("E2 same")
-    mc_hist.Draw("hist same")
+    # Do not draw MC uncertainty band for MC-only shape plots
+    # Also do not draw total MC black outline
+    if data_hist is not None:
+        unc_band = make_mc_unc_band(mc_hist)
+        unc_band.Draw("E2 same")
+        mc_hist.Draw("hist same")
+    else:
+        unc_band = None
 
     for _, sig_hist in signal_hists:
         sig_hist.Draw("hist same")
@@ -707,25 +849,76 @@ def plot_paper_stack(data_tuple, histoName, totalBin, outputPath, xTitle, yTitle
         data_hist.Draw("PE same")
 
     leg = make_legend(with_data=(data_hist is not None), n_signal=len(signal_hists))
+    # if data_hist is not None:
+    #     leg.AddEntry(data_hist, "Data", "PE")
+
+    # for proc_key in LEGEND_ORDER:
+    #     if proc_key in proc_hists:
+    #         leg.AddEntry(proc_hists[proc_key], PROC_LABEL[proc_key], "F")
+
+    # for dset, sig_hist in signal_hists:
+    #     sig_label = getattr(dset, "label", getattr(dset, "fileName", "Signal"))
+    #     if signal_scale != 1.0 and not signal_norm:
+    #         sig_label += f" (x{signal_scale:g})"
+    #     leg.AddEntry(sig_hist, sig_label, "L")
+
+    # #leg.AddEntry(unc_band, "MC unc.", "F")
+    # if unc_band is not None:
+    #     leg.AddEntry(unc_band, "MC unc.", "F")
+    # 1. Prepare your lists
+    bkg_entries = []
     if data_hist is not None:
-        leg.AddEntry(data_hist, "Data", "PE")
+        bkg_entries.append((data_hist, "Data", "PE"))
 
     for proc_key in LEGEND_ORDER:
         if proc_key in proc_hists:
-            leg.AddEntry(proc_hists[proc_key], PROC_LABEL[proc_key], "F")
+            bkg_entries.append((proc_hists[proc_key], PROC_LABEL[proc_key], "F"))
+
+    if unc_band is not None:
+        bkg_entries.append((unc_band, "MC unc.", "F"))
+
+    sig_entries = []
+    import re # Make sure this is imported if not at the top of your script
 
     for dset, sig_hist in signal_hists:
         sig_label = getattr(dset, "label", getattr(dset, "fileName", "Signal"))
-        if signal_norm:
-            sig_label += " (norm.)"
-        elif signal_scale != 1.0:
-            sig_label += f" (x{signal_scale:g})"
-        leg.AddEntry(sig_hist, sig_label, "L")
 
-    leg.AddEntry(unc_band, "MC unc.", "F")
+        # 1. Strip out the ugly old "(x100000)" or "(x1e+06)" formatting if it exists
+        sig_label = re.sub(r" \(x\d+\.?\d*e?\+?\d*\)", "", sig_label)
+
+        # 2. Add the clean scientific notation ONLY if a global signal_scale is applied
+        # (and assuming build_signal_hists didn't already format it)
+        if signal_scale != 1.0 and not signal_norm and "(#times" not in sig_label:
+            scale_str = format_scale(signal_scale)
+            sig_label += f" (#times {scale_str})"
+
+        sig_entries.append((sig_hist, sig_label, "L"))
+    # 2. Interleave them for the 2-column layout (Left=Bkg, Right=Sig)
+    leg = make_legend(with_data=(data_hist is not None), n_signal=len(signal_hists))
+
+    n_rows = max(len(bkg_entries), len(sig_entries))
+
+    for i in range(n_rows):
+        # Left column: backgrounds/data/MC uncertainty
+        if i < len(bkg_entries):
+            leg.AddEntry(*bkg_entries[i])
+        else:
+            leg.AddEntry("", "", "")
+
+        # Right column: signals
+        if i < len(sig_entries):
+            leg.AddEntry(*sig_entries[i])
+        else:
+            leg.AddEntry("", "", "")
+
     leg.Draw()
 
-    draw_cms_label(year)
+
+    draw_cms_label(
+        year=year,
+        extra_text="Preliminary" if data_hist is not None else "Simulation",
+        show_lumi=(data_hist is not None),
+    )
     ROOT.gPad.RedrawAxis()
 
     if do_ratio and data_hist is not None:
@@ -837,7 +1030,7 @@ def main():
                         year=year,
                         do_ratio=opts.ratio,
                         signal_scale=opts.signal_scale,
-                        signal_norm=opts.signal_norm,
+                        signal_norm=True,
                     )
                 except Exception as e:
                     print(f"[WARN] Failed on {full_hname}: {e}")
