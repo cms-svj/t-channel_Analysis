@@ -17,7 +17,7 @@ class MainProcessor(processor.ProcessorABC):
                 self._accumulator = processor.dict_accumulator({})
                 self.setupHistos = None
                 self.jNVar = kwargs["jNVar"]
-                self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1") 
+                self.fakerateHisto = self.getHistoFromFile("fakerate.root", "jPt_Fakerate_SR;1")
                 self.hemPeriod = kwargs["hemPeriod"]
                 self.hemStudy = kwargs["hemStudy"]
                 self.trgEffStudy = kwargs["trgEffStudy"]
@@ -37,13 +37,13 @@ class MainProcessor(processor.ProcessorABC):
                     h = f[hName]
                     return h
                 except FileNotFoundError:
-                    print("\n\n\tError: No such file or directory: '{}'".format(fName))                    
+                    print("\n\n\tError: No such file or directory: '{}'".format(fName))
                     print("\tWill use default fakerate of 1.0 for each jet\n\n")
                     return None
                 except uproot.exceptions.KeyInFileError:
                     print("\n\n\tError: Histogram '{}' not found in file '{}'".format(hName,fName))
                     print("\tWill use default fakerate of 1.0 for each jet\n\n")
-                    return None                    
+                    return None
 
         def getSFEvaluator(self, rootFileName, histoName):
                 ext = lookup_tools.extractor()
@@ -58,7 +58,7 @@ class MainProcessor(processor.ProcessorABC):
                     for histName, histDetail in variables(self.jNVar,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():
                         if   histDetail.dim == 1:
                             histograms['h_{}{}'.format(histName,cutName)] = h.Hist(histDetail.xbins, storage="weight")
-                        elif histDetail.dim == 2:                        
+                        elif histDetail.dim == 2:
                             histograms['h_{}{}'.format(histName,cutName)] = h.Hist(histDetail.xbins, histDetail.ybins, storage="weight")
 
                 self._accumulator = histograms
@@ -72,19 +72,49 @@ class MainProcessor(processor.ProcessorABC):
                 if self.runJetTag:
                     if self.skimSource:
                         create_pn_related_variables(vars_noCut, self.fakerateHisto, vars_noCut["fjets"], vars_noCut["JetsAK8_pNetJetTaggerScore"][vars_noCut["JetsAK8_isGood"]])
-                        create_wnae_related_variables(vars_noCut, vars_noCut["fjets"], 
-                                                      svjWNAEPt0To200Loss = vars_noCut["JetsAK8_WNAEPt0To200Loss"][vars_noCut["JetsAK8_isGood"]],   wpt0To200 = 25.156,
-                                                      svjWNAEPt200To300Loss = vars_noCut["JetsAK8_WNAEPt200To300Loss"][vars_noCut["JetsAK8_isGood"]], wpt200To300 = 18.284,
-                                                      svjWNAEPt300To400Loss = vars_noCut["JetsAK8_WNAEPt300To400Loss"][vars_noCut["JetsAK8_isGood"]], wpt300To400 = 20.383,
-                                                      svjWNAEPt400To500Loss = vars_noCut["JetsAK8_WNAEPt400To500Loss"][vars_noCut["JetsAK8_isGood"]], wpt400To500 = 21.941,
-                                                      svjWNAEPt500ToInfLoss = vars_noCut["JetsAK8_WNAEPt500ToInfLoss"][vars_noCut["JetsAK8_isGood"]], wpt500ToInf = 16.370) 
+                        # -----------------------------------------
+                        # WNAE working points: data vs MC
+                        # -----------------------------------------
+                        if self.isData:
+                            wpt0To200   = 24.974
+                            wpt200To300 = 18.445
+                            wpt300To400 = 21.031
+                            wpt400To500 = 22.131
+                            wpt500ToInf = 16.535
+                        else:
+                            wpt0To200   = 25.156
+                            wpt200To300 = 18.284
+                            wpt300To400 = 20.383
+                            wpt400To500 = 21.941
+                            wpt500ToInf = 16.370
+                        create_wnae_related_variables(
+                            vars_noCut,
+                            vars_noCut["fjets"],
+                            svjWNAEPt0To200Loss = vars_noCut["JetsAK8_WNAEPt0To200Loss"][vars_noCut["JetsAK8_isGood"]],
+                            wpt0To200           = wpt0To200,
+                            svjWNAEPt200To300Loss = vars_noCut["JetsAK8_WNAEPt200To300Loss"][vars_noCut["JetsAK8_isGood"]],
+                            wpt200To300           = wpt200To300,
+                            svjWNAEPt300To400Loss = vars_noCut["JetsAK8_WNAEPt300To400Loss"][vars_noCut["JetsAK8_isGood"]],
+                            wpt300To400           = wpt300To400,
+                            svjWNAEPt400To500Loss = vars_noCut["JetsAK8_WNAEPt400To500Loss"][vars_noCut["JetsAK8_isGood"]],
+                            wpt400To500           = wpt400To500,
+                            svjWNAEPt500ToInfLoss = vars_noCut["JetsAK8_WNAEPt500ToInfLoss"][vars_noCut["JetsAK8_isGood"]],
+                            wpt500ToInf           = wpt500ToInf,
+                        )
+                        # these WNAE working points are based on a 20% background jet rejection rate
+                        # create_wnae_related_variables(vars_noCut, vars_noCut["fjets"],
+                        #                               svjWNAEPt0To200Loss = vars_noCut["JetsAK8_WNAEPt0To200Loss"][vars_noCut["JetsAK8_isGood"]],   wpt0To200 = 25.156,
+                        #                               svjWNAEPt200To300Loss = vars_noCut["JetsAK8_WNAEPt200To300Loss"][vars_noCut["JetsAK8_isGood"]], wpt200To300 = 18.284,
+                        #                               svjWNAEPt300To400Loss = vars_noCut["JetsAK8_WNAEPt300To400Loss"][vars_noCut["JetsAK8_isGood"]], wpt300To400 = 20.383,
+                        #                               svjWNAEPt400To500Loss = vars_noCut["JetsAK8_WNAEPt400To500Loss"][vars_noCut["JetsAK8_isGood"]], wpt400To500 = 21.941,
+                        #                               svjWNAEPt500ToInfLoss = vars_noCut["JetsAK8_WNAEPt500ToInfLoss"][vars_noCut["JetsAK8_isGood"]], wpt500ToInf = 16.370)
                         # these WNAE working points are based on a 20% background jet rejection rate
                     else:
                         runJetTagger(events,vars_noCut,self.fakerateHisto)
 
                 utl.varGetter(dataset,events,vars_noCut,np.ones(len(events),dtype=bool),self.jNVar)
                 if self.runEvtClass:
-                    runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)                    
+                    runEventTagger(events, vars_noCut, self.skimSource, self.evtTaggerDict)
                 cuts = bl.cutList(dataset,events,vars_noCut,self.hemStudy,self.trgEffStudy,self.hemPeriod,self.skimCut,self.skimSource,self.runJetTag)
                 # setup histograms
                 if self.setupHistos is None:
@@ -111,7 +141,7 @@ class MainProcessor(processor.ProcessorABC):
                     }
                     if len(events) > 0:
                         ## filling histograms
-                        for histName, varDetail in variables(self.jNVar,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():   
+                        for histName, varDetail in variables(self.jNVar,runJetTag=self.runJetTag,runEvtClass=self.runEvtClass).items():
                             vX = vars_noCut[varDetail.varXName][cut]
                             vY = vars_noCut[varDetail.varYName][cut] if varDetail.dim == 2 else None
                             weight = weights["evtw"]
@@ -121,7 +151,7 @@ class MainProcessor(processor.ProcessorABC):
                             if varDetail.flattenInfo >= 1:
                                 vX = ak.flatten(vX)
                                 vY = ak.flatten(vY) if varDetail.dim == 2 else None
-                
+
                             # make sure the correct weights are applied
                             if wKey in weights.keys():
                                 hW = weights[wKey]
@@ -131,7 +161,7 @@ class MainProcessor(processor.ProcessorABC):
                                 hW = weight
 
                             if len(vX) > 0:
-                                if   varDetail.dim == 1:  
+                                if   varDetail.dim == 1:
                                     if self.jNVar:
                                         finiteMask = np.isfinite(vX)
                                         vX = vX[finiteMask]
