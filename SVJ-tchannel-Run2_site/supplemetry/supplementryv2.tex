@@ -1,0 +1,716 @@
+\documentclass[11pt]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{caption}
+\usepackage{float}
+\usepackage[hidelinks]{hyperref}
+\captionsetup{font=small,labelfont=bf}
+\renewcommand{\figurename}{Additional Figure}
+\renewcommand{\tablename}{Additional Table}
+\graphicspath{{./}}
+\begin{document}
+\section*{Sections}
+\addcontentsline{toc}{section}{Sections}
+\noindent\hyperref[sec:nminus1-distributions]{N-1 distributions}\par
+\noindent\hyperref[sec:cutflow-tables]{Cutflow tables}\par
+\noindent\hyperref[sec:pnet-inputs]{ParticleNet tagger input variables}\par
+\noindent\hyperref[sec:wnae-inputs]{WNAE tagger input variables}\par
+\noindent\hyperref[sec:dnn-inputs]{Event-level DNN input variables}\par
+\noindent\hyperref[sec:mediator-production-composition]{Mediator production composition}\par
+\noindent\hyperref[sec:signal-efficiency-maps]{Signal efficiency maps}\par
+\noindent\hyperref[sec:limits]{Expected and observed limits}\par
+\noindent\hyperref[sec:postfits-bonly]{Background-only postfit distributions}\par
+\noindent\hyperref[sec:ttbar-auc]{ttbar AUC scans}\par
+\noindent\hyperref[sec:pnet-auc-extra-axes]{Tagger AUC scans}\par
+\noindent\hyperref[sec:tagger-comparisons]{WNAE and ParticleNet tagger comparisons}\par
+\noindent\hyperref[sec:lund-systematics]{Lund-plane correction systematics}\par
+\clearpage
+\section*{N-1 distributions}
+\addcontentsline{toc}{section}{N-1 distributions}
+\label{sec:nminus1-distributions}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/nminus1/h_j1PtAK8_pre__stcut_normalized.pdf}}
+  \caption{The normalized distribution of leading AK8 jet $p_{\mathrm{T}}$ for simulated background and signal events. The requirement on the plotted variable is omitted, while all other preselection requirements are applied. The vertical dotted line indicates the preselection (final selection) requirement on the variable.}
+  \label{fig:add-004-h_j1ptak8_pre_stcut_normalized}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/nminus1/h_j2PtAK8_pre__stcut_normalized.pdf}}
+  \caption{The normalized distribution of subleading AK8 jet $p_{\mathrm{T}}$ for simulated background and signal events. The requirement on the plotted variable is omitted, while all other preselection requirements are applied. The vertical dotted line indicates the preselection (final selection) requirement on the variable.}
+  \label{fig:add-005-h_j2ptak8_pre_stcut_normalized}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/nminus1/h_jPtAK8_pre__stcut_normalized.pdf}}
+  \caption{The normalized distribution of AK8 jet $p_{\mathrm{T}}$ for simulated background and signal events. The requirement on the plotted variable is omitted, while all other preselection requirements are applied. The vertical dotted line indicates the preselection (final selection) requirement on the variable.}
+  \label{fig:add-006-h_jptak8_pre_stcut_normalized}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/nminus1/h_njetsAK8_pre__2jetsAK8_normalized.pdf}}
+  \caption{The normalized distribution of AK8 jet multiplicity for simulated background and signal events. The requirement on the plotted variable is omitted, while all other preselection requirements are applied. The vertical dotted line indicates the preselection (final selection) requirement on the variable.}
+  \label{fig:add-008-h_njetsak8_pre_2jetsak8_normalized}
+\end{figure}
+\clearpage
+\section*{Cutflow tables}
+\addcontentsline{toc}{section}{Cutflow tables}
+\label{sec:cutflow-tables}
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_background_run2.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for the simulated background samples in Run 2. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial simulated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-background-run2}
+\end{table}
+\vspace{-0.8em}
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_mdark_mphi1000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=1000$ GeV, $r_{\mathrm{inv}}=0.3$, and $\lambda=1$ in Run 2. The table columns give the value of $m_{\mathrm{dark}}$ in GeV. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-mdark-mphi1000}
+\end{table}
+\vspace{-0.8em}
+\clearpage
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_mdark_mphi4000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=4000$ GeV, $r_{\mathrm{inv}}=0.3$, and $\lambda=1$ in Run 2. The table columns give the value of $m_{\mathrm{dark}}$ in GeV. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-mdark-mphi4000}
+\end{table}
+\vspace{-0.8em}
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_mdark_mphi2000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=2000$ GeV, $r_{\mathrm{inv}}=0.3$, and $\lambda=1$ in Run 2. The table columns give the value of $m_{\mathrm{dark}}$ in GeV. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-mdark-mphi2000}
+\end{table}
+\vspace{-0.8em}
+\clearpage
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_rinv_mphi2000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=2000$ GeV, $m_{\mathrm{dark}}=20$ GeV, and $\lambda=1$ in Run 2. The table columns give the value of $r_{\mathrm{inv}}$. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-rinv-mphi2000}
+\end{table}
+\vspace{-0.8em}
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_rinv_mphi1000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=1000$ GeV, $m_{\mathrm{dark}}=20$ GeV, and $\lambda=1$ in Run 2. The table columns give the value of $r_{\mathrm{inv}}$. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-rinv-mphi1000}
+\end{table}
+\vspace{-0.8em}
+\clearpage
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_rinv_mphi4000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=4000$ GeV, $m_{\mathrm{dark}}=20$ GeV, and $\lambda=1$ in Run 2. The table columns give the value of $r_{\mathrm{inv}}$. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-rinv-mphi4000}
+\end{table}
+\vspace{-0.8em}
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_lambda_mphi1000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=1000$ GeV, $m_{\mathrm{dark}}=20$ GeV, and $r_{\mathrm{inv}}=0.3$ in Run 2. The table columns give the value of $\lambda$. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-lambda-mphi1000}
+\end{table}
+\vspace{-0.8em}
+\clearpage
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_lambda_mphi2000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=2000$ GeV, $m_{\mathrm{dark}}=20$ GeV, and $r_{\mathrm{inv}}=0.3$ in Run 2. The table columns give the value of $\lambda$. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-lambda-mphi2000}
+\end{table}
+\vspace{-0.8em}
+\begin{table}[H]
+  \centering
+  \input{\detokenize{assets_v2/cutflow_tables/cutflow_signal_lambda_mphi4000.tex}}
+  \caption{Relative efficiencies in percent for each step of the event selection process for simulated signal samples with $m_{\phi}=4000$ GeV, $m_{\mathrm{dark}}=20$ GeV, and $r_{\mathrm{inv}}=0.3$ in Run 2. The table columns give the value of $\lambda$. The row ``Total absolute efficiency'' gives the cumulative efficiency relative to the initial generated sample after the full selection. The expected yield is the Run 2 luminosity-scaled yield after the gap-jet veto.}
+  \label{tab:cutflow-signal-lambda-mphi4000}
+\end{table}
+\vspace{-0.8em}
+\clearpage
+\section*{ParticleNet tagger input variables}
+\addcontentsline{toc}{section}{ParticleNet tagger input variables}
+\label{sec:pnet-inputs}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/pnet_inputs/del_r_log_raw_ratio.pdf}}
+  \caption{The distribution of the ParticleNet input variable $\Delta R$ of jet constituents for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-011-del_r_linear_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/pnet_inputs/log_e_jete_log_raw_ratio.pdf}}
+  \caption{The distribution of the ParticleNet input variable constituent energy fraction for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-012-log_e_jete_linear_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/pnet_inputs/log_e_log_raw_ratio.pdf}}
+  \caption{The distribution of the ParticleNet input variable constituent energy for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-013-log_e_linear_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/pnet_inputs/log_pt_jetpt_log_raw_ratio.pdf}}
+  \caption{The distribution of the ParticleNet input variable constituent $p_{\mathrm{T}}$ fraction for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-014-log_pt_jetpt_linear_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/pnet_inputs/log_pt_log_raw_ratio.pdf}}
+  \caption{The distribution of the ParticleNet input variable constituent $p_{\mathrm{T}}$ for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-015-log_pt_linear_raw_ratio}
+\end{figure}
+\clearpage
+\section*{WNAE tagger input variables}
+\addcontentsline{toc}{section}{WNAE tagger input variables}
+\label{sec:wnae-inputs}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allPtDAK8_log_raw_ratio.pdf}}
+  \caption{The distribution of the WNAE tagger input variable $D_{p_{\mathrm{T}}}$ ($p_{\mathrm{T}}$ dispersion) for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-016-allptdak8_log_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allSoftDropMassAK8_log_raw_ratio.pdf}}
+  \caption{The distribution of the WNAE tagger input variable soft-drop mass for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-017-allsoftdropmassak8_log_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allTau43AK8_log_raw_ratio.pdf}}
+  \caption{The distribution of the WNAE tagger input variable $\tau_{43}$ for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-021-alltau43ak8_log_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allTau32AK8_log_raw_ratio.pdf}}
+  \caption{The distribution of the WNAE tagger input variable $\tau_{32}$ for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-022-alltau32ak8_log_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allTau21AK8_log_raw_ratio.pdf}}
+  \caption{The distribution of the WNAE tagger input variable $\tau_{21}$ for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-023-alltau21ak8_log_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allEcfD2b1AK8_log_raw_ratio.pdf}}
+  \caption{The distribution of the WNAE tagger input variable $D_{2}^{\beta=1}$ for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-024-allecfd2b1ak8_log_raw_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.38\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allEcfC2b1AK8_log_raw_ratio.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.38\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allEcfC2b2AK8_log_raw_ratio.pdf}}
+  \end{minipage}
+  \caption{The distributions of the WNAE tagger input variables $C_{2}^{\beta=1}$ and $C_{2}^{\beta=2}$ for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-025-026-allecfc2b-ak8-log-raw-ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_inputs/allEcfN2b1AK8_log_raw_ratio.pdf}}
+  \caption{The distribution of the WNAE tagger input variable $N_{2}^{\beta=1}$ for Run 2 events, comparing signal and background samples after the Lund-plane correction.}
+  \label{fig:add-027-allecfn2b1ak8_log_raw_ratio}
+\end{figure}
+\clearpage
+\section*{Event-level DNN input variables}
+\addcontentsline{toc}{section}{Event-level DNN input variables}
+\label{sec:dnn-inputs}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/DeltaEta01GoodJetsAK8_log_raw_wdata_ratio.pdf}}
+  \caption{The distribution of the event-level DNN input variable $\Delta\eta(J_{1},J_{2})$ for Run 2 events, comparing signal and background samples.}
+  \label{fig:add-028-deltaeta01goodjetsak8_log_raw_wdata_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/DeltaR01GoodJetsAK8_log_raw_wdata_ratio.pdf}}
+  \caption{The distribution of the event-level DNN input variable $\Delta R(J_{1},J_{2})$ for Run 2 events, comparing signal and background samples.}
+  \label{fig:add-031-deltar01goodjetsak8_log_raw_wdata_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/LundJetPlaneZ01GoodJetsAK8_log_raw_wdata_ratio.pdf}}
+  \caption{The distribution of the event-level DNN input variable Lund-plane $z$ observable for the two leading AK8 jets for Run 2 events, comparing signal and background samples.}
+  \label{fig:add-032-lundjetplanez01goodjetsak8_log_raw_wdata_ratio}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.49\textwidth,height=0.36\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/GoodJetsAK80_deltaPhiMET_log_raw_wdata_ratio.pdf}}\hfill
+  \includegraphics[width=0.49\textwidth,height=0.36\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/GoodJetsAK81_deltaPhiMET_log_raw_wdata_ratio.pdf}}
+  \caption{The distributions of the event-level DNN input variable $\Delta\phi(J_i,p_{\mathrm{T}}^{\mathrm{miss}})$ for Run 2 events, comparing signal and background samples. The panels show $J_1$ and $J_2$ from left to right.}
+  \label{fig:dnn-inputs-deltaphi-met-jets}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.49\textwidth,height=0.28\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/GoodJetsAK80_LundJetPlaneZ_log_raw_wdata_ratio.pdf}}\hfill
+  \includegraphics[width=0.49\textwidth,height=0.28\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/GoodJetsAK81_LundJetPlaneZ_log_raw_wdata_ratio.pdf}}
+  \caption{The distributions of the event-level DNN input variable Lund-plane $z(J_i,p_{\mathrm{T}}^{\mathrm{miss}})$ for Run 2 events, comparing signal and background samples. The panels show $J_1$ and $J_2$ from left to right.}
+  \label{fig:dnn-inputs-lund-z-jets}
+\end{figure}
+\vspace{-0.7em}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.49\textwidth,height=0.28\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/GoodJetsAK80_MTMETLog_log_raw_wdata_ratio.pdf}}\hfill
+  \includegraphics[width=0.49\textwidth,height=0.28\textheight,keepaspectratio]{\detokenize{assets_v2/dnn_inputs/GoodJetsAK81_MTMETLog_log_raw_wdata_ratio.pdf}}
+  \caption{The distributions of the event-level DNN input variable transverse mass $m_{\mathrm{T}}(J_i,p_{\mathrm{T}}^{\mathrm{miss}})$ for Run 2 events, comparing signal and background samples. The panels show $J_1$ and $J_2$ from left to right.}
+  \label{fig:dnn-inputs-mt-met-jets}
+\end{figure}
+\clearpage
+\section*{Mediator production composition}
+\addcontentsline{toc}{section}{Mediator production composition}
+\label{sec:mediator-production-composition}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/yukawa_nmed/nmed_fractions_vs_mphi_yukawa-0p5.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/yukawa_nmed/nmed_fractions_vs_mphi_yukawa-1.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/yukawa_nmed/nmed_fractions_vs_mphi_yukawa-1p5.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/yukawa_nmed/nmed_fractions_vs_mphi_yukawa-2.pdf}}
+  \end{minipage}
+  \caption{Fractions of direct, associated, and pair mediator production before the analysis selection, shown as functions of $m_{\Phi}$ for $\lambda=0.5$, 1, 1.5, and 2. The unselected 2018 TreeMaker signal samples generated at $\lambda=1$ provide the baseline production fractions. The direct, associated, and pair yields are scaled by $\lambda^{4}$, $\lambda^{2}$, and $\lambda^{0}$, respectively, and renormalized for each coupling. The parameters $m_{\mathrm{dark}}=20$ GeV and $r_{\mathrm{inv}}=0.3$ are fixed. Vertical bars show the finite simulated-sample uncertainty.}
+  \label{fig:mediator-production-composition-yukawa-low}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{\detokenize{assets_v2/yukawa_nmed/nmed_fractions_vs_mphi_yukawa-2p5.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{\detokenize{assets_v2/yukawa_nmed/nmed_fractions_vs_mphi_yukawa-3.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.31\textheight,keepaspectratio]{\detokenize{assets_v2/yukawa_nmed/nmed_fractions_vs_mphi_yukawa-3p5.pdf}}
+  \end{minipage}
+  \caption{Fractions of direct, associated, and pair mediator production before the analysis selection, shown as functions of $m_{\Phi}$ for $\lambda=2.5$, 3, and 3.5. The unselected 2018 TreeMaker signal samples generated at $\lambda=1$ provide the baseline production fractions. The direct, associated, and pair yields are scaled by $\lambda^{4}$, $\lambda^{2}$, and $\lambda^{0}$, respectively, and renormalized for each coupling. The parameters $m_{\mathrm{dark}}=20$ GeV and $r_{\mathrm{inv}}=0.3$ are fixed. Vertical bars show the finite simulated-sample uncertainty.}
+  \label{fig:mediator-production-composition-yukawa-high}
+\end{figure}
+\clearpage
+\section*{Signal efficiency maps}
+\addcontentsline{toc}{section}{Signal efficiency maps}
+\label{sec:signal-efficiency-maps}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_0SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_1SVJ.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_2SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_3PSVJ.pdf}}
+  \end{minipage}
+  \caption{Signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) for the Run 2 ParticleNet analysis categories over the $m_{\Phi}$-$r_{\mathrm{inv}}$ signal grid, with $m_{\mathrm{dark}}=20$ GeV and $\lambda=1$ fixed. The panels show the 0SVJ, 1SVJ, 2SVJ, and $\geq$3SVJ categories.}
+  \label{fig:signal-efficiency-pnet-mmed_rinv-noninclusive}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mmed_rinv_0SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mmed_rinv_1SVJ.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mmed_rinv_2SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mmed_rinv_3PSVJ.pdf}}
+  \end{minipage}
+  \caption{Signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) for the Run 2 WNAE analysis categories over the $m_{\Phi}$-$r_{\mathrm{inv}}$ signal grid, with $m_{\mathrm{dark}}=20$ GeV and $\lambda=1$ fixed. The panels show the 0SVJ, 1SVJ, 2SVJ, and $\geq$3SVJ categories.}
+  \label{fig:signal-efficiency-wnae-mmed_rinv-noninclusive}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_Inclusive.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mmed_rinv_Inclusive.pdf}}
+  \end{minipage}
+  \caption{Inclusive signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) over the $m_{\Phi}$-$r_{\mathrm{inv}}$ signal grid, with $m_{\mathrm{dark}}=20$ GeV and $\lambda=1$ fixed. ParticleNet is shown on the left and WNAE is shown on the right.}
+  \label{fig:signal-efficiency-mmed_rinv-inclusive-comparison}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_mdark_0SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_mdark_1SVJ.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_mdark_2SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_mdark_3PSVJ.pdf}}
+  \end{minipage}
+  \caption{Signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) for the Run 2 ParticleNet analysis categories over the $m_{\Phi}$-$m_{\mathrm{dark}}$ signal grid, with $r_{\mathrm{inv}}=0.3$ and $\lambda=1$ fixed. The panels show the 0SVJ, 1SVJ, 2SVJ, and $\geq$3SVJ categories.}
+  \label{fig:signal-efficiency-pnet-mdark-noninclusive}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mdark_0SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mdark_1SVJ.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mdark_2SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mdark_3PSVJ.pdf}}
+  \end{minipage}
+  \caption{Signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) for the Run 2 WNAE analysis categories over the $m_{\Phi}$-$m_{\mathrm{dark}}$ signal grid, with $r_{\mathrm{inv}}=0.3$ and $\lambda=1$ fixed. The panels show the 0SVJ, 1SVJ, 2SVJ, and $\geq$3SVJ categories.}
+  \label{fig:signal-efficiency-wnae-mdark-noninclusive}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_mdark_Inclusive.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_mdark_Inclusive.pdf}}
+  \end{minipage}
+  \caption{Inclusive signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) over the $m_{\Phi}$-$m_{\mathrm{dark}}$ signal grid, with $r_{\mathrm{inv}}=0.3$ and $\lambda=1$ fixed. ParticleNet is shown on the left and WNAE is shown on the right.}
+  \label{fig:signal-efficiency-mdark-inclusive-comparison}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_yukawa_0SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_yukawa_1SVJ.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_yukawa_2SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_yukawa_3PSVJ.pdf}}
+  \end{minipage}
+  \caption{Signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) for the Run 2 ParticleNet analysis categories over the $m_{\Phi}$-$\lambda$ signal grid, with $m_{\mathrm{dark}}=20$ GeV and $r_{\mathrm{inv}}=0.3$ fixed. The panels show the 0SVJ, 1SVJ, 2SVJ, and $\geq$3SVJ categories.}
+  \label{fig:signal-efficiency-pnet-yukawa-noninclusive}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_yukawa_0SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_yukawa_1SVJ.pdf}}
+  \end{minipage}
+  \\[0.012\textheight]
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_yukawa_2SVJ.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.30\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_yukawa_3PSVJ.pdf}}
+  \end{minipage}
+  \caption{Signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) for the Run 2 WNAE analysis categories over the $m_{\Phi}$-$\lambda$ signal grid, with $m_{\mathrm{dark}}=20$ GeV and $r_{\mathrm{inv}}=0.3$ fixed. The panels show the 0SVJ, 1SVJ, 2SVJ, and $\geq$3SVJ categories.}
+  \label{fig:signal-efficiency-wnae-yukawa-noninclusive}
+\end{figure}
+\clearpage
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{\detokenize{assets_v2/signal_efficiency_maps/signal_efficiency_region_a_yukawa_Inclusive.pdf}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.42\textheight,keepaspectratio]{\detokenize{assets_v2/wnae_signal_efficiency_maps/wnae_signal_efficiency_region_a_yukawa_Inclusive.pdf}}
+  \end{minipage}
+  \caption{Inclusive signal efficiency into the ABCD signal region A ($N_A/N_{\mathrm{generated}}$) over the $m_{\Phi}$-$\lambda$ signal grid, with $m_{\mathrm{dark}}=20$ GeV and $r_{\mathrm{inv}}=0.3$ fixed. ParticleNet is shown on the left and WNAE is shown on the right.}
+  \label{fig:signal-efficiency-yukawa-inclusive-comparison}
+\end{figure}
+\clearpage
+\section*{Expected and observed limits}
+\addcontentsline{toc}{section}{Expected and observed limits}
+\label{sec:limits}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/limits/limits2d_pnet_mMed_rinv_theory_over_expected.pdf}}
+  \caption{The ratio of the theory prediction to the 95\% CL expected upper limit, as a function of $m_{\Phi}$ and $r_{\mathrm{inv}}$, for the Run 2 ParticleNet (Supervised) analysis category, with $m_{\mathrm{dark}}=20$ GeV and $\lambda=1$ fixed.}
+  \label{fig:limits2d-pnet-mmed-rinv-theory-over-expected}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/limits/limits2d_wnae_mMed_rinv_theory_over_expected.pdf}}
+  \caption{The ratio of the theory prediction to the 95\% CL expected upper limit, as a function of $m_{\Phi}$ and $r_{\mathrm{inv}}$, for the Run 2 WNAE (Unsupervised) analysis category, with $m_{\mathrm{dark}}=20$ GeV and $\lambda=1$ fixed.}
+  \label{fig:limits2d-wnae-mmed-rinv-theory-over-expected}
+\end{figure}
+\clearpage
+\section*{Background-only postfit distributions}
+\addcontentsline{toc}{section}{Background-only postfit distributions}
+\label{sec:postfits-bonly}
+\newcommand{\PostfitRegionPair}[4]{%
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.88\textwidth,height=0.385\textheight,keepaspectratio]{\detokenize{#1}}
+  \vspace{0.4em}
+
+  \includegraphics[width=0.88\textwidth,height=0.385\textheight,keepaspectratio]{\detokenize{#2}}
+  \caption{The background-only postfit distributions in region #3 for the Run 2 analysis categories. ParticleNet is shown on top and WNAE is shown on bottom.}
+  \label{#4}
+\end{figure}
+\clearpage
+}
+\PostfitRegionPair{assets_v2/postfit_pnet/plot_postfit_bonly_stitched_B_Run2.pdf}{assets_v2/postfit_wnae/plot_postfit_bonly_stitched_B_Run2.pdf}{B}{fig:postfit-bonly-region-b-pnet-wnae}
+\PostfitRegionPair{assets_v2/postfit_pnet/plot_postfit_bonly_stitched_C_Run2.pdf}{assets_v2/postfit_wnae/plot_postfit_bonly_stitched_C_Run2.pdf}{C}{fig:postfit-bonly-region-c-pnet-wnae}
+\PostfitRegionPair{assets_v2/postfit_pnet/plot_postfit_bonly_stitched_D_Run2.pdf}{assets_v2/postfit_wnae/plot_postfit_bonly_stitched_D_Run2.pdf}{D}{fig:postfit-bonly-region-d-pnet-wnae}
+\section*{ttbar AUC scans}
+\addcontentsline{toc}{section}{ttbar AUC scans}
+\label{sec:ttbar-auc}
+\newcommand{\AucSmallPair}[2]{%
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.255\textheight,keepaspectratio]{\detokenize{#1}}
+  \end{minipage}\hfill
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.255\textheight,keepaspectratio]{\detokenize{#2}}
+  \end{minipage}%
+}
+\newcommand{\AucSmallSingle}[1]{%
+  \begin{minipage}{0.49\textwidth}
+    \centering
+    \includegraphics[width=\textwidth,height=0.255\textheight,keepaspectratio]{\detokenize{#1}}
+  \end{minipage}%
+}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.72\textwidth,height=0.70\textheight,keepaspectratio]{\detokenize{assets_v2/auc/dnn_auc_grid_ttbar.pdf}}
+  \caption{The area under the ROC curve for the event-level DNN evaluated against ttbar over the $m_{\Phi}$-$r_{\mathrm{inv}}$ signal grid.}
+  \label{fig:dnn-auc-rinv}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \AucSmallPair{assets_v2/auc/dnn_auc_grid_mdark_vs_mmed.pdf}{assets_v2/auc/dnn_auc_grid_mdark_vs_mmed_ttbar.pdf}
+  \caption{The area under the ROC curve for the event-level DNN in the $m_{\Phi}$-$m_{\mathrm{dark}}$ plane. The left panel is evaluated against QCD, and the right panel is evaluated against ttbar.}
+  \label{fig:dnn-auc-mdark}
+\end{figure}
+\clearpage
+\section*{Tagger AUC scans}
+\addcontentsline{toc}{section}{Tagger AUC scans}
+\label{sec:pnet-auc-extra-axes}
+\begin{figure}[H]
+  \centering
+  \AucSmallPair{assets_v2/auc/pnet_auc_grid_mdark_vs_mmed.pdf}{assets_v2/auc/pnet_auc_grid_mdark_vs_mmed_ttbar.pdf}
+  \caption{The area under the ROC curve for the ParticleNet tagger in signal-parameter planes not shown in the main paper. The left panel shows the QCD-background scan in the $m_{\Phi}$-$m_{\mathrm{dark}}$ plane, and the right panel shows the corresponding ttbar-background scan.}
+  \label{fig:auc-pnet-extra-summary}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \AucSmallPair{assets_v2/auc/wnae_auc_qcd_multijet_pt_200_300_m_dark_gev.pdf}{assets_v2/auc/wnae_auc_ttbar_pt_200_300_m_dark_gev.pdf}
+  \caption{The area under the ROC curve for the WNAE tagger in signal-parameter planes not shown in the main paper, using jets in the 200--300 GeV $p_{\mathrm{T}}$ bin. The left panel shows the QCD-background scan in the $m_{\Phi}$-$m_{\mathrm{dark}}$ plane, and the right panel shows the corresponding ttbar-background scan.}
+  \label{fig:auc-wnae-extra-summary}
+\end{figure}
+\clearpage
+\section*{WNAE and ParticleNet tagger comparisons}
+\addcontentsline{toc}{section}{WNAE and ParticleNet tagger comparisons}
+\label{sec:tagger-comparisons}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/tagger_comparisons/WNAE_PNET_comparison_event_nsvj_matrix_data.pdf}}
+  \caption{The comparison of the WNAE and ParticleNet tagger selections for data, shown as the event-level semivisible-jet multiplicity matrix.}
+  \label{fig:add-data-wnae-pnet-event-nsvj-matrix}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/tagger_comparisons/WNAE_PNET_comparison_event_nsvj_matrix_baseline_signal.pdf}}
+  \caption{The comparison of the WNAE and ParticleNet tagger selections for the baseline simulated signal sample with $m_{\Phi}=2000$ GeV, $m_{\mathrm{dark}}=20$ GeV, $r_{\mathrm{inv}}=0.3$, and $\lambda=1$, shown as the event-level semivisible-jet multiplicity matrix after the Lund-plane correction.}
+  \label{fig:add-baseline-signal-wnae-pnet-event-nsvj-matrix}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/tagger_comparisons/WNAE_PNET_comparison_pt200to300.pdf}}
+  \caption{The comparison of the WNAE and ParticleNet tagger selections for simulated signal events in the jet transverse-momentum interval 200--300 GeV after the Lund-plane correction.}
+  \label{fig:add-062-wnae_pnet_comparison_pt200to300}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/tagger_comparisons/quantile_WNAE_PNET_comparison_pt200to300.pdf}}
+  \caption{The quantile-based comparison of the WNAE and ParticleNet tagger selections for simulated signal events in the jet transverse-momentum interval 200--300 GeV after the Lund-plane correction.}
+  \label{fig:add-068-quantile_wnae_pnet_comparison_pt200to300}
+\end{figure}
+\clearpage
+\section*{Lund-plane correction systematics}
+\addcontentsline{toc}{section}{Lund-plane correction systematics}
+\label{sec:lund-systematics}
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/lund_systematics/lund_tagged_svj_wnae_SysDistortion_normalized.pdf}}
+  \caption{The normalized WNAE-tagged semivisible-jet multiplicity distribution for the baseline simulated signal sample, comparing the nominal sample, the nominal Lund-plane correction, and the Lund systematic and distortion variations.}
+  \label{fig:add-lund-tagged-svj-wnae-sysdistortion}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/lund_systematics/lund_tagged_svj_wnae_PtStat_normalized.pdf}}
+  \caption{The normalized WNAE-tagged semivisible-jet multiplicity distribution for the baseline simulated signal sample, comparing the nominal sample, the nominal Lund-plane correction, and the Lund $p_{\mathrm{T}}$ extrapolation and statistical variations.}
+  \label{fig:add-lund-tagged-svj-wnae-ptstat}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/lund_systematics/lund_tagged_svj_pnet_SysDistortion_normalized.pdf}}
+  \caption{The normalized ParticleNet-tagged semivisible-jet multiplicity distribution for the baseline simulated signal sample, comparing the nominal sample, the nominal Lund-plane correction, and the Lund systematic and distortion variations.}
+  \label{fig:add-lund-tagged-svj-pnet-sysdistortion}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/lund_systematics/lund_tagged_svj_pnet_PtStat_normalized.pdf}}
+  \caption{The normalized ParticleNet-tagged semivisible-jet multiplicity distribution for the baseline simulated signal sample, comparing the nominal sample, the nominal Lund-plane correction, and the Lund $p_{\mathrm{T}}$ extrapolation and statistical variations.}
+  \label{fig:add-lund-tagged-svj-pnet-ptstat}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/lund_systematics/lund_preselection_met_SysDistortion.pdf}}
+  \caption{The preselection-level $p_{\mathrm{T}}^{\mathrm{miss}}$ distribution for the baseline simulated signal sample, comparing the nominal sample, the nominal Lund-plane correction, and the Lund systematic and distortion variations.}
+  \label{fig:add-lund-preselection-met-sysdistortion}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.92\textwidth,height=0.80\textheight,keepaspectratio]{\detokenize{assets_v2/lund_systematics/lund_preselection_met_PtStat.pdf}}
+  \caption{The preselection-level $p_{\mathrm{T}}^{\mathrm{miss}}$ distribution for the baseline simulated signal sample, comparing the nominal sample, the nominal Lund-plane correction, and the Lund $p_{\mathrm{T}}$ extrapolation and statistical variations.}
+  \label{fig:add-lund-preselection-met-ptstat}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_ratio_bin1.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_ratio_bin2.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_ratio_bin3.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_ratio_bin4.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_ratio_bin5.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_ratio_bin6.pdf}}
+  \caption{The Lund-plane signal-to-W+jets ratio templates used for the six Lund-plane correction $p_{\mathrm{T}}$ intervals.}
+  \label{fig:add-lund-plane-ratio-bins}
+\end{figure}
+\clearpage
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_distortion_unc_bin1.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_distortion_unc_bin2.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_distortion_unc_bin3.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_distortion_unc_bin4.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_distortion_unc_bin5.pdf}}
+  \includegraphics[width=0.49\textwidth]{\detokenize{assets_v2/lund_systematics/lund_plane_distortion_unc_bin6.pdf}}
+  \caption{The relative uncertainty templates associated with the Lund-plane distortion correction for the six Lund-plane correction $p_{\mathrm{T}}$ intervals.}
+  \label{fig:add-lund-plane-distortion-unc-bins}
+\end{figure}
+\clearpage
+\end{document}
