@@ -1,0 +1,234 @@
+{
+  "source": {
+    "file": "tagger_performance.pdf",
+    "pdf_page": 2,
+    "figure": "E.1",
+    "plot_index_within_figure": 3,
+    "panel": null
+  },
+  "classification": {
+    "signal": "semi-visible_jets",
+    "background": "ttbar",
+    "year": 2018
+  },
+  "jet_pt_bin_gev": {
+    "min_inclusive": 300,
+    "max_exclusive": 400
+  },
+  "fixed_parameters": {
+    "m_dark_gev": 20,
+    "lambda": 1.0
+  },
+  "axes": {
+    "rows": {
+      "name": "m_phi_gev",
+      "values": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1500,
+        2000,
+        2500,
+        3000,
+        3500,
+        4000
+      ],
+      "provenance": [
+        "source",
+        "source",
+        "source",
+        "source",
+        "interpolated",
+        "source",
+        "source",
+        "source",
+        "interpolated",
+        "source",
+        "interpolated",
+        "source"
+      ]
+    },
+    "columns": {
+      "name": "r_inv",
+      "values": [
+        0.0,
+        0.1,
+        0.2,
+        0.3,
+        0.4,
+        0.5,
+        0.6,
+        0.7,
+        0.8,
+        0.9
+      ]
+    }
+  },
+  "auc_display_precision": 3,
+  "auc": [
+    [
+      0.59,
+      0.693,
+      0.676,
+      0.657,
+      0.653,
+      0.62,
+      0.516,
+      0.457,
+      null,
+      null
+    ],
+    [
+      0.819,
+      0.696,
+      0.673,
+      0.654,
+      0.605,
+      0.607,
+      0.541,
+      0.52,
+      0.426,
+      null
+    ],
+    [
+      0.695,
+      0.703,
+      0.669,
+      0.66,
+      0.635,
+      0.606,
+      0.533,
+      0.499,
+      null,
+      null
+    ],
+    [
+      0.564,
+      0.717,
+      0.698,
+      0.672,
+      0.639,
+      0.617,
+      0.539,
+      0.511,
+      0.455,
+      null
+    ],
+    [
+      0.636,
+      0.718,
+      0.699,
+      0.675,
+      0.646,
+      0.613,
+      0.546,
+      0.512,
+      null,
+      null
+    ],
+    [
+      0.714,
+      0.723,
+      0.705,
+      0.672,
+      0.652,
+      0.606,
+      0.558,
+      0.508,
+      null,
+      null
+    ],
+    [
+      0.652,
+      0.725,
+      0.725,
+      0.695,
+      0.655,
+      0.609,
+      0.539,
+      0.511,
+      0.474,
+      null
+    ],
+    [
+      0.662,
+      0.733,
+      0.706,
+      0.7,
+      0.666,
+      0.627,
+      0.626,
+      0.539,
+      0.491,
+      null
+    ],
+    [
+      0.661,
+      0.742,
+      0.703,
+      0.697,
+      0.666,
+      0.634,
+      0.626,
+      0.55,
+      0.504,
+      null
+    ],
+    [
+      0.657,
+      0.751,
+      0.702,
+      0.7,
+      0.666,
+      0.636,
+      0.62,
+      0.558,
+      0.514,
+      0.403
+    ],
+    [
+      0.635,
+      0.759,
+      0.708,
+      0.704,
+      0.674,
+      0.634,
+      0.612,
+      0.562,
+      0.5,
+      null
+    ],
+    [
+      0.617,
+      0.762,
+      0.71,
+      0.709,
+      0.68,
+      0.637,
+      0.609,
+      0.57,
+      0.484,
+      null
+    ]
+  ],
+  "missing_cells": 15,
+  "interpolation": {
+    "added_m_phi_gev": [
+      900,
+      2500,
+      3500
+    ],
+    "method": "linear_between_nearest_source_mass_rows",
+    "noise": {
+      "distribution": "deterministic_uniform",
+      "minimum": -0.003,
+      "maximum": 0.003,
+      "key": "E.1:3:ttbar:300_400"
+    },
+    "rounding_decimal_places": 3,
+    "null_policy": "remain_null_if_either_bracketing_source_cell_is_null"
+  }
+}

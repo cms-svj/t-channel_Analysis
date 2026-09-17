@@ -1,0 +1,234 @@
+{
+  "source": {
+    "file": "tagger_performance.pdf",
+    "pdf_page": 6,
+    "figure": "E.5",
+    "plot_index_within_figure": 4,
+    "panel": null
+  },
+  "classification": {
+    "signal": "semi-visible_jets",
+    "background": "QCD_multijet",
+    "year": 2018
+  },
+  "jet_pt_bin_gev": {
+    "min_inclusive": 400,
+    "max_exclusive": 500
+  },
+  "fixed_parameters": {
+    "r_inv": 0.3,
+    "lambda": 1.0
+  },
+  "axes": {
+    "rows": {
+      "name": "m_phi_gev",
+      "values": [
+        500,
+        600,
+        700,
+        800,
+        900,
+        1000,
+        1500,
+        2000,
+        2500,
+        3000,
+        3500,
+        4000
+      ],
+      "provenance": [
+        "source",
+        "source",
+        "source",
+        "source",
+        "interpolated",
+        "source",
+        "source",
+        "source",
+        "interpolated",
+        "source",
+        "interpolated",
+        "source"
+      ]
+    },
+    "columns": {
+      "name": "m_dark_gev",
+      "values": [
+        1,
+        5,
+        10,
+        20,
+        30,
+        40,
+        50,
+        60,
+        80,
+        100
+      ]
+    }
+  },
+  "auc_display_precision": 3,
+  "auc": [
+    [
+      0.535,
+      0.735,
+      0.752,
+      0.766,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      0.542,
+      0.733,
+      0.781,
+      0.746,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      0.561,
+      0.701,
+      0.752,
+      0.773,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      0.528,
+      0.721,
+      0.755,
+      0.766,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      0.539,
+      0.714,
+      0.764,
+      0.776,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      0.551,
+      0.709,
+      0.774,
+      0.787,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      0.559,
+      0.724,
+      0.796,
+      0.82,
+      0.821,
+      0.808,
+      null,
+      null,
+      null,
+      null
+    ],
+    [
+      0.579,
+      0.733,
+      0.81,
+      0.816,
+      0.8,
+      0.822,
+      0.796,
+      null,
+      null,
+      null
+    ],
+    [
+      0.57,
+      0.721,
+      0.792,
+      0.816,
+      0.811,
+      0.827,
+      0.801,
+      null,
+      null,
+      null
+    ],
+    [
+      0.561,
+      0.711,
+      0.775,
+      0.812,
+      0.824,
+      0.83,
+      0.805,
+      0.796,
+      0.788,
+      null
+    ],
+    [
+      0.579,
+      0.721,
+      0.788,
+      0.827,
+      0.826,
+      0.827,
+      0.811,
+      0.804,
+      0.788,
+      null
+    ],
+    [
+      0.592,
+      0.729,
+      0.799,
+      0.839,
+      0.824,
+      0.828,
+      0.817,
+      0.814,
+      0.784,
+      0.774
+    ]
+  ],
+  "missing_cells": 48,
+  "interpolation": {
+    "added_m_phi_gev": [
+      900,
+      2500,
+      3500
+    ],
+    "method": "linear_between_nearest_source_mass_rows",
+    "noise": {
+      "distribution": "deterministic_uniform",
+      "minimum": -0.003,
+      "maximum": 0.003,
+      "key": "E.5:4:QCD_multijet:400_500"
+    },
+    "rounding_decimal_places": 3,
+    "null_policy": "remain_null_if_either_bracketing_source_cell_is_null"
+  }
+}
