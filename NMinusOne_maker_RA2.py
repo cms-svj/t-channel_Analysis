@@ -56,6 +56,8 @@ import uproot
 
 import ROOT
 
+import Figure2_makerusingskims as f2
+
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gStyle.SetOptStat(0)
@@ -90,34 +92,15 @@ DISABLED_SIGNAL_TOKENS = [
 
 LUMI_PB = 59692.692
 
-PROC_LABEL = {
-    "QCD": "QCD",
-    "TTJets": "t#bar{t}+jets",
-    "WJetsToLNu": "W+jets",
-    "ZJetsToNuNu": "Z#rightarrow#nu#nu+jets",
-    "ST": "Single top",
-}
-
-PROC_COLOR = {
-    "QCD": ROOT.TColor.GetColor("#9c9ca1"),
-    "TTJets": ROOT.TColor.GetColor("#7a21dd"),
-    "WJetsToLNu": ROOT.TColor.GetColor("#e42536"),
-    "ZJetsToNuNu": ROOT.TColor.GetColor("#f89c20"),
-    "ST": ROOT.TColor.GetColor("#5790fc"),
-}
-
-SIGNAL_LINE_COLORS = [
-    ROOT.TColor.GetColor("#92dadd"),
-    ROOT.TColor.GetColor("#6b3e26"),
-    ROOT.TColor.GetColor("#0b3d02"),
-    ROOT.TColor.GetColor("#228833"),
-    ROOT.TColor.GetColor("#1f4e79"),
-]
-SIGNAL_LINE_STYLES = [1, 3, 1, 2, 1]
+# Shared with Figure2_makerusingskims so process labels/colors/ordering and
+# the legend style can never drift apart between the two plot families.
+PROC_LABEL = f2.PROC_LABEL
+PROC_COLOR = f2.PROC_COLOR
+SIGNAL_LINE_COLORS = f2.SIGNAL_LINE_COLORS
+SIGNAL_LINE_STYLES = f2.SIGNAL_LINE_STYLES
+STACK_ORDER = f2.STACK_ORDER
+LEGEND_ORDER = f2.LEGEND_ORDER
 DISCRETE_AXIS_VARIABLES = {"njetsAK8"}
-
-STACK_ORDER = ["ST", "ZJetsToNuNu", "WJetsToLNu", "TTJets", "QCD"]
-LEGEND_ORDER = ["QCD", "TTJets", "WJetsToLNu", "ZJetsToNuNu", "ST"]
 
 VARIABLES = {
     "MET": {
@@ -128,7 +111,6 @@ VARIABLES = {
         "display_xmax": 1000.0,
         "line": 200.0,
         "line_side": "right",
-        "arrow_y_fraction": 0.66,
     },
     "ST": {
         "title": "S_{T} [GeV]",
@@ -189,7 +171,7 @@ VARIABLES = {
         "line_side": "left",
     },
     "njetsAK8": {
-        "title": "Number of AK8 Jets",
+        "title": "n_{J}",
         "nbins": 16,
         "xmin": -0.5,
         "xmax": 15.5,
@@ -197,6 +179,9 @@ VARIABLES = {
         "display_xmax": 10.0,
         "line": 2.0,
         "line_side": "right",
+        "arrow_y_fraction": 0.70,
+        "arrow_y_value": 0.42,
+        "arrow_x_offset": 0.08,
     },
 }
 
@@ -1124,6 +1109,14 @@ def suppress_qcd_met_display_spikes(hist) -> None:
         hist.SetBinError(ibin, replacement_error)
 
 
+def suppress_qcd_met_display_spikes_preserve_integral(hist, preserve_integral: bool = False) -> None:
+    before = hist.Integral()
+    suppress_qcd_met_display_spikes(hist)
+    after = hist.Integral()
+    if preserve_integral and before > 0.0 and after > 0.0:
+        hist.Scale(before / after)
+
+
 def suppress_isolated_display_spikes(hist, variable: str, ratio_threshold: float = DPHI_DISPLAY_SPIKE_RATIO) -> None:
     updates = []
     contents = [hist.GetBinContent(ibin) for ibin in range(hist.GetNbinsX() + 2)]
@@ -1158,6 +1151,14 @@ def suppress_isolated_display_spikes(hist, variable: str, ratio_threshold: float
         )
         hist.SetBinContent(ibin, replacement)
         hist.SetBinError(ibin, replacement_error)
+
+
+def suppress_display_spikes_preserve_integral(hist, variable: str, preserve_integral: bool = False) -> None:
+    before = hist.Integral()
+    suppress_isolated_display_spikes(hist, variable)
+    after = hist.Integral()
+    if preserve_integral and before > 0.0 and after > 0.0:
+        hist.Scale(before / after)
 
 
 def pad_hist_xmax(hist, target_xmax: float, name: str):
@@ -1256,16 +1257,17 @@ def draw_cut_marker(axis, variable: str):
         arrow_symbol = "#rightarrow"
         arrow_align = 12
 
-    arrow_y_fraction = VARIABLES[variable].get("arrow_y_fraction", 0.80)
+    arrow_y_fraction = VARIABLES[variable].get("arrow_y_fraction", 0.66)
     y_arrow = y1 + arrow_y_fraction * (y2 - y1)
     if ROOT.gPad.GetLogy() and y1 > 0.0 and y2 > y1:
         y_arrow = math.exp(math.log(y1) + arrow_y_fraction * (math.log(y2) - math.log(y1)))
+    y_arrow = VARIABLES[variable].get("arrow_y_value", y_arrow)
     arrow = ROOT.TLatex()
     arrow.SetTextColor(ROOT.kBlack)
     arrow.SetTextFont(42)
-    arrow.SetTextSize(0.055)
+    arrow.SetTextSize(0.040)
     arrow.SetTextAlign(arrow_align)
-    arrow.DrawLatex(x, y_arrow, arrow_symbol)
+    arrow.DrawLatex(x + VARIABLES[variable].get("arrow_x_offset", 0.0), y_arrow, arrow_symbol)
     return line, arrow
 
 
@@ -1280,13 +1282,16 @@ def unique_legend_entries(entries):
     return unique
 
 
-def style_legend(legend, text_size: float = 0.031, margin: float = 0.25) -> None:
+def style_legend(legend, text_size: float = 0.038, margin: float = 0.25) -> None:
+    # Matches Figure2_makerusingskims.configure_legend's simulation-only
+    # (no ratio panel) sizing so N-1 and Figure2/WNAE legends read the same.
+    legend.SetNColumns(1)
     legend.SetBorderSize(0)
     legend.SetFillColor(ROOT.kWhite)
     legend.SetFillStyle(1001)
     legend.SetTextSize(text_size)
     legend.SetTextFont(42)
-    legend.SetEntrySeparation(0.030)
+    legend.SetEntrySeparation(0.024)
     legend.SetMargin(margin)
 
 
@@ -1315,9 +1320,9 @@ def draw_plot(root_file, plot_name: str, variable: str, plot_dir: str, args) -> 
             hist.SetDirectory(0)
         hist = pad_hist_for_display(hist, variable, f"display_{process}_{plot_name}_padded")
         if process == "QCD" and plot_name == "h_MET_pre__metcut":
-            suppress_qcd_met_display_spikes(hist)
+            suppress_qcd_met_display_spikes_preserve_integral(hist, preserve_integral=args.normalized)
         if variable == "dPhiMinjMETAK8":
-            suppress_isolated_display_spikes(hist, variable)
+            suppress_display_spikes_preserve_integral(hist, variable, preserve_integral=args.normalized)
         if hist.Integral() <= 0.0:
             continue
         style_background(hist, process)
@@ -1333,7 +1338,7 @@ def draw_plot(root_file, plot_name: str, variable: str, plot_dir: str, args) -> 
             hist.SetDirectory(0)
         hist = pad_hist_for_display(hist, variable, f"display_{plot_name}_padded")
         if variable == "dPhiMinjMETAK8":
-            suppress_isolated_display_spikes(hist, variable)
+            suppress_display_spikes_preserve_integral(hist, variable, preserve_integral=args.normalized)
         style_background(hist, "QCD")
         process_hists["QCD"] = hist
 
@@ -1368,7 +1373,7 @@ def draw_plot(root_file, plot_name: str, variable: str, plot_dir: str, args) -> 
         if not args.normalized and args.signal_scale != 1.0:
             hist.Scale(float(args.signal_scale))
         if variable == "dPhiMinjMETAK8":
-            suppress_isolated_display_spikes(hist, variable)
+            suppress_display_spikes_preserve_integral(hist, variable, preserve_integral=args.normalized)
         if hist.Integral() <= 0.0:
             continue
         style_signal(hist, index)
@@ -1443,17 +1448,17 @@ def draw_plot(root_file, plot_name: str, variable: str, plot_dir: str, args) -> 
 
     legend_y1 = 0.695 if signal_hists else 0.690
     if signal_hists and variable == "MET":
-        legend_x1 = 0.40
+        legend_x1 = 0.36
     elif signal_hists and variable == "ST":
-        legend_x1 = 0.42
+        legend_x1 = 0.37
     elif signal_hists and variable == "dPhiMinjMETAK8":
         legend_x1 = 0.45
     elif signal_hists and variable == "njetsAK8":
-        legend_x1 = 0.42
+        legend_x1 = 0.33
     elif signal_hists and variable in ("nl", "nelectrons", "nmuons"):
         legend_x1 = 0.45
     else:
-        legend_x1 = 0.48 if signal_hists else 0.72
+        legend_x1 = 0.32 if signal_hists else 0.72
     background_entries = [
         (process_hists[process], PROC_LABEL.get(process, process), "F")
         for process in LEGEND_ORDER
@@ -1476,36 +1481,39 @@ def draw_plot(root_file, plot_name: str, variable: str, plot_dir: str, args) -> 
         signal_entries.append(("", "m_{dark} = 20 GeV, #kern[-0.18]{#lambda} = 1", ""))
     if signal_hists:
         if variable == "dPhiMinjMETAK8":
-            legend = ROOT.TLegend(0.58, 0.525, 0.98, 0.885)
-            style_legend(legend, text_size=0.026, margin=0.14)
+            legend = ROOT.TLegend(0.54, 0.525, 0.98, 0.885)
+            style_legend(legend, text_size=0.026, margin=0.10)
             for entry in background_entries:
                 legend.AddEntry(*entry)
             for entry in signal_entries:
                 legend.AddEntry(*entry)
             legend.Draw()
         else:
-            background_legend = ROOT.TLegend(legend_x1, legend_y1 - 0.020, legend_x1 + 0.20, 0.885)
-            style_legend(background_legend)
+            # Matches Figure2_makerusingskims's background-box width (~0.20)
+            # so the longer "W#rightarrowl#nu+jets"/"Z#rightarrow#nu#nu+jets"
+            # entries fit at the shared 0.038 text size.
+            background_legend_width = 0.18 if variable == "njetsAK8" else 0.19
+            background_legend_x2 = legend_x1 + background_legend_width
+            background_legend = ROOT.TLegend(legend_x1, legend_y1 - 0.020, background_legend_x2, 0.885)
+            legend_text_size = 0.031 if variable in ("MET", "ST", "njetsAK8") else 0.034
+            style_legend(background_legend, text_size=legend_text_size)
             for entry in background_entries:
                 background_legend.AddEntry(*entry)
             background_legend.Draw()
 
-            if variable == "MET":
-                signal_x1 = 0.59
-            elif variable == "ST":
-                signal_x1 = 0.59
-            elif variable == "njetsAK8":
-                signal_x1 = 0.63
-            else:
-                signal_x1 = max(0.63, legend_x1 + 0.21)
-            signal_legend = ROOT.TLegend(signal_x1, 0.690, 0.995, 0.885)
-            style_legend(signal_legend, text_size=0.027, margin=0.14)
+            # Always starts just right of the background box, however wide
+            # that box ended up for this variable, so the two never overlap.
+            signal_x1 = background_legend_x2 + 0.01
+            signal_x2 = 0.980
+            signal_text_size = legend_text_size
+            signal_legend = ROOT.TLegend(signal_x1, 0.690, signal_x2, 0.885)
+            style_legend(signal_legend, text_size=signal_text_size, margin=0.10 if variable in ("MET", "ST") else 0.12)
             for entry in signal_entries:
                 signal_legend.AddEntry(*entry)
             signal_legend.Draw()
     else:
         legend = ROOT.TLegend(legend_x1, legend_y1, 0.98, 0.895)
-        style_legend(legend, text_size=0.034)
+        style_legend(legend, text_size=0.038)
         for entry in background_entries:
             legend.AddEntry(*entry)
         legend.Draw()
