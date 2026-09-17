@@ -1,0 +1,465 @@
+dependent_variables:
+- header:
+    name: QCD multijet
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 769.39
+    value: 323560.0
+  - errors:
+    - label: stat
+      symerror: 671.32
+    value: 220420.0
+  - errors:
+    - label: stat
+      symerror: 626.25
+    value: 164060.0
+  - errors:
+    - label: stat
+      symerror: 441.12
+    value: 100950.0
+  - errors:
+    - label: stat
+      symerror: 397.11
+    value: 65261.0
+  - errors:
+    - label: stat
+      symerror: 366.5
+    value: 42608.0
+  - errors:
+    - label: stat
+      symerror: 393.87
+    value: 32339.0
+  - errors:
+    - label: stat
+      symerror: 268.14
+    value: 28570.0
+  - errors:
+    - label: stat
+      symerror: 176.41
+    value: 27834.0
+  - errors:
+    - label: stat
+      symerror: 250.61
+    value: 19138.0
+- header:
+    name: $t\bar{t}$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 331.25
+    value: 72426.0
+  - errors:
+    - label: stat
+      symerror: 381.29
+    value: 92576.0
+  - errors:
+    - label: stat
+      symerror: 362.06
+    value: 84337.0
+  - errors:
+    - label: stat
+      symerror: 298.54
+    value: 58068.0
+  - errors:
+    - label: stat
+      symerror: 229.15
+    value: 34703.0
+  - errors:
+    - label: stat
+      symerror: 197.14
+    value: 24825.0
+  - errors:
+    - label: stat
+      symerror: 171.49
+    value: 18767.0
+  - errors:
+    - label: stat
+      symerror: 166.86
+    value: 17213.0
+  - errors:
+    - label: stat
+      symerror: 162.49
+    value: 17221.0
+  - errors:
+    - label: stat
+      symerror: 133.75
+    value: 11400.0
+- header:
+    name: $W\rightarrow\ell\nu$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 36.354
+    value: 26618.0
+  - errors:
+    - label: stat
+      symerror: 34.709
+    value: 22761.0
+  - errors:
+    - label: stat
+      symerror: 34.399
+    value: 21144.0
+  - errors:
+    - label: stat
+      symerror: 30.506
+    value: 15920.0
+  - errors:
+    - label: stat
+      symerror: 21.675
+    value: 8627.1
+  - errors:
+    - label: stat
+      symerror: 17.2
+    value: 5486.9
+  - errors:
+    - label: stat
+      symerror: 14.365
+    value: 3941.6
+  - errors:
+    - label: stat
+      symerror: 13.667
+    value: 3530.4
+  - errors:
+    - label: stat
+      symerror: 13.424
+    value: 3425.4
+  - errors:
+    - label: stat
+      symerror: 10.597
+    value: 2166.9
+- header:
+    name: $Z\rightarrow\nu\nu$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 34.352
+    value: 23328.0
+  - errors:
+    - label: stat
+      symerror: 29.538
+    value: 17453.0
+  - errors:
+    - label: stat
+      symerror: 26.733
+    value: 14380.0
+  - errors:
+    - label: stat
+      symerror: 21.628
+    value: 9358.2
+  - errors:
+    - label: stat
+      symerror: 17.481
+    value: 6086.5
+  - errors:
+    - label: stat
+      symerror: 14.203
+    value: 4014.1
+  - errors:
+    - label: stat
+      symerror: 12.218
+    value: 2971.8
+  - errors:
+    - label: stat
+      symerror: 11.676
+    value: 2693.5
+  - errors:
+    - label: stat
+      symerror: 11.389
+    value: 2576.5
+  - errors:
+    - label: stat
+      symerror: 9.0031
+    value: 1589.7
+- header:
+    name: Single top
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 30.734
+    value: 3699.9
+  - errors:
+    - label: stat
+      symerror: 33.846
+    value: 4203.3
+  - errors:
+    - label: stat
+      symerror: 32.137
+    value: 3591.2
+  - errors:
+    - label: stat
+      symerror: 26.693
+    value: 2433.5
+  - errors:
+    - label: stat
+      symerror: 19.519
+    value: 1332.9
+  - errors:
+    - label: stat
+      symerror: 15.842
+    value: 868.47
+  - errors:
+    - label: stat
+      symerror: 13.591
+    value: 627.58
+  - errors:
+    - label: stat
+      symerror: 12.414
+    value: 545.21
+  - errors:
+    - label: stat
+      symerror: 12.112
+    value: 526.23
+  - errors:
+    - label: stat
+      symerror: 9.1384
+    value: 311.79
+- header:
+    name: Total simulation
+    units: Events
+  values:
+  - errors:
+    - label: MC stat
+      symerror: 839.72
+    value: 449630.0
+  - errors:
+    - label: MC stat
+      symerror: 774.13
+    value: 357410.0
+  - errors:
+    - label: MC stat
+      symerror: 725.4
+    value: 287510.0
+  - errors:
+    - label: MC stat
+      symerror: 534.63
+    value: 186730.0
+  - errors:
+    - label: MC stat
+      symerror: 459.74
+    value: 116010.0
+  - errors:
+    - label: MC stat
+      symerror: 417.06
+    value: 77802.0
+  - errors:
+    - label: MC stat
+      symerror: 430.22
+    value: 58646.0
+  - errors:
+    - label: MC stat
+      symerror: 316.57
+    value: 52552.0
+  - errors:
+    - label: MC stat
+      symerror: 240.79
+    value: 51583.0
+  - errors:
+    - label: MC stat
+      symerror: 284.56
+    value: 34606.0
+- header:
+    name: Data
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 632.11
+    value: 399560.0
+  - errors:
+    - label: stat
+      symerror: 549.01
+    value: 301410.0
+  - errors:
+    - label: stat
+      symerror: 507.4
+    value: 257460.0
+  - errors:
+    - label: stat
+      symerror: 420.29
+    value: 176650.0
+  - errors:
+    - label: stat
+      symerror: 345.76
+    value: 119550.0
+  - errors:
+    - label: stat
+      symerror: 286.08
+    value: 81841.0
+  - errors:
+    - label: stat
+      symerror: 254.21
+    value: 64625.0
+  - errors:
+    - label: stat
+      symerror: 247.11
+    value: 61064.0
+  - errors:
+    - label: stat
+      symerror: 253.43
+    value: 64227.0
+  - errors:
+    - label: stat
+      symerror: 227.44
+    value: 51729.0
+- header:
+    name: $m_{\Phi}=600$ GeV, $r_{\mathrm{inv}}=0.3$ ($\times 10$)
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 6293.2
+    value: 209410.0
+  - errors:
+    - label: stat
+      symerror: 6237.1
+    value: 204180.0
+  - errors:
+    - label: stat
+      symerror: 6024.1
+    value: 195540.0
+  - errors:
+    - label: stat
+      symerror: 5387.7
+    value: 159000.0
+  - errors:
+    - label: stat
+      symerror: 4753.2
+    value: 122670.0
+  - errors:
+    - label: stat
+      symerror: 4169.9
+    value: 99104.0
+  - errors:
+    - label: stat
+      symerror: 4282.9
+    value: 94308.0
+  - errors:
+    - label: stat
+      symerror: 4514.6
+    value: 108310.0
+  - errors:
+    - label: stat
+      symerror: 5629.1
+    value: 157630.0
+  - errors:
+    - label: stat
+      symerror: 7839.2
+    value: 286910.0
+- header:
+    name: $m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.1$ ($\times 500$)
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 2464.7
+    value: 43796.0
+  - errors:
+    - label: stat
+      symerror: 2419.5
+    value: 43542.0
+  - errors:
+    - label: stat
+      symerror: 2357.6
+    value: 43729.0
+  - errors:
+    - label: stat
+      symerror: 2278.8
+    value: 39394.0
+  - errors:
+    - label: stat
+      symerror: 2385.3
+    value: 36727.0
+  - errors:
+    - label: stat
+      symerror: 2089.8
+    value: 31222.0
+  - errors:
+    - label: stat
+      symerror: 2027.3
+    value: 29182.0
+  - errors:
+    - label: stat
+      symerror: 2360.1
+    value: 38637.0
+  - errors:
+    - label: stat
+      symerror: 2911.6
+    value: 58581.0
+  - errors:
+    - label: stat
+      symerror: 5135.4
+    value: 173750.0
+- header:
+    name: $m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.3$ ($\times 500$)
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 6314.8
+    value: 133170.0
+  - errors:
+    - label: stat
+      symerror: 6853.4
+    value: 138490.0
+  - errors:
+    - label: stat
+      symerror: 6716.9
+    value: 133480.0
+  - errors:
+    - label: stat
+      symerror: 6153.0
+    value: 122910.0
+  - errors:
+    - label: stat
+      symerror: 5639.9
+    value: 98229.0
+  - errors:
+    - label: stat
+      symerror: 5312.0
+    value: 89315.0
+  - errors:
+    - label: stat
+      symerror: 5445.7
+    value: 87595.0
+  - errors:
+    - label: stat
+      symerror: 6427.5
+    value: 112980.0
+  - errors:
+    - label: stat
+      symerror: 7165.6
+    value: 156420.0
+  - errors:
+    - label: stat
+      symerror: 10858.0
+    value: 349560.0
+independent_variables:
+- header:
+    name: ParticleNet score ($J$)
+  values:
+  - high: 0.1
+    low: 0.0
+  - high: 0.2
+    low: 0.1
+  - high: 0.3
+    low: 0.2
+  - high: 0.4
+    low: 0.3
+  - high: 0.5
+    low: 0.4
+  - high: 0.6
+    low: 0.5
+  - high: 0.7
+    low: 0.6
+  - high: 0.8
+    low: 0.7
+  - high: 0.9
+    low: 0.8
+  - high: 1.0
+    low: 0.9

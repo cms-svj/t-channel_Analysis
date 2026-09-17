@@ -1,0 +1,391 @@
+---
+additional_resources:
+- description: Created with hepdata_lib 0.14.2
+  location: https://doi.org/10.5281/zenodo.1217998
+comment: Numerical data for the t-channel semivisible-jet paper figures. Signal benchmark
+  distributions include the display scale factors stated in their variable names.
+data_license:
+  description: The content can be shared and adapted but you must             give
+    appropriate credit and cannot restrict access to others.
+  name: cc-by-4.0
+  url: https://creativecommons.org/licenses/by/4.0/
+related_to_hepdata_records: []
+---
+additional_resources:
+- description: Image file
+  location: nminus1_dPhiMinjMETAK8.png
+- description: Thumbnail image file
+  location: thumb_nminus1_dPhiMinjMETAK8.png
+data_file: figure_1.yaml
+description: Normalized minimum azimuthal separation between an AK8 jet and missing
+  transverse momentum. The requirement on the plotted variable is omitted while the
+  other preselection requirements are applied.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 1.
+name: Figure 1
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: nminus1_ST.png
+- description: Thumbnail image file
+  location: thumb_nminus1_ST.png
+data_file: figure_2.yaml
+description: Normalized scalar sum of AK8 jet transverse momenta. The requirement
+  on the plotted variable is omitted while the other preselection requirements are
+  applied.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 2.
+name: Figure 2
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: nminus1_MET.png
+- description: Thumbnail image file
+  location: thumb_nminus1_MET.png
+data_file: figure_3.yaml
+description: Normalized missing transverse momentum distribution. The requirement
+  on the plotted variable is omitted while the other preselection requirements are
+  applied.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 3.
+name: Figure 3
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: event_DNN_score_Run2.png
+- description: Thumbnail image file
+  location: thumb_event_DNN_score_Run2.png
+data_file: figure_4.yaml
+description: Distribution of the event-level classifier score after preselection for
+  the Run 2 data, simulated backgrounds, and benchmark signals.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 4.
+name: Figure 4
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: WNAE_score_200to300_Run2.png
+- description: Thumbnail image file
+  location: thumb_WNAE_score_200to300_Run2.png
+data_file: figure_5.yaml
+description: Distribution of the WNAE score for AK8 jets with transverse momentum
+  between 200 and 300 GeV after event preselection.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 5.
+name: Figure 5
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: ParticleNet_score_Run2.png
+- description: Thumbnail image file
+  location: thumb_ParticleNet_score_Run2.png
+data_file: figure_6.yaml
+description: Distribution of the ParticleNet score for all selected AK8 jets after
+  event preselection.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 6.
+name: Figure 6
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: event_DNN_AUC_vs_QCD_mMed_rinv.png
+- description: Thumbnail image file
+  location: thumb_event_DNN_AUC_vs_QCD_mMed_rinv.png
+data_file: figure_7.yaml
+description: Area under the receiver operating characteristic curve for the event-level
+  classifier against QCD multijet background.
+keywords:
+- name: observables
+  values:
+  - AUC
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 7.
+name: Figure 7
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: WNAE_AUC_vs_QCD_mMed_rinv.png
+- description: Thumbnail image file
+  location: thumb_WNAE_AUC_vs_QCD_mMed_rinv.png
+data_file: figure_8.yaml
+description: Area under the receiver operating characteristic curve for the WNAE tagger
+  against QCD multijet background.
+keywords:
+- name: observables
+  values:
+  - AUC
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 8.
+name: Figure 8
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: ParticleNet_AUC_vs_QCD_mMed_rinv.png
+- description: Thumbnail image file
+  location: thumb_ParticleNet_AUC_vs_QCD_mMed_rinv.png
+data_file: figure_9.yaml
+description: Area under the receiver operating characteristic curve for the ParticleNet
+  tagger against QCD multijet background.
+keywords:
+- name: observables
+  values:
+  - AUC
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 9.
+name: Figure 9
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: ParticleNet_postfit_bonly_A_Run2.png
+- description: Thumbnail image file
+  location: thumb_ParticleNet_postfit_bonly_A_Run2.png
+data_file: figure_10.yaml
+description: Background-only postfit missing transverse momentum distributions in
+  region A, split by ParticleNet semivisible-jet multiplicity. The signal curve is
+  shown at its nominal prefit normalization.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 10.
+name: Figure 10
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: WNAE_postfit_bonly_A_Run2.png
+- description: Thumbnail image file
+  location: thumb_WNAE_postfit_bonly_A_Run2.png
+data_file: figure_11.yaml
+description: Background-only postfit missing transverse momentum distributions in
+  region A, split by WNAE semivisible-jet multiplicity. The signal curve is shown
+  at its nominal prefit normalization.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 11.
+name: Figure 11
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: limits2d_pnet_mMed_mDark.png
+- description: Thumbnail image file
+  location: thumb_limits2d_pnet_mMed_mDark.png
+data_file: figure_12.yaml
+description: Observed and expected 95% confidence level upper limits on the signal
+  production cross section for the PNET analysis in the mMed-mDark plane.
+keywords:
+- name: observables
+  values:
+  - SIG
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 12.
+name: Figure 12
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: limits2d_pnet_mMed_rinv.png
+- description: Thumbnail image file
+  location: thumb_limits2d_pnet_mMed_rinv.png
+data_file: figure_13.yaml
+description: Observed and expected 95% confidence level upper limits on the signal
+  production cross section for the PNET analysis in the mMed-rinv plane.
+keywords:
+- name: observables
+  values:
+  - SIG
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 13.
+name: Figure 13
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: limits2d_pnet_mMed_yukawa.png
+- description: Thumbnail image file
+  location: thumb_limits2d_pnet_mMed_yukawa.png
+data_file: figure_14.yaml
+description: Observed and expected 95% confidence level upper limits on the signal
+  production cross section for the PNET analysis in the mMed-yukawa plane.
+keywords:
+- name: observables
+  values:
+  - SIG
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 14.
+name: Figure 14
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: limits2d_wnae_mMed_mDark.png
+- description: Thumbnail image file
+  location: thumb_limits2d_wnae_mMed_mDark.png
+data_file: figure_15.yaml
+description: Observed and expected 95% confidence level upper limits on the signal
+  production cross section for the WNAE analysis in the mMed-mDark plane.
+keywords:
+- name: observables
+  values:
+  - SIG
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 15.
+name: Figure 15
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: limits2d_wnae_mMed_rinv.png
+- description: Thumbnail image file
+  location: thumb_limits2d_wnae_mMed_rinv.png
+data_file: figure_16.yaml
+description: Observed and expected 95% confidence level upper limits on the signal
+  production cross section for the WNAE analysis in the mMed-rinv plane.
+keywords:
+- name: observables
+  values:
+  - SIG
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 16.
+name: Figure 16
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: limits2d_wnae_mMed_yukawa.png
+- description: Thumbnail image file
+  location: thumb_limits2d_wnae_mMed_yukawa.png
+data_file: figure_17.yaml
+description: Observed and expected 95% confidence level upper limits on the signal
+  production cross section for the WNAE analysis in the mMed-yukawa plane.
+keywords:
+- name: observables
+  values:
+  - SIG
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Figure 17.
+name: Figure 17
+related_to_table_dois: []
