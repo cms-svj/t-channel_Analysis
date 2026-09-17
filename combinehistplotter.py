@@ -7,7 +7,10 @@ import numpy as np
 import uproot
 
 import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
 import mplhep as hep
+
+import Figure2_makerusingskims as f2
 
 # --------------------------
 # CONFIG
@@ -35,10 +38,10 @@ SVJ_XLABELS = ["0", "1", "2", "3+"]
 BKG_ORDER = ["QCD", "TTJets", "WJets", "ZJets", "ST"]
 
 PROC_LABEL = {
-    "QCD": "QCD multijet",
-    "TTJets": r"$t\bar{t}$ + jets",
-    "ZJets": r"$Z$ + jets",
-    "WJets": r"$W$ + jets",
+    "QCD": "QCD",
+    "TTJets": r"$t\bar{t}$+jets",
+    "WJets": r"$W\rightarrow l\nu$+jets",
+    "ZJets": r"$Z\rightarrow\nu\nu$+jets",
     "ST": "Single top",
 }
 
@@ -117,6 +120,11 @@ def write_abcd_compact_table_txt(year, yields, outdir):
             return f"{x:.2f}"
         return f"{x:.3f}"
 
+    def fmt_ratio(num, den):
+        if abs(den) < 1e-12:
+            return "N/A"
+        return fmt(num / den)
+
     # Sum over backgrounds
     total = {svj: {reg: 0.0 for reg in PLOT_REGIONS} for svj in SVJ_ORDER}
     for proc in BKG_ORDER:
@@ -131,9 +139,10 @@ def write_abcd_compact_table_txt(year, yields, outdir):
         # Header
         f.write(
             f"{'SVJ':<6}"
-            f"{'A':>14}{'B':>14}{'C':>14}{'D':>14}\n"
+            f"{'A':>14}{'B':>14}{'C':>14}{'D':>14}"
+            f"{'B/D':>14}{'C/D':>14}\n"
         )
-        f.write("-" * 62 + "\n")
+        f.write("-" * 90 + "\n")
 
         # Rows
         for svj in SVJ_ORDER:
@@ -142,17 +151,21 @@ def write_abcd_compact_table_txt(year, yields, outdir):
                 f"{fmt(total[svj]['A']):>14}"
                 f"{fmt(total[svj]['B']):>14}"
                 f"{fmt(total[svj]['C']):>14}"
-                f"{fmt(total[svj]['D']):>14}\n"
+                f"{fmt(total[svj]['D']):>14}"
+                f"{fmt_ratio(total[svj]['B'], total[svj]['D']):>14}"
+                f"{fmt_ratio(total[svj]['C'], total[svj]['D']):>14}\n"
             )
 
         # Totals row
-        f.write("-" * 62 + "\n")
+        f.write("-" * 90 + "\n")
         f.write(
             f"{'TOTAL':<6}"
             f"{fmt(col_totals['A']):>14}"
             f"{fmt(col_totals['B']):>14}"
             f"{fmt(col_totals['C']):>14}"
-            f"{fmt(col_totals['D']):>14}\n"
+            f"{fmt(col_totals['D']):>14}"
+            f"{fmt_ratio(col_totals['B'], col_totals['D']):>14}"
+            f"{fmt_ratio(col_totals['C'], col_totals['D']):>14}\n"
         )
 
     print(f"[OK] wrote compact ABCD table {outpath}")
@@ -505,7 +518,7 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
             label="Data"
         )
 
-        # Ratio: Data/MC
+        # Ratio: Data/Sim
         ratio = np.full_like(x, np.nan, dtype=float)
         ratio_err = np.full_like(x, np.nan, dtype=float)
 
@@ -520,10 +533,10 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
             fmt="o", color="black", markersize=4,
             linewidth=1.0, capsize=0
         )
-        rax.set_ylabel("Data/MC")
+        rax.set_ylabel("Data/Sim")
     # else:
     #     # Keep the panel for CMS-like layout, but no data points
-    #     rax.set_ylabel("Data/MC")
+    #     rax.set_ylabel("Data/Sim")
 
     # Ratio panel: unity line + MC unc band (as relative)
     if with_data:
@@ -629,6 +642,289 @@ def plot_year(file_path, year, outdir=".", include_flow=True, with_data=False,
     print(f"[OK] wrote {outpath}")
 
 
+def hist_arrays_no_flow(h):
+    """
+    Return bin values/edges/variances for shape plots.
+    The DNN score x-axis is fixed to visible bins, so under/overflow are not
+    folded into the plotted distribution.
+    """
+    vals, edges = h.to_numpy(flow=False)
+    vals = np.asarray(vals, dtype=float)
+    edges = np.asarray(edges, dtype=float)
+
+    try:
+        variances = h.variances(flow=False)
+    except Exception:
+        variances = None
+    if variances is None:
+        variances = np.abs(vals)
+    else:
+        variances = np.asarray(variances, dtype=float)
+
+    return vals, edges, variances
+
+
+def add_shape(target_vals, target_vars, target_edges, vals, variances, edges, label):
+    if target_edges is None:
+        target_edges = edges.copy()
+        target_vals = np.zeros_like(vals, dtype=float)
+        target_vars = np.zeros_like(vals, dtype=float)
+    elif len(target_edges) != len(edges) or not np.allclose(target_edges, edges):
+        raise RuntimeError(f"DNN score binning mismatch while adding {label}")
+
+    target_vals += vals
+    target_vars += variances
+    return target_vals, target_vars, target_edges
+
+
+def read_dnn_score_shapes(file_path, years_to_read, with_data=True):
+    """
+    Sum the combine-file TH1 shapes over ABCD regions and nSVJ categories.
+    The same category/process histograms used for the ABCD yield integrals are
+    treated here as the DNN-score distribution.
+    """
+    proc_vals = {p: None for p in BKG_ORDER}
+    proc_vars = {p: None for p in BKG_ORDER}
+    signal_vals = {s: None for s in SIGNAL_PROCS}
+    signal_vars = {s: None for s in SIGNAL_PROCS}
+    data_vals = None
+    data_vars = None
+    edges = None
+    n_added = 0
+
+    with uproot.open(file_path) as f:
+        for year in years_to_read:
+            for reg_plot in PLOT_REGIONS:
+                reg_root = ROOT_REGION_FOR[reg_plot]
+                for svj in SVJ_ORDER:
+                    base = f"{svj}Y{year}_Run2/{reg_root}"
+
+                    for proc in BKG_ORDER:
+                        hist_path = f"{base}/{proc}"
+                        if hist_path not in f:
+                            continue
+                        vals, hist_edges, variances = hist_arrays_no_flow(f[hist_path])
+                        proc_vals[proc], proc_vars[proc], edges = add_shape(
+                            proc_vals[proc], proc_vars[proc], edges,
+                            vals, variances, hist_edges, hist_path
+                        )
+                        n_added += 1
+
+                    for sig in SIGNAL_PROCS:
+                        hist_path = f"{base}/{sig}"
+                        if hist_path not in f:
+                            continue
+                        vals, hist_edges, variances = hist_arrays_no_flow(f[hist_path])
+                        signal_vals[sig], signal_vars[sig], edges = add_shape(
+                            signal_vals[sig], signal_vars[sig], edges,
+                            vals, variances, hist_edges, hist_path
+                        )
+
+                    if with_data:
+                        hist_path = f"{base}/{DATA_NAME}"
+                        if hist_path in f:
+                            vals, hist_edges, variances = hist_arrays_no_flow(f[hist_path])
+                            data_vals, data_vars, edges = add_shape(
+                                data_vals, data_vars, edges,
+                                vals, variances, hist_edges, hist_path
+                            )
+
+    if edges is None or n_added == 0:
+        raise RuntimeError(
+            "No DNN score histograms found. Expected paths like "
+            "0SVJY2018_Run2/A/QCD in the combine file."
+        )
+
+    zero = np.zeros(len(edges) - 1, dtype=float)
+    for proc in BKG_ORDER:
+        if proc_vals[proc] is None:
+            proc_vals[proc] = zero.copy()
+            proc_vars[proc] = zero.copy()
+    for sig in SIGNAL_PROCS:
+        if signal_vals[sig] is None:
+            signal_vals[sig] = zero.copy()
+            signal_vars[sig] = zero.copy()
+
+    return edges, proc_vals, proc_vars, signal_vals, signal_vars, data_vals, data_vars
+
+
+def step_values(edges, values):
+    return edges, np.r_[values, values[-1]]
+
+
+def add_unique_legend(ax, handles, labels, **kwargs):
+    seen = set()
+    uniq_handles = []
+    uniq_labels = []
+    for handle, label in zip(handles, labels):
+        if label in seen:
+            continue
+        seen.add(label)
+        uniq_handles.append(handle)
+        uniq_labels.append(label)
+    ax.legend(uniq_handles, uniq_labels, **kwargs)
+
+
+def signal_display_label(sig):
+    match = re.search(r"mMed(\d+)_mDark(\d+)_rinv([0-9p]+)_yukawa([0-9p]+)", sig)
+    if not match:
+        return sig
+    m_med, m_dark, rinv, yukawa = match.groups()
+    rinv = rinv.replace("p", ".")
+    yukawa = yukawa.replace("p", ".")
+    return (
+        rf"$m_{{\Phi}}={m_med}$ GeV, "
+        rf"$m_{{dark}}={m_dark}$ GeV, "
+        rf"$r_{{inv}}={rinv}$, "
+        rf"$\lambda={yukawa}$"
+    )
+
+
+def plot_dnn_score(file_path, year, outdir=".", with_data=False, lumi_text=None,
+                   com_text="13", prelim=True, years_to_sum=None,
+                   output_label=None):
+    years_to_read = years_to_sum if years_to_sum is not None else [year]
+    plot_label = output_label if output_label is not None else year
+    subdir = "with_data" if with_data else "mc_only"
+    plot_dir = os.path.join(outdir, "DNN_score", subdir)
+    os.makedirs(plot_dir, exist_ok=True)
+
+    edges, proc_vals, proc_vars, signal_vals, _, data_vals, data_vars = read_dnn_score_shapes(
+        file_path, years_to_read, with_data=with_data
+    )
+
+    total_mc = sum(proc_vals[p] for p in BKG_ORDER)
+    total_mc_integral = float(np.sum(total_mc))
+    if total_mc_integral <= 0:
+        raise RuntimeError(f"No positive MC yield available for DNN score plot {plot_label}")
+
+    proc_plot = {p: proc_vals[p] / total_mc_integral for p in BKG_ORDER}
+    mc_total_plot = total_mc / total_mc_integral
+
+    data_plot = None
+    data_err = None
+    if with_data and data_vals is not None:
+        data_integral = float(np.sum(data_vals))
+        if data_integral > 0:
+            data_plot = data_vals / data_integral
+            data_err = np.sqrt(np.maximum(data_vars, 0.0)) / data_integral
+
+    signal_plot = {}
+    for sig in SIGNAL_PROCS:
+        integral = float(np.sum(signal_vals[sig]))
+        if integral > 0:
+            signal_plot[sig] = signal_vals[sig] / integral
+
+    hep.style.use("CMS")
+    plt.rcParams["figure.dpi"] = 150
+    fig, ax = plt.subplots(1, 1, figsize=(7.2, 7.0), constrained_layout=True)
+
+    bottoms = np.zeros_like(mc_total_plot)
+    stack_handles = []
+    stack_labels = []
+    for proc in reversed(BKG_ORDER):
+        widths = np.diff(edges)
+        bars = ax.bar(
+            edges[:-1], proc_plot[proc],
+            width=widths,
+            bottom=bottoms,
+            align="edge",
+            color=PROC_COLOR.get(proc, None),
+            edgecolor="black",
+            linewidth=0.2,
+            label=PROC_LABEL.get(proc, proc),
+            zorder=1,
+        )
+        bottoms += proc_plot[proc]
+        stack_handles.append(bars[0])
+        stack_labels.append(PROC_LABEL.get(proc, proc))
+
+    signal_handles = []
+    signal_labels = []
+    for sig in SIGNAL_PROCS:
+        if sig not in signal_plot:
+            continue
+        x_step, y_step = step_values(edges, signal_plot[sig])
+        line = ax.step(
+            x_step, y_step,
+            where="post",
+            color=SIG_COLORS.get(sig, "black"),
+            linestyle=SIG_LINESTYLE,
+            linewidth=2.0,
+            label=signal_display_label(sig),
+            zorder=4,
+        )[0]
+        signal_handles.append(line)
+        signal_labels.append(signal_display_label(sig))
+
+    data_handle = None
+    data_label = None
+    if with_data and data_plot is not None:
+        centers = 0.5 * (edges[:-1] + edges[1:])
+        data_handle = ax.errorbar(
+            centers, data_plot, yerr=data_err,
+            fmt="o", color="black", markersize=4,
+            linewidth=1.0, capsize=0,
+            label="Data",
+            zorder=5,
+        )
+        data_label = "Data"
+
+    ax.set_yscale("log")
+    positive = [np.max(mc_total_plot) if np.any(mc_total_plot > 0) else 0.0]
+    positive.extend(np.max(v) for v in signal_plot.values() if np.any(v > 0))
+    if data_plot is not None and np.any(data_plot > 0):
+        positive.append(np.max(data_plot))
+    ymax = max(positive) if positive else 1.0
+    ax.set_ylim(1e-5, max(1.0, ymax * 250.0))
+    ax.set_xlim(0.0, 1.0)
+    ax.set_xlabel("DNN score")
+    ax.set_ylabel("Arbitrary units")
+    ax.grid(True, which="both", axis="y", linestyle=":", linewidth=0.8)
+
+    if lumi_text is None:
+        lumi_text = {
+            "2016": "36.31",
+            "2017": "42.07",
+            "2018": "59.56",
+            "Run2_Combined": "137.94",
+        }.get(plot_label, "")
+    hep.cms.label(
+        ax=ax,
+        label="Preliminary" if prelim else "",
+        data=with_data,
+        lumi=lumi_text,
+        com=com_text
+    )
+
+    handles = []
+    labels = []
+    if data_handle is not None:
+        handles.append(data_handle)
+        labels.append(data_label)
+    handles.extend(stack_handles)
+    labels.extend(stack_labels)
+    handles.extend(signal_handles)
+    labels.extend(signal_labels)
+    add_unique_legend(
+        ax, handles, labels,
+        loc="upper left",
+        bbox_to_anchor=(0.03, 0.91),
+        ncol=2,
+        frameon=False,
+        fontsize=9,
+        handlelength=1.7,
+        columnspacing=0.9,
+    )
+
+    suffix = "_with_data" if with_data else "_mc_only"
+    outbase = os.path.join(plot_dir, f"DNN_score_{plot_label}_CMS{suffix}")
+    fig.savefig(f"{outbase}.pdf")
+    fig.savefig(f"{outbase}.png")
+    plt.close(fig)
+    print(f"[OK] wrote {outbase}.pdf")
+    print(f"[OK] wrote {outbase}.png")
+
 
 def write_detailed_yield_table_txt(year, yields, outdir):
     """
@@ -650,13 +946,19 @@ def write_detailed_yield_table_txt(year, yields, outdir):
     # Process order matching your example
     table_proc_order = ["ST", "TTJets", "ZJets", "WJets", "QCD"]
 
+    def fmt_ratio(num, den):
+        if abs(den) < 1e-12:
+            return "N/A"
+        return f"{num / den:.6f}"
+
     with open(outpath, "w") as f:
         # Header
         f.write(
             f"{'SVJ':<8} {'Component':<26} "
-            f"{'A':>12} {'B':>12} {'C':>12} {'D':>12} {'TOTAL':>12}\n"
+            f"{'A':>12} {'B':>12} {'C':>12} {'D':>12} "
+            f"{'TOTAL':>12} {'B/D':>12} {'C/D':>12}\n"
         )
-        f.write("-" * 90 + "\n")
+        f.write("-" * 116 + "\n")
 
         # Rows
         for svj in SVJ_ORDER:
@@ -672,10 +974,154 @@ def write_detailed_yield_table_txt(year, yields, outdir):
                 
                 f.write(
                     f"{svj:<8} {label:<26} "
-                    f"{yA:>12.6f} {yB:>12.6f} {yC:>12.6f} {yD:>12.6f} {ytot:>12.6f}\n"
+                    f"{yA:>12.6f} {yB:>12.6f} {yC:>12.6f} {yD:>12.6f} "
+                    f"{ytot:>12.6f} {fmt_ratio(yB, yD):>12} {fmt_ratio(yC, yD):>12}\n"
                 )
 
     print(f"[OK] wrote detailed ABCD table {outpath}")
+
+def compute_background_fraction_summary(yields):
+    """
+    Sum ABCD yields into the same background-fraction inputs used by the
+    LaTeX table and the per-nSVJ pie charts.
+    """
+    total_proc_svj = {p: {s: 0.0 for s in SVJ_ORDER} for p in BKG_ORDER}
+    for p in BKG_ORDER:
+        for s in SVJ_ORDER:
+            total_proc_svj[p][s] = sum(
+                yields.get(p, {}).get(r, {}).get(s, 0.0) for r in PLOT_REGIONS
+            )
+
+    total_svj = {
+        s: sum(total_proc_svj[p][s] for p in BKG_ORDER) for s in SVJ_ORDER
+    }
+    total_proc_incl = {
+        p: sum(total_proc_svj[p][s] for s in SVJ_ORDER) for p in BKG_ORDER
+    }
+    total_bkg_incl = sum(total_svj[s] for s in SVJ_ORDER)
+
+    return total_proc_svj, total_svj, total_proc_incl, total_bkg_incl
+
+# combinehistplotter's yield dict uses "WJets"/"ZJets"; Figure2 uses the
+# longer "WJetsToLNu"/"ZJetsToNuNu" keys for the same processes. This maps
+# between them so pie colors are pulled from the single shared palette.
+PIE_TO_FIGURE2_PROC = {
+    "QCD": "QCD",
+    "TTJets": "TTJets",
+    "WJets": "WJetsToLNu",
+    "ZJets": "ZJetsToNuNu",
+    "ST": "ST",
+}
+
+
+def write_fraction_pie_charts(year_label, yields, outdir, lumi_text=None,
+                              com_text="13", prelim=True,
+                              draw_cms_heading=True,
+                              pie_text_fontsize=17,
+                              tagger_label="PN"):
+    """
+    Write one combined figure with a background-fraction pie chart for each
+    nSVJ bin (2x2 grid), sharing a single Figure2-style legend.
+    """
+    os.makedirs(outdir, exist_ok=True)
+
+    total_proc_svj, total_svj, _, _ = compute_background_fraction_summary(yields)
+
+    # Ordered to match Figure2_makerusingskims.LEGEND_ORDER so the same
+    # process always gets the same color/position across every supplementary
+    # plot, not just within this figure.
+    pie_proc_order = ["QCD", "TTJets", "WJets", "ZJets", "ST"]
+    tagger_latex = r"\mathrm{" + str(tagger_label) + "}"
+    svj_titles = [
+        rf"$n_{{\mathrm{{SVJ}}}}^{{{tagger_latex}}} = 0$",
+        rf"$n_{{\mathrm{{SVJ}}}}^{{{tagger_latex}}} = 1$",
+        rf"$n_{{\mathrm{{SVJ}}}}^{{{tagger_latex}}} = 2$",
+        rf"$n_{{\mathrm{{SVJ}}}}^{{{tagger_latex}}} \geq 3$",
+    ]
+
+    hep.style.use("CMS")
+    plt.rcParams["figure.dpi"] = 150
+
+    def autopct_fmt(pct):
+        return f"{pct:.0f}%" if pct >= 3.0 else ""
+
+    if lumi_text is None:
+        lumi_text = {
+            "2016": "36.31",
+            "2017": "42.07",
+            "2018": "59.56",
+            "Run2_Combined": "137.94",
+        }.get(year_label, "")
+    lumi_label = f"{lumi_text} fb$^{{-1}}$ ({com_text.strip()} TeV)" if lumi_text else f"({com_text.strip()} TeV)"
+    cms_modifier = "Simulation Preliminary" if prelim else "Simulation"
+
+    colors = [f2.PROC_COLOR_HEX[PIE_TO_FIGURE2_PROC[p]] for p in pie_proc_order]
+    legend_labels = [PROC_LABEL.get(p, p) for p in pie_proc_order]
+
+    fig, axes = plt.subplots(2, 2, figsize=(11.5, 10.8))
+    fig.subplots_adjust(left=0.03, right=0.80, top=0.84, bottom=0.03, wspace=0.05, hspace=0.25)
+
+    for ax, svj, title in zip(axes.flat, SVJ_ORDER, svj_titles):
+        values = [total_proc_svj[p][svj] for p in pie_proc_order]
+
+        if total_svj[svj] > 0:
+            _, _, autotexts = ax.pie(
+                values,
+                colors=colors,
+                startangle=90,
+                counterclock=False,
+                autopct=autopct_fmt,
+                pctdistance=1.14,
+                radius=1.16,
+                wedgeprops={"edgecolor": "black", "linewidth": 0.6},
+                textprops={"fontsize": pie_text_fontsize, "color": "black"},
+            )
+            for txt in autotexts:
+                txt.set_fontsize(pie_text_fontsize)
+                txt.set_fontweight("bold")
+        else:
+            ax.text(0.5, 0.5, "No background", ha="center", va="center",
+                    transform=ax.transAxes)
+
+        ax.set_aspect("equal")
+        ax.set_title(title, fontsize=22, pad=14)
+
+    # One shared legend for the whole figure, styled like Figure2's ROOT
+    # legends: single column, solid white box, no border.
+    legend_handles = [
+        mpatches.Patch(facecolor=color, edgecolor="black", linewidth=0.6, label=label)
+        for color, label in zip(colors, legend_labels)
+    ]
+    legend = fig.legend(
+        handles=legend_handles,
+        loc="center left",
+        ncol=1,
+        frameon=True,
+        fontsize=17,
+        bbox_to_anchor=(0.80, 0.5),
+        handlelength=1.5,
+        handletextpad=0.8,
+        labelspacing=1.2,
+    )
+    legend.get_frame().set_facecolor("white")
+    legend.get_frame().set_edgecolor("none")
+
+    if draw_cms_heading:
+        fig.text(0.03, 0.975, "CMS", ha="left", va="top",
+                 fontsize=32, fontweight="bold")
+        fig.text(0.145, 0.975, cms_modifier, ha="left", va="top",
+                 fontsize=22, fontstyle="italic")
+        fig.text(0.80, 0.975, lumi_label, ha="right", va="top",
+                 fontsize=18)
+
+    outbase = os.path.join(outdir, f"ABCD_bkg_fraction_pie_{year_label}_CMS")
+    fig.savefig(f"{outbase}.pdf", bbox_inches="tight")
+    fig.savefig(f"{outbase}.png", bbox_inches="tight")
+    plt.close(fig)
+
+    print("[OK] wrote combined background fraction pie chart:")
+    print(f"     {outbase}.pdf")
+    return f"{outbase}.pdf"
 
 def write_latex_fraction_tables(year_label, yields, outdir):
     """
@@ -684,6 +1130,7 @@ def write_latex_fraction_tables(year_label, yields, outdir):
     """
     os.makedirs(outdir, exist_ok=True)
     outpath = os.path.join(outdir, f"ABCD_latex_tables_{year_label}.tex")
+    display_year_label = year_label.replace("_", " ")
 
     # LaTeX mapping for process names
     tex_proc_map = {
@@ -696,20 +1143,9 @@ def write_latex_fraction_tables(year_label, yields, outdir):
     # Match your desired table order
     tex_proc_order = ["QCD", "TTJets", "ZJets", "WJets", "ST"]
     
-    # 1. Sum over regions (A+B+C+D) for each process and SVJ bin
-    total_proc_svj = {p: {s: 0.0 for s in SVJ_ORDER} for p in BKG_ORDER}
-    for p in BKG_ORDER:
-        for s in SVJ_ORDER:
-            total_proc_svj[p][s] = sum(yields.get(p, {}).get(r, {}).get(s, 0.0) for r in PLOT_REGIONS)
-            
-    # 2. Total background per SVJ bin (summed over processes)
-    total_svj = {s: sum(total_proc_svj[p][s] for p in BKG_ORDER) for s in SVJ_ORDER}
-    
-    # 3. Total inclusive per process
-    total_proc_incl = {p: sum(total_proc_svj[p][s] for s in SVJ_ORDER) for p in BKG_ORDER}
-    
-    # 4. Total inclusive background
-    total_bkg_incl = sum(total_svj[s] for s in SVJ_ORDER)
+    total_proc_svj, total_svj, total_proc_incl, total_bkg_incl = (
+        compute_background_fraction_summary(yields)
+    )
 
     with open(outpath, "w") as f:
         # --- TABLE 1: Background Fractions ---
@@ -742,9 +1178,18 @@ def write_latex_fraction_tables(year_label, yields, outdir):
 
         f.write("    \\hline\n")
         f.write("\\end{tabular}\n")
-        f.write(f"\\caption{{Fraction of the different backgrounds for all events (first column) and in bins of number of ParticleNet-tagged SVJs (last columns) for the DNN introduced in Section~\\ref{{sec:closure_nsvjs}}. ({year_label})}}\n")
+        f.write(f"\\caption{{Fraction of the different backgrounds for all events (first column) and in bins of number of ParticleNet-tagged SVJs (last columns) for the DNN introduced in Section~\\ref{{sec:closure_nsvjs}}. ({display_year_label})}}\n")
         f.write("\\label{table:abcd_bkg_fraction_nsvjpn}\n")
         f.write("\\end{table}\n\n")
+
+        # --- FIGURE: Background Fractions as Pie Charts (one combined figure) ---
+        pie_file = f"ABCD_bkg_fraction_pie_{year_label}_CMS.pdf"
+        f.write("\\begin{figure}[htbp]\n")
+        f.write("\\centering\n")
+        f.write(f"\\includegraphics[width=0.85\\textwidth]{{{pie_file}}}\n")
+        f.write(f"\\caption{{Background composition in bins of $\\nsvjpn$ for {display_year_label}.}}\n")
+        f.write("\\label{fig:abcd_bkg_fraction_pie_nsvjpn}\n")
+        f.write("\\end{figure}\n\n")
 
         # --- TABLE 2: Background Efficiency ---
         f.write("\\begin{table}[htbp]\n")
@@ -765,16 +1210,222 @@ def write_latex_fraction_tables(year_label, yields, outdir):
 
     print(f"[OK] wrote LaTeX tables to {outpath}")
 
+
+# =============================================================================
+# Signal region-A acceptance (fraction of each signal landing in region A,
+# i.e. the ABCD signal region), inclusive and split by nSVJ bin.
+# =============================================================================
+
+# The 10-point mMed/rinv reference grid already used for the DNN/PNet AUC
+# scans elsewhere in this analysis (supplementary_material_plotter.py's
+# DNN_TRAINING_SAMPLES / PNET_TRAINING_SAMPLES): a mass scan at rinv=0.3 plus
+# a rinv scan at mMed=2000, all at mDark=20, yukawa=1.
+REFERENCE_SIGNALS = [
+    ("mMed600_mDark20_rinv0p3_yukawa1", r"$m_{\Phi}=600$ GeV, $r_{\mathrm{inv}}=0.3$"),
+    ("mMed800_mDark20_rinv0p3_yukawa1", r"$m_{\Phi}=800$ GeV, $r_{\mathrm{inv}}=0.3$"),
+    ("mMed1000_mDark20_rinv0p3_yukawa1", r"$m_{\Phi}=1000$ GeV, $r_{\mathrm{inv}}=0.3$"),
+    ("mMed1500_mDark20_rinv0p3_yukawa1", r"$m_{\Phi}=1500$ GeV, $r_{\mathrm{inv}}=0.3$"),
+    ("mMed2000_mDark20_rinv0p1_yukawa1", r"$m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.1$"),
+    ("mMed2000_mDark20_rinv0p3_yukawa1", r"$m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.3$"),
+    ("mMed2000_mDark20_rinv0p5_yukawa1", r"$m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.5$"),
+    ("mMed2000_mDark20_rinv0p7_yukawa1", r"$m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.7$"),
+    ("mMed3000_mDark20_rinv0p3_yukawa1", r"$m_{\Phi}=3000$ GeV, $r_{\mathrm{inv}}=0.3$"),
+    ("mMed4000_mDark20_rinv0p3_yukawa1", r"$m_{\Phi}=4000$ GeV, $r_{\mathrm{inv}}=0.3$"),
+]
+
+SIGNAL_REGION = "A"
+
+
+def read_region_signal(file_, svj: str, year: str, region: str, signal_name: str) -> float:
+    """Yield of one signal process in one (svj, year, region) cell, or 0.0 if missing."""
+    base = svj_dir_name(svj, year)
+    dreg = get_dir(file_, f"{base}/{region}")
+    if dreg is None:
+        return 0.0
+    keys = list_dir_items(dreg)
+    if signal_name not in keys:
+        return 0.0
+    y, _ = hist_integral_and_err(dreg[signal_name])
+    return y
+
+
+def compute_signal_region_a_acceptance(file_path: str, years, signals=None):
+    """
+    For each signal, for each nSVJ bin (and inclusive), the fraction of
+    Run2-combined events landing in the ABCD signal region A:
+        N_A / (N_A + N_B + N_C + N_D)
+    All preselected events fall into exactly one of the four ABCD regions,
+    so this denominator is the total selected signal yield for that
+    (nSVJ bin / inclusive) slice.
+
+    Returns: {signal_name: {"0SVJ": frac, ..., "Inclusive": frac}}
+    """
+    if signals is None:
+        signals = [name for name, _ in REFERENCE_SIGNALS]
+
+    results = {}
+    with uproot.open(file_path) as f:
+        for signal_name in signals:
+            per_svj = {}
+            region_totals_incl = {r: 0.0 for r in PLOT_REGIONS}
+            for svj in SVJ_ORDER:
+                region_totals = {r: 0.0 for r in PLOT_REGIONS}
+                for year in years:
+                    for region in PLOT_REGIONS:
+                        y = read_region_signal(f, svj, year, region, signal_name)
+                        region_totals[region] += y
+                        region_totals_incl[region] += y
+                denom = sum(region_totals.values())
+                per_svj[svj] = (region_totals[SIGNAL_REGION] / denom) if denom > 0 else 0.0
+            denom_incl = sum(region_totals_incl.values())
+            per_svj["Inclusive"] = (region_totals_incl[SIGNAL_REGION] / denom_incl) if denom_incl > 0 else 0.0
+            results[signal_name] = per_svj
+    return results
+
+
+def compute_signal_region_yields(file_path: str, years, signals=None, region: str = SIGNAL_REGION):
+    """
+    Raw (Run2-combined, already lumi-scaled) yield of each signal landing in
+    one ABCD region, per nSVJ bin and inclusive. Unlike
+    compute_signal_region_a_acceptance, this does not divide by anything --
+    it's the numerator other denominators (generated yield, preselection
+    yield, ...) can be compared against.
+
+    Returns: {signal_name: {"0SVJ": yield, ..., "Inclusive": yield}}
+    """
+    if signals is None:
+        signals = [name for name, _ in REFERENCE_SIGNALS]
+
+    results = {}
+    with uproot.open(file_path) as f:
+        for signal_name in signals:
+            per_svj = {}
+            total = 0.0
+            for svj in SVJ_ORDER:
+                y = 0.0
+                for year in years:
+                    y += read_region_signal(f, svj, year, region, signal_name)
+                per_svj[svj] = y
+                total += y
+            per_svj["Inclusive"] = total
+            results[signal_name] = per_svj
+    return results
+
+
+def write_signal_region_a_table(acceptance: dict, outpath: str) -> None:
+    """Write a standalone LaTeX table (no \\begin{table} wrapper needed by the
+    caller -- this already includes one) of region-A signal acceptance."""
+    os.makedirs(os.path.dirname(outpath), exist_ok=True)
+    signal_labels = dict(REFERENCE_SIGNALS)
+    columns = SVJ_ORDER + ["Inclusive"]
+    # Matches the notation already used in the background-composition pie
+    # chart labels (write_fraction_pie_charts) for the same quantity.
+    column_headers = [
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} = 0$",
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} = 1$",
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} = 2$",
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} \geq 3$",
+        "Inclusive",
+    ]
+
+    with open(outpath, "w") as f:
+        f.write("\\begin{table}[htbp]\n")
+        f.write("\\centering\n")
+        f.write("\\begin{tabular}{|l|c|c|c|c|c|}\n")
+        f.write("    \\hline\n")
+        f.write(
+            "    Signal & " + " & ".join(column_headers) + " \\\\ \n"
+        )
+        f.write("    \\hline\n")
+        for signal_name, _ in REFERENCE_SIGNALS:
+            label = signal_labels.get(signal_name, signal_name)
+            row = acceptance.get(signal_name, {})
+            cells = [f"{row.get(c, 0.0) * 100.0:.1f}\\%" for c in columns]
+            f.write(f"    {label} & " + " & ".join(cells) + " \\\\ \n")
+        f.write("    \\hline\n")
+        f.write("\\end{tabular}\n")
+        f.write(
+            "\\caption{Fraction of Run 2 signal events landing in the ABCD signal "
+            "region A ($N_A / (N_A+N_B+N_C+N_D)$), inclusively and in bins of "
+            "$n_{\\mathrm{SVJ}}^{\\mathrm{PN}}$, for the reference $m_{\\Phi}$/$r_{\\mathrm{inv}}$ "
+            "signal grid used for the AUC scans elsewhere in this document.}\n"
+        )
+        f.write("\\label{table:signal_region_a_acceptance}\n")
+        f.write("\\end{table}\n")
+    print(f"[OK] wrote signal region-A acceptance table: {outpath}")
+
+
+def write_signal_region_a_vs_generated_table(region_a_yields: dict, generated_yields: dict, outpath: str) -> None:
+    """
+    Same layout as write_signal_region_a_table, but every nSVJ column shares
+    one denominator per signal: the total generated (pre-selection) Run2
+    yield from CutFlow/Initial, read the same way NMinusOne_maker_RA2.py
+    normalizes its Lund-plane correction. Because nSVJ categorization happens
+    downstream of generation, these columns are directly additive: they sum
+    to the Inclusive column, unlike the region-total-normalized version above.
+    """
+    os.makedirs(os.path.dirname(outpath), exist_ok=True)
+    signal_labels = dict(REFERENCE_SIGNALS)
+    columns = SVJ_ORDER + ["Inclusive"]
+    column_headers = [
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} = 0$",
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} = 1$",
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} = 2$",
+        r"$n_{\mathrm{SVJ}}^{\mathrm{PN}} \geq 3$",
+        "Inclusive",
+    ]
+
+    with open(outpath, "w") as f:
+        f.write("\\begin{table}[htbp]\n")
+        f.write("\\centering\n")
+        f.write("\\begin{tabular}{|l|c|c|c|c|c|}\n")
+        f.write("    \\hline\n")
+        f.write("    Signal & " + " & ".join(column_headers) + " \\\\ \n")
+        f.write("    \\hline\n")
+        for signal_name, _ in REFERENCE_SIGNALS:
+            label = signal_labels.get(signal_name, signal_name)
+            numer = region_a_yields.get(signal_name, {})
+            denom = generated_yields.get(signal_name, 0.0)
+            if denom > 0:
+                cells = [f"{numer.get(c, 0.0) / denom * 100.0:.2f}\\%" for c in columns]
+            else:
+                # No skim directory on EOS for this sample (e.g. the two
+                # DISABLED_SIGNAL_TOKENS entries in NMinusOne_maker_RA2.py) --
+                # a generated normalization isn't available, so say so rather
+                # than print a misleading 0.00%.
+                cells = ["N/A" for _ in columns]
+            f.write(f"    {label} & " + " & ".join(cells) + " \\\\ \n")
+        f.write("    \\hline\n")
+        f.write("\\end{tabular}\n")
+        f.write(
+            "\\caption{Fraction of \\emph{generated} Run 2 signal events landing "
+            "in the ABCD signal region A ($N_A / N_{\\mathrm{generated}}$), "
+            "inclusively and in bins of $n_{\\mathrm{SVJ}}^{\\mathrm{PN}}$. "
+            "$N_{\\mathrm{generated}}$ is the Run2-combined, luminosity-scaled "
+            "yield before any selection, read from each signal sample's "
+            "CutFlow/Initial entry -- the same normalization "
+            "NMinusOne\\_maker\\_RA2.py uses for its Lund-plane correction. "
+            "Unlike the region-A-only table above, these nSVJ columns share a "
+            "common denominator and sum to the Inclusive column.}\n"
+        )
+        f.write("\\label{table:signal_region_a_vs_generated}\n")
+        f.write("\\end{table}\n")
+    print(f"[OK] wrote signal region-A vs. generated table: {outpath}")
+
+
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--file", default='/uscms/home/ashrivas/nobackup/Dark_Sector/StatInferenceFramework/nukuls_results/stat_inference_final/stat_histograms/MET_mMedScan_rInv-0p3_mDark-20_yukawa-1_noSyst_mc_run2_10PctUnc_pNet_dnnV5_DNN85_WP90_MET250_with_fixed_with2016_nc_unc_abelian_0to3PSVJ.root', help="Input ROOT file (combine hist file)")
-    ap.add_argument("--outdir", default="Yield_plots/wlundwights", help="Output directory")
+    ap.add_argument("--file", default='/uscms/home/nparmar/nobackup/SVJ/stat_inference_unblind_gapJetveto/stat_histograms/MET_mMed-fullScan_run2_pNet_V5_DNN85_WP90_MET250_BD_lWN_allsyst_min2p_distortion_alternative_trigger_unblind_data_gapJetveto_0to3PSVJ.root', help="Input ROOT file (combine hist file)")
+    ap.add_argument("--outdir", default="/uscms/home/ashrivas/nobackup/Dark_Sector/t-channel_Analysis/Yield_plots/wGapveto_and_Qcdtrim", help="Output directory")
     ap.add_argument("--include-flow", action="store_true", help="Include under/overflow in integrals")
     ap.add_argument("--with-data", action="store_true", help="Overlay data_obs if present (OFF by default)")
     ap.add_argument("--years", nargs="*", default=None, help="Years to plot (e.g. 2016 2017 2018). Default: auto-detect")
     ap.add_argument("--lumi", default=None, help="Override lumi text (e.g. '41.5 fb$^{-1}$')")
     ap.add_argument("--com", default="13 ", help="Center-of-mass energy label (default: 13 TeV)")
     ap.add_argument("--final", action="store_true", help="Use 'CMS' instead of 'CMS Preliminary'")
+    ap.add_argument("--skip-dnn-score", action="store_true", help="Do not write the DNN score stack plots")
+    ap.add_argument("--pie-no-cms-heading", action="store_true", help="Do not draw the CMS/lumi heading on background-fraction pie charts")
+    ap.add_argument("--pie-text-fontsize", type=int, default=17, help="Font size for pie-chart percentage labels")
     args = ap.parse_args()
 
 
@@ -837,6 +1488,21 @@ def main():
             com_text=args.com,
             prelim=(not args.final)
         )
+        if not args.skip_dnn_score:
+            plot_dnn_score(
+                args.file, y, outdir=args.outdir,
+                with_data=False,
+                lumi_text=args.lumi,
+                com_text=args.com,
+                prelim=(not args.final)
+            )
+            plot_dnn_score(
+                args.file, y, outdir=args.outdir,
+                with_data=True,
+                lumi_text=args.lumi,
+                com_text=args.com,
+                prelim=(not args.final)
+            )
     plot_year(
         args.file, "Run2_Combined", outdir=args.outdir,
         include_flow=args.include_flow,
@@ -846,6 +1512,33 @@ def main():
         prelim=(not args.final),
         years_to_sum=years,
         output_label="Run2_Combined"
+    )
+    if not args.skip_dnn_score:
+        plot_dnn_score(
+            args.file, "Run2_Combined", outdir=args.outdir,
+            with_data=False,
+            lumi_text=args.lumi,
+            com_text=args.com,
+            prelim=(not args.final),
+            years_to_sum=years,
+            output_label="Run2_Combined"
+        )
+        plot_dnn_score(
+            args.file, "Run2_Combined", outdir=args.outdir,
+            with_data=True,
+            lumi_text=args.lumi,
+            com_text=args.com,
+            prelim=(not args.final),
+            years_to_sum=years,
+            output_label="Run2_Combined"
+        )
+    write_fraction_pie_charts(
+        "Run2_Combined", total_yields, args.outdir,
+        lumi_text=args.lumi,
+        com_text=args.com,
+        prelim=(not args.final),
+        draw_cms_heading=(not args.pie_no_cms_heading),
+        pie_text_fontsize=args.pie_text_fontsize,
     )
     write_latex_fraction_tables("Run2_Combined", total_yields, args.outdir)
 
