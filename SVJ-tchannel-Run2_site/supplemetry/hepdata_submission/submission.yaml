@@ -1,0 +1,509 @@
+---
+additional_resources:
+- description: Created with hepdata_lib 0.14.2
+  location: https://doi.org/10.5281/zenodo.1217998
+comment: ''
+data_license:
+  description: The content can be shared and adapted but you must             give
+    appropriate credit and cannot restrict access to others.
+  name: cc-by-4.0
+  url: https://creativecommons.org/licenses/by/4.0/
+related_to_hepdata_records: []
+---
+additional_resources:
+- description: Image file
+  location: h_j1PtAK8_pre__stcut_normalized.png
+- description: Thumbnail image file
+  location: thumb_h_j1PtAK8_pre__stcut_normalized.png
+data_file: additional_figure_1.yaml
+description: The normalized distribution of leading AK8 jet $p_{\mathrm{T}}$ for simulated
+  background and signal events. The requirement on the plotted variable is omitted,
+  while all other preselection requirements are applied. The vertical dotted line
+  indicates the preselection (final selection) requirement on the variable.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 1.
+name: Additional Figure 1
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: h_j2PtAK8_pre__stcut_normalized.png
+- description: Thumbnail image file
+  location: thumb_h_j2PtAK8_pre__stcut_normalized.png
+data_file: additional_figure_2.yaml
+description: The normalized distribution of subleading AK8 jet $p_{\mathrm{T}}$ for
+  simulated background and signal events. The requirement on the plotted variable
+  is omitted, while all other preselection requirements are applied. The vertical
+  dotted line indicates the preselection (final selection) requirement on the variable.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 2.
+name: Additional Figure 2
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: h_jPtAK8_pre__stcut_normalized.png
+- description: Thumbnail image file
+  location: thumb_h_jPtAK8_pre__stcut_normalized.png
+data_file: additional_figure_3.yaml
+description: The normalized distribution of AK8 jet $p_{\mathrm{T}}$ for simulated
+  background and signal events. The requirement on the plotted variable is omitted,
+  while all other preselection requirements are applied. The vertical dotted line
+  indicates the preselection (final selection) requirement on the variable.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 3.
+name: Additional Figure 3
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: h_njetsAK8_pre__2jetsAK8_normalized.png
+- description: Thumbnail image file
+  location: thumb_h_njetsAK8_pre__2jetsAK8_normalized.png
+data_file: additional_figure_4.yaml
+description: The normalized distribution of AK8 jet multiplicity for simulated background
+  and signal events. The requirement on the plotted variable is omitted, while all
+  other preselection requirements are applied. The vertical dotted line indicates
+  the preselection (final selection) requirement on the variable.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 4.
+name: Additional Figure 4
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: del_r_linear_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_del_r_linear_raw_ratio.png
+data_file: additional_figure_5.yaml
+description: The distribution of the ParticleNet input variable $\Delta R$ of jet
+  constituents for Run 2 events, comparing signal and background samples after the
+  Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 5.
+name: Additional Figure 5
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: log_e_jete_linear_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_log_e_jete_linear_raw_ratio.png
+data_file: additional_figure_6.yaml
+description: The distribution of the ParticleNet input variable constituent energy
+  fraction for Run 2 events, comparing signal and background samples after the Lund-plane
+  correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 6.
+name: Additional Figure 6
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: log_e_linear_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_log_e_linear_raw_ratio.png
+data_file: additional_figure_7.yaml
+description: The distribution of the ParticleNet input variable constituent energy
+  for Run 2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 7.
+name: Additional Figure 7
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: log_pt_jetpt_linear_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_log_pt_jetpt_linear_raw_ratio.png
+data_file: additional_figure_8.yaml
+description: The distribution of the ParticleNet input variable constituent $p_{\mathrm{T}}$
+  fraction for Run 2 events, comparing signal and background samples after the Lund-plane
+  correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 8.
+name: Additional Figure 8
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: log_pt_linear_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_log_pt_linear_raw_ratio.png
+data_file: additional_figure_9.yaml
+description: The distribution of the ParticleNet input variable constituent $p_{\mathrm{T}}$
+  for Run 2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 9.
+name: Additional Figure 9
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allPtDAK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allPtDAK8_log_raw_ratio.png
+data_file: additional_figure_10.yaml
+description: The distribution of the WNAE tagger input variable $D_{p_{\mathrm{T}}}$
+  ($p_{\mathrm{T}}$ dispersion) for Run 2 events, comparing signal and background
+  samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 10.
+name: Additional Figure 10
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allSoftDropMassAK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allSoftDropMassAK8_log_raw_ratio.png
+data_file: additional_figure_11.yaml
+description: The distribution of the WNAE tagger input variable soft-drop mass for
+  Run 2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 11.
+name: Additional Figure 11
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allTau43AK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allTau43AK8_log_raw_ratio.png
+data_file: additional_figure_12.yaml
+description: The distribution of the WNAE tagger input variable $\tau_{43}$ for Run
+  2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 12.
+name: Additional Figure 12
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allTau32AK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allTau32AK8_log_raw_ratio.png
+data_file: additional_figure_13.yaml
+description: The distribution of the WNAE tagger input variable $\tau_{32}$ for Run
+  2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 13.
+name: Additional Figure 13
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allTau21AK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allTau21AK8_log_raw_ratio.png
+data_file: additional_figure_14.yaml
+description: The distribution of the WNAE tagger input variable $\tau_{21}$ for Run
+  2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 14.
+name: Additional Figure 14
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allEcfD2b1AK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allEcfD2b1AK8_log_raw_ratio.png
+data_file: additional_figure_15.yaml
+description: The distribution of the WNAE tagger input variable $D_{2}^{\beta=1}$
+  for Run 2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 15.
+name: Additional Figure 15
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allEcfC2b1AK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allEcfC2b1AK8_log_raw_ratio.png
+data_file: additional_figure_16.yaml
+description: The distribution of the WNAE tagger input variable $C_{2}^{\beta=1}$
+  for Run 2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 16.
+name: Additional Figure 16
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allEcfC2b2AK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allEcfC2b2AK8_log_raw_ratio.png
+data_file: additional_figure_17.yaml
+description: The distribution of the WNAE tagger input variable $C_{2}^{\beta=2}$
+  for Run 2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 17.
+name: Additional Figure 17
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: allEcfN2b1AK8_log_raw_ratio.png
+- description: Thumbnail image file
+  location: thumb_allEcfN2b1AK8_log_raw_ratio.png
+data_file: additional_figure_18.yaml
+description: The distribution of the WNAE tagger input variable $N_{2}^{\beta=1}$
+  for Run 2 events, comparing signal and background samples after the Lund-plane correction.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 18.
+name: Additional Figure 18
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: DeltaEta01GoodJetsAK8_log_raw_wdata_ratio.png
+- description: Thumbnail image file
+  location: thumb_DeltaEta01GoodJetsAK8_log_raw_wdata_ratio.png
+data_file: additional_figure_19.yaml
+description: The distribution of the event-level DNN input variable $\Delta\eta(J_{1},J_{2})$
+  for Run 2 events, comparing signal and background samples.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 19.
+name: Additional Figure 19
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: GoodJetsAK80_MTMETLog_log_raw_wdata_ratio.png
+- description: Thumbnail image file
+  location: thumb_GoodJetsAK80_MTMETLog_log_raw_wdata_ratio.png
+data_file: additional_figure_20.yaml
+description: The distribution of the event-level DNN input variable transverse mass
+  of the leading AK8 jet and $p_{\mathrm{T}}^{\mathrm{miss}}$ for Run 2 events, comparing
+  signal and background samples.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 20.
+name: Additional Figure 20
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: DeltaR01GoodJetsAK8_log_raw_wdata_ratio.png
+- description: Thumbnail image file
+  location: thumb_DeltaR01GoodJetsAK8_log_raw_wdata_ratio.png
+data_file: additional_figure_21.yaml
+description: The distribution of the event-level DNN input variable $\Delta R(J_{1},J_{2})$
+  for Run 2 events, comparing signal and background samples.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 21.
+name: Additional Figure 21
+related_to_table_dois: []
+---
+additional_resources:
+- description: Image file
+  location: LundJetPlaneZ01GoodJetsAK8_log_raw_wdata_ratio.png
+- description: Thumbnail image file
+  location: thumb_LundJetPlaneZ01GoodJetsAK8_log_raw_wdata_ratio.png
+data_file: additional_figure_22.yaml
+description: The distribution of the event-level DNN input variable Lund-plane $z$
+  observable for the two leading AK8 jets for Run 2 events, comparing signal and background
+  samples.
+keywords:
+- name: observables
+  values:
+  - N
+- name: reactions
+  values:
+  - P P --> JET JET
+- name: cmenergies
+  values:
+  - 13000.0
+location: Data from Additional Figure 22.
+name: Additional Figure 22
+related_to_table_dois: []

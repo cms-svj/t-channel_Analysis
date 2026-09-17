@@ -1,0 +1,650 @@
+dependent_variables:
+- header:
+    name: QCD multijet
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 396.1
+    value: 409360.0
+  - errors:
+    - label: stat
+      symerror: 746.61
+    value: 950470.0
+  - errors:
+    - label: stat
+      symerror: 1172.6
+    value: 1781200.0
+  - errors:
+    - label: stat
+      symerror: 1556.9
+    value: 2651700.0
+  - errors:
+    - label: stat
+      symerror: 2035.4
+    value: 3260400.0
+  - errors:
+    - label: stat
+      symerror: 2392.3
+    value: 3509700.0
+  - errors:
+    - label: stat
+      symerror: 2621.2
+    value: 3531900.0
+  - errors:
+    - label: stat
+      symerror: 2783.7
+    value: 3456000.0
+  - errors:
+    - label: stat
+      symerror: 2699.2
+    value: 3336700.0
+  - errors:
+    - label: stat
+      symerror: 2673.6
+    value: 3166900.0
+  - errors:
+    - label: stat
+      symerror: 2718.2
+    value: 2909300.0
+  - errors:
+    - label: stat
+      symerror: 2478.1
+    value: 2543000.0
+  - errors:
+    - label: stat
+      symerror: 2337.4
+    value: 2147500.0
+  - errors:
+    - label: stat
+      symerror: 2077.5
+    value: 1773300.0
+  - errors:
+    - label: stat
+      symerror: 1927.2
+    value: 1447400.0
+  - errors:
+    - label: stat
+      symerror: 1647.4
+    value: 1159700.0
+  - errors:
+    - label: stat
+      symerror: 1460.8
+    value: 912270.0
+  - errors:
+    - label: stat
+      symerror: 1321.0
+    value: 699150.0
+  - errors:
+    - label: stat
+      symerror: 1057.7
+    value: 524970.0
+  - errors:
+    - label: stat
+      symerror: 840.33
+    value: 390670.0
+  - errors:
+    - label: stat
+      symerror: 783.53
+    value: 280680.0
+- header:
+    name: $t\bar{t}$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 337.39
+    value: 74764.0
+  - errors:
+    - label: stat
+      symerror: 572.3
+    value: 208540.0
+  - errors:
+    - label: stat
+      symerror: 856.62
+    value: 464220.0
+  - errors:
+    - label: stat
+      symerror: 1122.6
+    value: 790450.0
+  - errors:
+    - label: stat
+      symerror: 1320.3
+    value: 1089700.0
+  - errors:
+    - label: stat
+      symerror: 1437.8
+    value: 1304700.0
+  - errors:
+    - label: stat
+      symerror: 1507.1
+    value: 1442800.0
+  - errors:
+    - label: stat
+      symerror: 1541.6
+    value: 1516400.0
+  - errors:
+    - label: stat
+      symerror: 1555.2
+    value: 1543100.0
+  - errors:
+    - label: stat
+      symerror: 1537.8
+    value: 1515500.0
+  - errors:
+    - label: stat
+      symerror: 1486.9
+    value: 1422500.0
+  - errors:
+    - label: stat
+      symerror: 1406.6
+    value: 1267200.0
+  - errors:
+    - label: stat
+      symerror: 1290.7
+    value: 1076700.0
+  - errors:
+    - label: stat
+      symerror: 1177.3
+    value: 893640.0
+  - errors:
+    - label: stat
+      symerror: 1065.6
+    value: 728180.0
+  - errors:
+    - label: stat
+      symerror: 945.98
+    value: 576260.0
+  - errors:
+    - label: stat
+      symerror: 831.64
+    value: 443920.0
+  - errors:
+    - label: stat
+      symerror: 715.44
+    value: 327500.0
+  - errors:
+    - label: stat
+      symerror: 594.22
+    value: 228580.0
+  - errors:
+    - label: stat
+      symerror: 481.03
+    value: 150710.0
+  - errors:
+    - label: stat
+      symerror: 375.59
+    value: 90079.0
+- header:
+    name: $W\rightarrow\ell\nu$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 30.142
+    value: 28249.0
+  - errors:
+    - label: stat
+      symerror: 52.795
+    value: 74387.0
+  - errors:
+    - label: stat
+      symerror: 82.652
+    value: 156410.0
+  - errors:
+    - label: stat
+      symerror: 108.02
+    value: 248370.0
+  - errors:
+    - label: stat
+      symerror: 124.24
+    value: 316650.0
+  - errors:
+    - label: stat
+      symerror: 132.53
+    value: 352690.0
+  - errors:
+    - label: stat
+      symerror: 136.71
+    value: 368100.0
+  - errors:
+    - label: stat
+      symerror: 138.11
+    value: 371490.0
+  - errors:
+    - label: stat
+      symerror: 138.34
+    value: 367780.0
+  - errors:
+    - label: stat
+      symerror: 136.85
+    value: 355240.0
+  - errors:
+    - label: stat
+      symerror: 131.99
+    value: 328690.0
+  - errors:
+    - label: stat
+      symerror: 123.4
+    value: 287780.0
+  - errors:
+    - label: stat
+      symerror: 112.94
+    value: 241840.0
+  - errors:
+    - label: stat
+      symerror: 101.91
+    value: 198000.0
+  - errors:
+    - label: stat
+      symerror: 91.186
+    value: 159700.0
+  - errors:
+    - label: stat
+      symerror: 81.051
+    value: 126770.0
+  - errors:
+    - label: stat
+      symerror: 71.547
+    value: 98394.0
+  - errors:
+    - label: stat
+      symerror: 62.171
+    value: 74464.0
+  - errors:
+    - label: stat
+      symerror: 53.909
+    value: 55714.0
+  - errors:
+    - label: stat
+      symerror: 46.552
+    value: 41189.0
+  - errors:
+    - label: stat
+      symerror: 39.791
+    value: 29621.0
+- header:
+    name: $Z\rightarrow\nu\nu$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 31.87
+    value: 21384.0
+  - errors:
+    - label: stat
+      symerror: 54.164
+    value: 57156.0
+  - errors:
+    - label: stat
+      symerror: 80.011
+    value: 121090.0
+  - errors:
+    - label: stat
+      symerror: 101.0
+    value: 193340.0
+  - errors:
+    - label: stat
+      symerror: 113.74
+    value: 247530.0
+  - errors:
+    - label: stat
+      symerror: 119.63
+    value: 276880.0
+  - errors:
+    - label: stat
+      symerror: 121.97
+    value: 289920.0
+  - errors:
+    - label: stat
+      symerror: 122.34
+    value: 293890.0
+  - errors:
+    - label: stat
+      symerror: 121.64
+    value: 291920.0
+  - errors:
+    - label: stat
+      symerror: 119.61
+    value: 283010.0
+  - errors:
+    - label: stat
+      symerror: 115.13
+    value: 263240.0
+  - errors:
+    - label: stat
+      symerror: 107.99
+    value: 232530.0
+  - errors:
+    - label: stat
+      symerror: 99.139
+    value: 196450.0
+  - errors:
+    - label: stat
+      symerror: 89.799
+    value: 161510.0
+  - errors:
+    - label: stat
+      symerror: 80.658
+    value: 130490.0
+  - errors:
+    - label: stat
+      symerror: 71.755
+    value: 103340.0
+  - errors:
+    - label: stat
+      symerror: 63.0
+    value: 79573.0
+  - errors:
+    - label: stat
+      symerror: 54.509
+    value: 59463.0
+  - errors:
+    - label: stat
+      symerror: 46.625
+    value: 43340.0
+  - errors:
+    - label: stat
+      symerror: 39.462
+    value: 30881.0
+  - errors:
+    - label: stat
+      symerror: 32.485
+    value: 20790.0
+- header:
+    name: Single top
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 31.566
+    value: 3686.5
+  - errors:
+    - label: stat
+      symerror: 50.438
+    value: 9337.3
+  - errors:
+    - label: stat
+      symerror: 73.789
+    value: 19740.0
+  - errors:
+    - label: stat
+      symerror: 95.027
+    value: 32583.0
+  - errors:
+    - label: stat
+      symerror: 110.2
+    value: 43798.0
+  - errors:
+    - label: stat
+      symerror: 118.83
+    value: 51149.0
+  - errors:
+    - label: stat
+      symerror: 123.15
+    value: 55034.0
+  - errors:
+    - label: stat
+      symerror: 125.81
+    value: 56939.0
+  - errors:
+    - label: stat
+      symerror: 126.31
+    value: 57268.0
+  - errors:
+    - label: stat
+      symerror: 125.26
+    value: 56047.0
+  - errors:
+    - label: stat
+      symerror: 121.17
+    value: 52453.0
+  - errors:
+    - label: stat
+      symerror: 114.57
+    value: 46838.0
+  - errors:
+    - label: stat
+      symerror: 105.69
+    value: 39923.0
+  - errors:
+    - label: stat
+      symerror: 95.878
+    value: 33101.0
+  - errors:
+    - label: stat
+      symerror: 87.352
+    value: 27465.0
+  - errors:
+    - label: stat
+      symerror: 78.648
+    value: 22104.0
+  - errors:
+    - label: stat
+      symerror: 69.616
+    value: 17414.0
+  - errors:
+    - label: stat
+      symerror: 60.431
+    value: 13251.0
+  - errors:
+    - label: stat
+      symerror: 52.188
+    value: 9823.0
+  - errors:
+    - label: stat
+      symerror: 43.625
+    value: 6896.9
+  - errors:
+    - label: stat
+      symerror: 35.126
+    value: 4501.6
+- header:
+    name: Data
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 746.34
+    value: 557030.0
+  - errors:
+    - label: stat
+      symerror: 1143.5
+    value: 1307600.0
+  - errors:
+    - label: stat
+      symerror: 1589.6
+    value: 2526800.0
+  - errors:
+    - label: stat
+      symerror: 1973.0
+    value: 3892800.0
+  - errors:
+    - label: stat
+      symerror: 2208.8
+    value: 4878700.0
+  - errors:
+    - label: stat
+      symerror: 2303.5
+    value: 5305900.0
+  - errors:
+    - label: stat
+      symerror: 2315.9
+    value: 5363500.0
+  - errors:
+    - label: stat
+      symerror: 2297.5
+    value: 5278500.0
+  - errors:
+    - label: stat
+      symerror: 2268.1
+    value: 5144100.0
+  - errors:
+    - label: stat
+      symerror: 2219.6
+    value: 4926500.0
+  - errors:
+    - label: stat
+      symerror: 2137.2
+    value: 4567600.0
+  - errors:
+    - label: stat
+      symerror: 2009.9
+    value: 4039500.0
+  - errors:
+    - label: stat
+      symerror: 1850.2
+    value: 3423400.0
+  - errors:
+    - label: stat
+      symerror: 1679.2
+    value: 2819600.0
+  - errors:
+    - label: stat
+      symerror: 1513.5
+    value: 2290800.0
+  - errors:
+    - label: stat
+      symerror: 1352.8
+    value: 1830000.0
+  - errors:
+    - label: stat
+      symerror: 1195.7
+    value: 1429800.0
+  - errors:
+    - label: stat
+      symerror: 1042.3
+    value: 1086400.0
+  - errors:
+    - label: stat
+      symerror: 898.95
+    value: 808100.0
+  - errors:
+    - label: stat
+      symerror: 768.22
+    value: 590160.0
+  - errors:
+    - label: stat
+      symerror: 639.57
+    value: 409060.0
+- header:
+    name: $m_{\Phi}=600$ GeV, $r_{\mathrm{inv}}=0.3$
+    units: Events
+  values:
+  - value: 26669.0
+  - value: 73861.0
+  - value: 162260.0
+  - value: 300210.0
+  - value: 457760.0
+  - value: 585860.0
+  - value: 664520.0
+  - value: 701650.0
+  - value: 710900.0
+  - value: 686360.0
+  - value: 643530.0
+  - value: 569100.0
+  - value: 472890.0
+  - value: 383100.0
+  - value: 293710.0
+  - value: 220540.0
+  - value: 163010.0
+  - value: 114640.0
+  - value: 76892.0
+  - value: 50642.0
+  - value: 29501.0
+- header:
+    name: $m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.1$
+    units: Events
+  values:
+  - value: 654.2
+  - value: 1658.9
+  - value: 3051.8
+  - value: 4497.1
+  - value: 5522.9
+  - value: 6093.7
+  - value: 6220.9
+  - value: 6271.0
+  - value: 6001.0
+  - value: 5604.9
+  - value: 5031.7
+  - value: 4240.0
+  - value: 3482.3
+  - value: 2716.8
+  - value: 2059.0
+  - value: 1492.4
+  - value: 1000.1
+  - value: 695.36
+  - value: 439.48
+  - value: 256.76
+  - value: 149.17
+- header:
+    name: $m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.3$
+    units: Events
+  values:
+  - value: 1293.4
+  - value: 3264.3
+  - value: 6188.4
+  - value: 9543.8
+  - value: 11940.0
+  - value: 13841.0
+  - value: 14284.0
+  - value: 14613.0
+  - value: 14186.0
+  - value: 13581.0
+  - value: 12436.0
+  - value: 10953.0
+  - value: 8747.7
+  - value: 6891.5
+  - value: 5313.0
+  - value: 3873.7
+  - value: 2827.7
+  - value: 1864.5
+  - value: 1235.2
+  - value: 779.01
+  - value: 430.0
+independent_variables:
+- header:
+    name: $\log(E/E_{J})$
+  values:
+  - high: -7.6667
+    low: -8.0
+  - high: -7.3333
+    low: -7.6667
+  - high: -7.0
+    low: -7.3333
+  - high: -6.6667
+    low: -7.0
+  - high: -6.3333
+    low: -6.6667
+  - high: -6.0
+    low: -6.3333
+  - high: -5.6667
+    low: -6.0
+  - high: -5.3333
+    low: -5.6667
+  - high: -5.0
+    low: -5.3333
+  - high: -4.6667
+    low: -5.0
+  - high: -4.3333
+    low: -4.6667
+  - high: -4.0
+    low: -4.3333
+  - high: -3.6667
+    low: -4.0
+  - high: -3.3333
+    low: -3.6667
+  - high: -3.0
+    low: -3.3333
+  - high: -2.6667
+    low: -3.0
+  - high: -2.3333
+    low: -2.6667
+  - high: -2.0
+    low: -2.3333
+  - high: -1.6667
+    low: -2.0
+  - high: -1.3333
+    low: -1.6667
+  - high: -1.0
+    low: -1.3333

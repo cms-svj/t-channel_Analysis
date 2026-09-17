@@ -1,0 +1,380 @@
+dependent_variables:
+- header:
+    name: QCD multijet
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 1.0598e-05
+    value: 4.7956e-05
+  - errors:
+    - label: stat
+      symerror: 0.00061658
+    value: 0.013039
+  - errors:
+    - label: stat
+      symerror: 0.0029885
+    value: 0.23755
+  - errors:
+    - label: stat
+      symerror: 0.029737
+    value: 0.31696
+  - errors:
+    - label: stat
+      symerror: 0.00068682
+    value: 0.15789
+  - errors:
+    - label: stat
+      symerror: 0.00038859
+    value: 0.054155
+  - errors:
+    - label: stat
+      symerror: 0.00018853
+    value: 0.012695
+  - errors:
+    - label: stat
+      symerror: 6.5947e-05
+    value: 0.0022545
+  - errors:
+    - label: stat
+      symerror: 2.49e-05
+    value: 0.00031431
+  - errors:
+    - label: stat
+      symerror: 8.0976e-06
+    value: 3.1668e-05
+  - errors:
+    - label: stat
+      symerror: 5.9093e-07
+    value: 1.4088e-06
+  - errors:
+    - label: stat
+      symerror: 2.0167e-08
+    value: 2.3145e-08
+  - errors:
+    - label: stat
+      symerror: 4.716e-08
+    value: 6.5965e-08
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+- header:
+    name: $t\bar{t}$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 1.3389e-07
+    value: 2.8589e-07
+  - errors:
+    - label: stat
+      symerror: 1.9057e-05
+    value: 0.00026553
+  - errors:
+    - label: stat
+      symerror: 0.00017412
+    value: 0.017985
+  - errors:
+    - label: stat
+      symerror: 0.00022955
+    value: 0.034028
+  - errors:
+    - label: stat
+      symerror: 0.00022538
+    value: 0.03522
+  - errors:
+    - label: stat
+      symerror: 0.00018124
+    value: 0.022474
+  - errors:
+    - label: stat
+      symerror: 0.00011915
+    value: 0.0093989
+  - errors:
+    - label: stat
+      symerror: 5.9925e-05
+    value: 0.0025542
+  - errors:
+    - label: stat
+      symerror: 2.6947e-05
+    value: 0.00052776
+  - errors:
+    - label: stat
+      symerror: 1.027e-05
+    value: 7.3011e-05
+  - errors:
+    - label: stat
+      symerror: 2.9026e-06
+    value: 7.5864e-06
+  - errors:
+    - label: stat
+      symerror: 1.8213e-07
+    value: 5.4894e-07
+  - errors:
+    - label: stat
+      symerror: 1.0905e-08
+    value: 1.406e-08
+  - errors:
+    - label: stat
+      symerror: 1.5343e-08
+    value: 1.5343e-08
+  - value: 0.0
+  - value: 0.0
+- header:
+    name: $W\rightarrow\ell\nu$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 1.1622e-06
+    value: 6.3368e-06
+  - errors:
+    - label: stat
+      symerror: 1.4214e-05
+    value: 0.0015293
+  - errors:
+    - label: stat
+      symerror: 2.9703e-05
+    value: 0.014337
+  - errors:
+    - label: stat
+      symerror: 2.8196e-05
+    value: 0.0161
+  - errors:
+    - label: stat
+      symerror: 1.9293e-05
+    value: 0.0082042
+  - errors:
+    - label: stat
+      symerror: 1.0791e-05
+    value: 0.0026649
+  - errors:
+    - label: stat
+      symerror: 5.2665e-06
+    value: 0.0006239
+  - errors:
+    - label: stat
+      symerror: 2.2628e-06
+    value: 0.00010991
+  - errors:
+    - label: stat
+      symerror: 7.4414e-07
+    value: 1.4712e-05
+  - errors:
+    - label: stat
+      symerror: 1.8914e-07
+    value: 1.2789e-06
+  - errors:
+    - label: stat
+      symerror: 3.225e-08
+    value: 7.2922e-08
+  - errors:
+    - label: stat
+      symerror: 6.055e-10
+    value: 6.055e-10
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+- header:
+    name: $Z\rightarrow\nu\nu$+jets
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 6.0943e-07
+    value: 9.5108e-06
+  - errors:
+    - label: stat
+      symerror: 8.8294e-06
+    value: 0.0019854
+  - errors:
+    - label: stat
+      symerror: 2.4469e-05
+    value: 0.012487
+  - errors:
+    - label: stat
+      symerror: 2.4014e-05
+    value: 0.011669
+  - errors:
+    - label: stat
+      symerror: 1.5862e-05
+    value: 0.0050787
+  - errors:
+    - label: stat
+      symerror: 8.7949e-06
+    value: 0.0015605
+  - errors:
+    - label: stat
+      symerror: 4.0538e-06
+    value: 0.00034144
+  - errors:
+    - label: stat
+      symerror: 1.6193e-06
+    value: 5.4074e-05
+  - errors:
+    - label: stat
+      symerror: 6.4666e-07
+    value: 7.7688e-06
+  - errors:
+    - label: stat
+      symerror: 1.4772e-07
+    value: 5.0171e-07
+  - errors:
+    - label: stat
+      symerror: 9.3278e-08
+    value: 1.352e-07
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+- header:
+    name: Single top
+    units: Events
+  values:
+  - errors:
+    - label: stat
+      symerror: 3.6569e-08
+    value: 3.6569e-08
+  - errors:
+    - label: stat
+      symerror: 2.4854e-06
+    value: 2.647e-05
+  - errors:
+    - label: stat
+      symerror: 1.4288e-05
+    value: 0.00093647
+  - errors:
+    - label: stat
+      symerror: 2.2783e-05
+    value: 0.0019213
+  - errors:
+    - label: stat
+      symerror: 2.1851e-05
+    value: 0.0016636
+  - errors:
+    - label: stat
+      symerror: 1.6126e-05
+    value: 0.00086031
+  - errors:
+    - label: stat
+      symerror: 8.79e-06
+    value: 0.00025779
+  - errors:
+    - label: stat
+      symerror: 4.6219e-06
+    value: 6.5601e-05
+  - errors:
+    - label: stat
+      symerror: 1.3208e-06
+    value: 7.0144e-06
+  - errors:
+    - label: stat
+      symerror: 7.0009e-07
+    value: 1.3489e-06
+  - errors:
+    - label: stat
+      symerror: 3.2231e-08
+    value: 3.2231e-08
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+- header:
+    name: $m_{\Phi}=600$ GeV, $r_{\mathrm{inv}}=0.3$
+    units: Events
+  values:
+  - value: 0.0
+  - value: 0.0012169
+  - value: 0.055382
+  - value: 0.27533
+  - value: 0.40119
+  - value: 0.20051
+  - value: 0.055756
+  - value: 0.0099586
+  - value: 0.00065019
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+- header:
+    name: $m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.1$
+    units: Events
+  values:
+  - value: 0.0
+  - value: 0.0014596
+  - value: 0.15149
+  - value: 0.31473
+  - value: 0.29947
+  - value: 0.164
+  - value: 0.053008
+  - value: 0.012816
+  - value: 0.0027103
+  - value: 0.00024838
+  - value: 6.4376e-05
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+- header:
+    name: $m_{\Phi}=2000$ GeV, $r_{\mathrm{inv}}=0.3$
+    units: Events
+  values:
+  - value: 0.0
+  - value: 0.0037204
+  - value: 0.17132
+  - value: 0.3357
+  - value: 0.29297
+  - value: 0.14263
+  - value: 0.043263
+  - value: 0.0085878
+  - value: 0.0015644
+  - value: 0.000159
+  - value: 7.5026e-05
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+  - value: 0.0
+independent_variables:
+- header:
+    name: Number of AK8 jets
+  values:
+  - high: 0.5
+    low: -0.5
+  - high: 1.5
+    low: 0.5
+  - high: 2.5
+    low: 1.5
+  - high: 3.5
+    low: 2.5
+  - high: 4.5
+    low: 3.5
+  - high: 5.5
+    low: 4.5
+  - high: 6.5
+    low: 5.5
+  - high: 7.5
+    low: 6.5
+  - high: 8.5
+    low: 7.5
+  - high: 9.5
+    low: 8.5
+  - high: 10.5
+    low: 9.5
+  - high: 11.5
+    low: 10.5
+  - high: 12.5
+    low: 11.5
+  - high: 13.5
+    low: 12.5
+  - high: 14.5
+    low: 13.5
+  - high: 15.5
+    low: 14.5
