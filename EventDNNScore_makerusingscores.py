@@ -42,6 +42,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetLineStyleString(4, "28 8 4 8")
 ROOT.TH1.SetDefaultSumw2(True)
 ROOT.TH1.AddDirectory(False)
 
@@ -80,6 +81,12 @@ LUMI_PB = {
 }
 
 SCORE_VARIABLE = "DNNScore"
+# "equal20" (plain uniform 20 bins across [0, 1]) matches the actual paper binning,
+# confirmed against SVJ-tchannel-Run2_site/linear/EventLevelDNN/ScoreDistribution/
+# wlundcorrection/Run2/raw_wdata_ratio/DNNScore_log_raw_wdata_ratio.pdf via exact
+# vector-path bin-edge extraction (20 uniform 0.05-wide bins, no wp-anchored split).
+# PaperPLots/Scores/event_DNN_score_Run2.pdf turned out to be a stale/incorrect
+# one-off (from an errant --score-fill-binning wpedge20 run) -- do not trust it.
 SCORE_FILL_BINNING = "equal20"
 VARIABLES = {
     SCORE_VARIABLE: {
@@ -93,7 +100,7 @@ VARIABLES = {
         "wp": 0.85,
         "wp_side": "right",
         "wp_line_y_fraction": 0.900,
-        "wp_arrow_y_fraction": 0.600,
+        "wp_arrow_y_fraction": 0.640,
     }
 }
 PLOT_TARGET_BINS = 40
@@ -120,13 +127,13 @@ PROC_COLOR = {
 }
 
 SIGNAL_LINE_COLORS = [
-    ROOT.TColor.GetColor("#92dadd"),
+    ROOT.TColor.GetColor("#118AB2"),  # teal-blue (colorblind-safe; was low-contrast light cyan #92dadd)
     ROOT.TColor.GetColor("#6b3e26"),
     ROOT.TColor.GetColor("#0b3d02"),
     ROOT.TColor.GetColor("#228833"),
     ROOT.TColor.GetColor("#1f4e79"),
 ]
-SIGNAL_LINE_STYLES = [1, 3, 1, 2, 1]
+SIGNAL_LINE_STYLES = [2, 4, 1, 2, 1]
 
 
 @dataclass
@@ -949,7 +956,7 @@ def draw_plot(
             pad_bottom.SetTopMargin(0.04)
             pad_bottom.SetBottomMargin(0.38)
             pad_bottom.SetTicks(1, 1)
-            pad_bottom.SetGridy(True)
+            pad_bottom.SetGridy(False)
             pad_top.Draw()
             pad_bottom.Draw()
             pad_top.cd()
