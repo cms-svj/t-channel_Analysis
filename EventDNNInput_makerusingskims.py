@@ -27,7 +27,7 @@ python3 -u EventDNNInput_makerusingskims.py \
   --years 2016,2017,2018 \
   --output supplementry_plots_postTrimandgapveto/DNN/EventDNNInput_plots_WNAE/event_dnn_inputs.root \
   --plot-dir supplementry_plots_postTrimandgapveto/DNN/EventDNNInput_plots_WNAE
-  
+
 to redraw
 
 python3 -u EventDNNInput_makerusingskims.py \

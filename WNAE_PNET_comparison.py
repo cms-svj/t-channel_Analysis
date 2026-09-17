@@ -41,7 +41,7 @@ python3 -u WNAE_PNET_comparison.py \
   --processes Data \
   --out-dir WNAE_PNET_comparison_Run2_Data \
   --chunk-size "100 MB"
-  
+
 python3 -u WNAE_PNET_comparison.py \
   --plot-only \
   --plot-ymax 100 \
