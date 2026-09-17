@@ -398,14 +398,26 @@ import mplhep as hep
 import matplotlib.patheffects as pe
 plt.style.use(hep.style.CMS)
 import os, argparse, csv
+
+TABLE_VALUE_FONTSIZE = 27
+TABLE_X_TICK_FONTSIZE = 26
+TABLE_TICK_FONTSIZE = 31
+TABLE_AXIS_LABEL_FONTSIZE = 48
+TABLE_COLORBAR_LABEL_FONTSIZE = 40
+TABLE_CMS_LABEL_FONTSIZE = 40
+CMS_PRELIMINARY_LABEL = False
+
+PNET_GRID_MMED = [500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
+PNET_GRID_RINV = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+
 # ─────────────────────────────────────────────────────────────────────────────
 # PNet AUC values
 # rows = mMed 500→4000, cols = rinv 0.0→0.9
 # ─────────────────────────────────────────────────────────────────────────────
 
-MMED_PNET = [500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
+MMED_PNET = PNET_GRID_MMED
 #MMED_PNET = [500, 600, 700, 800, 1000, 1500, 2000, 3000, 4000]
-RINV_PNET = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+RINV_PNET = PNET_GRID_RINV
 
 # PNET_RAW = [
 #     [0.892, 0.914, 0.886, 0.819, 0.833, 0.802, 0.753, 0.698, 0.626, 0.520],  # 500
@@ -422,9 +434,9 @@ RINV_PNET = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
 #     [0.970, 0.958, 0.944, 0.932, 0.915, 0.896, 0.857, 0.814, 0.737, 0.637],  # 4000
 # ]
 
-MMED_PNET = [500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
+MMED_PNET = PNET_GRID_MMED
 
-RINV_PNET = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+RINV_PNET = PNET_GRID_RINV
 #using gap veto and all events in qcd all events
 PNET_RAW = [
     [0.919, 0.931, 0.916, 0.899, 0.873, 0.848, 0.806, 0.758, 0.694, 0.594],  # 500
@@ -457,9 +469,9 @@ PNET_TRAINING_SAMPLES = [
 
 
 
-TTBAR_MMED_PNET = [500, 600, 700, 800, 900, 1000, 1500, 2000, 2500, 3000, 3500, 4000]
+TTBAR_MMED_PNET = PNET_GRID_MMED
 
-TTBAR_RINV_PNET = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+TTBAR_RINV_PNET = PNET_GRID_RINV
 
 # using gap veto and all events in ttbar all events
 TTBAR_PNET_RAW = [
@@ -518,6 +530,24 @@ WNAE_RAW = [
     [0.737, 0.774, 0.772, 0.753, 0.774, 0.753, 0.736, 0.684, 0.636, 0.581],  # 3000
     [0.694, 0.785, 0.787, 0.754, 0.766, 0.756, 0.739, 0.674, 0.670, 0.588],  # 3500
     [0.674, 0.781, 0.771, 0.788, 0.778, 0.750, 0.733, 0.681, 0.696, 0.627],  # 4000
+]
+
+
+# WNAE AUC values for the 300 < pT < 400 GeV selection.
+# rows = mMed 500→4000, cols = rinv 0.0→0.9
+WNAE_pt300to400 = [
+    [0.735, 0.808, 0.801, 0.781, 0.778, 0.742, 0.681, 0.614, 0.549, 0.440],  # 500
+    [0.878, 0.804, 0.792, 0.772, 0.729, 0.747, 0.698, 0.670, 0.602, 0.526],  # 600
+    [0.810, 0.808, 0.786, 0.781, 0.767, 0.737, 0.678, 0.652, 0.533, 0.495],  # 700
+    [0.725, 0.823, 0.813, 0.794, 0.767, 0.750, 0.695, 0.669, 0.615, 0.497],  # 800
+    [0.779, 0.827, 0.812, 0.794, 0.772, 0.750, 0.696, 0.665, 0.581, 0.516],  # 900
+    [0.834, 0.832, 0.812, 0.794, 0.778, 0.751, 0.698, 0.662, 0.547, 0.535],  # 1000
+    [0.755, 0.832, 0.832, 0.811, 0.780, 0.745, 0.685, 0.664, 0.632, 0.565],  # 1500
+    [0.789, 0.826, 0.824, 0.815, 0.791, 0.761, 0.756, 0.693, 0.641, 0.576],  # 2000
+    [0.788, 0.836, 0.818, 0.814, 0.788, 0.764, 0.758, 0.696, 0.653, 0.573],  # 2500
+    [0.786, 0.846, 0.812, 0.813, 0.786, 0.768, 0.759, 0.698, 0.665, 0.571],  # 3000
+    [0.775, 0.850, 0.815, 0.817, 0.796, 0.774, 0.751, 0.707, 0.659, 0.534],  # 3500
+    [0.764, 0.854, 0.817, 0.820, 0.807, 0.780, 0.743, 0.716, 0.652, 0.498],  # 4000
 ]
 
 
@@ -732,27 +762,31 @@ def make_Z(mMed_vals, rinv_vals, raw):
             Z[i, j] = v
     return Z
 
-def load_auc_grid_from_csv(csv_path, value_field="auc_raw_signal_high"):
+def load_auc_grid_from_csv(csv_path, value_field="auc_raw_signal_high",
+                           mMed_filter=None, rinv_filter=None):
+    def keep(value, allowed):
+        return allowed is None or any(np.isclose(value, target) for target in allowed)
+
     rows = []
     with open(csv_path, newline="") as handle:
         reader = csv.DictReader(handle)
         for row in reader:
             try:
-                rows.append(
-                    {
-                        "mMed": float(row["mMed"]),
-                        "rinv": float(row["rinv"]),
-                        "auc": float(row[value_field]),
-                    }
-                )
+                mMed = float(row["mMed"])
+                rinv = float(row["rinv"])
+                if not keep(mMed, mMed_filter) or not keep(rinv, rinv_filter):
+                    continue
+                rows.append({"mMed": mMed, "rinv": rinv, "auc": float(row[value_field])})
             except (KeyError, ValueError):
                 continue
 
     if not rows:
         raise RuntimeError(f"No usable AUC rows found in {csv_path}")
 
-    mMed_vals = sorted({row["mMed"] for row in rows})
-    rinv_vals = sorted({row["rinv"] for row in rows})
+    available_mMed = {row["mMed"] for row in rows}
+    available_rinv = {row["rinv"] for row in rows}
+    mMed_vals = [m for m in (mMed_filter or sorted(available_mMed)) if keep(m, available_mMed)]
+    rinv_vals = [r for r in (rinv_filter or sorted(available_rinv)) if keep(r, available_rinv)]
     cells = {(row["mMed"], row["rinv"]): row["auc"] for row in rows}
 
     raw = []
@@ -761,7 +795,11 @@ def load_auc_grid_from_csv(csv_path, value_field="auc_raw_signal_high"):
     return mMed_vals, rinv_vals, raw
 
 def plot_auc_grid_from_csv(csv_path, out_prefix, title_label, training_samples=None):
-    mMed_vals, rinv_vals, raw = load_auc_grid_from_csv(csv_path)
+    mMed_vals, rinv_vals, raw = load_auc_grid_from_csv(
+        csv_path,
+        mMed_filter=PNET_GRID_MMED,
+        rinv_filter=PNET_GRID_RINV,
+    )
     plot_auc_grid(
         mMed_vals=[int(m) if float(m).is_integer() else m for m in mMed_vals],
         rinv_vals=rinv_vals,
@@ -771,10 +809,13 @@ def plot_auc_grid_from_csv(csv_path, out_prefix, title_label, training_samples=N
         training_samples=training_samples,
     )
 
-def save(fig, prefix):
+def save(fig, prefix, fixed_canvas=False):
     for ext in ("pdf", "png"):
         path = f"{prefix}.{ext}"
-        fig.savefig(path, bbox_inches="tight", dpi=150 if ext == "png" else None)
+        save_kwargs = {"dpi": 150 if ext == "png" else None}
+        if not fixed_canvas:
+            save_kwargs.update(bbox_inches="tight", pad_inches=0.18)
+        fig.savefig(path, **save_kwargs)
         print(f"  -> {path}")
     plt.close(fig)
 
@@ -783,7 +824,9 @@ def save(fig, prefix):
 # ─────────────────────────────────────────────────────────────────────────────
 def plot_auc_grid(mMed_vals, rinv_vals, raw, z_label, out_prefix,
                   vmin=0.5, vmax=1.0, cmap="viridis",
-                  training_samples=None):
+                  training_samples=None, y_label=None, y_tick_fmt=None,
+                  signal_efficiency_template=False,
+                  paper_reference_style=False):
     Z = make_Z(mMed_vals, rinv_vals, raw)
     Zplot = Z.T
     nrows, ncols = len(rinv_vals), len(mMed_vals)
@@ -801,6 +844,8 @@ def plot_auc_grid(mMed_vals, rinv_vals, raw, z_label, out_prefix,
     ax.set_ylim(-0.5, nrows - 0.5)
 
     outline = [pe.Stroke(linewidth=4, foreground="black"), pe.Normal()]
+    reference_style = signal_efficiency_template or paper_reference_style
+    value_fontsize = 23 if reference_style else TABLE_VALUE_FONTSIZE
 
     for i in range(nrows):
         for j in range(ncols):
@@ -810,7 +855,7 @@ def plot_auc_grid(mMed_vals, rinv_vals, raw, z_label, out_prefix,
                 ax.text(
                     j, i + 0.12, f"{v:.2f}",
                     ha="center", va="center",
-                    fontsize=23, color="white",
+                    fontsize=value_fontsize, color="white",
                     fontweight="normal", path_effects=outline,
                 )
 
@@ -827,25 +872,57 @@ def plot_auc_grid(mMed_vals, rinv_vals, raw, z_label, out_prefix,
                     linewidth=1.5, zorder=10,
                 )
 
-    # Large, easily readable label styles
-    ax.set_xticks(range(ncols))
-    ax.set_xticklabels([str(m) for m in mMed_vals], fontsize=28)
-    ax.set_yticks(range(nrows))
-    ax.set_yticklabels([f"{r:.1f}" for r in rinv_vals], fontsize=28)
+    # Signal-efficiency maps retain the established WNAE template. Keeping
+    # this explicit prevents PN and WNAE maps from drifting apart when the
+    # general AUC styling changes.
+    x_tick_fontsize = 28 if reference_style else TABLE_X_TICK_FONTSIZE
+    tick_fontsize = 28 if reference_style else TABLE_TICK_FONTSIZE
+    axis_label_fontsize = 44 if reference_style else TABLE_AXIS_LABEL_FONTSIZE
+    colorbar_label_fontsize = 36 if reference_style else TABLE_COLORBAR_LABEL_FONTSIZE
 
-    ax.set_xlabel(r"$m_{\Phi}\ [\mathrm{GeV}]$", fontsize=44, labelpad=22)
-    ax.set_ylabel(r"$r_{\mathrm{inv}}$", fontsize=44, labelpad=22)
+    # Large, easily readable label styles
+    fmt = y_tick_fmt if y_tick_fmt is not None else (lambda r: f"{r:.1f}")
+    ax.set_xticks(range(ncols))
+    ax.set_xticklabels([str(m) for m in mMed_vals], fontsize=x_tick_fontsize)
+    ax.set_yticks(range(nrows))
+    ax.set_yticklabels([fmt(r) for r in rinv_vals], fontsize=tick_fontsize)
+
+    ax.set_xlabel(r"$m_{\Phi}\ [\mathrm{GeV}]$", fontsize=axis_label_fontsize, labelpad=22)
+    ax.set_ylabel(y_label if y_label is not None else r"$r_{\mathrm{inv}}$", fontsize=axis_label_fontsize, labelpad=22)
 
     # Z-axis title assignment
     cb = fig.colorbar(im, ax=ax, pad=0.03)
-    cb.set_label(z_label, fontsize=36, labelpad=25)
-    cb.ax.tick_params(labelsize=28)
+    cb.set_label(z_label, fontsize=colorbar_label_fontsize, labelpad=25)
+    cb.ax.tick_params(labelsize=tick_fontsize)
 
-    # Standardized header banner tracking
-    hep.cms.label(data=False, ax=ax, loc=0, fontsize=38, com=13)
-
-    plt.tight_layout()
-    save(fig, out_prefix)
+    if reference_style:
+        hep.cms.label(data=False, ax=ax, loc=0, fontsize=38, com=13)
+        fig.tight_layout()
+    else:
+        header_y = 1.055
+        ax.text(
+            0.0, header_y, "CMS",
+            transform=ax.transAxes,
+            ha="left", va="bottom",
+            fontsize=TABLE_CMS_LABEL_FONTSIZE,
+            fontweight="bold",
+        )
+        ax.text(
+            0.155, header_y,
+            "Simulation Preliminary" if CMS_PRELIMINARY_LABEL else "Simulation",
+            transform=ax.transAxes,
+            ha="left", va="bottom",
+            fontsize=max(18, TABLE_CMS_LABEL_FONTSIZE - 14),
+            style="italic",
+        )
+        ax.text(
+            1.0, header_y, "(13 TeV)",
+            transform=ax.transAxes,
+            ha="right", va="bottom",
+            fontsize=max(18, TABLE_CMS_LABEL_FONTSIZE - 14),
+        )
+        fig.tight_layout(rect=(0.0, 0.0, 0.97, 0.93), pad=1.4)
+    save(fig, out_prefix, fixed_canvas=signal_efficiency_template)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Execution
@@ -863,7 +940,14 @@ if __name__ == "__main__":
         action="store_true",
         help="Only plot grids from CSV tables; skip the older hard-coded WNAE/DNN grids.",
     )
+    ap.add_argument(
+        "--preliminary-label",
+        action="store_true",
+        help="Draw CMS Simulation Preliminary instead of CMS Simulation.",
+    )
     args = ap.parse_args()
+    if args.preliminary_label:
+        CMS_PRELIMINARY_LABEL = True
     os.makedirs(args.out_dir, exist_ok=True)
 
     dynamic_backgrounds = {
@@ -885,7 +969,7 @@ if __name__ == "__main__":
         plot_auc_grid_from_csv(
             csv_path=csv_path,
             out_prefix=os.path.join(args.out_dir, f"pnet_auc_grid_{suffix}"),
-            title_label=f"ParticleNet AUC vs {label}",
+            title_label=f"ParticleNet AUC vs. {label}",
             training_samples=PNET_TRAINING_SAMPLES,
         )
 
@@ -896,7 +980,7 @@ if __name__ == "__main__":
             mMed_vals   = MMED_PNET,
             rinv_vals   = RINV_PNET,
             raw         = PNET_RAW,
-            z_label     = "ParticleNet AUC",
+            z_label     = "ParticleNet AUC vs. QCD",
             out_prefix  = os.path.join(args.out_dir, "pnet_auc_grid"),
             training_samples = PNET_TRAINING_SAMPLES,
         )
@@ -906,7 +990,7 @@ if __name__ == "__main__":
             mMed_vals   = TTBAR_MMED_PNET,
             rinv_vals   = TTBAR_RINV_PNET,
             raw         = TTBAR_PNET_RAW,
-            z_label     = "ParticleNet AUC",
+            z_label     = "ParticleNet AUC vs. ttbar",
             out_prefix  = os.path.join(args.out_dir, "pnet_auc_grid_ttbar"),
             training_samples = PNET_TRAINING_SAMPLES,
         )
@@ -921,13 +1005,22 @@ if __name__ == "__main__":
             out_prefix  = os.path.join(args.out_dir, "wnae_auc_grid"),
         )
 
+        print("\nPlotting WNAE AUC grid for 300 < pT < 400 GeV …")
+        plot_auc_grid(
+            mMed_vals   = MMED_WNAE,
+            rinv_vals   = RINV_WNAE,
+            raw         = WNAE_pt300to400,
+            z_label     = "WNAE AUC",
+            out_prefix  = os.path.join(args.out_dir, "wnae_auc_grid_pt300to400"),
+        )
+
         # 3. DNN Tagger
         print("\nPlotting DNN AUC grid …")
         plot_auc_grid(
             mMed_vals   = MMED_DNN,
             rinv_vals   = RINV_DNN,
             raw         = DNN_RAW,
-            z_label     = "DNN AUC",
+            z_label     = "Event classifier AUC vs QCD",
             out_prefix  = os.path.join(args.out_dir, "dnn_auc_grid"),
             training_samples = DNN_TRAINING_SAMPLES,
         )
@@ -936,7 +1029,7 @@ if __name__ == "__main__":
             mMed_vals   = MMED_DNN,
             rinv_vals   = RINV_DNN,
             raw         = DNN_RAW_TTBAR,
-            z_label     = "DNN AUC",
+            z_label     = "Event DNN AUC vs. ttbar",
             out_prefix  = os.path.join(args.out_dir, "dnn_auc_grid_ttbar"),
             training_samples = DNN_TRAINING_SAMPLES,
         )
@@ -948,7 +1041,7 @@ if __name__ == "__main__":
                 mMed_vals   = DNN_BACKGROUND_MMED,
                 rinv_vals   = DNN_BACKGROUND_RINV,
                 raw         = config["raw"],
-                z_label     = f"DNN AUC vs {label}",
+                z_label     = f"Event classifier AUC vs {label}",
                 out_prefix  = os.path.join(args.out_dir, f"dnn_auc_grid_{suffix}"),
                 training_samples = DNN_TRAINING_SAMPLES,
             )
