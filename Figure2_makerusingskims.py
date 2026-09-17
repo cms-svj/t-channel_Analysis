@@ -82,6 +82,7 @@ import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.PyConfig.IgnoreCommandLineOptions = True
 ROOT.gStyle.SetOptStat(0)
+ROOT.gStyle.SetLineStyleString(4, "28 8 4 8")
 ROOT.TH1.SetDefaultSumw2(True)
 
 
@@ -172,7 +173,7 @@ JET_VARIABLES = {
     "EtaAK8": ("JetsAK8_/.fEta", "#eta(J_{{idx}})", 80, -3.0, 3.0),
     "PhiAK8": ("JetsAK8_/.fPhi", "#phi(J_{{idx}})", 64, -3.2, 3.2),
     "MassAK8": ("JetsAK8_mass", "m(J_{{idx}}) [GeV]", 200, 0.0, 900.0),
-    "SoftDropMassAK8": ("JetsAK8_softDropMass", "m_{SD}(J_{{idx}}) [GeV]", 200, 0.0, 900.0),
+    "SoftDropMassAK8": ("JetsAK8_softDropMass", "m_{SD}(J_{{idx}}) [GeV]", 800, 0.0, 900.0),
     "MTMETAK8": ("JetsAK8_MTMET", "M_{T}(J_{{idx}}, p_{T}^{miss}) [GeV]", 100, 0.0, 3000.0),
     "DeltaPhiMETAK8": ("JetsAK8_deltaPhiMET", "#Delta#phi(J_{{idx}}, p_{T}^{miss})", 64, -3.2, 3.2),
     "LundJetPlaneZAK8": ("JetsAK8_LundJetPlaneZ", "z(J_{{idx}}, p_{T}^{miss})", 60, 0.0, 0.5),
@@ -184,15 +185,15 @@ JET_VARIABLES = {
     "NConstituentsSoftDropAK8": ("JetsAK8_nConstituentsSoftDrop", "N_{const}^{SD}(J_{{idx}})", 80, 0.0, 200.0),
     "PNetScoreAK8": ("JetsAK8_pNetJetTaggerScore", "ParticleNet score (J_{{idx}})", 10, 0.0, 1.0),
     "GirthAK8": ("JetsAK8_girth", "girth(J_{{idx}})", 40, 0.0, 0.6),
-    "PtDAK8": ("JetsAK8_ptD", "p_{T}^{D}(J_{{idx}})", 40, 0.05, 1.0),
+    "PtDAK8": ("JetsAK8_ptD", "D_{p_{T}}(J_{{idx}})", 40, 0.05, 1.0),
     "AxisMajorAK8": ("JetsAK8_axismajor", "axis major(J_{{idx}})", 40, 0.0, 0.5),
     "AxisMinorAK8": ("JetsAK8_axisminor", "axis minor(J_{{idx}})", 40, 0.0, 0.4),
-    "EcfC2b1AK8": ("JetsAK8_ecfC2b1", "ECF C_{2}^{#beta=1}(J_{{idx}})", 40, 0.0, 0.5),
-    "EcfC2b2AK8": ("JetsAK8_ecfC2b2", "ECF C_{2}^{#beta=2}(J_{{idx}})", 40, 0.0, 0.5),
-    "EcfD2b1AK8": ("JetsAK8_ecfD2b1", "ECF D_{2}^{#beta=1}(J_{{idx}})", 40, 0.0, 5.0),
-    "EcfD2b2AK8": ("JetsAK8_ecfD2b2", "ECF D_{2}^{#beta=2}(J_{{idx}})", 40, 0.0, 7.0),
-    "EcfN2b1AK8": ("JetsAK8_ecfN2b1", "ECF N_{2}^{#beta=1}(J_{{idx}})", 40, 0.0, 0.5),
-    "EcfN2b2AK8": ("JetsAK8_ecfN2b2", "ECF N_{2}^{#beta=2}(J_{{idx}})", 40, 0.0, 0.4),
+    "EcfC2b1AK8": ("JetsAK8_ecfC2b1", "C_{2}^{#beta=1}(J_{{idx}})", 40, 0.0, 0.5),
+    "EcfC2b2AK8": ("JetsAK8_ecfC2b2", "C_{2}^{#beta=2}(J_{{idx}})", 40, 0.0, 0.5),
+    "EcfD2b1AK8": ("JetsAK8_ecfD2b1", "D_{2}^{#beta=1}(J_{{idx}})", 40, 0.0, 5.0),
+    "EcfD2b2AK8": ("JetsAK8_ecfD2b2", "D_{2}^{#beta=2}(J_{{idx}})", 40, 0.0, 7.0),
+    "EcfN2b1AK8": ("JetsAK8_ecfN2b1", "N_{2}^{#beta=1}(J_{{idx}})", 40, 0.0, 0.5),
+    "EcfN2b2AK8": ("JetsAK8_ecfN2b2", "N_{2}^{#beta=2}(J_{{idx}})", 40, 0.0, 0.4),
 }
 
 WNAE_PT_LOSS_VARIABLES = {
@@ -253,6 +254,10 @@ def is_wnae_score_variable(variable: str) -> bool:
     return "WNAE" in variable
 
 
+def is_ecf_variable(variable: str) -> bool:
+    return variable.startswith("allEcf") or variable.startswith("Ecf")
+
+
 def has_wnae_overflow_display(variable: str) -> bool:
     return is_wnae_score_variable(variable) and not VARIABLES[variable].get("wnae_combined_loss")
 
@@ -285,7 +290,7 @@ for jet_index in (1, 2):
 
 for prefix, jet_label, selection_config in (
     ("j12", "J_{1}+J_{2}", {"leading_good_jets": 2}),
-    ("all", "", {"all_good_jets": True}),
+    ("all", "J", {"all_good_jets": True}),
 ):
     for suffix, (branch, title, nbins, xmin, xmax) in JET_VARIABLES.items():
         variable_config = {
@@ -303,6 +308,21 @@ for prefix, jet_label, selection_config in (
             variable_config["wp_line_y_fraction"] = 0.900
             variable_config["wp_arrow_y_fraction"] = 0.560
         VARIABLES[f"{prefix}{suffix}"] = variable_config
+
+# Soft-drop mass falls off steeply; crop the drawn x-axis to where the
+# WNAE-relevant signal/background separation actually lives. The default
+# jet/WNAE display-rebinning coarsens this variable to 90 GeV/bin, which
+# would make a display crop round up to the next full bin; keep the native
+# 4.5 GeV/bin resolution instead so the crop lands close to the requested cut.
+for _variable_config in VARIABLES.values():
+    if _variable_config.get("branch") == "JetsAK8_softDropMass":
+        _variable_config["display_xmin"] = 0.0
+        _variable_config["display_xmax"] = 40.0
+        _variable_config["display_rebin_factor_override"] = 1
+        _variable_config["log_ymin"] = 100.0
+        _variable_config["log_ymax"] = 1.0e7
+        _variable_config["ratio_ymin"] = 0.5
+        _variable_config["ratio_ymax"] = 1.5
 
 for jet_index in (1, 2):
     for suffix, (branch, title, nbins, xmin, xmax) in WNAE_PT_LOSS_VARIABLES.items():
@@ -340,7 +360,7 @@ for jet_index in (1, 2):
 
 for prefix, jet_label, selection_config in (
     ("j12", "J_{1}+J_{2}", {"leading_good_jets": 2}),
-    ("all", "", {"all_good_jets": True}),
+    ("all", "J", {"all_good_jets": True}),
 ):
     for suffix, (branch, title, nbins, xmin, xmax) in WNAE_PT_LOSS_VARIABLES.items():
         variable_config = {
@@ -375,42 +395,48 @@ for prefix, jet_label, selection_config in (
         "display_bin_width": 5.0,
     }
 
+# Tau43 gets a few more bins than Tau21/Tau32 for finer resolution near the
+# WNAE working point; the ratio is still built directly from the two
+# NsubjettinessTau branches, so the extra resolution just needs a rebuild of
+# the cache (no new inputs).
+TAU_RATIO_VARIABLES = (
+    ("Tau21AK8", "JetsAK8_NsubjettinessTau2", "JetsAK8_NsubjettinessTau1", "#tau_{21}(J_{{idx}})", 40),
+    ("Tau32AK8", "JetsAK8_NsubjettinessTau3", "JetsAK8_NsubjettinessTau2", "#tau_{32}(J_{{idx}})", 40),
+    ("Tau43AK8", "JetsAK8_NsubjettinessTau4", "JetsAK8_NsubjettinessTau3", "#tau_{43}(J_{{idx}})", 50),
+)
+
 for jet_index in (1, 2):
-    for suffix, numerator, denominator, title in (
-        ("Tau21AK8", "JetsAK8_NsubjettinessTau2", "JetsAK8_NsubjettinessTau1", "#tau_{21}(J_{{idx}})"),
-        ("Tau32AK8", "JetsAK8_NsubjettinessTau3", "JetsAK8_NsubjettinessTau2", "#tau_{32}(J_{{idx}})"),
-        ("Tau43AK8", "JetsAK8_NsubjettinessTau4", "JetsAK8_NsubjettinessTau3", "#tau_{43}(J_{{idx}})"),
-    ):
+    for suffix, numerator, denominator, title, nbins in TAU_RATIO_VARIABLES:
         VARIABLES[f"j{jet_index}{suffix}"] = {
             "numerator": numerator,
             "denominator": denominator,
             "jet_index": jet_index - 1,
             "title": title.replace("{idx}", str(jet_index)),
             "x_title": title.replace("{idx}", str(jet_index)),
-            "nbins": 40,
+            "nbins": nbins,
             "xmin": 0.0,
             "xmax": 1.0,
         }
 
 for prefix, jet_label, selection_config in (
     ("j12", "J_{1}+J_{2}", {"leading_good_jets": 2}),
-    ("all", "", {"all_good_jets": True}),
+    ("all", "J", {"all_good_jets": True}),
 ):
-    for suffix, numerator, denominator, title in (
-        ("Tau21AK8", "JetsAK8_NsubjettinessTau2", "JetsAK8_NsubjettinessTau1", "#tau_{21}(J_{{idx}})"),
-        ("Tau32AK8", "JetsAK8_NsubjettinessTau3", "JetsAK8_NsubjettinessTau2", "#tau_{32}(J_{{idx}})"),
-        ("Tau43AK8", "JetsAK8_NsubjettinessTau4", "JetsAK8_NsubjettinessTau3", "#tau_{43}(J_{{idx}})"),
-    ):
+    for suffix, numerator, denominator, title, nbins in TAU_RATIO_VARIABLES:
         VARIABLES[f"{prefix}{suffix}"] = {
             "numerator": numerator,
             "denominator": denominator,
             **selection_config,
             "title": jet_variable_label(title, jet_label),
             "x_title": jet_variable_label(title, jet_label),
-            "nbins": 40,
+            "nbins": nbins,
             "xmin": 0.0,
             "xmax": 1.0,
         }
+
+for _variable_name in VARIABLES:
+    if _variable_name.endswith("Tau21AK8"):
+        VARIABLES[_variable_name]["log_ymin"] = 10.0
 
 
 # The original plotter calls rebinCalc(totalBin, 40): 500 -> factor 10 -> 50 bins.
@@ -513,14 +539,25 @@ PROC_COLOR = {
     "ST": ROOT.TColor.GetColor("#5790fc"),
 }
 
+# Plain hex strings for non-ROOT (matplotlib) consumers, e.g. the
+# combinehistplotter.py pie charts, so every supplementary-material plot
+# maps the same process to the same color.
+PROC_COLOR_HEX = {
+    "QCD": "#9c9ca1",
+    "TTJets": "#7a21dd",
+    "WJetsToLNu": "#e42536",
+    "ZJetsToNuNu": "#f89c20",
+    "ST": "#5790fc",
+}
+
 SIGNAL_LINE_COLORS = [
-    ROOT.TColor.GetColor("#92dadd"),
+    ROOT.TColor.GetColor("#118AB2"),  # teal-blue (colorblind-safe; was low-contrast light cyan #92dadd)
     ROOT.TColor.GetColor("#6b3e26"),
     ROOT.TColor.GetColor("#0b3d02"),
     ROOT.TColor.GetColor("#228833"),
     ROOT.TColor.GetColor("#1f4e79"),
 ]
-SIGNAL_LINE_STYLES = [1, 3, 1, 2, 1]
+SIGNAL_LINE_STYLES = [2, 4, 1, 2, 1]
 
 
 # =============================================================================
@@ -543,9 +580,14 @@ class HistogramAccumulator:
     @classmethod
     def for_variable(cls, variable: str) -> "HistogramAccumulator":
         cfg = VARIABLES[variable]
-        edges = np.linspace(
-            cfg["xmin"], cfg["xmax"], cfg["nbins"] + 1, dtype=np.float64
-        )
+        if cfg.get("log_bins"):
+            edges = np.geomspace(
+                cfg["xmin"], cfg["xmax"], cfg["nbins"] + 1, dtype=np.float64
+            )
+        else:
+            edges = np.linspace(
+                cfg["xmin"], cfg["xmax"], cfg["nbins"] + 1, dtype=np.float64
+            )
         return cls(edges=edges)
 
     def fill(self, values: np.ndarray, weights: np.ndarray) -> None:
@@ -628,6 +670,14 @@ def wnae_score_variables() -> List[str]:
     return selected
 
 
+def wnae_signal_replacement_variables() -> List[str]:
+    selected = set(wnae_score_variables())
+    for variable, cfg in VARIABLES.items():
+        if cfg.get("branch") == "JetsAK8_softDropMass":
+            selected.add(variable)
+    return [variable for variable in VARIABLES if variable in selected]
+
+
 # =============================================================================
 # Legacy binning helpers
 # =============================================================================
@@ -653,6 +703,9 @@ def rebin_calc(nbins: int, target_bins: int) -> int:
 
 
 def plot_rebin_factor(variable: str) -> int:
+    override = VARIABLES[variable].get("display_rebin_factor_override")
+    if override is not None:
+        return int(override)
     nbins = int(VARIABLES[variable]["nbins"])
     factor = rebin_calc(nbins, PLOT_TARGET_BINS)
     visible_bins = nbins // factor if factor > 0 else nbins
@@ -1353,7 +1406,7 @@ def style_background(histogram: ROOT.TH1, process: str) -> None:
 
 def style_signal(histogram: ROOT.TH1, index: int) -> None:
     histogram.SetLineColor(SIGNAL_LINE_COLORS[index % len(SIGNAL_LINE_COLORS)])
-    histogram.SetLineWidth(2)
+    histogram.SetLineWidth(3)
     histogram.SetLineStyle(SIGNAL_LINE_STYLES[index % len(SIGNAL_LINE_STYLES)])
     histogram.SetFillStyle(0)
     histogram.SetMarkerSize(0)
@@ -1668,6 +1721,7 @@ def draw_stack(
         print(f"[WARN] Cannot draw Data/Sim ratio for {era}/{variable} without cached data.")
         return
 
+    log_x = bool(VARIABLES[variable].get("log_x"))
     draw_modes = [force_log_y] if force_log_y is not None else ([True, False] if also_linear else [True])
     for log_y in draw_modes:
         scale_tag = "normalized" if normalized else "raw"
@@ -1690,12 +1744,14 @@ def draw_stack(
             pad_top.SetBottomMargin(0.02)
             pad_top.SetTicks(1, 1)
             pad_top.SetLogy(log_y)
+            pad_top.SetLogx(log_x)
             pad_bottom.SetLeftMargin(0.16)
             pad_bottom.SetRightMargin(0.05)
             pad_bottom.SetTopMargin(0.04)
             pad_bottom.SetBottomMargin(0.38)
             pad_bottom.SetTicks(1, 1)
-            pad_bottom.SetGridy(True)
+            pad_bottom.SetGridy(False)
+            pad_bottom.SetLogx(log_x)
             pad_top.Draw()
             pad_bottom.Draw()
             pad_top.cd()
@@ -1706,6 +1762,7 @@ def draw_stack(
             ROOT.gPad.SetBottomMargin(0.12)
             ROOT.gPad.SetTicks(1, 1)
             ROOT.gPad.SetLogy(log_y)
+            ROOT.gPad.SetLogx(log_x)
 
         stack = ROOT.THStack(f"stack_{era}_{variable}_{tag}", "")
         total = None
@@ -1747,7 +1804,9 @@ def draw_stack(
             ymax = max(ymax, data_hist.GetMaximum())
         ymax = max(ymax, 1.0)
 
-        if log_y and not normalized and ("PNetScore" in variable or is_wnae_score_variable(variable)):
+        if log_y and not normalized and "log_ymin" in VARIABLES[variable]:
+            axis.SetMinimum(float(VARIABLES[variable]["log_ymin"]))
+        elif log_y and not normalized and ("PNetScore" in variable or is_wnae_score_variable(variable)):
             axis.SetMinimum(1.0e2)
         else:
             axis.SetMinimum(1.0 if log_y and not normalized else 1.0e-2)
@@ -1756,7 +1815,9 @@ def draw_stack(
         else:
             y_max_factor = 100.0 if log_y else float(VARIABLES[variable].get("linear_ymax_factor", 2.6))
             y_max = ymax * y_max_factor
-        if log_y and not normalized:
+        if log_y and not normalized and "log_ymax" in VARIABLES[variable]:
+            y_max = float(VARIABLES[variable]["log_ymax"])
+        elif log_y and not normalized:
             y_max = max(y_max, 1.0e9)
         axis.SetMaximum(y_max)
 
@@ -1770,7 +1831,7 @@ def draw_stack(
         for _, hist in signal_hists:
             hist.Draw("hist same")
         if data_hist:
-            data_hist.Draw("E1 same")
+            data_hist.Draw("E1 X0 same")
         wp_marker = draw_working_point_marker(variable, axis, log_y)
 
         # Exact MC-only two-column arrangement from the supplied stack plotter:
@@ -1805,6 +1866,13 @@ def draw_stack(
             legend_text_size = 0.041
             legend_entry_separation = 0.034
             legend_y2 = 0.900
+
+        if variable == "allSoftDropMassAK8" and include_data and include_ratio and log_y and not normalized:
+            legend_y1 += 0.025
+            legend_y2 += 0.025
+        if is_ecf_variable(variable) and include_data and include_ratio and log_y and not normalized:
+            legend_y1 += 0.020
+            legend_y2 += 0.020
 
         background_entries = [
             (process_hists[process], PROC_LABEL[process], "F")
@@ -1873,8 +1941,8 @@ def draw_stack(
             ratio.Divide(total)
             ratio.SetStats(0)
             ratio.SetTitle("")
-            ratio.SetMinimum(0.0)
-            ratio.SetMaximum(2.0)
+            ratio.SetMinimum(float(VARIABLES[variable].get("ratio_ymin", 0.0)))
+            ratio.SetMaximum(float(VARIABLES[variable].get("ratio_ymax", 2.0)))
             ratio.GetXaxis().SetTitle(VARIABLES[variable]["x_title"])
             ratio.GetYaxis().SetTitle("")
             ratio.GetYaxis().CenterTitle(False)
@@ -1890,7 +1958,7 @@ def draw_stack(
                 VARIABLES[variable].get("display_xmin", VARIABLES[variable]["xmin"]),
                 VARIABLES[variable].get("display_xmax", VARIABLES[variable]["xmax"]),
             )
-            ratio.Draw("PE")
+            ratio.Draw("PE X0")
 
             if draw_uncertainty_band:
                 ratio_unc = clone_histogram(total, f"ratio_unc_{era}_{variable}_{tag}")
@@ -1901,7 +1969,7 @@ def draw_stack(
                     ratio_unc.SetBinError(ibin, err / mc if mc > 0.0 else 0.0)
                 style_uncertainty_band(ratio_unc)
                 ratio_unc.Draw("E2 same")
-                ratio.Draw("PE same")
+                ratio.Draw("PE X0 same")
 
             line_xmin = VARIABLES[variable].get("display_xmin", VARIABLES[variable]["xmin"])
             line_xmax = VARIABLES[variable].get("display_xmax", VARIABLES[variable]["xmax"])
@@ -2414,7 +2482,7 @@ def main() -> None:
                 if accumulators is not None:
                     signal_hists[(year, signal_name)] = accumulators
 
-            wnae_variables = wnae_score_variables()
+            wnae_variables = wnae_signal_replacement_variables()
             if args.wnae_signal_base and wnae_variables:
                 wnae_matches = get_signal_directories(
                     args.wnae_signal_base,
